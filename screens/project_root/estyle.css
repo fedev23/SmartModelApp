@@ -1,0 +1,614 @@
+
+*{
+margin: 0;
+padding: 0;
+
+}
+
+.body{
+background: #0a0a0a;
+
+}
+
+.sidebar {
+    width: 10%; /* Reduce el ancho del sidebar al 15% */
+    height: 100vh;
+    position: fixed;
+    top: 1px;
+    left: 0;
+    border-right: none;
+    background: white;
+    z-index: 0; /* Asegura que esté por encima del contenido principal */
+    padding: 10px; /* Añade algo de espacio interno */
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1); /* Añade una sombra para destacar */
+}
+ 
+.content_principal{
+   height: 90px;
+   width: 100%;
+   display: flex;
+   align-items: center;
+   justify-content: space-beetween;
+   gap: 200px;
+   
+  }
+          .main-content {
+              margin-left: 15%; /* Ajusta el margen izquierdo para que coincida con el nuevo ancho del sidebar */
+              padding: 20px;
+          }
+  
+          .section-title {
+              font-size: 1.5em;
+              margin-bottom: 10px;
+          }
+          
+          .nav-panel {
+              border-radius: 0;
+          }
+          
+          .nav-link {
+              padding: 10px 20px;
+              margin-right: 0;
+              border-right: none;
+          }
+  
+          .ui-row {
+              display: flex;
+              flex-wrap: wrap;
+          }
+  
+          .ui-column {
+              flex: 1;
+              padding: 15px;
+              box-sizing: border-box;
+          }
+  
+     .menu-container {
+      height: 50px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 9px;
+      z-index: 20; /* Asegúrate de que esté por encima de otros elementos */
+  }
+  
+          .menu-btn {
+              background: #007bff;
+              color: white;
+              border: none;
+              padding: 10px;
+              border-radius: 5px;
+              cursor: pointer;
+          }
+  
+        
+  .menu-content {
+      display: none;
+      position: absolute;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      top: 107px;
+      z-index: 20; /* Asegúrate de que esté por encima del botón */
+  }
+  
+          .menu-content a {
+              display: block;
+              padding: 10px;
+              text-decoration: none;
+              color: #007bff;
+          }
+  
+          .menu-content a:hover {
+              background: #f8f9fa;
+          }
+  
+          .hidden-inputs {
+              display: none;
+          }
+          
+          .fixed-width-button {
+              width: 250px; /* Puedes ajustar este valor según el ancho que necesites */
+              text-align: center; /* Para centrar el texto dentro del botón */
+              white-space: nowrap; /* Para evitar que el texto se divida en varias líneas */
+          }
+  
+          .results-btn {
+      background: #775eaf; /* Color verde diferente */
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+     z-index: 20; /* Asegúrate de que esté por encima de otros elementos */
+  }
+  
+  .results-content {
+     display: none;
+      position: absolute;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      top: 107px;
+      z-index: 20; /* Asegúrate de que esté por encima del botón */
+  }
+  
+  .results-content a {
+      display: block;
+      padding: 10px;
+      text-decoration: none;
+      color: #659769;
+  }
+  
+  .results-content a:hover {
+      background: #f8f9fa;
+  }
+
+
+  .results-btn {
+    background: #007bff; /* Color verde diferente */
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+   z-index: 20; /* Asegúrate de que esté por encima de otros elementos */
+}
+
+
+/* EMPIEZA BOTON DE RESULTADOS */
+.resultados-btn {
+    background: #16477a; /* Color verde diferente */
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+   z-index: 20; /* Asegúrate de que esté por encima de otros elementos */
+}
+
+.resultados-content {
+   display: none;
+    position: absolute;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    top: 107px;
+    z-index: 20; /* Asegúrate de que esté por encima del botón */
+}
+
+.resultados-content a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #007bff;
+}
+
+.resultados-content a:hover {
+    background: #f8f9fa;
+}
+
+
+/* BOTON DESPLEGABLE RESULTADO */
+
+.desplegable-btn {
+    background: none; /* Elimina el fondo */
+    color: #007bff; /* Color del texto similar a un enlace */
+    border: none; /* Sin borde */
+    padding: 0; /* Sin relleno */
+    border-radius: 0; /* Sin esquinas redondeadas */
+    cursor: pointer; /* Mantén el cursor de puntero para que parezca clickeable */
+    text-decoration: underline; /* Subrayado para parecer un enlace */
+    font-size: 16px; /* Tamaño de fuente opcional */
+    z-index: 20; /* Mantén el índice z */
+}
+
+.desplegable-content {
+    display: none;
+     position: absolute;
+     background: white;
+     border: 1px solid #ddd;
+     border-radius: 5px;
+     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+     top: 10px;
+     z-index: 20; /* Asegúrate de que esté por encima del botón */
+ }
+
+
+ .desplegable-content a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #007bff;
+}
+
+.desplegable-btn:hover {
+    color: #0056b3; /* Color más oscuro al pasar el cursor */
+    text-decoration: underline; /* Mantén el subrayado al pasar el cursor */
+}
+
+
+.menu-container_desplegable {
+    height: 5px;
+    width: 10%;
+    display: flex;
+    justify-content: center;
+    gap: 9px;
+    z-index: 20; /* Asegúrate de que esté por encima de otros elementos */
+}
+
+
+
+/* Estilo boton de clase resultdos output html */
+
+.container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 10vh;
+        }
+
+        .btn {
+            gap: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+
+        /* Estilo boton de account user*/
+
+
+        .right-button {
+            position: absolute;
+            right: 10px; /* Alinea el botón a la derecha */
+            top: 10px;   /* Alinea el botón en la parte superior */
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .right-button-menu-content {
+            display: none;
+      position: absolute;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      top: 107px;
+      z-index: 20;
+        }
+
+
+        .menu-container_right {
+            height: 10px;
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            gap: 9px;
+            z-index: 20; 
+        }
+        
+        .right-button {
+            position: absolute;    
+            right: 10px;            
+            top: 6%;              
+            transform: translateY(-50%); 
+            background-color: #007bff; 
+            color: white;          
+            border: none;          
+            padding: 10px 20px;    
+            border-radius: 5px;    
+            cursor: pointer;       
+        }
+        
+        .menu-content_right {
+            right: 15px;
+            top: calc(10% + 1px); 
+            display: none;
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 20;/* Asegúrate de que esté por encima de otros elementos */
+        }
+
+
+        
+
+
+
+
+        .datos-btn {
+            background: none;         /* Sin fondo */
+            color: #007bff;           /* Color de enlace */
+            border: none;             /* Sin borde */
+            padding: 0;               /* Sin padding */
+            cursor: pointer;
+            text-decoration: none;
+            margin-left: 10px;      /* Sin subrayado */
+        }
+        
+
+
+
+/* tarjetas del perfil User */
+
+.value-box {
+    border: 2px solid #ddd; /* Estilo del borde */
+    padding: 10px; /* Espaciado interno */
+    margin-bottom: 20px; /* Espacio entre tarjetas */
+    background-color: #fff; /* Fondo blanco */
+    border-radius: 8px; /* Bordes redondeados */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+}
+
+
+
+
+.dark-mode-toggle {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+
+/* estilo de logo */
+
+
+.logo-button {
+    font-family: 'Arial', sans-serif;
+    font-size: 34px;
+    font-weight: bold;
+    color: #bd1010;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.logo-button-siber {
+    font-family: 'Arial', sans-serif;
+    font-size: 34px;
+    font-weight: bold;
+    color: #bd1010;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, color 0.2s ease;
+
+    /* Nueva posición */
+    position: fixed;
+    top: 1px; /* Ajusta este valor para moverlo más arriba */
+    left: 4px; /* Ajusta este valor para moverlo más a la izquierda */
+    z-index: 1000; /* Asegura que esté por encima de otros elementos */
+}
+
+.logo-button-siber:hover {
+    color: #ffffff;
+    transform: scale(1.05);
+    background-color: transparent; /* Asegura que no haya fondo en el hover */
+}
+
+.logo-button:hover {
+    color: #ffffff;
+    transform: scale(1.05);
+    background-color: transparent; /* Asegura que no haya fondo en el hover */
+}
+
+.logo-button:focus {
+    outline: none;
+}
+
+.logo-container {
+    position: fixed;
+    top: 5px;
+    left: 10px;
+    z-index: 900;
+}
+
+
+
+.custom-title {
+    font-weight: bold;
+    font-size: 25px;  /* Ajusta el tamaño de la fuente según tus necesidades */
+    font-family: 'Arial', sans-serif;  /* Usa una fuente redonda y legible */
+    margin: 20px 0;  /* Espaciado superior e inferior */
+    text-align: left;  /* Alinea el texto a la izquierda */
+    width: fit-content;  /* Ajusta el ancho del contenedor al contenido */
+}
+
+
+
+
+.custom-cell {
+    background-color: #4CAF50; /* Verde claro */
+    color: white; /* Texto blanco */
+    border: 2px solid #333; /* Borde sólido de 2px */
+    padding: 10px; /* Espaciado interno */
+    text-align: center; /* Texto centrado */
+    font-weight: bold; /* Texto en negrita */
+}
+
+
+
+
+
+
+.logo-button-siber1 {
+    font-family: 'Arial', sans-serif;
+    font-size: 34px;
+    font-weight: bold;
+    color: #bd1010;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, color 0.2s ease;
+
+    /* Nueva posición */
+    position: fixed;
+    top: 12px; /* Ajusta este valor para moverlo más arriba */
+    left: 3px; /* Ajusta este valor para moverlo más a la izquierda */
+    z-index: 1000; /* Asegura que esté por encima de otros elementos */
+}
+
+.logo-button1-siber:hover {
+    color: #ffffff;
+    transform: scale(1.05);
+    background-color: transparent; /* Asegura que no haya fondo en el hover */
+}
+
+.logo-button1:hover {
+    color: #ffffff;
+    transform: scale(1.05);
+    background-color: transparent; /* Asegura que no haya fondo en el hover */
+}
+
+.logo-button1:focus {
+    outline: none;
+}
+
+.logo-container1 {
+    position: fixed;
+    top: 5px;
+    left: 10px;
+    z-index: 900;
+}
+
+
+/* uso este estilo para poder customisar las columnas de la fucnon, create_param */
+.custom-column {
+    min-height: 50px; /* Define una altura mínima */
+    white-space: nowrap; /* Evita que el texto se rompa en múltiples líneas */
+    overflow: hidden; /* Oculta cualquier texto desbordado */
+    text-overflow: ellipsis; /* Agrega '...' si el texto es demasiado largo */
+}
+
+
+/* uso este estilo para poder customisar el panel de opciones */
+
+.custom-navset-bar {
+    padding-left: 10px;  /* Ajusta según sea necesario */
+    /* También puedes añadir otras propiedades si es necesario */
+}
+
+/*boton para ir a ejecucion, estilo */
+.btn-hover {
+    background-color: #808080;
+    color: white;
+    border-radius: 8px;
+    font-weight: bold;
+    padding: 10px 20px;
+    transition: background-color 0.3s ease;
+    border: none;
+}
+
+.btn-hover:hover {
+    background-color: rgba(73, 67, 67, 0.7); /* Color azul con 70% de opacidad */
+}
+
+
+.error-input {
+    border: 2px solid red;
+    background-color: #fdd;
+}
+.error-message {
+    color: red;
+    font-size: 0.9em;
+}
+
+
+/* Botón OK del perfil User */
+.custom-ok-button {
+    background-color: #0078D4;  /* Azul Outlook */
+    color: white;               /* Letras blancas */
+    font-size: 1rem;            /* Tamaño de la letra */
+    border: none;               /* Quitar borde predeterminado */
+    padding: 10px 20px;         /* Espaciado interno */
+    border-radius: 4px;         /* Bordes redondeados */
+    font-weight: bold;          /* Letras en negrita */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);  /* Sombra para dar profundidad */
+}
+.custom-ok-button:hover {
+    background-color: #005A9E;  /* Azul más oscuro al pasar el ratón */
+}
+
+/* Botón Cancelar del perfil User */
+.custom-cancel-button {
+    background-color: #F3F2F1;  /* Gris claro */
+    color: black;               /* Letras negras */
+    font-size: 1rem;            /* Tamaño de la letra */
+    border: 1px solid #1b1b1b;  /* Borde gris */
+    padding: 10px 20px;         /* Espaciado interno */
+    border-radius: 4px;         /* Bordes redondeados */
+    font-weight: bold;          /* Letras en negrita */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);  /* Sombra para dar profundidad */
+}
+.custom-cancel-button:hover {
+    background-color: #E1E1E1;  /* Gris más oscuro al pasar el ratón */
+    color: black;       /* Gris más oscuro al pasar el ratón */
+}
+
+/* Estilos de la barra de botones */
+.modal-footer {
+    display: flex;
+    justify-content: space-between;  /* Espacia los botones a los extremos */
+    align-items: center;  /* Alinea los botones verticalmente en el centro */
+    padding-bottom: 20px;  /* Espacio adicional en la parte inferior */
+    margin-top: 40px; /* Espacio adicional en la parte superior */
+}
+
+.modal-footer .custom-ok-button,
+.modal-footer .custom-cancel-button {
+    margin-left: 30px; /* Separación entre los botones */
+}
+
+.modal-footer {
+    padding-bottom: 40px;  /* Ajusta el espaciado en la parte inferior */
+}
+
+
+
+
+.custom-card {
+    width: 100%; /* O establece un valor específico como '300px' */
+    min-height: 300px; /* Altura mínima */
+    max-height: 300px; /* Altura máxima si es necesario */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+
+
+.fixed-width-text {
+    display: inline-block;
+    width: 300px; /* Adjust the width as needed */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
