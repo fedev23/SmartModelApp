@@ -194,6 +194,6 @@ def server_in_sample(input, output, session, name_suffix):
     create_navigation_handler('screen_Desarollo_in_sample', 'Screen_Desarollo')
     create_navigation_handler('load_in_sample', 'Screen_valid')
     create_navigation_handler('load_Validacion_in_sample', 'Screen_Porduccion')
-    create_navigation_handler("ir_modelos_in_sample", "screen_3")
+    create_navigation_handler(f"ir_modelos_{name_suffix}", "Screen_3")
     create_navigation_handler("ir_result_in_sample", "Screen_Resultados")
     create_navigation_handler("volver_inSample", "Screen_User")

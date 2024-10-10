@@ -76,7 +76,7 @@ class ResultadoClassPrueba:
             resultado_path = next((r['resultado_path'] for r in self.resultados if r['resultado_id'] == resultado_id), None)
             print(resultado_path)
             if resultado_path and self.accordion_open[resultado_id].get():
-                iframe_src = f'http://127.0.0.1:5000/static/{os.path.basename(resultado_path)}'
+                iframe_src = f'http://127.0.0.1:8080/static/{os.path.basename(resultado_path)}'
                 return ui.div(
                     ui.tags.iframe(src=iframe_src, width='350%', height='500px'))
             else:

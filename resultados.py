@@ -29,35 +29,35 @@ def server_resul(input, output, session, name_suffix):
     resultados_desarrollo = [
         {
             "resultado_id": "Clean_Transf",
-            "resultado_path": r"C:\Users\fvillanueva\flask_prueba\static\Clean-Transf.html",
+            "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Clean-Transf.html",
             "salida": "result_Clean_Transf",
             "salida_unic": "salida_prueba_Clean_Transf",
             "descarga_unic": "download_btn1_Clean-Transf",
         },
         {
             "resultado_id": "Detalle_agrupación",
-            "resultado_path": r"C:\Users\fvillanueva\flask_prueba\static\Detalle agrupación x WoE Categoricas.html",
+            "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Detalle agrupación x WoE Categoricas.html",
             "salida": "Detalle_agrupación_salida",
             "descarga_unic": "download_btn_Detalle_agrupación",
             "salida_unic": "salida_prueba_Detalle_agrupación",
         },
         {
             "resultado_id": "Detalle_agrupación_continuas",
-            "resultado_path": r"C:\Users\fvillanueva\flask_prueba\static\Detalle agrupación x WoE Continuas  (Monotonía más Interpolación Lineal a Trozos).html",
+            "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Detalle agrupación x WoE Continuas  (Monotonía más Interpolación Lineal a Trozos).html",
             "salida": "Detalle_agrupación_continuas_salida",
             "descarga_unic": "download_btn_Detalle_agrupación_continuas",
             "salida_unic": "salida_prueba_Detalle_agrupación_continuas",
         },
         {
             "resultado_id": "detalle_monotonia",
-            "resultado_path": r"C:\Users\fvillanueva\flask_prueba\static\Detalle agrupación x WoE Continuas  (Monotonía).html",
+            "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Detalle agrupación x WoE Continuas  (Monotonía).html",
             "salida": "detalle_monotonia_salida",
             "descarga_unic": "download_btn_detalle_monotonia",
             "salida_unic": "salida_detalle_monotonia",
         },
         {
             "resultado_id": "modelling",
-            "resultado_path": r"C:\Users\fvillanueva\flask_prueba\static\Modelling.html",
+            "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Modelling.html",
             "salida": "detalle_modelling",
             "descarga_unic": "download_btn_modelling",
             "salida_unic": "salida_modelling",
@@ -67,70 +67,33 @@ def server_resul(input, output, session, name_suffix):
 
     resultados_in_sample = [
         {
-            "resultado_id": "result_in_sample",
-            "resultado_path": r"C:\Users\fvillanueva\flask_prueba\static\Validation_InS.html",
+            "resultado_id": "Validation_InS",
+            "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Validation_InS.html",
             "salida": "result_in_sample_salida",
             "salida_unic": "salida_prueba_in_sample",
             "descarga_unic": "download_btn1_insample",
         },
-        {
-            "resultado_id": "Modelling_sample",
-            "resultado_path": r"C:\Users\fvillanueva\flask_prueba\static\Modelling.html",
-            "salida": "meddling_in_sample",
-            "descarga_unic": "download_btn_wo",
-            "salida_unic": "salida_prueba_in_sample_1",
-        },
-
     ]
 
     resultados_out_to_sample = [
         {
-            "resultado_id": "Modelling_v1",
-            "resultado_path": r"C:\Users\fvillanueva\Desktop\SmartModel_new_version\datos_salida\Reportes\Modelling_v10.html",
+            "resultado_id": "Resultados_Oss",
+            "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Validation_OoS.html",
             "salida": "output_modelling_out",
             "salida_unic": "salida_prueba_out_to",
             "descarga_unic": "download_btn1",
         },
-        {
-            "resultado_id": "Modelling_v10002",
-            "resultado_path": r"C:\Users\fvillanueva\Desktop\SmartModel_new_version\datos_salida\Reportes\Detalle agrupación x WoE Continuas  (Monotonía).html",
-            "salida": "output_woe_out_to",
-            "descarga_unic": "download_btn_woe_in_sample",
-            "salida_unic": "salida_prueba1",
-        },
-        {
-            "resultado_id": "resultado3",
-            "resultado_path": r"C:\Users\fvillanueva\Desktop\SmartModel_new_version\datos_salida\Reportes\Detalle agrupación x WoE Continuas  (Monotonía).html",
-            "salida": "output_3",
-            "descarga_unic": "download_btn_3",
-            "salida_unic": "salida_prueba2",
-        },
-        {
-            "resultado_id": "Modelling_4",
-            "resultado_path": r"C:\Users\fvillanueva\Desktop\SmartModel_new_version\datos_salida\Reportes\Detalle agrupación x WoE Continuas  (Monotonía).html",
-            "salida": "output_4",
-            "descarga_unic": "download_btn_4",
-            "salida_unic": "salida_prueba3",
-        },
-
     ]
 
     resultados_produccion = [
         {
-            "resultado_id": "Scorin",
-            "resultado_path": r"C:\Users\fvillanueva\flask_prueba\static\Scoring.html",
+            "resultado_id": "Scoring",
+            "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Scoring.html",
             "salida": "output_modelling",
             "salida_unic": "salida_prueba",
             "descarga_unic": "download_produccion_scoring",
         },
-        {
-            "resultado_id": "Modelling_produccion",
-            "resultado_path": r"C:\Users\fvillanueva\flask_prueba\static\Modelling.html",
-            "salida": "output_woe_produccion",
-            "descarga_unic": "download_btn_produccion",
-            "salida_unic": "salida_prueba_produccion",
-        }
-
+        
     ]
     resultado_desarrollo = ResultadoClassPrueba(resultados_desarrollo)
     resultado_class_instance = ResultadoClassPrueba(resultados_out_to_sample)
