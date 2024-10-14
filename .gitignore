@@ -3,3 +3,5 @@ env
 
 # Ignorar la carpeta auth
 auth/
+
+__pycache__/

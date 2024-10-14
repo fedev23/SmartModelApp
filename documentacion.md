@@ -22,5 +22,24 @@
 
 
 
+
+##desploy
+https://shiny.posit.co/py/docs/shinylive.html
+
+##costumizar 
+https://www.appsilon.com/post/shiny-for-python-custom-module
+
+
 El archivo parametros esta profudamente ligado a la carga de los mismo, en la parte de desarollo.
 Usamos el mismo input file de in sample a desarollo
+
+
+##msyqlo y posgres
+https://www.appsilon.com/post/shiny-for-python-databases-mysql-postgres
+
+
+##testing
+https://shiny.posit.co/py/docs/end-to-end-testing.html
+
+
+https://shiny.posit.co/py/docs/modules.html
