@@ -36,4 +36,19 @@ def trans_nulos_adic(input_name):
     input_values = ', '.join(f"{str(value)} = 0" for value in input_name)
     print(input_values)
     return input_values
-    
+
+def validar_proyecto(nombre_proyecto):
+    if not nombre_proyecto:  # Esto verifica si está vacío o None
+        return False
+    # Aquí puedes agregar más lógica de validación si es necesario
+    return True  # 
+
+
+def mostrar_error(mensaje_error):
+    if mensaje_error:
+        ui.notification_show(
+            ui.p("Error:", style="color: red;"),
+            action=ui.p(mensaje_error, style="font-style: italic;"),
+            duration=7,
+            close_button=True
+        )

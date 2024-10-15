@@ -3,11 +3,13 @@ from funciones.utils import validar_columnas, validate_par_iv, process_target_co
 from clases.loadJson import LoadJson
 from global_var import global_data_loader_manager
 import pandas as pd 
-from funciones.utils_2 import cambiarAstring, trans_nulos_adic
+from funciones.utils_2 import cambiarAstring, trans_nulos_adic, validar_proyecto, mostrar_error
+from clases.class_user_proyectName import global_user_proyecto
 
 def server_parametros_desarrollo(input, output, session, name_suffix):
     # Obtener el DataLoader correspondiente basado en name_suffix, ya que necesita un key la clase dataloader
     data_loader = global_data_loader_manager.get_loader(name_suffix) 
+    
     
     
          # Definir las funciones de transformación para cada input
@@ -31,89 +33,99 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
                 await session.send_custom_message('navigate', screen_name)
     
     mensaje = reactive.Value("")  # Reactive value para el mensaje de error
-    proceso_a_completado = reactive.Value(True)
+    mensjae_error_proyecto = reactive.Value("")
     no_error = reactive.Value(True)
     count = reactive.value(0)
+    
+     
 
     @reactive.Effect
     @reactive.event(input[f'load_param_{name_suffix}'])
     def paramLoad():
         df = data_loader.getDataset()
-        error_messages = []
-        mensaje.set("")  # Limpia el mensaje antes de procesar
-        no_error.set(True)  # Restablece el estado de error a False
+        mensaje.set("")  # Limpia los mensajes anteriores
+        mensjae_error_proyecto.set("")
+        no_error.set(True)  # Restablece el estado de error a True
 
-        # Verificar si df es None en cada ejecución
+        # 1. Verificar si el dataset está vacío o es None
         if df is None:
-            error_messages.append(f"No se seleccionó ningún archivo en {name_suffix}")
-        else:
-            #PROCESO LO INPUTS MODIFCADOS # Aplicar las transformaciones a cada input
-            inputs_procesados = {key: transformacion(input[key]()) for key, transformacion in transformaciones.items()}
-            # Validaciones
-            resultado_id = validar_columnas(df, input[f'par_ids']())
-            if resultado_id != False:
-                error_messages.append(f"Error en Columnas identificadora: {resultado_id}")
-            
-            #resultado_forzada = validar_columnas(df, input[f'cols_forzadas_a_predictoras']())
-            #if resultado_forzada != False:
-                #error_messages.append(f"Error en el parametro variables forzadas a variables candidatas {resultado_forzada}")
-                
-            resultado_iv = validate_par_iv(input[f'par_iv']())
-            if resultado_iv is not True:
-                error_messages.append(f"Error en el parámetro para descartar variables por bajo IV, está fuera del valor esperado {resultado_iv}")
-            
-            target_col_value = input[f'par_target'].get()
-            resultado_target = process_target_col1(df, target_col_value)
-            if resultado_target is True:
-                error_messages.append("La columna target es obligatoria para la generación del modelo")
-            elif resultado_target is not True:
-                resultado_end = validar_columnas(df, target_col_value)
-                if resultado_end is not False:
-                    error_messages.append(f"Error en la columna {target_col_value}: {resultado_end}")
+            mensaje.set(f"No se seleccionó ningún archivo en {name_suffix}")
+            no_error.set(False)
+            return  # Detener ejecución aquí si no hay dataset
 
-            training = input[f'par_split']()
-            if training is None:
-                error_messages.append(f"El parámetro Training and Testing en la muestra {name_suffix} debe tener un valor")
-            elif training > 2 or training < 0:
-                error_messages.append(f"El valor de Training and Testing en la muestra {name_suffix} no puede ser mayor que 2 ni menor que 0.")
+        # 2. Obtener el nombre del proyecto
+        proyecto_nombre = global_user_proyecto.get_nombre_proyecto()
+        # 4. Validar si el proyecto es válido
+        validar = validar_proyecto(proyecto_nombre)
+        if not validar:
+            mensjae_error_proyecto.set(f"El proyecto '{proyecto_nombre}' no es válido. Por favor, selecciona o crea uno válido en {name_suffix}")
+            no_error.set(False)
+            return  # Detener ejecución si el proyecto no es válido
 
-        # Mostrar los mensajes de error, si los hay
+        # Si pasa las validaciones de archivo y proyecto, continuar con las validaciones de columnas
+
+        # 5. Acumular los errores relacionados con la validación de columnas
+        error_messages = []
+
+        # Validación de columnas identificadoras
+        resultado_id = validar_columnas(df, input[f'par_ids']())
+        if resultado_id is not False:
+            error_messages.append(f"Columnas identificadoras: no puede estar vacio en {name_suffix}")
+
+        # Validación del parámetro IV
+        resultado_iv = validate_par_iv(input[f'par_iv']())
+        if resultado_iv is  False:
+            error_messages.append(f"Error al descartar variables por bajo IV: {resultado_iv}")
+
+        # Validación de la columna target
+        target_col_value = input[f'par_target']()
+        resultado_target = process_target_col1(target_col_value)
+        print(resultado_target)
+        if resultado_target is False:
+            error_messages.append(f"La columna target es obligatoria para la generación del modelo {name_suffix}")
+
+        # Validación del parámetro Training and Testing
+        training = input[f'par_split']()
+        if training is None:
+            error_messages.append(f"El parámetro Training and Testing en la muestra {name_suffix} debe tener un valor")
+        elif training > 2 or training < 0:
+            error_messages.append(f"El valor de Training and Testing en la muestra {name_suffix} no puede ser mayor que 2 ni menor que 0.")
+
+        # Mostrar todos los errores de columnas juntos, si los hay
         if error_messages:
             mensaje.set("\n".join(error_messages))
             no_error.set(False)
-            return
-        
-        if  not error_messages:
-            # Si no hay errores, limpiar el mensaje y proceder
-            mensaje.set("")  # Limpia el mensaje de error
-            no_error.set(True)  # Indicar que no hay errores
-            create_navigation_handler(f'load_param_{name_suffix}', 'Screen_3', no_error)
-            # ABRO EL ACORDEON PARA QUE LA REDIRECCION SEA POR AHI
-            ui.update_accordion("my_accordion", show=["desarrollo"])
-            # Ejecutar acciones adicionales
-            load_handler = LoadJson(input)
-            # Cargar los inputs procesados en el objeto LoadJson
-            load_handler.inputs.update(inputs_procesados)
-            json_file_path = load_handler.loop_json()
-            print(f"Inputs guardados en {json_file_path}")
+            return  # Detener ejecución si hay errores en las columnas
 
-            return True
+        # Si no hay errores, limpiar el mensaje y proceder
+        mensaje.set("")  # Limpia el mensaje de error
+        no_error.set(True)  # Indicar que no hay errores
+        create_navigation_handler(f'load_param_{name_suffix}', 'Screen_3', no_error)
 
-   
-    def errores():
-        if mensaje.get():
-            ui.notification_show(
-                ui.p("Error:", style="color: red;"),
-                action=ui.p(mensaje.get(), style="font-style: italic;"),
-                duration=7,
-                close_button = True
-                #type='message',
-                )
+        # ABRO EL ACORDEON PARA QUE LA REDIRECCION SEA POR AHI
+        ui.update_accordion("my_accordion", show=["desarrollo"])
+
+        # Ejecutar acciones adicionales
+        inputs_procesados = {key: transformacion(input[key]()) for key, transformacion in transformaciones.items()}
+        load_handler = LoadJson(input)
+        load_handler.inputs.update(inputs_procesados)
+        json_file_path = load_handler.loop_json()
+        print(f"Inputs guardados en {json_file_path}")
+
+        return True
+
+
+    
+    
+    @output
+    @render.text
+    def error_proyecto():
+        return mostrar_error(mensjae_error_proyecto.get())
           
     @output
     @render.text
     def error():
-     return errores()
+      return mostrar_error(mensaje.get())
                
     
    

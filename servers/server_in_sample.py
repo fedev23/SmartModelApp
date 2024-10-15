@@ -8,7 +8,7 @@ from funciones.param_in_sample import param_in_sample
 from funciones.utils import transformar_segmentos, validar_columnas, transform_data, transformar_reportes, create_modal_parametros, id_buttons
 from global_var import global_data_loader_manager
 import pandas as pd
-from funciones.utils_2 import cambiarAstring
+from funciones.utils_2 import cambiarAstring, validar_proyecto
 
 
 ejemplo_niveles_riesgo = pd.DataFrame({
@@ -113,6 +113,10 @@ def server_in_sample(input, output, session, name_suffix):
             df = data_loader.getDataset()
             inputs_procesados = {key: transformacion(input[key]()) for key, transformacion in transformaciones.items()}
             
+            proyecto_nombre = global_user_proyecto.get_nombre_proyecto()
+            validar = validar_proyecto(proyecto_nombre)
+            if  validar is False:
+                error_messages.append.set(f"Es necesario tener un proyecto asignado o creado para continuar en {name_suffix}")
             par_vars_segmento = input['par_vars_segmento']()
             par_vars_segmento = validar_columnas(df, input[f'par_vars_segmento']())
             if par_vars_segmento != False:

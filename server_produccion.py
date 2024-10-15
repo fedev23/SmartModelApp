@@ -10,11 +10,13 @@ from funciones.create_nav_menu import create_nav_menu
 from clases.class_screens import ScreenClass
 from funciones.utils import retornar_card
 from clases.class_user_proyectName import global_user_proyecto
-from funciones.utils_2 import errores
+from funciones.utils_2 import errores, validar_proyecto
 
 
 def server_produccion(input, output, session, name_suffix):
     hay_error = reactive.Value(False)
+    error_messages = []
+    mensaje_error = reactive.Value("")
     proceso_a_completado = reactive.Value(False)
     directorio_produccion = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat'
     name = "Producción"
@@ -45,6 +47,12 @@ def server_produccion(input, output, session, name_suffix):
         df = data_loader.getDataset()
         if df is None:
             mensaje.set(f"No se seleccionó ningún archivo en {name}")
+            
+        proyecto_nombre = global_user_proyecto.get_nombre_proyecto()
+        validar = validar_proyecto(proyecto_nombre)
+        if  validar is False:
+                mensaje.set(f"Es necesario tener un proyecto asignado o creado para continuar en {name_suffix}")
+                
         if screen_instance.proceso_a_completado.get():
             create_navigation_handler(f'load_param_{name_suffix}', 'Screen_3')
             ui.update_accordion("my_accordion", show=["Produccion"])

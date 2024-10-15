@@ -34,6 +34,8 @@ screenDesarollo = ui.page_fluid(
         ui.column(12, ui.input_select("delimiter_desarollo",
                   "Tipo de delimitador", choices=CHOICES["tipo"], width="100%")),
         ui.output_text_verbatim("error"),
+        ui.output_text_verbatim("error_proyecto"),
+        
         ui.div(
             ui.card(
                 ui.card_header(f"Datos de {name_suffix}"),

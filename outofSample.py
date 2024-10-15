@@ -4,7 +4,7 @@ from funciones.create_nav_menu import create_nav_menu
 from clases.class_screens import ScreenClass
 from clases.class_user_proyectName import global_user_proyecto
 from global_var import global_data_loader_manager
-from funciones.utils_2 import errores
+from funciones.utils_2 import errores, validar_proyecto
 
 
 def server_out_of_sample(input, output, session, name_suffix):
@@ -41,6 +41,11 @@ def server_out_of_sample(input, output, session, name_suffix):
         df = data_loader.getDataset()
         if df is None:
             mensaje.set(f"No se seleccionó ningún archivo en {name}")
+        
+        proyecto_nombre = global_user_proyecto.get_nombre_proyecto()
+        validar = validar_proyecto(proyecto_nombre)
+        if  validar is False:
+                mensaje.set(f"Es necesario tener un proyecto asignado o creado para continuar en {name_suffix}")
 
         if screen_instance.proceso_a_completado.get():
             create_navigation_handler(f'load_param_{name_suffix}', 'Screen_3')

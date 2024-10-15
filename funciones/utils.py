@@ -38,15 +38,15 @@ def mover_files(origen: str, destino: str, nombre_archivo: str = "modelo.zip"):
 
 
 def validar_columnas(df, nombre_input):
-    nombre_input = str(nombre_input) 
-    print(type(nombre_input))
+    nombre_input = str(nombre_input)
     nombre_input = nombre_input[1:-1].replace("'", "").strip()
     nombre_input = nombre_input.split(',')
     for column in nombre_input:
         if column.strip() in df.columns:
             print("ok", column)
+            return False
         else:
-            mensaje = (f"Columna '{column}' no encontrada.")
+            mensaje = (f"error en el parametro '{nombre_input}',  '{column}' no encontrada.")
             return mensaje
 
         return False
@@ -74,24 +74,16 @@ def process_target_col(df, target_col):
         return False
 
 
-def process_target_col1(df, target_col):
-    target_col = str(target_col) 
-    target_col = target_col.split(',')
-
-    # Limpiar espacios en blanco y eliminar cadenas vacías
-    target_col = [col.strip() for col in target_col if col.strip()]
-
-    # Verificar si se ingresaron columnas
-    if not target_col:
-        return True
-
-    # Si se ingresaron columnas, devolver None (sin errores)
-    return None
+def process_target_col1(target_col):
+    if not target_col:  # Esto verifica si está vacío o None
+        return False
+    # Aquí puedes agregar más lógica de validación si es necesario
+    return True  # 
 
 
 def validate_par_iv(value):
     if value > 10 or value < 0.5:
-        return "El valor debe estar entre 0.5 y 10."
+        return  False
     else:
         print("Ok par iv")
         return True
