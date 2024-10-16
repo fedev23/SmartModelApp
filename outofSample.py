@@ -38,18 +38,23 @@ def server_out_of_sample(input, output, session, name_suffix):
     @reactive.Effect
     @reactive.event(input[f'load_param_{name_suffix}'])
     def desarollo_out_to_and_valid():
+        # 1. Validar si el dataset está cargado
         df = data_loader.getDataset()
         if df is None:
             mensaje.set(f"No se seleccionó ningún archivo en {name}")
-        
-        proyecto_nombre = global_user_proyecto.get_nombre_proyecto()
-        validar = validar_proyecto(proyecto_nombre)
-        if  validar is False:
-                mensaje.set(f"Es necesario tener un proyecto asignado o creado para continuar en {name_suffix}")
+            return  # Detener la ejecución si no hay dataset
 
+        # 2. Validar si el proyecto está asignado
+        proyecto_nombre = global_user_proyecto.get_nombre_proyecto()
+        if not validar_proyecto(proyecto_nombre):
+            mensaje.set(f"Es necesario tener un proyecto asignado o creado para continuar en {name}")
+            return  # Detener la ejecución si no hay proyecto asignado
+
+        # 3. Continuar si ambas validaciones anteriores pasan
         if screen_instance.proceso_a_completado.get():
             create_navigation_handler(f'load_param_{name_suffix}', 'Screen_3')
             ui.update_accordion("my_accordion", show=["out_to_sample"])
+
 
     @output
     @render.text

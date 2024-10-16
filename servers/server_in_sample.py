@@ -51,6 +51,7 @@ def server_in_sample(input, output, session, name_suffix):
     setValores = reactive.Value(0)
     count = reactive.value(0)
     no_error = reactive.Value(True)
+    name = "Validacion in sample"
 
     def create_navigation_handler_validacion(input_id, screen_name, valid):
         @reactive.Effect
@@ -103,41 +104,49 @@ def server_in_sample(input, output, session, name_suffix):
         'par_vars_segmento': cambiarAstring,
         
     }
-
-
     @reactive.Effect
     @reactive.event(input[f'load_param_{name_suffix}'])
     def validacion():
         error_messages = []
-        if global_name_manager.name_file_desarrollo.get():
-            df = data_loader.getDataset()
-            inputs_procesados = {key: transformacion(input[key]()) for key, transformacion in transformaciones.items()}
-            
-            proyecto_nombre = global_user_proyecto.get_nombre_proyecto()
-            validar = validar_proyecto(proyecto_nombre)
-            if  validar is False:
-                error_messages.append.set(f"Es necesario tener un proyecto asignado o creado para continuar en {name_suffix}")
-            par_vars_segmento = input['par_vars_segmento']()
-            par_vars_segmento = validar_columnas(df, input[f'par_vars_segmento']())
-            if par_vars_segmento != False:
-                error_messages.append(f"Error en columnas: { par_vars_segmento}, no encontradas")
 
+        # 1. Validar si el dataset está cargado
+        if not global_name_manager.name_file_desarrollo.get():
+            error_messages.append(f"No se ha ingresado ningún dataset en {name}")
+            mensaje_de_error.set("\n".join(error_messages))
+            no_error.set(False)
+            return  # Detener la ejecución si no hay dataset
+
+        # 2. Obtener el dataset
+        df = data_loader.getDataset()
+        inputs_procesados = {key: transformacion(input[key]()) for key, transformacion in transformaciones.items()}
+
+        # 3. Validar si el proyecto está asignado
+        proyecto_nombre = global_user_proyecto.get_nombre_proyecto()
+        if not validar_proyecto(proyecto_nombre):
+            error_messages.append(f"Es necesario tener un proyecto asignado o creado para continuar en {name}")
+            mensaje_de_error.set("\n".join(error_messages))
+            no_error.set(False)
+            return  # Detener la ejecución si no hay proyecto asignado
+
+        # 4. Validar las columnas
+        par_vars_segmento = input['par_vars_segmento']()
+        columnas_validas = validar_columnas(df, par_vars_segmento)
+        
+        if not columnas_validas:
+            error_messages.append(f"Error en columnas: {par_vars_segmento}, no encontradas en el dataset.")
+        
+        # 5. Procesar los demás inputs solo si no hubo errores previos
+        if not error_messages:
             rango_reportes = par_rango_reportes.data_view()
             reportesMap = transformar_reportes(rango_reportes)
 
-            # Mapeo los datosingresados por el user ver la funcion transformar_segmentos
             segmentos_editados = par_rango_segmentos.data_view()
             segmentosMap = transformar_segmentos(segmentos_editados)
 
-            # Mapeo los datosingresados por el user ver la funcion procesar_seleccion_niveles
             df_editado = par_rango_niveles.data_view()
             niveles_mapeados = transform_data(df_editado)
-            # print(niveles_mapeados)
-            if error_messages:
-                mensaje_de_error.set("\n".join(error_messages))
-                no_error.set(False)
-                return
 
+            # Guardar los datos procesados en un archivo JSON
             load_handler = LoadJson(input)
             load_handler.inputs['par_rango_niveles'] = niveles_mapeados
             load_handler.inputs['par_rango_segmentos'] = segmentosMap
@@ -145,16 +154,15 @@ def server_in_sample(input, output, session, name_suffix):
             load_handler.inputs['par_vars_segmento'] = par_vars_segmento
             load_handler.inputs.update(inputs_procesados)
 
-
-        # Guardar el archivo JSON con los datos actualizados
             json_file_path = load_handler.loop_json()
             print(f"Inputs guardados en {json_file_path}, en {name_suffix}")
             create_navigation_handler_validacion(f'load_param_{name_suffix}', 'Screen_3', no_error)
             ui.update_accordion("my_accordion", show=["in_sample"])
-
         else:
-            mensaje_de_error.set(f"No se seleccionó ningún archivo en {name}")
-
+            # Mostrar mensajes de error si existen
+            mensaje_de_error.set("\n".join(error_messages))
+            no_error.set(False)
+        
     @output
     @render.ui
     def salida_error():

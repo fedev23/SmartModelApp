@@ -82,7 +82,7 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
         resultado_target = process_target_col1(target_col_value)
         print(resultado_target)
         if resultado_target is False:
-            error_messages.append(f"La columna target es obligatoria para la generación del modelo {name_suffix}")
+            error_messages.append(f"La columna target es obligatoria para la generación del muestra {name_suffix}")
 
         # Validación del parámetro Training and Testing
         training = input[f'par_split']()
