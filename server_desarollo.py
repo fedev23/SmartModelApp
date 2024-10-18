@@ -16,14 +16,15 @@ def server_desarollo(input, output, session, name_suffix):
     screen_instance = ScreenClass(directorio_desarollo,  name_suffix)
     name = "desarrollo"
     count = reactive.value(0)
-    check = reactive.Value(False)
-    contar_script = reactive.value(0)
-
-
+    
+    
     @output
     @render.text
     def nombre_proyecto_desarrollo():
         return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo()}'
+    
+    
+        
 
     @output
     @render.ui
@@ -94,7 +95,6 @@ def server_desarollo(input, output, session, name_suffix):
         proceso = global_desarollo.proceso.get()
         ejectutar_desarrollo_asnyc(click_count_value, mensaje_value, proceso)
         fecha_hora_registrada = global_desarollo.log_fecha_hora()
-        print("me llevo la fecha o what?")
         global_fecha.set_fecha_desarrollo(fecha_hora_registrada)
         
         
@@ -113,7 +113,7 @@ def server_desarollo(input, output, session, name_suffix):
             # id_button se pasa como argumento con valor predeterminado
             def monitor_clicks(id_button=id_button):
                 count.set(count() + 1)
-                if count.get() >= 1:
+                if count.get() >0:
                     print(id_button, count.get())
                     modal = create_modal_parametros(id_button)
                     ui.modal_show(modal)

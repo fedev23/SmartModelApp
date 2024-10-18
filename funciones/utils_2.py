@@ -52,3 +52,25 @@ def mostrar_error(mensaje_error):
             duration=7,
             close_button=True
         )
+        
+        
+        
+
+
+# Crear carpetas por ID de usuario
+def crear_carpetas_por_id_user(user_id):
+    user_id_cleaned = user_id.replace('|', '_')
+    base_folder_path = '/path/to/your/base/folder'
+    
+    entrada_folder = os.path.join(base_folder_path, f"datos_entrada_{user_id_cleaned}")
+    salida_folder = os.path.join(base_folder_path, f"datos_salida_{user_id_cleaned}")
+    
+    if not os.path.exists(entrada_folder):
+        os.makedirs(entrada_folder)
+        print(f"Carpeta creada {entrada_folder}")
+    
+    if not os.path.exists(salida_folder):
+        os.makedirs(salida_folder)
+        print(f"Carpeta creada {salida_folder}")
+    
+    return user_id_cleaned

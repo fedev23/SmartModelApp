@@ -605,6 +605,29 @@ background: #0a0a0a;
 
 
 
+.center-card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+.card-custom {
+    width: 300px;
+    padding: 20px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+/* Asegurar que los inputs y el botón tengan el mismo ancho */
+.input-custom, .btn-custom {
+    width: 100%;
+    margin-bottom: 10px;
+
+}
+
+
+
+
+
 
 
 

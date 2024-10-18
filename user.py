@@ -1,24 +1,16 @@
 from shiny import App, reactive, render, ui
 from shiny.express import ui as express_ui
 import pandas as pd
-import json
 from clases.global_name import global_name_manager
 from clases.class_extact_time import global_fecha
 from funciones.nav_panel_User import create_nav_menu_user
 from clases.class_user_proyectName import global_user_proyecto
 import requests
-from api.session import check_user_authenticated
 
 
 def user_server(input, output, session, name_suffix):
     
-    user_id = check_user_authenticated()
-    if user_id:
-        print(f"Usuario autenticado con ID: {user_id}")
-        # Ahora puedes usar este user_id para vincular acciones en Shiny (subida de archivos, modelos, etc.)
-    else:
-        print("El usuario no está autenticado")
-
+    
     @output
     @render.ui
     def nombre_proyecto_user():
