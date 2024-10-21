@@ -1,14 +1,14 @@
-from shiny import App, reactive, render, ui
+from shiny import App, Inputs, Outputs, Session, reactive, ui, render
 from shiny.express import ui as express_ui
 import pandas as pd
 from clases.global_name import global_name_manager
 from clases.class_extact_time import global_fecha
 from funciones.nav_panel_User import create_nav_menu_user
 from clases.class_user_proyectName import global_user_proyecto
-import requests
+import requests, datetime
 
 
-def user_server(input, output, session, name_suffix):
+def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     
     
     @output
@@ -47,6 +47,27 @@ def user_server(input, output, session, name_suffix):
     @render.ui
     def devolver_acordeon():
         return global_user_proyecto.create_accordeon()
+    
+    
+    @reactive.effect
+    @reactive.event(input[f'settings_{name_suffix}'])
+    async def log_out():
+        create_navigation_handler('settings_user', 'Screen_Login')
+        await session.close()
+        
+        
+    def log():
+        print("Session ended at: " + datetime.now().strftime("%H:%M:%S"))
+
+    session.on_ended(log)
+
+    @reactive.effect
+    @reactive.event(input.close)
+    async def _():
+        await session.close()
+      
+
+    
 
     def create_navigation_handler(input_id, screen_name):
         @reactive.Effect

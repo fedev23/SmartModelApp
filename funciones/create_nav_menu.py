@@ -33,7 +33,7 @@ def create_nav_menu(name_suffix, name):
         title="",
         selected=None,
         inverse=False,
-            bg="light",   
+            bg="night",   
     ),
                          
      ui.h3(ui.output_text(f"nombre_proyecto_{name_suffix}")),
