@@ -74,7 +74,7 @@ screenDesarollo = ui.page_fluid(
                         class_="fa fa-question-circle-o", style="font-size:24px")),
                     crear_card_con_input_numeric_2(f"par_cor", "Descartar variables por alta correlación", "help_par_cor", ui.tags.i(
                         class_="fa fa-question-circle-o", style="font-size:24px"), previous_values, default_value=3, min_value=0.5, max_value=10, step=0.1),
-                    crear_card_con_input_numeric_2(f"par_minpts1", "Casos mínimos de cada bin de primera etapa", "help_minpts", ui.tags.i(
+                    crear_card_con_input_numeric_2(f"par_minpts1", "Casos mínimos de bin de primera etapa", "help_minpts", ui.tags.i(
                         class_="fa fa-question-circle-o", style="font-size:24px"), previous_values, default_value=3, min_value=0.5, max_value=10, step=0.1)
                 ),
                 ui.div(
@@ -84,7 +84,7 @@ screenDesarollo = ui.page_fluid(
             ),
         ),
         ui.output_text_verbatim(f"param_validation_3_{name_suffix}"),
-        class_="custom-column"
+        #class_="custom-column"
     ),
 
 

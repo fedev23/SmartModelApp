@@ -56,11 +56,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         await session.close()
         
         
-    def log():
-        print("Session ended at: " + datetime.now().strftime("%H:%M:%S"))
-
-    session.on_ended(log)
-
+    
     @reactive.effect
     @reactive.event(input.close)
     async def _():

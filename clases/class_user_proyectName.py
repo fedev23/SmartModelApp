@@ -84,7 +84,7 @@ class User_proyect:
 
     def card_desarollo(self):
         file_name_desarollo = global_name_manager.get_file_name_desarrollo()
-        fechaHora = global_fecha.get_fecha()
+        fechaHora = global_fecha.get_fecha_desarrollo()
         print("Actualicé", fechaHora)
         if not file_name_desarollo and not fechaHora:
             return self.create_value_box(
@@ -102,7 +102,7 @@ class User_proyect:
 
     def card_validacion_in_sample(self):
         file_name_validacion_in_sample = global_name_manager.get_file_name_desarrollo()
-        fechaHora = global_fecha.get_fecha()
+        fechaHora = global_fecha.get_fecha_in_sample()
         if file_name_validacion_in_sample and fechaHora:
             return self.create_value_box(
                 title=f"{global_name_in_Sample}",
@@ -118,7 +118,7 @@ class User_proyect:
 
     def card_out_to_sample_valid(self):
         file_name_out_to = global_name_manager.get_file_name_validacion()
-        fechaHora = global_fecha.get_fecha()
+        fechaHora = global_fecha.get_fecha_of_to_Sample()
         if file_name_out_to and fechaHora:
             return self.create_value_box(
                 title=f"{global_name_out_of_Sample}",
@@ -134,7 +134,7 @@ class User_proyect:
 
     def card_produccion(self):
         file_name_produccion = global_name_manager.get_file_name_produccion()
-        fechaHora = global_fecha.get_fecha()
+        fechaHora = global_fecha.get_fecha_produccion()
         if file_name_produccion and fechaHora:
             return self.create_value_box(
                 title=f"{global_name_produccion}",
