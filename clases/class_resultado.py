@@ -43,7 +43,7 @@ class ResultadoClassPrueba:
                         ui.div(
                             ui.div(ui.output_ui(r['salida'])),
                             ui.div(ui.output_ui(r['salida_unic'])),
-                            #ui.download_button(f"{r['descarga_unic']}",  f"Descargar resultado {r['resultado_id']}"),
+                            ui.download_button(f"{r['descarga_unic']}",  f"Descargar resultado {r['resultado_id']}"),
                             #self.make_example(r['resultado_id'], 'Descargar resultado', 'Título del ejemplo')
                         ),
                         value=f"panel_{r['resultado_id']}",
