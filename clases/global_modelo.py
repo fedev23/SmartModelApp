@@ -7,7 +7,7 @@ global_desarollo = ModeloProceso(
     name_file = "", 
     mensaje_id = "mensaje_desarrollo",
     script_name="",
-    script_path="./Modelar.sh datos_entrada datos_salida"
+    script_path=""
 )
 
 

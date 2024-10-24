@@ -13,13 +13,8 @@ def create_nav_menu_result_model(name_suffix):
                 ui.input_action_link(f"screen_Produccion_{name_suffix}", f"{global_name_produccion}")
             ),
         ),
-        ui.nav_menu(
-            f"Ejecución y resultados",
-            ui.nav_control(
-                ui.input_action_link(f"ir_modelos_{name_suffix}", f"Ejecución"),
-                ui.input_action_link(f"ir_result_{name_suffix}", f"Panel de resultados"),
-            ),
-        ),
+        ui.nav_control(ui.input_action_link(f"ir_modelos_{name_suffix}", f"Ejecución")),
+        ui.nav_control(ui.input_action_link(f"ir_result_{name_suffix}", f"Panel de resultados")),
         ui.nav_menu(
             f"Más opciones ",
             ui.nav_control(

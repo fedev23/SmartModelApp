@@ -4,15 +4,25 @@ from clases.loadJson import LoadJson
 from global_var import global_data_loader_manager
 import pandas as pd 
 from funciones.utils_2 import cambiarAstring, trans_nulos_adic, validar_proyecto, mostrar_error
+from clases.global_session import global_session
 from clases.class_user_proyectName import global_user_proyecto
 
 def server_parametros_desarrollo(input, output, session, name_suffix):
     # Obtener el DataLoader correspondiente basado en name_suffix, ya que necesita un key la clase dataloader
-    data_loader = global_data_loader_manager.get_loader(name_suffix) 
+    data_loader = global_data_loader_manager.get_loader(name_suffix)
+    
+    def user_session():
+        @reactive.Effect
+        def obtener_user() -> str:
+            if global_session.proceso.get():
+                state = global_session.session_state.get()
+                if state["is_logged_in"]:
+                    user_id = state["id"]
+                    return user_id
+        
     
     
-    
-         # Definir las funciones de transformación para cada input
+         # Definir las unciones de transformación para cada input
     transformaciones = {
         'par_ids': cambiarAstring,
         'par_target': cambiarAstring,
@@ -104,13 +114,17 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
 
         # ABRO EL ACORDEON PARA QUE LA REDIRECCION SEA POR AHI
         ui.update_accordion("my_accordion", show=["desarrollo"])
-
-        # Ejecutar acciones adicionales
-        inputs_procesados = {key: transformacion(input[key]()) for key, transformacion in transformaciones.items()}
-        load_handler = LoadJson(input)
-        load_handler.inputs.update(inputs_procesados)
-        json_file_path = load_handler.loop_json()
-        print(f"Inputs guardados en {json_file_path}")
+        if global_session.proceso.get():
+                state = global_session.session_state.get()
+                if state["is_logged_in"]:
+                    user_id = state["id"]
+                    print(user_id)
+                    user_id_cleaned = user_id.replace('|', '_')
+                    inputs_procesados = {key: transformacion(input[key]()) for key, transformacion in transformaciones.items()}
+                    json_loader = LoadJson(user_id_cleaned, input) 
+                    json_loader.inputs.update(inputs_procesados)
+                    json_file_path = json_loader.loop_json()
+                    print(f"Inputs guardados en {json_file_path}")
 
         return True
 

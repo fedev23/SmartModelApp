@@ -1,7 +1,9 @@
 from shiny import App, ui, reactive
 from clases.loadJson import LoadJson
+from clases.global_session import global_session
 
-json_loader = LoadJson()
+user_id = global_session.obtener_id()
+json_loader = LoadJson(user_id=user_id)
 previous_values = json_loader.load_json()
 
 data = [

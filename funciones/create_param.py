@@ -3,11 +3,12 @@ from clases.loadJson import LoadJson
 from funciones.utils import crear_card_con_input_seleccionador, crear_card_con_input_numeric_2
 from faicons import icon_svg
 from global_var import global_data_loader_manager
+from clases.global_session import global_session 
 data_loader = global_data_loader_manager.get_loader("desarrollo")
-json_loader = LoadJson()
-#previous_values = json_loader.load_json()  # Cargar valores anteriores desde un archivo JSON
-values = json_loader.load_json()
 
+user_id = global_session.obtener_id()
+json_loader = LoadJson(user_id=user_id)
+values = json_loader.load_json()
 
 def create_screen(name_suffix):
     # Obtener los valores previos para este name_suffix o usar un valor predeterminado

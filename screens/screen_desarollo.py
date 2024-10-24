@@ -4,9 +4,11 @@ from funciones.create_param import create_screen
 from clases.class_user_proyectName import global_user_proyecto
 from funciones.utils import crear_card_con_input_seleccionador_V2, crear_card_con_input_numeric_2, crear_card_con_input_seleccionador
 from global_names import global_name_desarrollo
+from clases.global_session import global_session
 from global_var import global_data_loader_manager
 
-json_loader = LoadJson()
+user_id = global_session.obtener_id()
+json_loader = LoadJson(user_id=user_id)
 previous_values = json_loader.load_json()
 nombre_proyecto = global_user_proyecto
 

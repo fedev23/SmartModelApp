@@ -2,12 +2,15 @@
 import os
 import json
 import traceback
+from shiny import reactive
+from funciones.utils_2 import get_user_directory
 
 class LoadJson:
-    def __init__(self, input=None):
+    def __init__(self, user_id ,input=None):
         self.input = input
         self.inputs = {}
         self.json = {}
+        self.user_id = user_id
 
     def loop_json(self):
         try:
@@ -240,7 +243,6 @@ class LoadJson:
                     "type": "numeric"
                 },
 
-
                 {
                     "parameter": "project_title",
                     "value": self.inputs["proyecto_nombre"],
@@ -313,8 +315,8 @@ class LoadJson:
             traceback.print_exc()
 
         # Crear la lista de diccionarios en el formato deseado
-
-        directorio_guardado = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada'
+        #get_user_directory(self.user_id)
+        directorio_guardado = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{self.user_id}'
         ruta_json = os.path.join(
             directorio_guardado, 'Control de SmartModelStudio.json')
         with open(ruta_json, 'w', encoding='utf-8') as file:
@@ -338,4 +340,4 @@ class LoadJson:
         return default_value
 
 
-global_json = LoadJson()
+#global_json = LoadJson()

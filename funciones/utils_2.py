@@ -77,42 +77,19 @@ def crear_carpetas_por_id_user(user_id):
 
 
 def get_user_directory(user_id):
+    user_id_cleaned = user_id.replace('|', '_')
     base_directory = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat'
-    user_directory = os.path.join(base_directory, f'datos_entrada_{user_id}')
-    return user_directory
+    user_directory = os.path.join(base_directory, f'datos_entrada_{user_id_cleaned}')
+    
+    # Verificar si el directorio existe antes de devolverlo
+    if os.path.exists(user_directory):
+        return user_directory
+    else:
+        print(f"El directorio {user_directory} no existe.")
+        return None
 
 def acomodar_mail(mail):
     email = mail
     nick = email.split('@')[0]  # Obtiene la parte antes del '@'
     print(nick)
     return nick
-
- # Nueva función para obtener el user_id de Auth0 usando el correo del usuario
-    def obtener_user_id(access_token, email):
-
-        conn = http.client.HTTPSConnection("dev-qpjdn3ayg3o85irl.us.auth0.com")
-        
-        # Prepara los headers con el token de autorización
-        headers = {
-            'Authorization': f"Bearer {access_token}"
-        }
-        
-        
-        # Codifica la dirección de correo electrónico
-        encoded_email = urllib.parse.quote(email)
-        print(email)
-        print(f"Using access token: {access_token}")
-        # Realiza la solicitud GET al endpoint
-        conn.request("GET", f"/api/v2/users-by-email?email={encoded_email}", headers=headers)
-        
-        
-        # Obtiene la respuesta
-        res = conn.getresponse()
-        print(res)
-        data = res.read()
-        print(data)
-
-        # Decodifica la respuesta
-        response_data = json.loads(data.decode("utf-8"))
-        print(response_data)
-    
