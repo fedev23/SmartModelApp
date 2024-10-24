@@ -32,20 +32,20 @@ def server_resul(input, output, session, name_suffix):
             "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Clean-Transf.html",
             "salida": "result_Clean_Transf",
             "salida_unic": "salida_prueba_Clean_Transf",
-            "descarga_unic": "download_btn1_Clean-Transf",
+            "descarga_unic": "download_btn1_Clean_Transf",
         },
         {
-            "resultado_id": "Detalle_agrupación",
+            "resultado_id": "Detalle_agrupacion",
             "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Detalle agrupación x WoE Categoricas.html",
             "salida": "Detalle_agrupación_salida",
-            "descarga_unic": "download_btn_Detalle_agrupación",
+            "descarga_unic": "download_btn_Detalle_agrupacion",
             "salida_unic": "salida_prueba_Detalle_agrupación",
         },
         {
             "resultado_id": "Detalle_agrupación_continuas",
             "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Detalle agrupación x WoE Continuas  (Monotonía más Interpolación Lineal a Trozos).html",
-            "salida": "Detalle_agrupación_continuas_salida",
-            "descarga_unic": "download_btn_Detalle_agrupación_continuas",
+            "salida": "download_btn_Detalle_agrupacion_continuas",
+            "descarga_unic": "download_btn_Detalle_agrupacion_continuas",
             "salida_unic": "salida_prueba_Detalle_agrupación_continuas",
         },
         {
@@ -120,8 +120,8 @@ def server_resul(input, output, session, name_suffix):
             html_in_sample = resultado_in_sample.html_output_prueba(resultado_id)
             return html_prueba, html_produccion, html_in_sample, html_desarrollo
 
-    def descargas_dinamicas(resultado_id, filename):
-        @output(id=resultado_id)
+    def descargas_dinamicas(resultado_id, descarga_unic,filename):
+        @output(id=descarga_unic)
         @render.download(filename=filename)
         def download_btn1_():
             salida_desarrollo = resultado_desarrollo.descargar_unico_html(resultado_id)
@@ -146,7 +146,7 @@ def server_resul(input, output, session, name_suffix):
 
             create_salida_unic(resultado_id, salida_unic)
 
-            descargas_dinamicas(resultado_id, filename)
+            descargas_dinamicas(resultado_id, descarga_unic,filename)
 
     # Invocar la función para registrar los outputs
     combined_results = resultados_produccion + resultados_out_to_sample + resultados_in_sample + resultados_desarrollo
@@ -186,6 +186,73 @@ def server_resul(input, output, session, name_suffix):
         resultado_class_instance_produccion.abrir_acordeon(input)
         return resultado_class_instance_produccion.resultado_cards()
     
+    
+    @output
+    @render.download(filename="Clean_Transf.zip")
+    def download_btn1_Clean_Transf():
+        resultado_id  = "Clean_Transf"
+        return resultado_desarrollo.descargar_unico_html(resultado_id)
+    
+    @output
+    @render.download(filename="Detalle_agrupacion.zip")
+    def download_btn_Detalle_agrupacion():
+        resultado_id  = "Detalle_agrupacion"
+        return resultado_desarrollo.descargar_unico_html(resultado_id)
+    
+    @output
+    @render.download(filename="Detalle_agrupacion_continuas.zip")
+    def download_btn_Detalle_agrupacion_continuas():
+        resultado_id  = "Detalle_agrupacion_continuas"
+        return resultado_desarrollo.descargar_unico_html(resultado_id)
+    
+    @output
+    @render.download(filename="detalle_monotonia.zip")
+    def download_btn_detalle_monotonia():
+        resultado_id  = "detalle_monotonia"
+        return resultado_desarrollo.descargar_unico_html(resultado_id)
+    
+    @output
+    @render.download(filename="modelling.zip")
+    def download_btn_modelling():
+        resultado_id  = "modelling"
+        return resultado_desarrollo.descargar_unico_html(resultado_id)
+    
+    @output
+    @render.download(filename="Validation_InS.zip")
+    def download_btn1_insample():
+        resultado_id  = "Validation_InS"
+        return resultado_desarrollo.descargar_unico_html(resultado_id)
+    
+    @output
+    @render.download(filename="Resultados_Oss.zip")
+    def download_btn1():
+        resultado_id  = "Resultados_Oss"
+        return resultado_desarrollo.descargar_unico_html(resultado_id)
+    
+    @output
+    @render.download(filename="Scoring.zip")
+    def download_produccion_scoring():
+        resultado_id  = "Scoring"
+        return resultado_desarrollo.descargar_unico_html(resultado_id)
+    
+        
+    
+    @render.download(filename="Resultados completos de desarollo.zip")
+    def descargar_resultados_desarollo():
+        return resultado_desarrollo.descargar_resultados()
+    
+    @render.download(filename="Resultados completos de In-Sample.zip")
+    def descargar_resultados_validacion():
+        return resultado_desarrollo.descargar_resultados()
+    
+    @render.download(filename="Resultados completos de Out-of-Sample.zip")
+    def descargar_resultados_validacion_out_of_sample():
+        return resultado_desarrollo.descargar_resultados()
+    
+    @render.download(filename="Resultados completos de Producción.zip")
+    def descargar_resultados_produccion():
+        return resultado_desarrollo.descargar_resultados()
+
     
     
     
