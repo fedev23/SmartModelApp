@@ -44,7 +44,7 @@ def server_resul(input, output, session, name_suffix):
         {
             "resultado_id": "Detalle_agrupación_continuas",
             "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Detalle agrupación x WoE Continuas  (Monotonía más Interpolación Lineal a Trozos).html",
-            "salida": "download_btn_Detalle_agrupacion_continuas",
+            "salida": "download_btn_Detalle_agrupacionContinuas",
             "descarga_unic": "download_btn_Detalle_agrupacion_continuas",
             "salida_unic": "salida_prueba_Detalle_agrupación_continuas",
         },
@@ -221,37 +221,41 @@ def server_resul(input, output, session, name_suffix):
     @render.download(filename="Validation_InS.zip")
     def download_btn1_insample():
         resultado_id  = "Validation_InS"
-        return resultado_desarrollo.descargar_unico_html(resultado_id)
+        return resultado_in_sample.descargar_unico_html(resultado_id)
     
     @output
     @render.download(filename="Resultados_Oss.zip")
     def download_btn1():
         resultado_id  = "Resultados_Oss"
-        return resultado_desarrollo.descargar_unico_html(resultado_id)
+        return resultado_class_instance.descargar_unico_html(resultado_id)
     
     @output
     @render.download(filename="Scoring.zip")
     def download_produccion_scoring():
         resultado_id  = "Scoring"
-        return resultado_desarrollo.descargar_unico_html(resultado_id)
+        return resultado_class_instance_produccion.descargar_unico_html(resultado_id)
     
         
     
     @render.download(filename="Resultados completos de desarollo.zip")
     def descargar_resultados_desarollo():
-        return resultado_desarrollo.descargar_resultados()
+        directorio = r"/mnt/c/Users/fvillanueva/flask_prueba/static/Clean-Transf.html"
+        return resultado_desarrollo.descargar_resultados(directorio)
     
     @render.download(filename="Resultados completos de In-Sample.zip")
     def descargar_resultados_validacion():
-        return resultado_desarrollo.descargar_resultados()
+        directorio = r"/mnt/c/Users/fvillanueva/flask_prueba/static/Scoring.html"
+        return resultado_in_sample.descargar_resultados(directorio)
     
     @render.download(filename="Resultados completos de Out-of-Sample.zip")
     def descargar_resultados_validacion_out_of_sample():
-        return resultado_desarrollo.descargar_resultados()
+        directorio = r"/mnt/c/Users/fvillanueva/flask_prueba/static/Validation_OoS.html"
+        return resultado_class_instance.descargar_resultados(directorio)
     
     @render.download(filename="Resultados completos de Producción.zip")
     def descargar_resultados_produccion():
-        return resultado_desarrollo.descargar_resultados()
+        directorio = r"/mnt/c/Users/fvillanueva/flask_prueba/static/Scoring.html"
+        return resultado_class_instance_produccion.descargar_resultados(directorio)
 
     
     
