@@ -7,10 +7,27 @@ from funciones.create_menu_resul_model import create_nav_menu_result_model
 from funciones.utils import retornar_card
 from clases.class_user_proyectName import global_user_proyecto
 from clases.global_modelo import modelo_of_sample
+from clases.global_modelo import modelo_in_sample
+from clases.global_session import global_session
+from funciones.utils_2 import get_user_directory
 
 def server_modelos(input, output, session, name_suffix):
    
-   
+    def see_session():
+        @reactive.effect
+        def enviar_session():
+            if global_session.proceso.get():
+                state = global_session.session_state.get()
+                if state["is_logged_in"]:
+                    user_id = state["id"]
+                    user = get_user_directory(user_id)
+                    print(user)
+                    user_id_cleaned = user_id.replace('|', '_')
+                    #directorio_desarollo.set(user)
+                    modelo_in_sample.script_path = f"./Validar_Desa.sh datos_entrada_{user_id_cleaned} datos_salida_{user_id_cleaned}"
+    
+    
+    see_session()
     
     @output
     @render.text
@@ -32,14 +49,7 @@ def server_modelos(input, output, session, name_suffix):
     
     create_navigation_handler("volver_etapas","Screen_User")
     
-    modelo_in_sample = ModeloProceso(
-        nombre="in_sample",
-        mensaje_id= "mensaje_id_in_sample",
-        name_file = "", 
-        directorio=r"/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat",
-        script_name="",
-        script_path="./Validar_Desa.sh datos_entrada datos_salida" 
-    )
+    
     
     ##FUNCION PARA RETORNAR LA TARJETA
     @output

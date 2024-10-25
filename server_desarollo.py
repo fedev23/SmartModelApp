@@ -99,7 +99,7 @@ def server_desarollo(input, output, session, name_suffix):
         mensaje_value = global_desarollo.mensaje.get()  # Obtener mensaje actual
         proceso = global_desarollo.proceso.get()
         print(click_count_value)
-        await ejectutar_desarrollo_asnyc(click_count_value, mensaje_value, proceso)  # Asegúrate de usar await aquí
+        ejectutar_desarrollo_asnyc(click_count_value, mensaje_value, proceso)  # Asegúrate de usar await aquí
         fecha_hora_registrada = global_desarollo.log_fecha_hora()
         global_fecha.set_fecha_desarrollo(fecha_hora_registrada)
 

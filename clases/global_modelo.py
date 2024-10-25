@@ -10,6 +10,15 @@ global_desarollo = ModeloProceso(
     script_path=""
 )
 
+modelo_in_sample = ModeloProceso(
+        nombre="in_sample",
+        mensaje_id= "mensaje_id_in_sample",
+        name_file = "", 
+        directorio=r"/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat",
+        script_name="",
+        script_path="./Validar_Desa.sh datos_entrada datos_salida" 
+    )
+
 
 modelo_of_sample = ModeloProceso(
         nombre="of_sample",
