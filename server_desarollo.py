@@ -25,8 +25,9 @@ def server_desarollo(input, output, session, name_suffix):
                     user_id = state["id"]
                     user = get_user_directory(user_id)
                     print(user)
+                    user_id_cleaned = user_id.replace('|', '_')
                     directorio_desarollo.set(user)
-                    global_desarollo.script_path = f"./Modelar.sh datos_entrada_{user_id} datos_salida_{user_id}"
+                    global_desarollo.script_path = f"./Modelar.sh datos_entrada_{user_id_cleaned} datos_salida_{user_id_cleaned}"
                     
                     ##voy a usar la clase como efecto reactivo, ya que si queda encapsulada dentro de la funcion no la podria usar
                     screen_instance.set(ScreenClass(directorio_desarollo.get(), name_suffix))
@@ -97,6 +98,7 @@ def server_desarollo(input, output, session, name_suffix):
         click_count_value = global_desarollo.click_counter.get()  # Obtener contador
         mensaje_value = global_desarollo.mensaje.get()  # Obtener mensaje actual
         proceso = global_desarollo.proceso.get()
+        print(click_count_value)
         await ejectutar_desarrollo_asnyc(click_count_value, mensaje_value, proceso)  # Asegúrate de usar await aquí
         fecha_hora_registrada = global_desarollo.log_fecha_hora()
         global_fecha.set_fecha_desarrollo(fecha_hora_registrada)

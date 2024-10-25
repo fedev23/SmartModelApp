@@ -57,7 +57,7 @@ class ModeloProceso:
             # Esperar a que el proceso termine
             return_code = await process.wait()
 
-            # Unir todas las líneas capturadas en un solo string
+            # Unir todas las lineas capturadas en un solo string
             stdout_output = '\n'.join(stdout)
             stderr_output = '\n'.join(stderr)
 
@@ -84,10 +84,10 @@ class ModeloProceso:
                 else:
                     self.mensaje.set(f"Ejecución completada con éxito.")
                     self.proceso.set(True)
-                    origen = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida'
-                    salida = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada'
-                    mover = mover_files(origen, salida)
-                    print("movi a", mover)
+                    #origen = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida'
+                    #salida = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada'
+                    #mover = mover_files(origen, salida)
+                    #print("movi a", mover)
                     
 
                 return stdout, stderr 
