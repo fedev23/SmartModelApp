@@ -11,19 +11,39 @@ from clases.class_screens import ScreenClass
 from funciones.utils import retornar_card
 from clases.class_user_proyectName import global_user_proyecto
 from funciones.utils_2 import errores, validar_proyecto
+from clases.global_session import global_session
+from funciones.utils_2 import get_user_directory
+from clases.global_modelo import modelo_of_sample
 
 
 def server_produccion(input, output, session, name_suffix):
-    hay_error = reactive.Value(False)
-    error_messages = []
-    mensaje_error = reactive.Value("")
     proceso_a_completado = reactive.Value(False)
+    directorio = reactive.Value("")
+    screen_instance = reactive.Value("")
     directorio_produccion = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat'
     name = "Producción"
     mensaje = reactive.Value("")
     data_loader = global_data_loader_manager.get_loader(name_suffix)
     # Instanciamos la clase ScreenClass
-    screen_instance = ScreenClass(directorio_produccion, name_suffix)
+    #screen_instance = ScreenClass(directorio_produccion, name_suffix)
+    
+    
+    def see_session():
+        @reactive.effect
+        def enviar_session():
+            if global_session.proceso.get():
+                state = global_session.session_state.get()
+                if state["is_logged_in"]:
+                    user_id = state["id"]
+                    user = get_user_directory(user_id)
+                    print(user)
+                    user_id_cleaned = user_id.replace('|', '_')
+                    directorio.set(user)
+                    modelo_produccion.script_path = f"./Scoring.sh datos_entrada_{user_id_cleaned} datos_salida_{user_id_cleaned}"
+                    ##voy a usar la clase como efecto reactivo, ya que si queda encapsulada dentro de la funcion no la podria usar
+                    screen_instance.set(ScreenClass(directorio.get(), name_suffix))
+                    
+    see_session()
 
     @output
     @render.text
@@ -39,7 +59,7 @@ def server_produccion(input, output, session, name_suffix):
     @reactive.event(input.file_produccion)
     async def loadOutSample():
         print("entre")
-        await screen_instance.load_data(input.file_produccion, input.delimiter_produccion, name_suffix)
+        await screen_instance.get().load_data(input.file_produccion, input.delimiter_produccion, name_suffix)
 
     @reactive.Effect
     @reactive.event(input.load_param_produccion)
@@ -56,7 +76,7 @@ def server_produccion(input, output, session, name_suffix):
             return  # Detener la ejecución si no hay proyecto asignado
 
         # 3. Continuar si ambas validaciones anteriores pasan
-        if screen_instance.proceso_a_completado.get():
+        if screen_instance.get().proceso_a_completado.get():
             create_navigation_handler(f'load_param_{name_suffix}', 'Screen_3')
             ui.update_accordion("my_accordion", show=["out_to_sample"])
 
@@ -68,7 +88,7 @@ def server_produccion(input, output, session, name_suffix):
     @output
     @render.data_frame
     def summary_data_produccion():
-        return screen_instance.render_data_summary()
+        return screen_instance.get().render_data_summary()
 
     @output
     @render.ui
