@@ -147,15 +147,15 @@ def server_in_sample(input, output, session, name_suffix):
             niveles_mapeados = transform_data(df_editado)
 
             # Guardar los datos procesados en un archivo JSON
-            load_handler = LoadJson(input)
-            load_handler.inputs['par_rango_niveles'] = niveles_mapeados
-            load_handler.inputs['par_rango_segmentos'] = segmentosMap
-            load_handler.inputs['par_rango_reportes'] = reportesMap
-            load_handler.inputs['par_vars_segmento'] = par_vars_segmento
-            load_handler.inputs.update(inputs_procesados)
+            #load_handler = LoadJson(input)
+            #load_handler.inputs['par_rango_niveles'] = niveles_mapeados
+            #load_handler.inputs['par_rango_segmentos'] = segmentosMap
+            #load_handler.inputs['par_rango_reportes'] = reportesMap
+            #load_handler.inputs['par_vars_segmento'] = par_vars_segmento
+            #load_handler.inputs.update(inputs_procesados)
 
-            json_file_path = load_handler.loop_json()
-            print(f"Inputs guardados en {json_file_path}, en {name_suffix}")
+            #json_file_path = load_handler.loop_json()
+            #print(f"Inputs guardados en {json_file_path}, en {name_suffix}")
             create_navigation_handler_validacion(f'load_param_{name_suffix}', 'Screen_3', no_error)
             ui.update_accordion("my_accordion", show=["in_sample"])
         else:

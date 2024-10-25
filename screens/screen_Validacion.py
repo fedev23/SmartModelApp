@@ -18,7 +18,7 @@ screenValid = ui.page_fluid(
         ui.h3(f"{global_name_out_of_Sample}", class_="custom-title"),  # Título principal
         ui.h4("Dataset"),  # Subtítulo
         ui.column(12, 
-            ui.input_file("file_validation", "Seleccion de archivo CSV o TXT", 
+            ui.input_file("file_validation", "Selección de archivo CSV o TXT. Es importante seleccionar primero el delimitador, luego el dataset.", 
                 button_label='Cargar archivo', 
                 placeholder='Buscar el archivo', 
                 accept=[".csv", ".txt"], 

@@ -15,7 +15,7 @@ screenProduccion = ui.page_fluid(
             ui.h3("Producción", class_="custom-title"),
             ui.h4("Dataset"),  
             ui.column(12, 
-            ui.input_file("file_produccion", "Seleccion de archivo CSV o TXT", 
+            ui.input_file("file_produccion", "Selección de archivo CSV o TXT. Es importante seleccionar primero el delimitador, luego el dataset.", 
                 button_label='Cargar archivo', 
                 placeholder='Buscar el archivo', 
                 accept=[".csv", ".txt"], 
