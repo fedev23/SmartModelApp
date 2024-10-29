@@ -19,7 +19,7 @@ screenInSample = ui.page_fluid(
         ui.tags.link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css")
     ),
     ui.div(
-        ui.input_action_button("volver_inSample", "SmartModel", class_="logo-button"), 
+        ui.input_action_button("volver_inSample", "SmartModeling", class_="logo-button"), 
     ),
     ui.output_ui("menuInSample"),
     ui.output_ui("salida_error"),

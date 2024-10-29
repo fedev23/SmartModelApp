@@ -29,14 +29,14 @@ def server_resul(input, output, session, name_suffix):
     resultados_desarrollo = [
         {
             "resultado_id": "Clean_Transf",
-            "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Clean-Transf.html",
+            "resultado_path": r"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_auth0_670d225413861ad9fa6849d3/Reportes/Clean-Transf.html",
             "salida": "result_Clean_Transf",
             "salida_unic": "salida_prueba_Clean_Transf",
             "descarga_unic": "download_btn1_Clean_Transf",
         },
         {
             "resultado_id": "Detalle_agrupacion",
-            "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Detalle agrupación x WoE Categoricas.html",
+            "resultado_path": r"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_auth0_670d225413861ad9fa6849d3/Reportes/Detalle agrupación x WoE Categoricas.html",
             "salida": "Detalle_agrupación_salida",
             "descarga_unic": "download_btn_Detalle_agrupacion",
             "salida_unic": "salida_prueba_Detalle_agrupación",
@@ -44,7 +44,7 @@ def server_resul(input, output, session, name_suffix):
         {
             "resultado_id": "Detalle_agrupación_continuas",
             "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Detalle agrupación x WoE Continuas  (Monotonía más Interpolación Lineal a Trozos).html",
-            "salida": "download_btn_Detalle_agrupacion_continuas",
+            "salida": "download_btn_Detalle_agrupacionContinuas",
             "descarga_unic": "download_btn_Detalle_agrupacion_continuas",
             "salida_unic": "salida_prueba_Detalle_agrupación_continuas",
         },
@@ -221,19 +221,19 @@ def server_resul(input, output, session, name_suffix):
     @render.download(filename="Validation_InS.zip")
     def download_btn1_insample():
         resultado_id  = "Validation_InS"
-        return resultado_desarrollo.descargar_unico_html(resultado_id)
+        return resultado_in_sample.descargar_unico_html(resultado_id)
     
     @output
     @render.download(filename="Resultados_Oss.zip")
     def download_btn1():
         resultado_id  = "Resultados_Oss"
-        return resultado_desarrollo.descargar_unico_html(resultado_id)
+        return resultados_out_to_sample.descargar_unico_html(resultado_id)
     
     @output
     @render.download(filename="Scoring.zip")
     def download_produccion_scoring():
         resultado_id  = "Scoring"
-        return resultado_desarrollo.descargar_unico_html(resultado_id)
+        return resultado_class_instance_produccion.descargar_unico_html(resultado_id)
     
         
     
@@ -243,15 +243,15 @@ def server_resul(input, output, session, name_suffix):
     
     @render.download(filename="Resultados completos de In-Sample.zip")
     def descargar_resultados_validacion():
-        return resultado_desarrollo.descargar_resultados()
+        return resultado_in_sample.descargar_resultados()
     
     @render.download(filename="Resultados completos de Out-of-Sample.zip")
     def descargar_resultados_validacion_out_of_sample():
-        return resultado_desarrollo.descargar_resultados()
+        return resultados_out_to_sample.descargar_resultados()
     
     @render.download(filename="Resultados completos de Producción.zip")
     def descargar_resultados_produccion():
-        return resultado_desarrollo.descargar_resultados()
+        return resultado_class_instance_produccion.descargar_resultados()
 
     
     

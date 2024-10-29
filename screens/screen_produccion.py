@@ -8,7 +8,7 @@ CHOICES = {
 
 screenProduccion = ui.page_fluid(
         ui.div(
-            ui.input_action_button("volver_produccion", "SmartModel", class_="logo-button"),
+            ui.input_action_button("volver_produccion", "SmartModeling", class_="logo-button"),
         ),
         ui.output_ui("nav_out_to_produccion"),
         ui.div(

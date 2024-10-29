@@ -1,7 +1,7 @@
 from shiny import ui
 
 screen_User = ui.page_fluid(
-    ui.tags.button("SmartModel", class_="logo-button"),
+    ui.tags.button("SmartModeling", class_="logo-button"),
     ui.output_ui("create_user_menu"),
     ui.div(
          ui.accordion(

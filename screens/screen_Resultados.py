@@ -9,7 +9,7 @@ from clases.class_resultado import ResultadoClassPrueba
 screenResult = ui.page_fluid(
     ui.div(
         ui.div(
-             ui.input_action_button("volver_resultados" ,"SmartModel", class_="logo-button"), 
+             ui.input_action_button("volver_resultados" ,"SmartModeling", class_="logo-button"), 
         ),
         ui.div(
             ui.output_ui("menu_resultados"),

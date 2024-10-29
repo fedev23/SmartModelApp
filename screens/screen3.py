@@ -2,7 +2,7 @@ from shiny import ui
 
 screen3 = ui.page_fluid(
         ui.div(
-            ui.input_action_button("volver_modelo" ,"SmartModel", class_="logo-button"), 
+            ui.input_action_button("volver_modelo" ,"SmartModeling", class_="logo-button"), 
         ),
         ui.output_ui("menu_modelo"),
          ui.h3(ui.output_text("nombre_proyecto_modelo")),

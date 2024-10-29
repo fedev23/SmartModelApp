@@ -32,7 +32,6 @@ def trans_nulos_adic(input_name):
 def validar_proyecto(nombre_proyecto):
     if not nombre_proyecto:  # Esto verifica si está vacío o None
         return False
-    # Aquí puedes agregar más lógica de validación si es necesario
     return True  # 
 
 
@@ -46,17 +45,6 @@ def mostrar_error(mensaje_error):
         )
         
         
-        
-def extract_user_id(token):
-    try:
-        # Decodificar el token (esto no verifica la firma, solo decodifica el contenido)
-        decoded_token = jwt.decode(token, options={"verify_signature": False}, algorithms=["HS256"])
-        # El user_id normalmente está en el campo 'sub' del JWT
-        return decoded_token.get("sub")  # Extraer el 'sub' claim (user_id)
-    except jwt.DecodeError as e:
-        print(f"Error al decodificar el token JWT: {e}")
-        return None
-
 # Crear carpetas por ID de usuario
 def crear_carpetas_por_id_user(user_id):
     user_id_cleaned = user_id.replace('|', '_')
@@ -88,8 +76,3 @@ def get_user_directory(user_id):
         print(f"El directorio {user_directory} no existe.")
         return None
 
-def acomodar_mail(mail):
-    email = mail
-    nick = email.split('@')[0]  # Obtiene la parte antes del '@'
-    print(nick)
-    return nick

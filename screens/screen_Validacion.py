@@ -10,7 +10,7 @@ CHOICES = {
 screenValid = ui.page_fluid(
     # Contenedor para el botón de regreso
     ui.div(
-        ui.input_action_button("volver_validacion", "SmartModel", class_="logo-button"),
+        ui.input_action_button("volver_validacion", "SmartModeling", class_="logo-button"),
     ),
     ui.output_ui("nav_out_to_sample"),
     # Contenedor para el contenido principal

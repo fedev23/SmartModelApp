@@ -22,7 +22,7 @@ data_loader = global_data_loader_manager.get_loader(name_suffix)
 
 screenDesarollo = ui.page_fluid(
     ui.div(
-        ui.input_action_button("volver_etapas_desde_desarrollo", "SmartModel", class_="logo-button")),
+        ui.input_action_button("volver_etapas_desde_desarrollo", "SmartModeling", class_="logo-button")),
     ui.div(
         ui.output_ui("conten_nav")
     ),
