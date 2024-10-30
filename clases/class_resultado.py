@@ -6,6 +6,7 @@ from starlette.routing import Mount
 from starlette.staticfiles import StaticFiles
 from funciones.utils import create_zip_from_directory, create_zip_from_file_unico
 import re
+from clases.global_session import global_session
 
 
 #static_app = StaticFiles(directory='/mnt/c/Users/fvillanueva/flask_prueba/static', html=True)
@@ -22,16 +23,16 @@ class ResultadoClassPrueba:
         self.accordion_open = {r['resultado_id']: reactive.Value(False) for r in resultados}
         self.proceso_ok = reactive.Value(False)
         
-    def make_example(self, id, label: str, title):
-        id_str = str(id).strip()
-        print(id_str)
-        return ui.column(
-            4,
-            ui.div(
-                ui.download_button(id_str, label, class_="btn-primary"),
-            ),
-        )
-
+    def obtener_user_id(self):
+        @reactive.effect
+        def enviar_session():
+            if global_session.proceso.get():
+                state = global_session.session_state.get()
+                if state["is_logged_in"]:
+                    user_id = state["id"]
+                    user_id_cleaned = user_id.replace('|', '_')
+                    print(user_id_cleaned)
+    
     def resultado_cards(self):
         # Crear todas las tarjetas de resultados
         cards = []
@@ -82,7 +83,8 @@ class ResultadoClassPrueba:
             resultado_path = next((r['resultado_path'] for r in self.resultados if r['resultado_id'] == resultado_id), None)
             print(resultado_path)
             if resultado_path and self.accordion_open[resultado_id].get():
-                iframe_src = f'/static/{os.path.basename(resultado_path)}'
+                user_id = self.obtener_user_id()
+                iframe_src = f'/static/{os.path.basename(resultado_path)}?user_id={user_id}'
                 return ui.div(
                     ui.tags.iframe(src=iframe_src, width='350%', height='500px'))
             else:

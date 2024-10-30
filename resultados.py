@@ -1,13 +1,14 @@
 from shiny import reactive, render, ui
 from clases.class_result import ResultadoClass
 from clases.class_resultado import ResultadoClassPrueba
-
+from clases.global_session import global_session
 from funciones.create_menu_resul_model import create_nav_menu_result_model
 from clases.class_user_proyectName import global_user_proyecto
 
 
 def server_resul(input, output, session, name_suffix):
     proceso_ok = reactive.Value(False)
+    user_id_global = None
 
     @output
     @render.text
@@ -21,49 +22,61 @@ def server_resul(input, output, session, name_suffix):
 
    
 
-    # Descargar todos los resultados de desarollo
-    @render.download(filename="Resultados completos de desarollo.zip")
-    def descargar_resultados_desarollo():
-        return resultado_desarrollo.descargar_resultados()
+    def get_user_id_from_session():
+        @reactive.effect
+        def enviar_session():
+            if global_session.proceso.get():
+                state = global_session.session_state.get()
+                if state["is_logged_in"]:
+                    user_id = state["id"].replace('|', '_')
+                    global user_id_global
+                    user_id_global = user_id
+                    print(f"[get_user_id_from_session] user_id_global asignado: {user_id_global}")
+                    return user_id
+                
+    get_user_id_from_session()
+    def crear_resultados_desarrollo():
+        resultados_desarrollo = [
+            {
+                "resultado_id": "Clean_Transf",
+                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id_global}/Reportes/Clean-Transf.html",
+                "salida": "result_Clean_Transf",
+                "salida_unic": "salida_prueba_Clean_Transf",
+                "descarga_unic": "download_btn1_Clean_Transf",
+            },
+            {
+                "resultado_id": "Detalle_agrupacion",
+                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id_global}/Reportes/Detalle agrupación x WoE Categoricas.html",
+                "salida": "Detalle_agrupación_salida",
+                "descarga_unic": "download_btn_Detalle_agrupacion",
+                "salida_unic": "salida_prueba_Detalle_agrupación",
+            },
+            {
+                "resultado_id": "Detalle_agrupación_continuas",
+                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id_global}/Reportes/Detalle agrupación x WoE Continuas (Monotonía más Interpolación Lineal a Trozos).html",
+                "salida": "download_btn_Detalle_agrupacionContinuas",
+                "descarga_unic": "download_btn_Detalle_agrupacion_continuas",
+                "salida_unic": "salida_prueba_Detalle_agrupación_continuas",
+            },
+            {
+                "resultado_id": "detalle_monotonia",
+                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id_global}/Reportes/Detalle agrupación x WoE Continuas (Monotonía).html",
+                "salida": "detalle_monotonia_salida",
+                "descarga_unic": "download_btn_detalle_monotonia",
+                "salida_unic": "salida_detalle_monotonia",
+            },
+            {
+                "resultado_id": "modelling",
+                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id_global}/Reportes/Modelling.html",
+                "salida": "detalle_modelling",
+                "descarga_unic": "download_btn_modelling",
+                "salida_unic": "salida_modelling",
+            },
+        ]
+        return resultados_desarrollo
+    
+    resultados_desarrollo = crear_resultados_desarrollo()
 
-    resultados_desarrollo = [
-        {
-            "resultado_id": "Clean_Transf",
-            "resultado_path": r"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_auth0_670d225413861ad9fa6849d3/Reportes/Clean-Transf.html",
-            "salida": "result_Clean_Transf",
-            "salida_unic": "salida_prueba_Clean_Transf",
-            "descarga_unic": "download_btn1_Clean_Transf",
-        },
-        {
-            "resultado_id": "Detalle_agrupacion",
-            "resultado_path": r"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_auth0_670d225413861ad9fa6849d3/Reportes/Detalle agrupación x WoE Categoricas.html",
-            "salida": "Detalle_agrupación_salida",
-            "descarga_unic": "download_btn_Detalle_agrupacion",
-            "salida_unic": "salida_prueba_Detalle_agrupación",
-        },
-        {
-            "resultado_id": "Detalle_agrupación_continuas",
-            "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Detalle agrupación x WoE Continuas  (Monotonía más Interpolación Lineal a Trozos).html",
-            "salida": "download_btn_Detalle_agrupacionContinuas",
-            "descarga_unic": "download_btn_Detalle_agrupacion_continuas",
-            "salida_unic": "salida_prueba_Detalle_agrupación_continuas",
-        },
-        {
-            "resultado_id": "detalle_monotonia",
-            "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Detalle agrupación x WoE Continuas  (Monotonía).html",
-            "salida": "detalle_monotonia_salida",
-            "descarga_unic": "download_btn_detalle_monotonia",
-            "salida_unic": "salida_detalle_monotonia",
-        },
-        {
-            "resultado_id": "modelling",
-            "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Modelling.html",
-            "salida": "detalle_modelling",
-            "descarga_unic": "download_btn_modelling",
-            "salida_unic": "salida_modelling",
-        },
-
-    ]
 
     resultados_in_sample = [
         {

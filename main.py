@@ -1,9 +1,11 @@
 from starlette.applications import Starlette
-from starlette.routing import Mount
+from starlette.responses import JSONResponse, PlainTextResponse
+from starlette.endpoints import HTTPEndpoint
+from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.responses import Response
 from shiny import App, reactive
+import os 
+from starlette.responses import FileResponse, JSONResponse
 from app_ui import app_ui
 from outofSample import server_out_of_sample
 from validacion_param.parametros_desarrollo import server_parametros_desarrollo
@@ -15,53 +17,13 @@ from user import user_server
 from servers.server_in_sample import server_in_sample
 from auth.auth import server_login
 from clases.global_session import global_session
-import logging
 
-# Configuración de logging
-logging.basicConfig(level=logging.DEBUG)
-
-# Variable global para almacenar el ID del usuario
 user_id_global = None
 
-# Función para crear la instancia de archivos estáticos con la ruta del usuario
-def get_static_files():
-    """Retorna la instancia de StaticFiles con la ruta del directorio de usuario actual."""
-    if user_id_global:
-        user_directory = f"/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id_global}/Reportes"
-        logging.debug(f"[get_static_files] Ruta del directorio estático asignada: {user_directory}")
-        return StaticFiles(directory=user_directory, html=True)
-    else:
-        logging.debug("[get_static_files] user_id_global no disponible, usando ruta predeterminada.")
-        return StaticFiles(directory="/mnt/c/Users/fvillanueva/flask_prueba/static", html=True)
+# Define the static file directory
+app_static = StaticFiles(directory="/mnt/c/Users/fvillanueva/flask_prueba/static", html=True)
 
-# Middleware dinámico para actualizar el directorio estático
-class DynamicStaticMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request, call_next):
-        if request.url.path.startswith("/static"):
-            static_app = get_static_files()  # Obtiene la instancia aquí
-            try:
-                response = await static_app(request.scope, request.receive, request._send)
-                return response
-            except Exception as e:  # Manejar cualquier excepción que se produzca
-                logging.error(f"Error al servir archivo estático: {e}")
-                return await call_next(request)
-        return await call_next(request)
-
-
-# Obtener el `user_id` desde la sesión y actualizar `user_id_global`
-def get_user_id_from_session():
-    @reactive.effect
-    def enviar_session():
-        if global_session.proceso.get():
-            state = global_session.session_state.get()
-            if state["is_logged_in"]:
-                user_id = state["id"].replace('|', '_')
-                global user_id_global
-                user_id_global = user_id
-                logging.debug(f"[get_user_id_from_session] user_id_global asignado: {user_id_global}")
-                return user_id
-
-# Definir el servidor de Shiny
+# Define the Shiny server function
 def create_server(input, output, session):
     server_parametros_desarrollo(input, output, session, 'desarrollo')
     server_login(input, output, session)
@@ -72,20 +34,54 @@ def create_server(input, output, session):
     server_modelos(input, output, session, 'modelo')
     server_resul(input, output, session, 'resultados')
     user_server(input, output, session, 'user')
-    
-    get_user_id_from_session()
 
-# Crear la aplicación Shiny
+   
+
+# Create the Shiny app
 app_shiny = App(app_ui, create_server)
 
-# Definir las rutas de Starlette
+
+class ProcessUserIDEndpoint(HTTPEndpoint):
+    async def get(self, request):
+        print("Received request")
+        user_id = request.query_params.get("user_id")  # Obtiene el user_id de los parámetros de consulta
+        print(f"User ID: {user_id}")
+        if user_id:
+            return JSONResponse({"message": f"User ID {user_id} processed successfully"})
+        else:
+            return JSONResponse({"error": "User ID not provided"}, status_code=400)
+        
+        
+class DynamicStaticFileEndpoint(HTTPEndpoint):
+    async def get(self, request):
+        user_id = request.query_params.get("user_id")  # Obtener el user_id de los parámetros de consulta
+        if user_id:
+            # Construir el directorio del usuario
+            user_directory = f"/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id}/Reportes"
+            
+            # Obtener el nombre del archivo solicitado
+            file_path = request.path_params["file_name"]
+            full_path = os.path.join(user_directory, file_path)
+            
+            # Comprobar si el archivo existe
+            if os.path.isfile(full_path):
+                return FileResponse(full_path)
+            else:
+                return JSONResponse({"error": "File not found"}, status_code=404)
+        else:
+            return JSONResponse({"error": "User ID not provided"}, status_code=400)
+
+
+# Define the routes for Starlette
 routes = [
+    Route('/api/user_files/{file_name}', DynamicStaticFileEndpoint), 
+    Route('/api/process_user_id', ProcessUserIDEndpoint),
     Mount('/shiny', app=app_shiny),
-    Mount('/static', app=get_static_files())  # Inicialización con función dinámica
+   
 ]
 
-# Crear la aplicación principal de Starlette y añadir el middleware
+# Create the main Starlette app with the defined routes
 app = Starlette(routes=routes)
-app.add_middleware(DynamicStaticMiddleware)
 
-logging.debug("Aplicación Starlette iniciada con middleware dinámico para archivos estáticos.")
+# To run this file, save it as main.py and run with:
+# uvicorn main:app --host 127.0.0.1 --port 3000 --reload
