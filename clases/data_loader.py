@@ -9,7 +9,7 @@ class DataLoader:
         self.dataset = reactive.Value(None)
         self.name_reactive = reactive.Value(None)
         #self.file_name = reactive.Value(None)
-    async def cargar_archivos(self, file_info, delimitador, directorio_validacion):
+    async def cargar_archivos(self, file_info, directorio_validacion):
         print(f"Botón 'Cargar Datos' presionado en {self.key}.")
 
         if not file_info:
@@ -17,7 +17,7 @@ class DataLoader:
             raise ValueError("No se seleccionó ningún archivo")
         
         # Instanciar la clase CargarDatos
-        cargador = CargarDatos(file_info, delimitador, directorio_validacion)
+        cargador = CargarDatos(file_info, directorio_validacion)
 
         # Mostrar el indicador de progreso
         with ui.Progress(min=1, max=19) as p:

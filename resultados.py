@@ -34,40 +34,40 @@ def server_resul(input, output, session, name_suffix):
                     print(f"[get_user_id_from_session] user_id_global asignado: {user_id_global}")
                     return user_id
                 
-    get_user_id_from_session()
+    user_id = get_user_id_from_session()
     def crear_resultados_desarrollo():
         resultados_desarrollo = [
             {
                 "resultado_id": "Clean_Transf",
-                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id_global}/Reportes/Clean-Transf.html",
+                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id}/Reportes/Clean-Transf.html",
                 "salida": "result_Clean_Transf",
                 "salida_unic": "salida_prueba_Clean_Transf",
                 "descarga_unic": "download_btn1_Clean_Transf",
             },
             {
                 "resultado_id": "Detalle_agrupacion",
-                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id_global}/Reportes/Detalle agrupación x WoE Categoricas.html",
+                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id}/Reportes/Detalle agrupación x WoE Categoricas.html",
                 "salida": "Detalle_agrupación_salida",
                 "descarga_unic": "download_btn_Detalle_agrupacion",
                 "salida_unic": "salida_prueba_Detalle_agrupación",
             },
             {
                 "resultado_id": "Detalle_agrupación_continuas",
-                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id_global}/Reportes/Detalle agrupación x WoE Continuas (Monotonía más Interpolación Lineal a Trozos).html",
+                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id}/Reportes/Detalle agrupación x WoE Continuas (Monotonía más Interpolación Lineal a Trozos).html",
                 "salida": "download_btn_Detalle_agrupacionContinuas",
                 "descarga_unic": "download_btn_Detalle_agrupacion_continuas",
                 "salida_unic": "salida_prueba_Detalle_agrupación_continuas",
             },
             {
                 "resultado_id": "detalle_monotonia",
-                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id_global}/Reportes/Detalle agrupación x WoE Continuas (Monotonía).html",
+                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id}/Reportes/Detalle agrupación x WoE Continuas (Monotonía).html",
                 "salida": "detalle_monotonia_salida",
                 "descarga_unic": "download_btn_detalle_monotonia",
                 "salida_unic": "salida_detalle_monotonia",
             },
             {
                 "resultado_id": "modelling",
-                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id_global}/Reportes/Modelling.html",
+                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id}/Reportes/Modelling.html",
                 "salida": "detalle_modelling",
                 "descarga_unic": "download_btn_modelling",
                 "salida_unic": "salida_modelling",
@@ -112,6 +112,7 @@ def server_resul(input, output, session, name_suffix):
     resultado_class_instance = ResultadoClassPrueba(resultados_out_to_sample)
     resultado_in_sample = ResultadoClassPrueba(resultados_in_sample)
     resultado_class_instance_produccion = ResultadoClassPrueba(resultados_produccion)
+    
     
 
     def create_salida_unic(resultado_id, salida_unic):
@@ -170,6 +171,7 @@ def server_resul(input, output, session, name_suffix):
     @render.ui
     def render_resultado_card():
         resultado_desarrollo.abrir_acordeon(input)
+        resultado_desarrollo.obtener_user_id()
         return resultado_desarrollo.resultado_cards()
 
     

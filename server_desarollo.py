@@ -51,7 +51,7 @@ def server_desarollo(input, output, session, name_suffix):
     @reactive.Effect
     @reactive.event(input.file_desarollo)
     async def cargar_Datos_desarrollo():
-        await screen_instance.get().load_data(input.file_desarollo, input.delimiter_desarollo, name_suffix)
+        await screen_instance.get().load_data(input.file_desarollo, name_suffix)
 
     @output
     @render.ui

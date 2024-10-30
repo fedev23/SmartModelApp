@@ -33,8 +33,6 @@ screenDesarollo = ui.page_fluid(
         ui.h4("Dataset"),
         ui.column(12, ui.input_file("file_desarollo", "Seleccion de archivo CSV o TXT",
                   button_label='Cargar archivo', placeholder='Buscar el archivo', accept=[".csv", ".txt"], width="100%")),
-        ui.column(12, ui.input_select("delimiter_desarollo",
-                  "Tipo de delimitador", choices=CHOICES["tipo"], width="100%")),
         ui.output_text_verbatim("error"),
         ui.output_text_verbatim("error_proyecto"),
         

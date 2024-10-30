@@ -45,7 +45,7 @@ class ScreenClass():
 
 # esta funcion esta divida en dos sobre la clase padre, este clae hereda de dataloader sus metodos
   # FUNCION QUE SE UTILIZA PARA CARGAR DATOS EN TODOS LOS SERVIDORES O SEA CARGA LOS DATOS DE DESAROLLO, IN SAMPLE ETC..
-    async def load_data(self, file_func, delimiter_func, name_suffix):
+    async def load_data(self, file_func, name_suffix):
         try:
             file_info = file_func()
             if file_info is None or len(file_info) == 0:
@@ -87,8 +87,7 @@ class ScreenClass():
                 self.mensaje_Error.set("\n".join(self.error_messages))
             else:
                 # Obtener delimitador y cargar datos
-                delimitador = delimiter_func()
-                await self.data_loader.cargar_archivos(file_info, delimitador, self.directorio)
+                await self.data_loader.cargar_archivos(file_info, self.directorio)
                 self.error_messages.clear()  # Limpiar errores después de la carga exitosa
                 self.proceso_a_completado.set(True)
                 return nombre_archivo

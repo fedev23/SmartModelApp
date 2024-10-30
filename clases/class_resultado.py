@@ -22,6 +22,8 @@ class ResultadoClassPrueba:
         self.html_content = {r['resultado_id']: reactive.Value("") for r in resultados}
         self.accordion_open = {r['resultado_id']: reactive.Value(False) for r in resultados}
         self.proceso_ok = reactive.Value(False)
+        self.proceso_user = reactive.Value(False)
+        self.user = reactive.Value()
         
     def obtener_user_id(self):
         @reactive.effect
@@ -30,8 +32,11 @@ class ResultadoClassPrueba:
                 state = global_session.session_state.get()
                 if state["is_logged_in"]:
                     user_id = state["id"]
-                    user_id_cleaned = user_id.replace('|', '_')
-                    print(user_id_cleaned)
+                    user_id_cleaned = user_id.replace('|', '_') 
+                    self.proceso_user.set(True)
+                    print(f"antes de retornar{user_id_cleaned}")
+                    self.user.set(user_id_cleaned)
+                    return user_id_cleaned
     
     def resultado_cards(self):
         # Crear todas las tarjetas de resultados
@@ -79,17 +84,18 @@ class ResultadoClassPrueba:
         # Obtener el estado del acordeón específico para este resultado_id
         if resultado_id in self.accordion_open:
             #print(f"resultado esperado", resultado_id)
-            
             resultado_path = next((r['resultado_path'] for r in self.resultados if r['resultado_id'] == resultado_id), None)
             print(resultado_path)
-            if resultado_path and self.accordion_open[resultado_id].get():
-                user_id = self.obtener_user_id()
-                iframe_src = f'/static/{os.path.basename(resultado_path)}?user_id={user_id}'
-                return ui.div(
-                    ui.tags.iframe(src=iframe_src, width='350%', height='500px'))
-            else:
-                return ui.HTML("<p>Archivo no encontrado</p>")
-       
+            if self.proceso_user.get():
+                if resultado_path and self.accordion_open[resultado_id].get():
+                    user_id = self.user.get()
+                    print(user_id ,"estoy NONE EN RESULTADOS?")
+                    iframe_src = f'/api/user_files/{os.path.basename(resultado_path)}?user_id={user_id}'
+                    return ui.div(
+                        ui.tags.iframe(src=iframe_src, width='350%', height='500px'))
+                else:
+                    return ui.HTML("<p>Archivo no encontrado</p>")
+        
 
     def descargar_resultados(self, directory_path):
         temp_zip_path = tempfile.NamedTemporaryFile(delete=False).name + '.zip'

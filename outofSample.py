@@ -15,7 +15,7 @@ def server_out_of_sample(input, output, session, name_suffix):
     directorio = reactive.Value("")
     directorio_validacion = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat'
     hay_error = reactive.Value(False)
-    screen_instance = reactive.Value("")
+    screen_instance = reactive.Value(None)
     mensaje = reactive.Value("")
     name = "Out-Of-Sample"
     data_loader = global_data_loader_manager.get_loader(name_suffix)
@@ -38,6 +38,7 @@ def server_out_of_sample(input, output, session, name_suffix):
                     ##voy a usar la clase como efecto reactivo, ya que si queda encapsulada dentro de la funcion no la podria usar
                     screen_instance.set(ScreenClass(directorio.get(), name_suffix))
     
+    see_session()
 
     @output
     @render.text
@@ -53,7 +54,7 @@ def server_out_of_sample(input, output, session, name_suffix):
     @reactive.event(input.file_validation)
     async def loadOutSample():
         print("entre")
-        await screen_instance.get().load_data(input.file_validation, input.delimiter_validacion_out_to, name_suffix)
+        await screen_instance.get().load_data(input.file_validation, name_suffix)
 
     @reactive.Effect
     @reactive.event(input[f'load_param_{name_suffix}'])

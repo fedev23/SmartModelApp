@@ -24,11 +24,6 @@ screenValid = ui.page_fluid(
                 accept=[".csv", ".txt"], 
                 width="100%")  # Input para carga de archivos CSV o TXT
         ),
-        ui.column(12, 
-            ui.input_select("delimiter_validacion_out_to", "Tipo de delimitador", 
-                choices=CHOICES["tipo"], 
-                width="100%")  # Input para seleccionar el delimitador
-        ),
         # Tarjeta para mostrar datos de validación
         ui.card(
             ui.card_header("Datos de" " " f"{global_name_out_of_Sample}"),  # Encabezado de la tarjeta

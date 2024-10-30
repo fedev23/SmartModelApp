@@ -20,13 +20,7 @@ screenProduccion = ui.page_fluid(
                 placeholder='Buscar el archivo', 
                 accept=[".csv", ".txt"], 
                 width="100%")  # Input para carga de archivos CSV o TXT
-        ), 
-                ui.column(12, ui.input_select(
-                    "delimiter_produccion",
-                    "Tipo de delimitador",
-                    choices=CHOICES["tipo"],
-                     width="100%"
-                )) 
+        )
         ),
             ui.row(
                 ui.column(12, ui.output_text_verbatim("file_status_produccion")),
