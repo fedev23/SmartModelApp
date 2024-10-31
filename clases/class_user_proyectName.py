@@ -6,6 +6,7 @@ import datetime
 from clases.global_name import global_name_manager
 from clases.class_extact_time import global_fecha
 from global_names import global_name_in_Sample, global_name_desarrollo, global_name_out_of_Sample, global_name_produccion
+from api import *
 
 
 class User_proyect:
@@ -148,29 +149,27 @@ class User_proyect:
             value=["Aún no hay modelos generados"]
         )
 
-    def create_accordeon(self):
-        nombre_proyecto = self.get_nombre_proyecto()
-        print("HOLA TENGO", nombre_proyecto)
-        if nombre_proyecto:
-            # Sanitizar el nombre del proyecto para usarlo en los IDs
-            sanitized_name = re.sub(r'\W|^(?=\d)', '_', nombre_proyecto)
-            return ui.div(
-                ui.accordion(
+    def create_accordeon(self, user_id):
+        projects = get_user_projects(user_id)
+        if projects:
+            panels = []
+            for project in projects:
+                sanitized_name = re.sub(r'\W|^(?=\d)', '_', project['name'])
+                panels.append(
                     ui.accordion_panel(
-                        f"Proyecto: {nombre_proyecto}, Fecha de creacion: {self.hora_new_proyect.get()}",
+                        f"Proyecto: {project['name']}, Fecha de creación: {project['created_date']}",
                         self.card_desarollo(),
                         self.card_validacion_in_sample(),
                         self.card_out_to_sample_valid(),
                         self.card_produccion(),
-                    ),
-                    # ID único para el acordeón
-                    id=f"accordion_{sanitized_name}",
-                    open=False
+                        xid=f"accordion_{sanitized_name}", ##TENER EN CUENTA LO DE USER ID
+                        open=False
+                    )
                 )
-            )
+            return ui.div(ui.accordion(*panels))
         else:
-            return ui.div()
-
+            return ui.div("No hay proyectos disponibles para este usuario.")
+        
     def fecha_new_proyecto(self):
         # Registra la fecha y hora actual
         now = datetime.datetime.now()

@@ -9,7 +9,8 @@ screen_User = ui.page_fluid(
                  "Proyectos:",
                 ui.output_ui("devolver_acordeon"),
              ),
-             open=False
+             open=False,
+           
                
          ),
          

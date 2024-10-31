@@ -18,10 +18,6 @@ from servers.server_in_sample import server_in_sample
 from auth.auth import server_login
 from clases.global_session import global_session
 
-user_id_global = None
-
-# Define the static file directory
-app_static = StaticFiles(directory="/mnt/c/Users/fvillanueva/flask_prueba/static", html=True)
 
 # Define the Shiny server function
 def create_server(input, output, session):
@@ -83,5 +79,5 @@ routes = [
 # Create the main Starlette app with the defined routes
 app = Starlette(routes=routes)
 
-# To run this file, save it as main.py and run with:
+# run:
 # uvicorn main:app --host 127.0.0.1 --port 3000 --reload

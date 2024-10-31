@@ -75,4 +75,8 @@ def get_user_directory(user_id):
     else:
         print(f"El directorio {user_directory} no existe.")
         return None
+    
+
+
+
 
