@@ -10,6 +10,7 @@ from global_var import global_data_loader_manager
 import pandas as pd
 from funciones.utils_2 import cambiarAstring, validar_proyecto
 from clases.global_session import global_session
+from api.db import *
 
 
 ejemplo_niveles_riesgo = pd.DataFrame({
@@ -76,8 +77,8 @@ def server_in_sample(input, output, session, name_suffix):
     @output
     @render.text
     def nombre_proyecto_in_sample():
-        return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo()}'
-
+        return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo(global_session.proyecto_seleccionado())}'
+    
     @output
     @render.ui
     def menuInSample():

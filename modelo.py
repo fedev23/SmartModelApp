@@ -10,9 +10,9 @@ from clases.global_modelo import modelo_of_sample
 from clases.global_modelo import modelo_in_sample
 from clases.global_session import global_session
 from funciones.utils_2 import get_user_directory
+from api.db import *
 
 def server_modelos(input, output, session, name_suffix):
-   
     def see_session():
         @reactive.effect
         def enviar_session():
@@ -29,10 +29,15 @@ def server_modelos(input, output, session, name_suffix):
     
     see_session()
     
+    
+ 
     @output
     @render.text
     def nombre_proyecto_modelo():
-         return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo()}' 
+        
+        return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo(global_session.proyecto_seleccionado())}'
+    
+   
     
     @output
     @render.ui

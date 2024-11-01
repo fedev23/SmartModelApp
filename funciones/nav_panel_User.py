@@ -15,13 +15,6 @@ def create_nav_menu_user(name_suffix):
         ),
         ui.nav_control(ui.input_action_link(f"ir_modelos_{name_suffix}", f"Ejecución")),
         ui.nav_control(ui.input_action_link(f"ir_result_{name_suffix}", f"Panel de resultados")),
-        ui.nav_control(
-            ui.a(
-                "BeSmart",
-                href="https://besmart.company/soluciones/",
-                target="_blank",
-            )
-        ),
         ui.nav_control( ui.input_dark_mode(mode="light")),
         id=f"tab_{name_suffix}",
         title="",

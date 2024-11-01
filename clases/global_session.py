@@ -4,11 +4,24 @@ class GlobalSession:
     def __init__(self):
         self.session_state = reactive.Value({"is_logged_in": False, "id": None})
         self.proceso = reactive.Value(False)
+        self.id_proyecto = reactive.Value(None) 
+        self.proyecto_seleccionado = reactive.Value(None) 
     
     def actualizar_directorio(self, nuevo_directorio):
         if self.proceso.get() is True:
             self.directorio = nuevo_directorio
             
+    def set_id_proyect(self, id):
+        self.id_proyecto.set(id)
+    
+    def get_id_proyecto(self):
+        return self.id_proyecto.get()   
+    
+    def set_proyecto_seleccionado(self, id):
+        self.proyecto_seleccionado.set(id)
+    
+    def get_proyecto_seleccionado(self):
+        return self.proyecto_seleccionado.get()       
             
     def obtener_id(self):
         @reactive.Effect  # Coloca el decorador aquí, fuera de la función interna

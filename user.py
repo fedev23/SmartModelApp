@@ -1,15 +1,30 @@
-from shiny import App, Inputs, Outputs, Session, reactive, ui, render
+from shiny import App, Inputs, Outputs, Session, reactive, ui, render, module
 from funciones.nav_panel_User import create_nav_menu_user
 from clases.class_user_proyectName import global_user_proyecto
 from api import *
 from clases.global_session import global_session
 from api.db import init_bd
+import re
+from funciones.funciones_user import create_project_selector, show_selected_project_card
+
 
 
 def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     user_get = reactive.Value(None)
+    proyect_id = reactive.Value(None)
+    proyect_ok = reactive.Value(False)
+    #sanitized_name = re.sub(r'\W|^(?=\d)', '_', input['proyecto_nombre']())
+    proyectos_usuario = reactive.Value(None)
     
     
+        # Crear un reactive value para almacenar la lista de proyectos
+    
+    
+    
+
+   
+    
+   
     def see_session():
         @reactive.effect
         def enviar_session():
@@ -17,10 +32,30 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                 state = global_session.session_state.get()
                 if state["is_logged_in"]:
                     user_id = state["id"]
+                    proyectos_usuario.set(get_user_projects(user_id))#-> llamo a el valor reactivo para tener la lista de los proyectos por user, dinamicamente, apretar control t y ver la funcion
                     user_get.set(user_id.replace('|', '_'))
                     
     
     see_session()
+    
+
+    @reactive.effect
+    @reactive.event(input.project_select)  # Escuchar cambios en el selector
+    def project_card_container():
+        selected_project_id = input.project_select()  # Captura el ID seleccionado
+        global_session.set_id_proyect(selected_project_id)
+        nombre_proyecto = obtener_nombre_proyecto_por_id(global_session.get_id_proyecto())
+        global_session.proyecto_seleccionado.set(nombre_proyecto)
+       
+
+    @output
+    @render.ui
+    def project_card_container():
+        if proyect_ok:
+            return show_selected_project_card(user_get.get(),  global_session.get_id_proyecto())
+        
+    
+   
     
     @output
     @render.ui
@@ -54,9 +89,16 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                 name = input[f'proyecto_nombre']()
                 #init_bd.list_tables()
                 add_project(user, name)
-                print("llegue hasta aca?")
-                proyecto_por_user = get_user_projects(user)
-                print(proyecto_por_user)
+                proyectos_usuario.set(get_user_projects(user))
+                print(proyectos_usuario.get())
+               
+                # Actualiza la UI para mostrar el nuevo proyecto
+                #ui.insert_ui(
+                    #selector="#module_container",  # Cambia esto al selector adecuado donde quieras insertar
+                    #where="afterEnd",  # O "beforeEnd" 0 afterBegin, según tu diseño
+                    #ui=show_selected_project_card(user, proyect_id.get())  
+                #)
+                #update_project_list_ui(proyecto_por_user)
                 create_navigation_handler('continuar', 'Screen_Desarollo')
                 # Restablecer el estado a False
                 global_user_proyecto.click_en_continuar.set(False)
@@ -64,7 +106,20 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     @output
     @render.ui
     def devolver_acordeon():
-        return global_user_proyecto.create_accordeon(user_get.get())
+        projects = proyectos_usuario.get()  # Obtiene la lista actual de proyectos
+
+        if projects:
+            project_options = {str(project['id']): project['name'] for project in projects}
+            return ui.div(
+                ui.input_select(
+                    "project_select",
+                    "Selecciona un proyecto:",
+                    project_options
+                ),
+                ui.output_ui("project_card_container")  # Contenedor para la tarjeta del proyecto
+            )
+        else:
+            return ui.div("No hay proyectos disponibles para este usuario.")
     
     
     @reactive.effect

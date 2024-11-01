@@ -1,6 +1,6 @@
 from shiny import reactive, render, ui
 import pandas as pd
-import asyncio
+from api.db import *
 from global_var import global_data_loader_manager  # Importar el gestor global
 from funciones.create_param import create_screen
 from clases.global_name import global_name_manager
@@ -13,7 +13,6 @@ from clases.class_user_proyectName import global_user_proyecto
 from funciones.utils_2 import errores, validar_proyecto
 from clases.global_session import global_session
 from funciones.utils_2 import get_user_directory
-from clases.global_modelo import modelo_of_sample
 
 
 def server_produccion(input, output, session, name_suffix):
@@ -23,9 +22,14 @@ def server_produccion(input, output, session, name_suffix):
     directorio_produccion = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat'
     name = "Producción"
     mensaje = reactive.Value("")
-    data_loader = global_data_loader_manager.get_loader(name_suffix)
-    # Instanciamos la clase ScreenClass
-    #screen_instance = ScreenClass(directorio_produccion, name_suffix)
+    directorio = reactive.Value("")
+    
+
+    @output
+    @render.text
+    def nombre_proyecto_produccion():
+        
+        return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo(global_session.proyecto_seleccionado())}'
     
     
     def see_session():
@@ -45,10 +49,7 @@ def server_produccion(input, output, session, name_suffix):
                     
     see_session()
 
-    @output
-    @render.text
-    def nombre_proyecto_produccion():
-        return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo()}'
+   
 
     @output
     @render.ui

@@ -7,14 +7,13 @@ from global_var import global_data_loader_manager
 from funciones.utils_2 import errores, validar_proyecto, get_user_directory
 from clases.global_modelo import modelo_of_sample
 from clases.global_session import global_session
+from api.db import *
 
 
 def server_out_of_sample(input, output, session, name_suffix):
     # Obtener el loader de datos desde el manage
     proceso_a_completado = reactive.Value(False)
     directorio = reactive.Value("")
-    directorio_validacion = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat'
-    hay_error = reactive.Value(False)
     screen_instance = reactive.Value(None)
     mensaje = reactive.Value("")
     name = "Out-Of-Sample"
@@ -39,11 +38,14 @@ def server_out_of_sample(input, output, session, name_suffix):
                     screen_instance.set(ScreenClass(directorio.get(), name_suffix))
     
     see_session()
-
+    
+   
     @output
     @render.text
     def nombre_proyecto_validacion():
-        return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo()}'
+        return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo(global_session.proyecto_seleccionado())}'
+
+  
 
     @output
     @render.ui

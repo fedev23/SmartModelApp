@@ -4,16 +4,15 @@ from clases.class_resultado import ResultadoClassPrueba
 from clases.global_session import global_session
 from funciones.create_menu_resul_model import create_nav_menu_result_model
 from clases.class_user_proyectName import global_user_proyecto
+from api.db import *
 
 
 def server_resul(input, output, session, name_suffix):
-    proceso_ok = reactive.Value(False)
-    user_id_global = None
 
     @output
     @render.text
     def nombre_proyecto_resultados():
-        return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo()}'
+        return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo(global_session.proyecto_seleccionado())}'
 
     @output
     @render.ui

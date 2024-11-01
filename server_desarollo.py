@@ -10,11 +10,14 @@ from clases.class_user_proyectName import global_user_proyecto
 from funciones.utils import create_modal_parametros, id_buttons_desa
 from clases.global_session import global_session
 from funciones.utils_2 import get_user_directory
-from clases.loadJson import LoadJson
+from api.db import *
+from clases.global_session import *
+
 
 def server_desarollo(input, output, session, name_suffix):
     directorio_desarollo = reactive.value("")
     screen_instance = reactive.value(None)  # Mantener screen_instance como valor reactivo
+   
 
     def see_session():
         @reactive.effect
@@ -37,11 +40,13 @@ def server_desarollo(input, output, session, name_suffix):
 
     name = "desarrollo"
     count = reactive.value(0)
-
+    
+    
+   
     @output
     @render.text
     def nombre_proyecto_desarrollo():
-        return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo()}'
+        return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo(global_session.proyecto_seleccionado())}'
 
     @output
     @render.ui
