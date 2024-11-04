@@ -47,8 +47,8 @@ class User_proyect:
             ui.modal_remove()
             # Convertir el valor a una cadena de texto
             self.set_nombre_proyecto(input.proyecto_nombre())
-            fecha_hora_registrada = global_user_proyecto.fecha_new_proyecto()
-            self.hora_new_proyect.set(fecha_hora_registrada)
+            #fecha_hora_registrada = global_user_proyecto.fecha_new_proyecto()
+            #self.hora_new_proyect.set(fecha_hora_registrada)
             self.click_en_continuar.set(False)
 
     def get_boton_continuar(self):

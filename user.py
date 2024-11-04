@@ -4,27 +4,18 @@ from clases.class_user_proyectName import global_user_proyecto
 from api import *
 from clases.global_session import global_session
 from api.db import init_bd
-import re
-from funciones.funciones_user import create_project_selector, show_selected_project_card
+from funciones.funciones_user import create_project_selector, show_selected_project_card, create_modal_eliminar_bd
 
 
 
 def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     user_get = reactive.Value(None)
-    proyect_id = reactive.Value(None)
     proyect_ok = reactive.Value(False)
     #sanitized_name = re.sub(r'\W|^(?=\d)', '_', input['proyecto_nombre']())
     proyectos_usuario = reactive.Value(None)
-    
-    
-        # Crear un reactive value para almacenar la lista de proyectos
-    
-    
-    
+    proceso_eliminar = reactive.Value(False)
 
-   
     
-   
     def see_session():
         @reactive.effect
         def enviar_session():
@@ -54,8 +45,39 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         if proyect_ok:
             return show_selected_project_card(user_get.get(),  global_session.get_id_proyecto())
         
+    ##boton para eliminar proyecto
+    @reactive.Effect
+    def handle_delete_buttons():
+        project_id = global_session.get_id_proyecto()
+        eliminar_btn_id = f"eliminar_proyect_{project_id}"
+        @reactive.Effect
+        @reactive.event(input[eliminar_btn_id])
+        def eliminar_proyecto_boton():
+            print("hola pase, elimino a", eliminar_btn_id)
+            create_modal_eliminar_bd()
     
-   
+    @reactive.Effect
+    @reactive.event(input["eliminar_proyecto_modal"])
+    def eliminar_proyeco_modal():
+        eliminar_proyecto(global_session.get_id_proyecto())
+        # Actualiza proyectos_usuario después de eliminar el proyecto
+        # Suponiendo que get_user_projects recarga los proyectos desde la fuente de datos
+        proyectos_actualizados = get_user_projects(user_get.get())
+        proyectos_usuario.set(proyectos_actualizados)  # Refresca proyectos_usuario con la lista actualizada
+
+        # Actualiza el selector con los proyectos restantes
+        ui.update_select(
+            "project_select",
+            choices={str(proj['id']): proj['name'] for proj in proyectos_actualizados}
+        )
+
+        proceso_eliminar.set(True)
+        ui.modal_remove()
+       
+        #return show_selected_project_card(user_get.get(),  global_session.get_id_proyecto())
+           
+
+
     
     @output
     @render.ui
@@ -91,23 +113,14 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                 add_project(user, name)
                 proyectos_usuario.set(get_user_projects(user))
                 print(proyectos_usuario.get())
-               
-                # Actualiza la UI para mostrar el nuevo proyecto
-                #ui.insert_ui(
-                    #selector="#module_container",  # Cambia esto al selector adecuado donde quieras insertar
-                    #where="afterEnd",  # O "beforeEnd" 0 afterBegin, según tu diseño
-                    #ui=show_selected_project_card(user, proyect_id.get())  
-                #)
-                #update_project_list_ui(proyecto_por_user)
                 create_navigation_handler('continuar', 'Screen_Desarollo')
-                # Restablecer el estado a False
                 global_user_proyecto.click_en_continuar.set(False)
-
     @output
     @render.ui
     def devolver_acordeon():
         projects = proyectos_usuario.get()  # Obtiene la lista actual de proyectos
-
+        print("actualizo la lista?", proyectos_usuario.get())
+        # Primera condición: si hay proyectos
         if projects:
             project_options = {str(project['id']): project['name'] for project in projects}
             return ui.div(
@@ -118,8 +131,20 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                 ),
                 ui.output_ui("project_card_container")  # Contenedor para la tarjeta del proyecto
             )
+        
+        # Segunda condición: si `condition` es verdadera
+        elif proceso_eliminar.get():
+            return ui.update_select(
+        "project_select",
+        choices={str(proj['id']): proj['name'] for proj in proyectos_usuario.get()}
+        )
+        
+        # Si ninguna de las condiciones anteriores se cumple
         else:
             return ui.div("No hay proyectos disponibles para este usuario.")
+            
+       
+        
     
     
     @reactive.effect

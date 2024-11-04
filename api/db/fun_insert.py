@@ -57,6 +57,7 @@ def get_user_projects(user_id):
     # Convertir los resultados en una lista de diccionarios
     return [{'id': project[0], 'name': project[1], 'created_date': project[2]} for project in projects]
 # Función que gestiona el acceso del usuario
+
 def user_login(user_id):
     projects = get_user_projects(user_id)
     
@@ -118,3 +119,20 @@ def obtener_nombre_proyecto_por_id(proyecto_id):
     finally:
         # Cerrar la conexión
         conn.close()
+        
+        
+def show_execution_logs():
+    conn = sqlite3.connect('Modeling_App.db')
+    cur = conn.cursor()
+    
+    # Obtener todos los registros de execution_log
+    cur.execute("SELECT * FROM execution_log;")
+    logs = cur.fetchall()
+    
+    for log in logs:
+        print(f"ID: {log[0]}, User ID: {log[1]}, Project ID: {log[2]}, Fecha de Ejecución: {log[3]}, Nombre del Modelo: {log[4]}")
+    
+    conn.close()
+
+# Llama a esta función para ver los registros de ejecución
+show_execution_logs()

@@ -50,16 +50,27 @@ def show_selected_project_card(user_id, project_id):
             global_user_proyecto.card_validacion_in_sample(),
             global_user_proyecto.card_out_to_sample_valid(),
             global_user_proyecto.card_produccion(),
-            ui.input_action_button(f"eliminar_proyect_{sanitized_name}", "Eliminar proyecto"),
+            ui.input_action_link(
+            f"eliminar_proyect_{sanitized_name}", 
+            ui.tags.i(class_="fa fa-trash fa-2x"),  # Ícono de basura
+            #class_="btn btn-danger"  # Opcional: estilo de botón rojo
+            ),
             id=f"project_card_{sanitized_name}"
         )
     else:
         return ui.div("No hay proyectos.")
     
     
-
-
-    
     
 
 
+def create_modal_eliminar_bd():
+    m = ui.modal(  
+            ui.input_action_button("eliminar_proyecto_modal", "Eliminar Proyecto", class_="btn btn-danger"),
+            ui.input_action_button("cancelar_eliminar", "Cancel"),
+            title="¿Estás seguro de que quieres eliminar este proyecto?",  
+            easy_close=True,  
+            footer=None,  
+        )  
+    ui.modal_show(m)
+    
