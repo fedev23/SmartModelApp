@@ -64,7 +64,7 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
             return  # Detener ejecución aquí si no hay dataset
 
         # 2. Obtener el nombre del proyecto
-        proyecto_nombre = global_user_proyecto.get_nombre_proyecto()
+        proyecto_nombre = global_session.get_id_proyecto()
         # 4. Validar si el proyecto es válido
         validar = validar_proyecto(proyecto_nombre)
         if not validar:

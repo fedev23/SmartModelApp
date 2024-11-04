@@ -12,12 +12,15 @@ from clases.global_session import global_session
 from funciones.utils_2 import get_user_directory
 from api.db import *
 from clases.global_session import *
+from clases.reactives_name import global_names_reactivos
 
 
 def server_desarollo(input, output, session, name_suffix):
     directorio_desarollo = reactive.value("")
     screen_instance = reactive.value(None)  # Mantener screen_instance como valor reactivo
     user_id_send = reactive.Value("")
+    global_names_reactivos.name_desarrollo_set(name_suffix)
+    
 
     def see_session():
         @reactive.effect
@@ -109,7 +112,7 @@ def server_desarollo(input, output, session, name_suffix):
         fecha_hora_registrada = global_desarollo.log_fecha_hora()
         
         #me llevo la hora de jecucion el modelo para guardar en la base de datos
-        hora_ejecucion(user_id_send.get(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_desarrollo())
+        insert_table_model(user_id_send.get(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_desarrollo())
         #global_fecha.set_fecha_desarrollo(fecha_hora_registrada)
 
     @reactive.effect

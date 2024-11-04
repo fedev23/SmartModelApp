@@ -11,6 +11,7 @@ import pandas as pd
 from funciones.utils_2 import cambiarAstring, validar_proyecto
 from clases.global_session import global_session
 from api.db import *
+from clases.reactives_name import global_names_reactivos
 
 
 ejemplo_niveles_riesgo = pd.DataFrame({
@@ -50,10 +51,10 @@ def server_in_sample(input, output, session, name_suffix):
     mensaje_de_error = reactive.Value("")
     name = "validación in sample"
     data_loader = global_data_loader_manager.get_loader("desarrollo")
-    setValores = reactive.Value(0)
     count = reactive.value(0)
     no_error = reactive.Value(True)
     name = "Validacion in sample"
+    global_names_reactivos.name_validacion_in_sample_set(name_suffix)
 
     def create_navigation_handler_validacion(input_id, screen_name, valid):
         @reactive.Effect
@@ -123,7 +124,7 @@ def server_in_sample(input, output, session, name_suffix):
         inputs_procesados = {key: transformacion(input[key]()) for key, transformacion in transformaciones.items()}
 
         # 3. Validar si el proyecto está asignado
-        proyecto_nombre = global_user_proyecto.get_nombre_proyecto()
+        proyecto_nombre = global_session.get_id_user()
         if not validar_proyecto(proyecto_nombre):
             error_messages.append(f"Es necesario tener un proyecto asignado o creado para continuar en {name}")
             mensaje_de_error.set("\n".join(error_messages))

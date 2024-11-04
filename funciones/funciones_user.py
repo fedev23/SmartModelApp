@@ -67,7 +67,7 @@ def show_selected_project_card(user_id, project_id):
 def create_modal_eliminar_bd():
     m = ui.modal(  
             ui.input_action_button("eliminar_proyecto_modal", "Eliminar Proyecto", class_="btn btn-danger"),
-            ui.input_action_button("cancelar_eliminar", "Cancel"),
+            ui.input_action_button("cancelar_eliminar", "Cancel", class_="custom-cancel-button"),
             title="¿Estás seguro de que quieres eliminar este proyecto?",  
             easy_close=True,  
             footer=None,  

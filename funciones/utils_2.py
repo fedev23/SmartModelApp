@@ -28,8 +28,8 @@ def trans_nulos_adic(input_name):
     print(input_values)
     return input_values
 
-def validar_proyecto(nombre_proyecto):
-    if not nombre_proyecto:  # Esto verifica si está vacío o None
+def validar_proyecto(id):
+    if not id:  # Esto verifica si está vacío o None
         return False
     return True  # 
 

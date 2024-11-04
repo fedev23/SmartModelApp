@@ -23,6 +23,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                 state = global_session.session_state.get()
                 if state["is_logged_in"]:
                     user_id = state["id"]
+                    global_session.id_user.set(user_id)
                     proyectos_usuario.set(get_user_projects(user_id))#-> llamo a el valor reactivo para tener la lista de los proyectos por user, dinamicamente, apretar control t y ver la funcion
                     user_get.set(user_id.replace('|', '_'))
                     
@@ -77,7 +78,10 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         #return show_selected_project_card(user_get.get(),  global_session.get_id_proyecto())
            
 
-
+    @reactive.Effect
+    @reactive.event(input["cancelar_eliminar"])
+    def canacelar_eliminacion():
+        ui.modal_remove()
     
     @output
     @render.ui

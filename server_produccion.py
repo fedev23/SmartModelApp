@@ -13,7 +13,7 @@ from clases.class_user_proyectName import global_user_proyecto
 from funciones.utils_2 import errores, validar_proyecto
 from clases.global_session import global_session
 from funciones.utils_2 import get_user_directory
-
+from clases.reactives_name import global_names_reactivos
 
 def server_produccion(input, output, session, name_suffix):
     proceso_a_completado = reactive.Value(False)
@@ -21,6 +21,7 @@ def server_produccion(input, output, session, name_suffix):
     screen_instance = reactive.Value("")
     directorio_produccion = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat'
     name = "Producción"
+    global_names_reactivos.name_produccion_set(name_suffix)
     mensaje = reactive.Value("")
     directorio = reactive.Value("")
     
@@ -70,7 +71,7 @@ def server_produccion(input, output, session, name_suffix):
             return  # Detener la ejecución si no hay dataset
 
         # 2. Validar si el proyecto está asignado
-        proyecto_nombre = global_user_proyecto.get_nombre_proyecto()
+        proyecto_nombre = global_session.get_id_user()
         if not validar_proyecto(proyecto_nombre):
             mensaje.set(f"Es necesario tener un proyecto asignado o creado para continuar en {name}")
             return  # Detener la ejecución si no hay proyecto asignado
@@ -78,7 +79,7 @@ def server_produccion(input, output, session, name_suffix):
         # 3. Continuar si ambas validaciones anteriores pasan
         if screen_instance.get().proceso_a_completado.get():
             create_navigation_handler(f'load_param_{name_suffix}', 'Screen_3')
-            ui.update_accordion("my_accordion", show=["out_to_sample"])
+            ui.update_accordion("my_accordion", show=["produccion"])
 
     @output
     @render.text
@@ -118,7 +119,7 @@ def server_produccion(input, output, session, name_suffix):
     #https://shiny.posit.co/py/docs/nonblocking.html
     @ui.bind_task_button(button_id="execute_produccion")
     @reactive.extended_task
-    async def ejectutar_of_to_sample_asnyc(click_count, mensaje, proceso):
+    async def ejectutar_produccion(click_count, mensaje, proceso):
         # Llamamos al método de la clase para ejecutar el proceso
         await modelo_produccion.ejecutar_proceso_prueba(click_count, mensaje, proceso)
         
@@ -129,9 +130,8 @@ def server_produccion(input, output, session, name_suffix):
         click_count_value = modelo_produccion.click_counter.get()  # Obtener contador
         mensaje_value = modelo_produccion.mensaje.get()  # Obtener mensaje actual
         proceso = modelo_produccion.proceso.get()
-        ejectutar_of_to_sample_asnyc(click_count_value, mensaje_value, proceso)
-        fecha_hora_registrada = modelo_produccion.log_fecha_hora()
-        global_fecha.set_fecha_produccion(fecha_hora_registrada)
+        ejectutar_produccion(click_count_value, mensaje_value, proceso)
+        insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_produccion())
         
         
 

@@ -156,7 +156,7 @@ def show_execution_logs():
 # Llama a esta función para ver los registros de ejecución
 #show_execution_logs()
 
-def get_latest_execution(project_id):
+def get_latest_execution(project_id, model_name):
     conn = sqlite3.connect('Modeling_App.db')
     cur = conn.cursor()
     
@@ -164,10 +164,10 @@ def get_latest_execution(project_id):
     cur.execute('''
         SELECT execution_date, model_name, dataset_name
         FROM model_execution
-        WHERE project_id = ?
+        WHERE project_id = ? AND model_name = ?
         ORDER BY execution_date DESC
         LIMIT 1
-    ''', (project_id,))
+    ''', (project_id, model_name))
     
     result = cur.fetchone()
     conn.close()
