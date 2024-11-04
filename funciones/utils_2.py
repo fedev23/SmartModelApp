@@ -18,7 +18,6 @@ def errores(mensaje):
 def cambiarAstring(nombre_input):
     # Verificar si el input es un tuple
     input = ', '.join(map(str, nombre_input))
-    print( input ,"estoy en la funcion")
     return input
 
 

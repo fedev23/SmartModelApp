@@ -1,8 +1,7 @@
 from shiny import ui, reactive
 from shiny.express import ui as express_ui
 import re
-import time
-import datetime
+from clases.global_session import global_session
 from clases.global_name import global_name_manager
 from clases.class_extact_time import global_fecha
 from global_names import global_name_in_Sample, global_name_desarrollo, global_name_out_of_Sample, global_name_produccion
@@ -85,18 +84,24 @@ class User_proyect:
         )
 
     def card_desarollo(self):
+            # Obtener el nombre del archivo y la fecha de la última ejecución
         file_name_desarollo = global_name_manager.get_file_name_desarrollo()
-        fechaHora = global_fecha.get_fecha_desarrollo()
-        print("Actualicé", fechaHora)
-        if not file_name_desarollo and not fechaHora:
+        latest_date, latest_model, latest_dataset = get_latest_execution(global_session.get_id_proyecto())
+        
+        # Verificar si hay datos para mostrar
+        if not file_name_desarollo:
             return self.create_value_box(
-                title=f"{global_name_desarrollo}",
+                title="Desarrollo",
                 value=["Aún no hay modelos generados"]
             )
+        
+        # Contenido a mostrar en la tarjeta
         value_content = [
             f'Datos: {file_name_desarollo}',
-            f"Última etapa generada: {fechaHora}",
+            f"Última ejecución: {latest_date}",
+            #f"Modelo: {latest_model}",
         ]
+        
         return self.create_value_box(
             title="Desarrollo",
             value=value_content

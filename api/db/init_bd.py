@@ -46,3 +46,5 @@ def list_tables():
 
 # Llama a esta función para ver las tablas
 list_tables()
+
+

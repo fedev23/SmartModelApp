@@ -121,6 +121,25 @@ def obtener_nombre_proyecto_por_id(proyecto_id):
         conn.close()
         
         
+def insert_table_model(user_id, project_id, model_name, dataset_name):
+    conn = sqlite3.connect('Modeling_App.db')
+    cur = conn.cursor()
+
+    # Obtener la fecha y hora de ejecución
+    execution_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Insertar el registro en `model_execution`
+    cur.execute('''
+        INSERT INTO model_execution (user_id, project_id, execution_date, model_name, dataset_name)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (user_id, project_id, execution_date, model_name, dataset_name))
+
+    conn.commit()
+    conn.close()
+    print(f"Ejecución registrada en 'model_execution': {model_name} para el proyecto ID {project_id} a las {execution_date}.")
+
+
+
 def show_execution_logs():
     conn = sqlite3.connect('Modeling_App.db')
     cur = conn.cursor()
@@ -135,4 +154,23 @@ def show_execution_logs():
     conn.close()
 
 # Llama a esta función para ver los registros de ejecución
-show_execution_logs()
+#show_execution_logs()
+
+def get_latest_execution(project_id):
+    conn = sqlite3.connect('Modeling_App.db')
+    cur = conn.cursor()
+    
+    # Obtener el último registro de ejecución para el proyecto
+    cur.execute('''
+        SELECT execution_date, model_name, dataset_name
+        FROM model_execution
+        WHERE project_id = ?
+        ORDER BY execution_date DESC
+        LIMIT 1
+    ''', (project_id,))
+    
+    result = cur.fetchone()
+    conn.close()
+    
+    # Retorna None si no hay resultados
+    return result if result else (None, None, None)

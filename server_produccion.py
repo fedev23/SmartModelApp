@@ -28,7 +28,6 @@ def server_produccion(input, output, session, name_suffix):
     @output
     @render.text
     def nombre_proyecto_produccion():
-        
         return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo(global_session.proyecto_seleccionado())}'
     
     
@@ -65,7 +64,7 @@ def server_produccion(input, output, session, name_suffix):
     @reactive.Effect
     @reactive.event(input.load_param_produccion)
     def produccion_out_to_and_valid():
-        df = data_loader.getDataset()
+        df = global_data_loader_manager.getDataset()
         if df is None:
             mensaje.set(f"No se seleccionó ningún archivo en {name}")
             return  # Detener la ejecución si no hay dataset

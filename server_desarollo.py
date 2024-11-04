@@ -17,7 +17,7 @@ from clases.global_session import *
 def server_desarollo(input, output, session, name_suffix):
     directorio_desarollo = reactive.value("")
     screen_instance = reactive.value(None)  # Mantener screen_instance como valor reactivo
-   
+    user_id_send = reactive.Value("")
 
     def see_session():
         @reactive.effect
@@ -29,6 +29,7 @@ def server_desarollo(input, output, session, name_suffix):
                     user = get_user_directory(user_id)
                     print(user)
                     user_id_cleaned = user_id.replace('|', '_')
+                    user_id_send.set(user_id_cleaned)
                     directorio_desarollo.set(user)
                     global_desarollo.script_path = f"./Modelar.sh datos_entrada_{user_id_cleaned} datos_salida_{user_id_cleaned}"
                     
@@ -104,9 +105,12 @@ def server_desarollo(input, output, session, name_suffix):
         mensaje_value = global_desarollo.mensaje.get()  # Obtener mensaje actual
         proceso = global_desarollo.proceso.get()
         print(click_count_value)
-        ejectutar_desarrollo_asnyc(click_count_value, mensaje_value, proceso)  # Asegúrate de usar await aquí
+        ejectutar_desarrollo_asnyc(click_count_value, mensaje_value, proceso) 
         fecha_hora_registrada = global_desarollo.log_fecha_hora()
-        global_fecha.set_fecha_desarrollo(fecha_hora_registrada)
+        
+        #me llevo la hora de jecucion el modelo para guardar en la base de datos
+        hora_ejecucion(user_id_send.get(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_desarrollo())
+        #global_fecha.set_fecha_desarrollo(fecha_hora_registrada)
 
     @reactive.effect
     @reactive.event(input[f'open_html_{global_desarollo.nombre}'])
