@@ -43,8 +43,8 @@ class LoadJson:
                 "par_rango_reportes": self.inputs.get("par_rango_reportes", {}),
                 "par_times": self.input["par_times"](),
                 "par_cant_reportes": self.input["par_cant_reportes"](),
-                "delimiter_desarollo": self.input["delimiter_desarollo"](),
-                "proyecto_nombre": self.input["proyecto_nombre"](),
+                "delimiter_desarollo": self.inputs.get("delimiter_desarollo"),
+                "proyecto_nombre": self.inputs.get("proyecto_nombre"),
                 "file_validation": self.input["file_validation"](),
                 "file_produccion": self.input["file_produccion"](),
                 "par_minpts_cat": self.input["par_minpts_cat"](),
@@ -83,7 +83,7 @@ class LoadJson:
                     "parameter": "cols_forzadas_a_predictoras",
                     "value": self.inputs["cols_forzadas_a_predictoras"],
                     "Descripción": "Variables con inclusión forzada en las variables candidatas",
-                    "type": "string"
+                    "type": "list"
                 },
                 {
                     "parameter": "par_var_grupo",
@@ -95,7 +95,7 @@ class LoadJson:
                     "parameter": "cols_forzadas_a_cat",
                     "value": self.inputs["cols_forzadas_a_cat"],
                     "Descripción": "Variables candidatas numéricas forzadas a categóricas",
-                    "type": "string",
+                    "type": "list",
                 },
                 {
                     "parameter": "par_cor_show",
@@ -113,13 +113,13 @@ class LoadJson:
                     "parameter": "cols_nulos_adic",
                     "value": self.inputs["cols_nulos_adic"],
                     "Descripción": "Lista de variables y códigos de nulos",
-                    "type": "string",
+                    "type": "list",
                 },
                 {
                     "parameter": "cols_no_predictoras",
                     "value": self.inputs["cols_no_predictoras"],
                     "Descripción": "Variables excluídas de las variables candidatas",
-                    "type": "string",
+                    "type": "list",
                 },
                 {
                     "parameter": "par_cor",
@@ -210,7 +210,7 @@ class LoadJson:
                     "parameter": "par_vars_segmento",
                     "value": self.inputs["par_vars_segmento"],
                     "Descripción": "Variables necesarias para reportes por Segmento",
-                    "type": "string",
+                    "type": "list",
                 },
                 {
                     "parameter": "par_rango_niveles",

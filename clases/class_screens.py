@@ -5,6 +5,7 @@ from global_var import global_data_loader_manager
 from clases.global_name import global_name_manager
 from clases.global_modelo import modelo_of_sample, modelo_produccion, global_desarollo
 from clases.data_loader import DataLoader
+from clases.global_reactives import global_estados
 
 
 class ScreenClass():
@@ -22,6 +23,7 @@ class ScreenClass():
         self.nombre_archivo = reactive.Value(None)
         self.error_messages = []
         self.hay_errores = reactive.Value(False)
+        
 
     # ESTA FUNCION SE CREA CON EL FIN DE CAMBIAR EL NOMBRE DEL ARCHIVO QUE INGRESA AL USER, ESTO ES. PARA QUE DEPENDE EL
     # CUADERNO A EJECUTAR LEA EL ARCHVIO HARDCODE DE SMART MODEL
@@ -115,8 +117,9 @@ class ScreenClass():
     def render_data_summary(self):
         df = self.data_loader.getDataset()  # Usar el método heredado
         if df is not None and not df.empty:
+            select_number_data_set = int(global_estados.get_numero_dataset())
             # Devuelve un resumen de los primeros 5 registros
-            return pd.DataFrame(df.head(5))
+            return pd.DataFrame(df.head(select_number_data_set))
 
     def render_button(self):
         if self.proceso_a_completado.get():

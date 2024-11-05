@@ -17,6 +17,8 @@ def create_screen(name_suffix):
         ui.output_ui(f"mostrarModels_{name_suffix}"),
         ui.div(
             ui.row(
+                ui.input_text("delimiter_desarollo", ""),
+                ui.input_text("proyecto_nombre", ""),
                 crear_card_con_input_numeric_2(f"par_discret", "", "help_discret", ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"), values, default_value=1,  min_value=0, max_value=2, step=0.01),
                 crear_card_con_input_numeric_2(f"par_nbins1", "", "help_nbins1", ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"), values,default_value=100),
                 crear_card_con_input_numeric_2(f"par_nbins2", "", "help_nbins2", ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"), values, default_value=20)

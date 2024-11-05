@@ -3,7 +3,7 @@ from funciones.nav_panel_User import create_nav_menu_user
 from clases.class_user_proyectName import global_user_proyecto
 from api import *
 from clases.global_session import global_session
-from api.db import init_bd
+from clases.global_reactives import global_estados
 from funciones.funciones_user import create_project_selector, show_selected_project_card, create_modal_eliminar_bd
 
 
@@ -11,7 +11,6 @@ from funciones.funciones_user import create_project_selector, show_selected_proj
 def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     user_get = reactive.Value(None)
     proyect_ok = reactive.Value(False)
-    #sanitized_name = re.sub(r'\W|^(?=\d)', '_', input['proyecto_nombre']())
     proyectos_usuario = reactive.Value(None)
     proceso_eliminar = reactive.Value(False)
 
@@ -29,6 +28,12 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                     
     
     see_session()
+    
+    @reactive.effect
+    def capturar_num_seleccionador_dataSet():
+        select_number_data_set = input.number_choice()
+        global_estados.set_numero_dataset(select_number_data_set)
+        
     
 
     @reactive.effect

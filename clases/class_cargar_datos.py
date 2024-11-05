@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 from shiny import ui, reactive
-from clases.global_name import global_name_manager
+from clases.global_reactives import global_estados
 import csv
 
 class CargarDatos:
@@ -14,6 +14,7 @@ class CargarDatos:
         """Detecta el delimitador de un archivo de texto o CSV automáticamente."""
         with open(file_path, 'r') as file:
             dialect = csv.Sniffer().sniff(file.readline(), delimiters=";,|\t")
+            print(dialect.delimiter)
             return dialect.delimiter
             
 
@@ -24,6 +25,8 @@ class CargarDatos:
         file_path = self.file_info[0]["datapath"]
         file_name = self.file_info[0]["name"]
         delimitador_detectado = self.detectar_delimitador(file_path)
+        global_estados.set_delimitador(delimitador_detectado)
+        
         
         if file_name.endswith(".csv"):
             df = pd.read_csv(file_path, sep=delimitador_detectado)

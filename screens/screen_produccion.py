@@ -12,7 +12,7 @@ screenProduccion = ui.page_fluid(
         ),
         ui.output_ui("nav_out_to_produccion"),
         ui.div(
-            ui.h3("Producción", class_="custom-title"),
+            ui.h3("Scoring", class_="custom-title"),
             ui.h4("Dataset"),  
             ui.column(12, 
             ui.input_file("file_produccion", "Seleccion de archivo CSV o TXT", 

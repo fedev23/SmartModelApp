@@ -5,7 +5,8 @@ from global_var import global_data_loader_manager
 import pandas as pd 
 from funciones.utils_2 import cambiarAstring, trans_nulos_adic, validar_proyecto, mostrar_error
 from clases.global_session import global_session
-from clases.class_user_proyectName import global_user_proyecto
+from clases.global_reactives import global_estados
+from clases.class_cargar_datos import CargarDatos
 
 def server_parametros_desarrollo(input, output, session, name_suffix):
     # Obtener el DataLoader correspondiente basado en name_suffix, ya que necesita un key la clase dataloader
@@ -31,6 +32,7 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
         'cols_nulos_adic': trans_nulos_adic,
         'cols_forzadas_a_cat': cambiarAstring,
         'cols_no_predictoras': cambiarAstring
+        
     }
 
     
@@ -120,7 +122,13 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
                     user_id = state["id"]
                     print(user_id)
                     user_id_cleaned = user_id.replace('|', '_')
+                    
                     inputs_procesados = {key: transformacion(input[key]()) for key, transformacion in transformaciones.items()}
+                    inputs_procesados['delimiter_desarollo'] = global_estados.get_delimitador()
+                    
+                    inputs_procesados['proyecto_nombre'] = global_session.proyecto_seleccionado.get()
+                    
+                    print(inputs_procesados)
                     json_loader = LoadJson(user_id_cleaned, input) 
                     json_loader.inputs.update(inputs_procesados)
                     json_file_path = json_loader.loop_json()
