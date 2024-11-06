@@ -127,31 +127,61 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     @output
     @render.ui
     def devolver_acordeon():
-        projects = proyectos_usuario.get()  # Obtiene la lista actual de proyectos
-        print("actualizo la lista?", proyectos_usuario.get())
-        # Primera condición: si hay proyectos
+        projects = proyectos_usuario.get()  # Obtiene la lista actual de proyecto
+        # Si hay proyectos, muestra los selectores
         if projects:
             project_options = {str(project['id']): project['name'] for project in projects}
             return ui.div(
-                ui.input_select(
-                    "project_select",
-                    "Selecciona un proyecto:",
-                    project_options
+                ui.row(
+                    ui.column(
+                        6,  # Ajusta el ancho según sea necesario
+                        ui.input_select(
+                            "project_select",
+                            "Selecciona un proyecto:",
+                            project_options,
+                            width="60%"
+                        )
+                    ),
+                    ui.column(
+                        6,  # Otro ancho para el segundo selector
+                        ui.input_select(
+                            "other_select",
+                            "Versiones",
+                            {
+                                "opcion1": "Opción 1",
+                                "opcion2": "Opción 2",
+                                "opcion3": "Opción 3"
+                            },
+                            width="60%"
+                        )
+                    ),
                 ),
-                ui.output_ui("project_card_container")  # Contenedor para la tarjeta del proyecto
+                ui.output_ui("project_card_container"),  # Contenedor para la tarjeta del proyecto
+                ui.div(
+                    ui.input_file(
+                        "file_desarollo",  # ID del input de archivo
+                        "Cargar archivo de datos:",
+                        button_label='Seleccionar archivo',
+                        placeholder='Selecciona un archivo',
+                        accept=[".csv", ".txt"],
+                        width="30%"
+                    ),
+                    # Agrega margen superior para separación
+                ),
+                #class_="custom-column" 
             )
-        
-        # Segunda condición: si `condition` es verdadera
+
+        # Si no hay proyectos pero `proceso_eliminar` es verdadero
         elif proceso_eliminar.get():
             return ui.update_select(
-        "project_select",
-        choices={str(proj['id']): proj['name'] for proj in proyectos_usuario.get()}
-        )
-        
-        # Si ninguna de las condiciones anteriores se cumple
+                "project_select",
+                choices={str(proj['id']): proj['name'] for proj in projects}
+            )
+
+        # Si ninguna condición anterior se cumple
         else:
             return ui.div("No hay proyectos disponibles para este usuario.")
-            
+       
        
         
     

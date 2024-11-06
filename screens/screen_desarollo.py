@@ -7,7 +7,6 @@ from global_names import global_name_desarrollo
 from clases.global_session import global_session
 from global_var import global_data_loader_manager
 
-
 user_id = global_session.obtener_id()
 json_loader = LoadJson(user_id=user_id)
 previous_values = json_loader.load_json()
@@ -21,26 +20,22 @@ CHOICES = {
 data_loader = global_data_loader_manager.get_loader(name_suffix)
 
 screenDesarollo = ui.page_fluid(
-    ui.div(
-        ui.input_action_button("volver_etapas_desde_desarrollo", "SmartModeling", class_="logo-button")),
-    ui.div(
-        ui.output_ui("conten_nav")
-    ),
+    # ui.div(
+    # ui.output_ui("conten_nav")
+    # ),
     # ui.h3(ui.output_text("nombre_proyecto")),
     ui.div(
-        ui.h3(f"{global_name_desarrollo}",  class_="custom-title"),
-        # ui.h3("Modelo desarrollo", class_="custom-title"),
         ui.tags.div(ui.column(12, ui.input_select(
             "number_choice",
             "Selecciona un número de columnas de dataset",
             choices=[str(i) for i in range(5, 26)],
             width="100%",  # Genera una lista de opciones del 1 al 25
         ),
-            )),
+        )),
 
         ui.h4("Dataset"),
-        ui.column(12, ui.input_file("file_desarollo", "Seleccion de archivo CSV o TXT",
-                  button_label='Cargar archivo', placeholder='Buscar el archivo', accept=[".csv", ".txt"], width="100%")),
+        # ui.column(12, ui.input_file("file_desarollo", "Seleccion de archivo CSV o TXT",
+        # button_label='Cargar archivo', placeholder='Buscar el archivo', accept=[".csv", ".txt"], width="100%")),
         ui.output_text_verbatim("error"),
         ui.output_text_verbatim("error_proyecto"),
 
@@ -107,6 +102,46 @@ screenDesarollo = ui.page_fluid(
         ui.output_ui("update_action_button"),
         ui.output_ui("screen_content_desarollo"),
     ),
+    ui.div(class_="mt-5"),
+    ui.card(
+        ui.accordion(
+            ui.accordion_panel(
+                "Ejecución",
+                ui.output_ui("card_desarollo2"),
+                ui.output_ui("tarjeta_desarollo"),
+                ui.output_ui("mensaje_desarollo"),
+                ui.output_text_verbatim("mostrarDatos"),
+                # ui.output_text_verbatim("mensaje_id"),
+                ui.output_ui("boton_desarollo"),
+                ui.output_ui("descarga_desarollo"),
+                value="desarrollo"
+            ),
+        ),
+    ),
+
+    ui.div(class_="mt-5"),
+
+    ui.div(
+        ui.card(
+            "Resultados de desarrollo",
+            ui.column(4, ui.download_button(
+                "descargar_resultados_desarollo", "Descargar Todos los reportes desarollo")),
+            ui.output_ui("render_resultado_card"),
+            ui.output_ui("funcion_volver"),
+            ui.output_ui("render_desarollo_resultado_dos"),
+            ui.output_ui("resultado_card_clean_trans"),
+            # ui.output_ui("html_output_clean"),
+            ui.output_ui("resultado_card_desarollo4"),
+            # ui.output_ui("ver_html_desarollo"),
+            ui.output_ui("html_output_desarollo2"),
+            ui.output_ui("html_output_desarollo3"),
+
+            value="desarollo"
+
+
+        )
+
+    )
 
 
 )

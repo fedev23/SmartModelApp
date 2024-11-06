@@ -44,19 +44,6 @@ def show_selected_project_card(user_id, project_id):
     if project:
         sanitized_name =  project['id']
         print(sanitized_name)
-        return ui.div(
-            f"Proyecto: {project['name']}, Fecha de creación: {project['created_date']}",
-            global_user_proyecto.card_desarollo(),
-            global_user_proyecto.card_validacion_in_sample(),
-            global_user_proyecto.card_out_to_sample_valid(),
-            global_user_proyecto.card_produccion(),
-            ui.input_action_link(
-            f"eliminar_proyect_{sanitized_name}", 
-            ui.tags.i(class_="fa fa-trash fa-2x"),  # Ícono de basura
-            #class_="btn btn-danger"  # Opcional: estilo de botón rojo
-            ),
-            id=f"project_card_{sanitized_name}"
-        )
     else:
         return ui.div("No hay proyectos.")
     

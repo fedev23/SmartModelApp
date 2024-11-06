@@ -16,11 +16,11 @@ app_ui = ui.page_fluid(
         ui.nav_panel("Screen_Login", screenLogin),
         ui.nav_panel("Screen_User", screen_User),
         #ui.nav_panel("Screen_1", screen1),
-        ui.nav_panel("Screen_valid", screenValid),
+        #ui.nav_panel("Screen_valid", screenValid),
         ui.nav_panel("Screen_Porduccion", screenProduccion),
-        ui.nav_panel("Screen_Desarollo", screenDesarollo),
-        ui.nav_panel("Screen_3", screen3),
-        ui.nav_panel("Screen_Resultados", screenResult),
-        ui.nav_panel("screen_in_sample", screenInSample)
+        #ui.nav_panel("Screen_Desarollo", screenDesarollo),
+        #ui.nav_panel("Screen_3", screen3),
+        #ui.nav_panel("Screen_Resultados", screenResult),
+        #ui.nav_panel("screen_in_sample", screenInSample)
     )
 )
