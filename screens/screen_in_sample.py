@@ -108,30 +108,38 @@ screenInSample = ui.page_fluid(
         ),
         # class_="custom-card"
 
-    ),
-    ui.div(
-        ui.accordion(
-           ui.accordion_panel(
-                "Validación In sample",
+        ui.tags.hr(),
+
+
+        ui.navset_card_underline(
+            ui.nav_panel(
+                "Ejecución",
                 ui.output_ui("mostrar_fin_inSample"),
                 ui.output_ui("card_in_sample"),
                 ui.output_ui("open_in_sample"),
-                #ui.output_ui("descarga_in_sample"),
+                # ui.output_ui("card_in_sample"),
+                ui.output_ui("open_in_sample"),
+                # ui.output_ui("descarga_in_sample"),
                 ui.output_ui("busy_indicator_in_sample"),
                 ui.output_text_verbatim("mostrar_in_sample"),
                 value="in_sample"
-            ) 
+
+
+
+            ),
+            ui.nav_spacer(),
+            ui.nav_panel(
+                "Resultados Validación In sample",
+                ui.div(
+                    ui.card(
+                        ui.column(4, ui.download_button(
+                            "descargar_resultados_validacion", "Descargar Todos los reportes validacion")),
+                        ui.output_ui("resultado_card_validacion_in_sample"), value="in_sample"
+                    )
+                )
+            )
         )
-         
+
     ),
-    
-    ui.div(class_="mt-5"),
-    
-    ui.div(
-        ui.card(
-            ui.column(4, ui.download_button("descargar_resultados_validacion", "Descargar Todos los reportes validacion")),
-                        ui.output_ui("resultado_card_validacion_in_sample"),
-                    value= "in_sample"
-        )
-    )
+
 )

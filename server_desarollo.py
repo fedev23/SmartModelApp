@@ -109,8 +109,6 @@ def server_desarollo(input, output, session, name_suffix):
         proceso = global_desarollo.proceso.get()
         print(click_count_value)
         ejectutar_desarrollo_asnyc(click_count_value, mensaje_value, proceso) 
-        fecha_hora_registrada = global_desarollo.log_fecha_hora()
-        
         #me llevo la hora de jecucion el modelo para guardar en la base de datos
         insert_table_model(user_id_send.get(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_desarrollo())
         #global_fecha.set_fecha_desarrollo(fecha_hora_registrada)
