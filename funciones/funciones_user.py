@@ -34,6 +34,59 @@ def create_project_selector(user_id):
     else:
         return ui.div("No hay proyectos disponibles para este usuario.")
     
+    
+
+
+def create_project_ui(projects):
+    if projects:
+        # Construye las opciones del selector a partir de los proyectos
+        project_options = {str(project['id']): project['name'] for project in projects}
+
+        # Devuelve la estructura de la UI
+        return ui.div(
+            ui.row(
+                ui.column(
+                    6,  # Ajusta el ancho según sea necesario
+                    ui.input_select(
+                        "project_select",
+                        "Selecciona un proyecto:",
+                        project_options,
+                        width="60%"
+                    )
+                ),
+                ui.column(
+                    6,  # Otro ancho para el segundo selector
+                    ui.input_select(
+                        "other_select",
+                        "Versiones",
+                        {
+                            "opcion1": "Opción 1",
+                            "opcion2": "Opción 2",
+                            "opcion3": "Opción 3"
+                        },
+                        width="60%"
+                    )
+                )
+            ),
+            ui.output_ui("project_card_container"),  # Contenedor para la tarjeta del proyecto
+            ui.div(class_="mt-2"),
+            ui.div(
+                ui.input_file(
+                    "file_desarollo",  # ID del input de archivo
+                    "Cargar archivo de datos:",
+                    button_label='Seleccionar archivo',
+                    placeholder='Selecciona un archivo',
+                    accept=[".csv", ".txt"],
+                    width="30%"
+                ),
+                # Agrega margen superior para separación
+            )
+        )
+    else:
+        # Si no hay proyectos, devuelve un mensaje
+        return ui.div("No hay proyectos disponibles.")
+
+    
 
 
 def show_selected_project_card(user_id, project_id):
@@ -43,10 +96,16 @@ def show_selected_project_card(user_id, project_id):
     
     if project:
         sanitized_name =  project['id']
-        print(sanitized_name)
+        return  ui.input_action_link(
+            f"eliminar_proyect_{sanitized_name}", 
+            ui.tags.i(class_="fa fa-trash fa-2x"),  # Ícono de basura
+            #class_="btn btn-danger"  # Opcional: estilo de botón rojo
+            ),
     else:
         return ui.div("No hay proyectos.")
     
+    
+
     
     
 

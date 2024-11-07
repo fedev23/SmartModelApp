@@ -40,7 +40,7 @@ app_shiny = App(app_ui, create_server)
 class ProcessUserIDEndpoint(HTTPEndpoint):
     async def get(self, request):
         print("Received request")
-        user_id = request.query_params.get("user_id")  # Obtiene el user_id de los parámetros de consulta
+        user_id = request.query_params.get("user_id")  # Obtiene el user_id de los parametros de consulta
         print(f"User ID: {user_id}")
         if user_id:
             return JSONResponse({"message": f"User ID {user_id} processed successfully"})
@@ -71,6 +71,7 @@ class DynamicStaticFileEndpoint(HTTPEndpoint):
 # Define the routes for Starlette
 routes = [
     Route('/api/user_files/{file_name}', DynamicStaticFileEndpoint), 
+    #http://127.0.0.1:3000/api/user_files/{file_name}?user_id=12345
     Route('/api/process_user_id', ProcessUserIDEndpoint),
     Mount('/shiny', app=app_shiny),
    

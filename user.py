@@ -4,7 +4,7 @@ from clases.class_user_proyectName import global_user_proyecto
 from api import *
 from clases.global_session import global_session
 from clases.global_reactives import global_estados
-from funciones.funciones_user import create_project_selector, show_selected_project_card, create_modal_eliminar_bd
+from funciones.funciones_user import create_project_selector, show_selected_project_card, create_modal_eliminar_bd, create_project_ui
 
 
 
@@ -124,67 +124,17 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                 print(proyectos_usuario.get())
                 create_navigation_handler('continuar', 'Screen_Desarollo')
                 global_user_proyecto.click_en_continuar.set(False)
+                
+  
+     
     @output
     @render.ui
     def devolver_acordeon():
         projects = proyectos_usuario.get()  # Obtiene la lista actual de proyecto
-        # Si hay proyectos, muestra los selectores
-        if projects:
-            project_options = {str(project['id']): project['name'] for project in projects}
-            return ui.div(
-                ui.row(
-                    ui.column(
-                        6,  # Ajusta el ancho según sea necesario
-                        ui.input_select(
-                            "project_select",
-                            "Selecciona un proyecto:",
-                            project_options,
-                            width="60%"
-                        )
-                    ),
-                    ui.column(
-                        6,  # Otro ancho para el segundo selector
-                        ui.input_select(
-                            "other_select",
-                            "Versiones",
-                            {
-                                "opcion1": "Opción 1",
-                                "opcion2": "Opción 2",
-                                "opcion3": "Opción 3"
-                            },
-                            width="60%"
-                        )
-                    ),
-                ),
-                ui.output_ui("project_card_container"),  # Contenedor para la tarjeta del proyecto
-                ui.div(
-                    ui.input_file(
-                        "file_desarollo",  # ID del input de archivo
-                        "Cargar archivo de datos:",
-                        button_label='Seleccionar archivo',
-                        placeholder='Selecciona un archivo',
-                        accept=[".csv", ".txt"],
-                        width="30%"
-                    ),
-                    # Agrega margen superior para separación
-                ),
-                #class_="custom-column" 
-            )
-
-        # Si no hay proyectos pero `proceso_eliminar` es verdadero
-        elif proceso_eliminar.get():
-            return ui.update_select(
-                "project_select",
-                choices={str(proj['id']): proj['name'] for proj in projects}
-            )
-
-        # Si ninguna condición anterior se cumple
-        else:
-            return ui.div("No hay proyectos disponibles para este usuario.")
-       
-       
-        
-    
+        return create_project_ui(projects)
+        #show_selected_project_card(user_get.get(), global_session.get_id_proyecto())
+           
+          
     
     @reactive.effect
     @reactive.event(input[f'settings_{name_suffix}'])

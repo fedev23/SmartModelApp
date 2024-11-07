@@ -34,6 +34,7 @@ def server_resul(input, output, session, name_suffix):
                     return user_id
                 
     user_id = get_user_id_from_session()
+    print(user_id, "de la session")
     def crear_resultados_desarrollo():
         resultados_desarrollo = [
             {

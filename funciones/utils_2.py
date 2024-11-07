@@ -63,6 +63,34 @@ def crear_carpetas_por_id_user(user_id):
     return user_id_cleaned
 
 
+def crear_carpeta_proyecto(user_id, proyecto_id):
+    # Limpiar el user_id reemplazando cualquier '|' por '_'
+    user_id_cleaned = user_id.replace('|', '_')
+    # Definir la ruta base para las carpetas de usuario
+    base_folder_path = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat'
+    
+    # Rutas para las carpetas de entrada y salida del usuario
+    entrada_folder = os.path.join(base_folder_path, f"datos_entrada_{user_id_cleaned}")
+    salida_folder = os.path.join(base_folder_path, f"datos_salida_{user_id_cleaned}")
+    
+    # Rutas para las subcarpetas del proyecto dentro de cada carpeta del usuario
+    entrada_proyecto_folder = os.path.join(entrada_folder, f"proyecto_{proyecto_id}")
+    salida_proyecto_folder = os.path.join(salida_folder, f"proyecto_{proyecto_id}")
+    
+    # Crear la subcarpeta del proyecto en entrada si no existe
+    if not os.path.exists(entrada_proyecto_folder):
+        os.makedirs(entrada_proyecto_folder)
+        print(f"Carpeta creada {entrada_proyecto_folder}")
+    
+    # Crear la subcarpeta del proyecto en salida si no existe
+    if not os.path.exists(salida_proyecto_folder):
+        os.makedirs(salida_proyecto_folder)
+        print(f"Carpeta creada {salida_proyecto_folder}")
+    
+    # Retornar la ruta de las carpetas de proyecto
+    return entrada_proyecto_folder, salida_proyecto_folder
+
+
 def get_user_directory(user_id):
     user_id_cleaned = user_id.replace('|', '_')
     base_directory = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat'
