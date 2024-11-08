@@ -174,3 +174,126 @@ def get_latest_execution(project_id, model_name):
     
     # Retorna None si no hay resultados
     return result if result else (None, None, None)
+
+
+def agregar_version(project_id, version_name):
+    conn = sqlite3.connect('Modeling_App.db')
+    cur = conn.cursor()
+
+    # Obtener la fecha y hora actual
+    execution_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    # Insertar la nueva versión en la tabla `version`
+    cur.execute(''' 
+    INSERT INTO version (project_id, nombre_version, execution_date)
+    VALUES (?, ?, ?)
+    ''', (project_id, version_name, execution_date))  # Solo 3 valores para 3 columnas
+
+    # Obtener el ID de la versión recién creada
+    version_id = cur.lastrowid  # Esto obtiene el ID de la versión recién insertada
+
+    conn.commit()
+    conn.close()
+    
+    return version_id  # Retornar el ID de la versión recién creada
+
+
+
+def get_project_versions(project_id):
+    conn = sqlite3.connect('Modeling_App.db')
+    cur = conn.cursor()
+
+    # Realizar la consulta para obtener las versiones del proyecto específico
+    cur.execute('''
+    SELECT version_id, nombre_version, execution_date
+    FROM version
+    WHERE project_id = ?
+    ''', (project_id,))
+
+    # Recuperar todos los resultados
+    versions = cur.fetchall()
+    conn.close()
+
+    # Convertir los resultados en una lista de diccionarios
+    return [{'version_id': version[0], 'nombre_version': version[1], 'execution_date': version[2]} for version in versions]
+
+
+
+
+
+def obtener_nombre_version_por_id(version_id):
+    # Conectar a la base de datos (asegúrate de cambiar la ruta de la base de datos según sea necesario)
+    conn = sqlite3.connect('Modeling_App.db')
+    
+    try:
+        cursor = conn.cursor()
+        
+        # Consulta para obtener el nombre del proyecto por su ID
+        cursor.execute("SELECT nombre_version FROM version WHERE version_id = ?", (version_id,))
+        
+        # Obtener el resultado
+        resultado = cursor.fetchone()
+        
+        # Verificar si se encontró el proyecto
+        if resultado:
+            return resultado[0]  # Devolver el nombre del proyecto
+        else:
+            return None  # Si no se encontró, retornar None
+
+    except sqlite3.Error as e:
+        print(f"Error al acceder a la base de datos: {e}")
+        return None
+    
+    finally:
+        # Cerrar la conexión
+        conn.close()
+        
+def eliminar_version(version_id):
+    conn = sqlite3.connect('Modeling_App.db')
+    cur = conn.cursor()
+    
+    try:
+        # Cambiar la tabla a 'version'
+        cur.execute('DELETE FROM version WHERE version_id = ?', (version_id,))
+        conn.commit()
+        print(f"Versión con ID {version_id} eliminada exitosamente.")
+    except Exception as e:
+        print(f"Error al eliminar la versión: {e}")
+    finally:
+        conn.close()
+
+
+def obtener_versiones_por_proyecto(project_id):
+    conn = sqlite3.connect('Modeling_App.db')
+    cur = conn.cursor()
+    
+    try:
+        # Realizar la consulta para obtener las versiones del proyecto específico
+        cur.execute('''
+            SELECT version_id, nombre_version, execution_date
+            FROM version
+            WHERE project_id = ?
+        ''', (project_id,))
+        
+        # Recuperar todas las versiones
+        versiones = cur.fetchall()
+        
+        # Convertir los resultados en una lista de diccionarios
+        versiones_list = [
+            {
+                'version_id': version[0],
+                'nombre_version': version[1],
+                'execution_date': version[2]
+            }
+            for version in versiones
+        ]
+        
+        return versiones_list  # Retornar la lista de versiones
+    
+    except sqlite3.Error as e:
+        print(f"Error al acceder a la base de datos: {e}")
+        return []
+    
+    finally:
+        # Cerrar la conexión
+        conn.close()

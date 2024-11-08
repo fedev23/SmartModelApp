@@ -27,11 +27,34 @@ CREATE TABLE IF NOT EXISTS execution_log (
 )
 ''')
 
+# Crear la tabla `model_execution` que referencia a `project`
+cur.execute('''
+CREATE TABLE IF NOT EXISTS model_execution (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    project_id INTEGER,
+    execution_date TEXT,
+    model_name TEXT,
+    dataset_name TEXT,
+    FOREIGN KEY (project_id) REFERENCES project(id)
+)
+''')
+
+# Crear la tabla `version` que referencia a `project`
+cur.execute('''
+CREATE TABLE IF NOT EXISTS version (
+    version_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    project_id INTEGER NOT NULL,
+    nombre_version TEXT NOT NULL,
+    execution_date TEXT,
+    FOREIGN KEY (project_id) REFERENCES project(id)
+)
+''')
+
 # Confirmar y cerrar la conexión
 conn.commit()
 conn.close()
 print("Tablas creadas exitosamente en la base de datos.")
-
 
 def list_tables():
     conn = sqlite3.connect('Modeling_App.db')
@@ -45,6 +68,4 @@ def list_tables():
     conn.close()
 
 # Llama a esta función para ver las tablas
-list_tables()
-
-
+#list_tables()

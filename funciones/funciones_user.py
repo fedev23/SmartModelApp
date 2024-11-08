@@ -41,7 +41,8 @@ def create_project_ui(projects):
     if projects:
         # Construye las opciones del selector a partir de los proyectos
         project_options = {str(project['id']): project['name'] for project in projects}
-
+        #versions_options = {str(versions['id']): versions['name'] for version in versions}
+        #print(versions_options)
         # Devuelve la estructura de la UI
         return ui.div(
             ui.row(
@@ -59,11 +60,7 @@ def create_project_ui(projects):
                     ui.input_select(
                         "other_select",
                         "Versiones",
-                        {
-                            "opcion1": "Opción 1",
-                            "opcion2": "Opción 2",
-                            "opcion3": "Opción 3"
-                        },
+                        {"a": 'a'},
                         width="60%"
                     )
                 )
@@ -85,6 +82,29 @@ def create_project_ui(projects):
     else:
         # Si no hay proyectos, devuelve un mensaje
         return ui.div("No hay proyectos disponibles.")
+    
+    
+
+
+def create_version_ui(projects):
+    if projects:
+        # Construye las opciones del selector a partir de los proyectos
+        project_options = {str(project['id']): project['name'] for project in projects}
+        # Devuelve la estructura de la UI
+        return ui.div(
+            ui.row(
+                ui.column(
+                    6,  # Ajusta el ancho según sea necesario
+                    ui.input_select(
+                        "project_select",
+                        "Selecciona un proyecto:",
+                        project_options,
+                        width="60%"
+                    ),
+                     ui.output_ui("project_card_container")
+                )
+            )
+        )
 
     
 
@@ -104,6 +124,27 @@ def show_selected_project_card(user_id, project_id):
     else:
         return ui.div("No hay proyectos.")
     
+
+def button_remove_version(project_id, target_version_id):
+    # Obtiene la lista de versiones asociadas al proyecto
+    versions_list = get_project_versions(project_id)
+    #print(versions_list)  # Debug: Imprime todas las versiones para verificar
+
+    # Busca si la versión especificada pertenece al proyecto
+    version = next((version for version in versions_list if str(version['version_id']) == str(target_version_id)), None)
+    #print(version)  # Debug: Imprime la versión encontrada o None
+
+    if version:
+        print("La versión pertenece al proyecto.")
+        sanitized_name = version['version_id']  # Obtén el ID de la versión
+        # Devuelve un enlace de acción para eliminar la versión
+        return ui.input_action_link(
+            f"eliminar_version_{sanitized_name}", 
+            ui.tags.i(class_="fa fa-trash fa-2x"),  # Ícono de basura
+            # class_="btn btn-danger"  # Opcional: estilo de botón rojo
+        )
+    else:
+        print("La versión no pertenece al proyecto.")        
     
 
     
@@ -120,3 +161,37 @@ def create_modal_eliminar_bd():
         )  
     ui.modal_show(m)
     
+
+def create_modal_v2(titulo, boton_confirmar_label, boton_cancelar_label, id_boton_confirmar, id_boton_cancelar):
+    m = ui.modal(
+        ui.input_action_button(id_boton_confirmar, boton_confirmar_label, class_="btn btn-danger"),
+        ui.input_action_button(id_boton_cancelar, boton_cancelar_label, class_="custom-cancel-button"),
+        title=titulo,  
+        easy_close=True,  
+        footer=None,  
+    )  
+    ui.modal_show(m)
+
+    
+    
+def create_modal_versiones(id_proyecto):
+        m = ui.modal(
+            ui.row(
+                ui.column(12, ui.input_text(f"name_version",
+                          f"tipo de version del proyecto {id_proyecto}", width="100%")),
+            ),
+            ui.div(
+                ui.div(
+                    ui.input_action_button(
+                        "continuar_version", "Continuar", class_="custom-ok-button", style="text-align: left"),
+                    ui.input_action_button(
+                        "cancelar_version", "Cancelar", class_="custom-cancel-button"),
+                ),
+            ),
+            title="Nueva versión",
+            easy_close=True,
+            footer=None,
+            size='m',
+            fade=True,
+        )
+        ui.modal_show(m)

@@ -7,6 +7,9 @@ class GlobalSession:
         self.id_proyecto = reactive.Value(None) 
         self.proyecto_seleccionado = reactive.Value(None) 
         self.id_user =  reactive.Value(None)    
+        self.id_version = reactive.Value(None)
+        
+        
     def actualizar_directorio(self, nuevo_directorio):
         if self.proceso.get() is True:
             self.directorio = nuevo_directorio
@@ -17,11 +20,17 @@ class GlobalSession:
     def get_id_proyecto(self):
         return self.id_proyecto.get()  
     
+    def set_id_version(self, id):
+        self.id_version.set(id)
+    
+    def get_id_version(self):
+        return self.id_version.get()  
+    
     def set_id_user(self, id):
-        self.id_proyecto.set(id)
+        self.id_user.set(id)
     
     def get_id_user(self):
-        return self.id_proyecto.get()   
+        return self.id_user.get()   
     
     def set_proyecto_seleccionado(self, id):
         self.proyecto_seleccionado.set(id)
