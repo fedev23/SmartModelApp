@@ -8,11 +8,11 @@ CHOICES = {
 
 screenProduccion = ui.page_fluid(
         ui.div(
-            ui.input_action_button("volver_produccion", "SmartModel", class_="logo-button"),
+            ui.input_action_button("volver_produccion", "SmartModeling", class_="logo-button"),
         ),
         ui.output_ui("nav_out_to_produccion"),
         ui.div(
-            ui.h3("Producción", class_="custom-title"),
+            ui.h3("Scoring", class_="custom-title"),
             ui.h4("Dataset"),  
             ui.column(12, 
             ui.input_file("file_produccion", "Selección de archivo CSV o TXT. Es importante seleccionar primero el delimitador, luego el dataset.", 
@@ -20,13 +20,7 @@ screenProduccion = ui.page_fluid(
                 placeholder='Buscar el archivo', 
                 accept=[".csv", ".txt"], 
                 width="100%")  # Input para carga de archivos CSV o TXT
-        ), 
-                ui.column(12, ui.input_select(
-                    "delimiter_produccion",
-                    "Tipo de delimitador",
-                    choices=CHOICES["tipo"],
-                     width="100%"
-                )) 
+        )
         ),
             ui.row(
                 ui.column(12, ui.output_text_verbatim("file_status_produccion")),

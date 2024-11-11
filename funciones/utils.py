@@ -203,7 +203,6 @@ def crear_card_con_input(input_id, input_label, action_link_id, icon):
 def crear_card_con_input_seleccionador(input_id, input_label, action_link_id, icon):
     # Create a card structure with a row and columns for selectize and action link
     id_buttons.append(action_link_id)
-    print(input_id)
     return ui.column(4, 
         ui.card_header(
             ui.row(
@@ -234,7 +233,6 @@ def crear_card_con_input_seleccionador(input_id, input_label, action_link_id, ic
 def crear_card_con_input_seleccionador_V2(input_id, input_label, action_link_id, icon):
     # Create a card structure with a row and columns for selectize and action link
     id_buttons.append(action_link_id)
-    print(input_id)
     return ui.column(4, 
         ui.card_header(
             ui.row(

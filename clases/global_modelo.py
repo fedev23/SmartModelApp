@@ -7,8 +7,17 @@ global_desarollo = ModeloProceso(
     name_file = "", 
     mensaje_id = "mensaje_desarrollo",
     script_name="",
-    script_path="./Modelar.sh datos_entrada datos_salida"
+    script_path=""
 )
+
+modelo_in_sample = ModeloProceso(
+        nombre="in_sample",
+        mensaje_id= "mensaje_id_in_sample",
+        name_file = "", 
+        directorio=r"/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat",
+        script_name="",
+        script_path="" 
+    )
 
 
 modelo_of_sample = ModeloProceso(
@@ -17,7 +26,7 @@ modelo_of_sample = ModeloProceso(
         mensaje_id= "mensaje_of_sample",
         directorio=r"/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat",
         script_name="Levantar_Contenedor.sh",
-        script_path="./Validar_Nueva.sh datos_entrada datos_salida"
+        script_path=""
     )
 
 
@@ -28,7 +37,7 @@ modelo_produccion = ModeloProceso(
         mensaje_id= "mensaje_produccion", 
         directorio=r"/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat",
         script_name="Levantar_Contenedor.sh",
-        script_path="./Scoring.sh datos_entrada datos_salida"
+        script_path=""
     )
 
 

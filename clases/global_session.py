@@ -24,5 +24,6 @@ class GlobalSession:
                     return user_id
             return None  # Devuelve None si el proceso no está activo o el usuario no está logueado
 
-# Instancia de GlobalSession
+
 global_session = GlobalSession()
+

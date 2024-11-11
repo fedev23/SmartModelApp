@@ -9,6 +9,9 @@ from funciones.utils import transformar_segmentos, validar_columnas, transform_d
 from global_var import global_data_loader_manager
 import pandas as pd
 from funciones.utils_2 import cambiarAstring, validar_proyecto
+from clases.global_session import global_session
+from api.db import *
+from clases.reactives_name import global_names_reactivos
 
 
 ejemplo_niveles_riesgo = pd.DataFrame({
@@ -48,10 +51,10 @@ def server_in_sample(input, output, session, name_suffix):
     mensaje_de_error = reactive.Value("")
     name = "validación in sample"
     data_loader = global_data_loader_manager.get_loader("desarrollo")
-    setValores = reactive.Value(0)
     count = reactive.value(0)
     no_error = reactive.Value(True)
     name = "Validacion in sample"
+    global_names_reactivos.name_validacion_in_sample_set(name_suffix)
 
     def create_navigation_handler_validacion(input_id, screen_name, valid):
         @reactive.Effect
@@ -75,8 +78,8 @@ def server_in_sample(input, output, session, name_suffix):
     @output
     @render.text
     def nombre_proyecto_in_sample():
-        return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo()}'
-
+        return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo(global_session.proyecto_seleccionado())}'
+    
     @output
     @render.ui
     def menuInSample():
@@ -121,7 +124,7 @@ def server_in_sample(input, output, session, name_suffix):
         inputs_procesados = {key: transformacion(input[key]()) for key, transformacion in transformaciones.items()}
 
         # 3. Validar si el proyecto está asignado
-        proyecto_nombre = global_user_proyecto.get_nombre_proyecto()
+        proyecto_nombre = global_session.get_id_user()
         if not validar_proyecto(proyecto_nombre):
             error_messages.append(f"Es necesario tener un proyecto asignado o creado para continuar en {name}")
             mensaje_de_error.set("\n".join(error_messages))
@@ -145,8 +148,14 @@ def server_in_sample(input, output, session, name_suffix):
 
             df_editado = par_rango_niveles.data_view()
             niveles_mapeados = transform_data(df_editado)
-
+            ##global session es el manejo de los usarios.
+            if global_session.proceso.get():
+                state = global_session.session_state.get()
+                if state["is_logged_in"]:
+                    user_id = state["id"]
+                    user_id_cleaned = user_id.replace('|', '_')
             # Guardar los datos procesados en un archivo JSON
+<<<<<<< HEAD
             #load_handler = LoadJson(input)
             #load_handler.inputs['par_rango_niveles'] = niveles_mapeados
             #load_handler.inputs['par_rango_segmentos'] = segmentosMap
@@ -158,6 +167,19 @@ def server_in_sample(input, output, session, name_suffix):
             #print(f"Inputs guardados en {json_file_path}, en {name_suffix}")
             create_navigation_handler_validacion(f'load_param_{name_suffix}', 'Screen_3', no_error)
             ui.update_accordion("my_accordion", show=["in_sample"])
+=======
+                    load_handler = LoadJson(input, user_id_cleaned)
+                    load_handler.inputs['par_rango_niveles'] = niveles_mapeados
+                    load_handler.inputs['par_rango_segmentos'] = segmentosMap
+                    load_handler.inputs['par_rango_reportes'] = reportesMap
+                    load_handler.inputs['par_vars_segmento'] = par_vars_segmento
+                    load_handler.inputs.update(inputs_procesados)
+
+                    json_file_path = load_handler.loop_json()
+                    print(f"Inputs guardados en {json_file_path}, en {name_suffix}")
+                    create_navigation_handler_validacion(f'load_param_{name_suffix}', 'Screen_3', no_error)
+                    ui.update_accordion("my_accordion", show=["in_sample"])
+>>>>>>> cambios_interface
         else:
             # Mostrar mensajes de error si existen
             mensaje_de_error.set("\n".join(error_messages))

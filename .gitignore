@@ -5,3 +5,7 @@ env
 auth/
 
 __pycache__/
+
+__pycache__/
+
+main.py

@@ -2,12 +2,15 @@
 import os
 import json
 import traceback
+from shiny import reactive
+from funciones.utils_2 import get_user_directory
 
 class LoadJson:
-    def __init__(self, input=None):
+    def __init__(self, user_id ,input=None):
         self.input = input
         self.inputs = {}
         self.json = {}
+        self.user_id = user_id
 
     def loop_json(self):
         try:
@@ -40,8 +43,8 @@ class LoadJson:
                 "par_rango_reportes": self.inputs.get("par_rango_reportes", {}),
                 "par_times": self.input["par_times"](),
                 "par_cant_reportes": self.input["par_cant_reportes"](),
-                "delimiter_desarollo": self.input["delimiter_desarollo"](),
-                "proyecto_nombre": self.input["proyecto_nombre"](),
+                "delimiter_desarollo": self.inputs.get("delimiter_desarollo"),
+                "proyecto_nombre": self.inputs.get("proyecto_nombre"),
                 "file_validation": self.input["file_validation"](),
                 "file_produccion": self.input["file_produccion"](),
                 "par_minpts_cat": self.input["par_minpts_cat"](),
@@ -80,7 +83,7 @@ class LoadJson:
                     "parameter": "cols_forzadas_a_predictoras",
                     "value": self.inputs["cols_forzadas_a_predictoras"],
                     "Descripción": "Variables con inclusión forzada en las variables candidatas",
-                    "type": "string"
+                    "type": "list"
                 },
                 {
                     "parameter": "par_var_grupo",
@@ -92,7 +95,7 @@ class LoadJson:
                     "parameter": "cols_forzadas_a_cat",
                     "value": self.inputs["cols_forzadas_a_cat"],
                     "Descripción": "Variables candidatas numéricas forzadas a categóricas",
-                    "type": "string",
+                    "type": "list",
                 },
                 {
                     "parameter": "par_cor_show",
@@ -110,13 +113,13 @@ class LoadJson:
                     "parameter": "cols_nulos_adic",
                     "value": self.inputs["cols_nulos_adic"],
                     "Descripción": "Lista de variables y códigos de nulos",
-                    "type": "string",
+                    "type": "list",
                 },
                 {
                     "parameter": "cols_no_predictoras",
                     "value": self.inputs["cols_no_predictoras"],
                     "Descripción": "Variables excluídas de las variables candidatas",
-                    "type": "string",
+                    "type": "list",
                 },
                 {
                     "parameter": "par_cor",
@@ -207,7 +210,7 @@ class LoadJson:
                     "parameter": "par_vars_segmento",
                     "value": self.inputs["par_vars_segmento"],
                     "Descripción": "Variables necesarias para reportes por Segmento",
-                    "type": "string",
+                    "type": "list",
                 },
                 {
                     "parameter": "par_rango_niveles",
@@ -239,7 +242,6 @@ class LoadJson:
                     "Descripción": "Máxima cantidad de reportes",
                     "type": "numeric"
                 },
-
 
                 {
                     "parameter": "project_title",
@@ -313,8 +315,8 @@ class LoadJson:
             traceback.print_exc()
 
         # Crear la lista de diccionarios en el formato deseado
-
-        directorio_guardado = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada'
+        #get_user_directory(self.user_id)
+        directorio_guardado = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{self.user_id}'
         ruta_json = os.path.join(
             directorio_guardado, 'Control de SmartModelStudio.json')
         with open(ruta_json, 'w', encoding='utf-8') as file:
@@ -338,4 +340,4 @@ class LoadJson:
         return default_value
 
 
-global_json = LoadJson()
+#global_json = LoadJson()

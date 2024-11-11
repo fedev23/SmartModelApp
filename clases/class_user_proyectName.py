@@ -1,11 +1,15 @@
 from shiny import ui, reactive
 from shiny.express import ui as express_ui
 import re
-import time
-import datetime
+from clases.global_session import global_session
 from clases.global_name import global_name_manager
 from clases.class_extact_time import global_fecha
 from global_names import global_name_in_Sample, global_name_desarrollo, global_name_out_of_Sample, global_name_produccion
+from api.db import *
+from global_names import *
+from clases.reactives_name import global_names_reactivos
+
+
 
 
 class User_proyect:
@@ -45,8 +49,8 @@ class User_proyect:
             ui.modal_remove()
             # Convertir el valor a una cadena de texto
             self.set_nombre_proyecto(input.proyecto_nombre())
-            fecha_hora_registrada = global_user_proyecto.fecha_new_proyecto()
-            self.hora_new_proyect.set(fecha_hora_registrada)
+            #fecha_hora_registrada = global_user_proyecto.fecha_new_proyecto()
+            #self.hora_new_proyect.set(fecha_hora_registrada)
             self.click_en_continuar.set(False)
 
     def get_boton_continuar(self):
@@ -83,32 +87,34 @@ class User_proyect:
         )
 
     def card_desarollo(self):
-        file_name_desarollo = global_name_manager.get_file_name_desarrollo()
-        fechaHora = global_fecha.get_fecha_desarrollo()
-        print("Actualicé", fechaHora)
-        if not file_name_desarollo and not fechaHora:
+        latest_date, latest_model, latest_dataset = get_latest_execution(global_session.get_id_proyecto(), global_names_reactivos.name_desarrollo_get())
+        # Verificar si hay datos para mostrar
+        if not latest_dataset:
             return self.create_value_box(
-                title=f"{global_name_desarrollo}",
+                title="Desarrollo",
                 value=["Aún no hay modelos generados"]
             )
+        
+        # Contenido a mostrar en la tarjeta
         value_content = [
-            f'Datos: {file_name_desarollo}',
-            f"Última etapa generada: {fechaHora}",
+            f'Datos: {latest_dataset}',
+            f"Última ejecución: {latest_date}",
+            #f"Modelo: {latest_model}",
         ]
+        
         return self.create_value_box(
             title="Desarrollo",
             value=value_content
         )
 
     def card_validacion_in_sample(self):
-        file_name_validacion_in_sample = global_name_manager.get_file_name_desarrollo()
-        fechaHora = global_fecha.get_fecha_in_sample()
-        if file_name_validacion_in_sample and fechaHora:
+        latest_date, latest_model, latest_dataset = get_latest_execution(global_session.get_id_proyecto(), global_names_reactivos.name_validacion_in_sample_get())
+        if latest_dataset and latest_date:
             return self.create_value_box(
                 title=f"{global_name_in_Sample}",
                 value=[
-                    f'Datos: {file_name_validacion_in_sample}',
-                    f'Última ejecución: {fechaHora}'
+                    f'Datos: {latest_dataset}',
+                    f'Última ejecución: {latest_date}'
                 ]
             )
         return self.create_value_box(
@@ -117,14 +123,13 @@ class User_proyect:
         )
 
     def card_out_to_sample_valid(self):
-        file_name_out_to = global_name_manager.get_file_name_validacion()
-        fechaHora = global_fecha.get_fecha_of_to_Sample()
-        if file_name_out_to and fechaHora:
+        latest_date, latest_model, latest_dataset = get_latest_execution(global_session.get_id_proyecto(), global_names_reactivos.name_validacion_of_to_sample_get())
+        if latest_dataset and latest_date:
             return self.create_value_box(
                 title=f"{global_name_out_of_Sample}",
                 value=[
-                    f'Datos: {file_name_out_to}',
-                    f'Última ejecución: {fechaHora}'
+                    f'Datos: {latest_dataset}',
+                    f'Última ejecución: {latest_date}'
                 ]
             )
         return self.create_value_box(
@@ -133,55 +138,51 @@ class User_proyect:
         )
 
     def card_produccion(self):
-        file_name_produccion = global_name_manager.get_file_name_produccion()
-        fechaHora = global_fecha.get_fecha_produccion()
-        if file_name_produccion and fechaHora:
+        global_name_produccion = "produccion"
+        latest_date, latest_model, latest_dataset = get_latest_execution(global_session.get_id_proyecto(), global_names_reactivos.name_produccion_get())
+        if latest_dataset:
             return self.create_value_box(
                 title=f"{global_name_produccion}",
                 value=[
-                    f'Datos: {file_name_produccion}',
-                    f'Última ejecución: {fechaHora}'
+                    f'Datos: {latest_dataset}',
+                    f'Última ejecución: {latest_date}'
                 ]
             )
         return self.create_value_box(
             title=f"{global_name_produccion}",
             value=["Aún no hay modelos generados"]
         )
+    
 
-    def create_accordeon(self):
-        nombre_proyecto = self.get_nombre_proyecto()
-        print("HOLA TENGO", nombre_proyecto)
-        if nombre_proyecto:
-            # Sanitizar el nombre del proyecto para usarlo en los IDs
-            sanitized_name = re.sub(r'\W|^(?=\d)', '_', nombre_proyecto)
-            return ui.div(
-                ui.accordion(
-                    ui.accordion_panel(
-                        f"Proyecto: {nombre_proyecto}, Fecha de creacion: {self.hora_new_proyect.get()}",
+    def create_accordeon(self, user_id):
+        projects = get_user_projects(user_id)
+        if projects:
+            panels = []
+            for project in projects:
+                sanitized_name = re.sub(r'\W|^(?=\d)', '_', project['name'])
+                panels.append(
+                    ui.card(
+                         ui.card_header(f"Proyecto: {project['name']}, Fecha de creación: {project['created_date']}"),
+                        #ui.input_action_button("eliminar_proyect", "Eliminar proyecto"),
                         self.card_desarollo(),
                         self.card_validacion_in_sample(),
                         self.card_out_to_sample_valid(),
                         self.card_produccion(),
-                    ),
-                    # ID único para el acordeón
-                    id=f"accordion_{sanitized_name}",
-                    open=False
+                        ui.input_action_button(f"eliminar_proyect_{sanitized_name}", "Eliminar proyecto"),
+                        id=f"card{sanitized_name}", ##TENER EN CUENTA LO DE USER ID
+                        #open=False
+                    )
+                    
                 )
-            )
+               
+            return ui.div(ui.card(*panels))
         else:
-            return ui.div()
-
-    def fecha_new_proyecto(self):
-        # Registra la fecha y hora actual
-        now = datetime.datetime.now()
-        # Formatear la fecha y hora para eliminar los milisegundos y microsegundos
-        formatted_now = now.strftime('%Y-%m-%d ')
-        self.fecha_hora = formatted_now
-        return formatted_now
-
-    def mostrar_nombre_proyecto_como_titulo(self):
-        if self._nombre_proyecto.get():
-            return self._nombre_proyecto.get()
+            return ui.div("No hay proyectos disponibles para este usuario.")
+        
+    
+    def mostrar_nombre_proyecto_como_titulo(self, proyecto):
+        if proyecto:
+            return proyecto
         else:
             self.error.set("No hay proyecto asignado")
             nombre = self.error.get()

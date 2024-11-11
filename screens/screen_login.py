@@ -3,7 +3,7 @@ from shiny import ui, render, reactive
 screenLogin = ui.page_fluid(  # Incluimos los estilos
     ui.div(
         ui.input_action_button(
-            "boton_login", "SmartModel", class_="logo-button"),
+            "boton_login", "SmartModeling", class_="logo-button"),
         ui.div(
             ui.card(
                 ui.input_text("username", "Correo electrónico:", value=""),

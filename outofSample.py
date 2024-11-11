@@ -4,25 +4,52 @@ from funciones.create_nav_menu import create_nav_menu
 from clases.class_screens import ScreenClass
 from clases.class_user_proyectName import global_user_proyecto
 from global_var import global_data_loader_manager
-from funciones.utils_2 import errores, validar_proyecto
+from funciones.utils_2 import errores, validar_proyecto, get_user_directory
+from clases.global_modelo import modelo_of_sample
+from clases.global_session import global_session
+from api.db import *
+from clases.global_name import global_name_manager
+from clases.reactives_name import global_names_reactivos
+
 
 
 def server_out_of_sample(input, output, session, name_suffix):
     # Obtener el loader de datos desde el manage
     proceso_a_completado = reactive.Value(False)
-    directorio_validacion = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat'
-    hay_error = reactive.Value(False)
+    directorio = reactive.Value("")
+    screen_instance = reactive.Value(None)
     mensaje = reactive.Value("")
     name = "Out-Of-Sample"
+    global_names_reactivos.name_validacion_of_to_sample_set(name_suffix)
     data_loader = global_data_loader_manager.get_loader(name_suffix)
+    
 
     # Instanciamos la clase ScreenClass
-    screen_instance = ScreenClass(directorio_validacion, name_suffix)
-
+    #screen_instance = ScreenClass(directorio_validacion, name_suffix)
+    def see_session():
+        @reactive.effect
+        def enviar_session():
+            if global_session.proceso.get():
+                state = global_session.session_state.get()
+                if state["is_logged_in"]:
+                    user_id = state["id"]
+                    user = get_user_directory(user_id)
+                    print(user)
+                    user_id_cleaned = user_id.replace('|', '_')
+                    directorio.set(user)
+                    modelo_of_sample.script_path = f"./Validar_Nueva.sh datos_entrada_{user_id_cleaned} datos_salida_{user_id_cleaned}"
+                    ##voy a usar la clase como efecto reactivo, ya que si queda encapsulada dentro de la funcion no la podria usar
+                    screen_instance.set(ScreenClass(directorio.get(), name_suffix))
+    
+    see_session()
+    
+   
     @output
     @render.text
     def nombre_proyecto_validacion():
-        return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo()}'
+        return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo(global_session.proyecto_seleccionado())}'
+
+  
 
     @output
     @render.ui
@@ -33,7 +60,7 @@ def server_out_of_sample(input, output, session, name_suffix):
     @reactive.event(input.file_validation)
     async def loadOutSample():
         print("entre")
-        await screen_instance.load_data(input.file_validation, input.delimiter_validacion_out_to, name_suffix)
+        await screen_instance.get().load_data(input.file_validation, name_suffix)
 
     @reactive.Effect
     @reactive.event(input[f'load_param_{name_suffix}'])
@@ -45,13 +72,13 @@ def server_out_of_sample(input, output, session, name_suffix):
             return  # Detener la ejecución si no hay dataset
 
         # 2. Validar si el proyecto está asignado
-        proyecto_nombre = global_user_proyecto.get_nombre_proyecto()
+        proyecto_nombre = global_session.get_id_user()
         if not validar_proyecto(proyecto_nombre):
             mensaje.set(f"Es necesario tener un proyecto asignado o creado para continuar en {name}")
             return  # Detener la ejecución si no hay proyecto asignado
 
         # 3. Continuar si ambas validaciones anteriores pasan
-        if screen_instance.proceso_a_completado.get():
+        if screen_instance.get().proceso_a_completado.get():
             create_navigation_handler(f'load_param_{name_suffix}', 'Screen_3')
             ui.update_accordion("my_accordion", show=["out_to_sample"])
 
@@ -64,7 +91,7 @@ def server_out_of_sample(input, output, session, name_suffix):
     @output
     @render.data_frame
     def summary_data_validacion_out_to_sample():
-        return screen_instance.render_data_summary()
+        return screen_instance.get().render_data_summary()
 
     @output
     @render.ui
@@ -79,6 +106,33 @@ def server_out_of_sample(input, output, session, name_suffix):
     @render.ui
     def screen_content():
         return create_screen(name_suffix)
+    
+    
+      ##USO ESTE DECORADOR PARA CORRER EL PROCESO ANSYC Y NO HAYA INTERRUCIONES EN EL CODIGO LEER DOCUENTACION
+    #https://shiny.posit.co/py/docs/nonblocking.html
+    @ui.bind_task_button(button_id="execute_of_sample")
+    @reactive.extended_task
+    async def ejecutar_of_to_sample(click_count, mensaje, proceso):
+        # Llamamos al método de la clase para ejecutar el proceso
+        await modelo_of_sample.ejecutar_proceso_prueba(click_count, mensaje, proceso)
+        
+    ##Luego utilizo el input del id del boton para llamar ala funcion de arriba y que se ejecute con normalidad
+    @reactive.Effect
+    @reactive.event(input.execute_of_sample, ignore_none=True)
+    def validacion_out_to_Sample_model_run():
+        click_count_value = modelo_of_sample.click_counter.get()  # Obtener contador
+        mensaje_value = modelo_of_sample.mensaje.get()  # Obtener mensaje actual
+        proceso = modelo_of_sample.proceso.get()
+        ejecutar_of_to_sample(click_count_value, mensaje_value, proceso)
+        insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_validacion())
+        
+    @reactive.Effect
+    @reactive.event(input[f'open_html_{modelo_of_sample.nombre}'])
+    def enviar_result():
+        create_navigation_handler(f'open_html_{modelo_of_sample.nombre}', 'Screen_Resultados')
+        ui.update_navs("Resultados_nav", selected="out_to_sample",)
+        
+    
 
     def create_navigation_handler(input_id, screen_name):
         @reactive.Effect

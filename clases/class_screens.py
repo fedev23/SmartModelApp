@@ -1,11 +1,15 @@
 from shiny import reactive, render, ui
 import pandas as pd
 import os
+from clases.global_reactives import global_estados
+from clases.global_session import *
 from global_var import global_data_loader_manager
 from clases.global_name import global_name_manager
 from clases.global_modelo import modelo_of_sample, modelo_produccion, global_desarollo
-from clases.data_loader import DataLoader
-
+from api.db import *
+from clases.global_reactives import global_estados
+from clases.reactives_name import *
+from datetime import datetime
 
 class ScreenClass():
     def __init__(self, directorio, name_suffix):
@@ -22,6 +26,7 @@ class ScreenClass():
         self.nombre_archivo = reactive.Value(None)
         self.error_messages = []
         self.hay_errores = reactive.Value(False)
+        
 
     # ESTA FUNCION SE CREA CON EL FIN DE CAMBIAR EL NOMBRE DEL ARCHIVO QUE INGRESA AL USER, ESTO ES. PARA QUE DEPENDE EL
     # CUADERNO A EJECUTAR LEA EL ARCHVIO HARDCODE DE SMART MODEL
@@ -29,7 +34,13 @@ class ScreenClass():
     def cambiar_name(self, nuevo_nombre_archivo, file_info):
         # Obtén la ruta completa del archivo original
         nombre_archivo_a_editar = file_info[0]['datapath']
+        file_name = file_info[0]['name']
+        global_names_reactivos.set_file_name(file_name)
+        fecha_de_carga = datetime.now().strftime("%Y-%m-%d %H:%M")
+        name_add = insert_into_table("name_files", ['nombre_archivo', 'fecha_de_carga', 'project_id', 'version_id'], [file_name, fecha_de_carga, global_session.get_id_proyecto(), global_session.get_id_version()])
 
+        
+        print(nombre_archivo_a_editar, "antes de editar")
         # Define el nuevo nombre del archivo
         nuevo_nombre_archivo = nuevo_nombre_archivo
         nuevo_nombre_archivo_completo = os.path.join(
@@ -45,7 +56,7 @@ class ScreenClass():
 
 # esta funcion esta divida en dos sobre la clase padre, este clae hereda de dataloader sus metodos
   # FUNCION QUE SE UTILIZA PARA CARGAR DATOS EN TODOS LOS SERVIDORES O SEA CARGA LOS DATOS DE DESAROLLO, IN SAMPLE ETC..
-    async def load_data(self, file_func, delimiter_func, name_suffix):
+    async def load_data(self, file_func, name_suffix):
         try:
             file_info = file_func()
             if file_info is None or len(file_info) == 0:
@@ -87,8 +98,7 @@ class ScreenClass():
                 self.mensaje_Error.set("\n".join(self.error_messages))
             else:
                 # Obtener delimitador y cargar datos
-                delimitador = delimiter_func()
-                await self.data_loader.cargar_archivos(file_info, delimitador, self.directorio)
+                await self.data_loader.cargar_archivos(file_info, self.directorio)
                 self.error_messages.clear()  # Limpiar errores después de la carga exitosa
                 self.proceso_a_completado.set(True)
                 return nombre_archivo
@@ -116,8 +126,9 @@ class ScreenClass():
     def render_data_summary(self):
         df = self.data_loader.getDataset()  # Usar el método heredado
         if df is not None and not df.empty:
+            select_number_data_set = int(global_estados.get_numero_dataset())
             # Devuelve un resumen de los primeros 5 registros
-            return pd.DataFrame(df.head(5))
+            return pd.DataFrame(df.head(select_number_data_set))
 
     def render_button(self):
         if self.proceso_a_completado.get():

@@ -1,18 +1,18 @@
 from shiny import reactive, render, ui
 from clases.class_result import ResultadoClass
 from clases.class_resultado import ResultadoClassPrueba
-
+from clases.global_session import global_session
 from funciones.create_menu_resul_model import create_nav_menu_result_model
 from clases.class_user_proyectName import global_user_proyecto
+from api.db import *
 
 
 def server_resul(input, output, session, name_suffix):
-    proceso_ok = reactive.Value(False)
 
     @output
     @render.text
     def nombre_proyecto_resultados():
-        return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo()}'
+        return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo(global_session.proyecto_seleccionado())}'
 
     @output
     @render.ui
@@ -21,49 +21,62 @@ def server_resul(input, output, session, name_suffix):
 
    
 
-    # Descargar todos los resultados de desarollo
-    @render.download(filename="Resultados completos de desarollo.zip")
-    def descargar_resultados_desarollo():
-        return resultado_desarrollo.descargar_resultados()
+    def get_user_id_from_session():
+        @reactive.effect
+        def enviar_session():
+            if global_session.proceso.get():
+                state = global_session.session_state.get()
+                if state["is_logged_in"]:
+                    user_id = state["id"].replace('|', '_')
+                    global user_id_global
+                    user_id_global = user_id
+                    print(f"[get_user_id_from_session] user_id_global asignado: {user_id_global}")
+                    return user_id
+                
+    user_id = get_user_id_from_session()
+    print(user_id, "de la session")
+    def crear_resultados_desarrollo():
+        resultados_desarrollo = [
+            {
+                "resultado_id": "Clean_Transf",
+                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id}/Reportes/Clean-Transf.html",
+                "salida": "result_Clean_Transf",
+                "salida_unic": "salida_prueba_Clean_Transf",
+                "descarga_unic": "download_btn1_Clean_Transf",
+            },
+            {
+                "resultado_id": "Detalle_agrupacion",
+                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id}/Reportes/Detalle agrupación x WoE Categoricas.html",
+                "salida": "Detalle_agrupación_salida",
+                "descarga_unic": "download_btn_Detalle_agrupacion",
+                "salida_unic": "salida_prueba_Detalle_agrupación",
+            },
+            {
+                "resultado_id": "Detalle_agrupación_continuas",
+                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id}/Reportes/Detalle agrupación x WoE Continuas (Monotonía más Interpolación Lineal a Trozos).html",
+                "salida": "download_btn_Detalle_agrupacionContinuas",
+                "descarga_unic": "download_btn_Detalle_agrupacion_continuas",
+                "salida_unic": "salida_prueba_Detalle_agrupación_continuas",
+            },
+            {
+                "resultado_id": "detalle_monotonia",
+                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id}/Reportes/Detalle agrupación x WoE Continuas (Monotonía).html",
+                "salida": "detalle_monotonia_salida",
+                "descarga_unic": "download_btn_detalle_monotonia",
+                "salida_unic": "salida_detalle_monotonia",
+            },
+            {
+                "resultado_id": "modelling",
+                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id}/Reportes/Modelling.html",
+                "salida": "detalle_modelling",
+                "descarga_unic": "download_btn_modelling",
+                "salida_unic": "salida_modelling",
+            },
+        ]
+        return resultados_desarrollo
+    
+    resultados_desarrollo = crear_resultados_desarrollo()
 
-    resultados_desarrollo = [
-        {
-            "resultado_id": "Clean_Transf",
-            "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Clean-Transf.html",
-            "salida": "result_Clean_Transf",
-            "salida_unic": "salida_prueba_Clean_Transf",
-            "descarga_unic": "download_btn1_Clean_Transf",
-        },
-        {
-            "resultado_id": "Detalle_agrupacion",
-            "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Detalle agrupación x WoE Categoricas.html",
-            "salida": "Detalle_agrupación_salida",
-            "descarga_unic": "download_btn_Detalle_agrupacion",
-            "salida_unic": "salida_prueba_Detalle_agrupación",
-        },
-        {
-            "resultado_id": "Detalle_agrupación_continuas",
-            "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Detalle agrupación x WoE Continuas  (Monotonía más Interpolación Lineal a Trozos).html",
-            "salida": "download_btn_Detalle_agrupacionContinuas",
-            "descarga_unic": "download_btn_Detalle_agrupacion_continuas",
-            "salida_unic": "salida_prueba_Detalle_agrupación_continuas",
-        },
-        {
-            "resultado_id": "detalle_monotonia",
-            "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Detalle agrupación x WoE Continuas  (Monotonía).html",
-            "salida": "detalle_monotonia_salida",
-            "descarga_unic": "download_btn_detalle_monotonia",
-            "salida_unic": "salida_detalle_monotonia",
-        },
-        {
-            "resultado_id": "modelling",
-            "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Modelling.html",
-            "salida": "detalle_modelling",
-            "descarga_unic": "download_btn_modelling",
-            "salida_unic": "salida_modelling",
-        },
-
-    ]
 
     resultados_in_sample = [
         {
@@ -99,6 +112,7 @@ def server_resul(input, output, session, name_suffix):
     resultado_class_instance = ResultadoClassPrueba(resultados_out_to_sample)
     resultado_in_sample = ResultadoClassPrueba(resultados_in_sample)
     resultado_class_instance_produccion = ResultadoClassPrueba(resultados_produccion)
+    
     
 
     def create_salida_unic(resultado_id, salida_unic):
@@ -157,6 +171,7 @@ def server_resul(input, output, session, name_suffix):
     @render.ui
     def render_resultado_card():
         resultado_desarrollo.abrir_acordeon(input)
+        resultado_desarrollo.obtener_user_id()
         return resultado_desarrollo.resultado_cards()
 
     
@@ -227,7 +242,7 @@ def server_resul(input, output, session, name_suffix):
     @render.download(filename="Resultados_Oss.zip")
     def download_btn1():
         resultado_id  = "Resultados_Oss"
-        return resultado_class_instance.descargar_unico_html(resultado_id)
+        return resultados_out_to_sample.descargar_unico_html(resultado_id)
     
     @output
     @render.download(filename="Scoring.zip")
@@ -239,23 +254,19 @@ def server_resul(input, output, session, name_suffix):
     
     @render.download(filename="Resultados completos de desarollo.zip")
     def descargar_resultados_desarollo():
-        directorio = r"/mnt/c/Users/fvillanueva/flask_prueba/static/Clean-Transf.html"
-        return resultado_desarrollo.descargar_resultados(directorio)
+        return resultado_desarrollo.descargar_resultados()
     
     @render.download(filename="Resultados completos de In-Sample.zip")
     def descargar_resultados_validacion():
-        directorio = r"/mnt/c/Users/fvillanueva/flask_prueba/static/Scoring.html"
-        return resultado_in_sample.descargar_resultados(directorio)
+        return resultado_in_sample.descargar_resultados()
     
     @render.download(filename="Resultados completos de Out-of-Sample.zip")
     def descargar_resultados_validacion_out_of_sample():
-        directorio = r"/mnt/c/Users/fvillanueva/flask_prueba/static/Validation_OoS.html"
-        return resultado_class_instance.descargar_resultados(directorio)
+        return resultados_out_to_sample.descargar_resultados()
     
     @render.download(filename="Resultados completos de Producción.zip")
     def descargar_resultados_produccion():
-        directorio = r"/mnt/c/Users/fvillanueva/flask_prueba/static/Scoring.html"
-        return resultado_class_instance_produccion.descargar_resultados(directorio)
+        return resultado_class_instance_produccion.descargar_resultados()
 
     
     

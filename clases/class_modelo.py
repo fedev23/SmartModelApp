@@ -5,6 +5,7 @@ import subprocess
 import datetime
 import asyncio
 import traceback
+from clases.reactives_name import global_names_reactivos
 
 
 class ModeloProceso:
@@ -21,6 +22,7 @@ class ModeloProceso:
         self.fecha_hora = reactive.Value("")
         self.extrat_hora = reactive.Value("")
         self.mensaje_error = reactive.Value("")
+        
         
         
 
@@ -57,7 +59,7 @@ class ModeloProceso:
             # Esperar a que el proceso termine
             return_code = await process.wait()
 
-            # Unir todas las líneas capturadas en un solo string
+            # Unir todas las lineas capturadas en un solo string
             stdout_output = '\n'.join(stdout)
             stderr_output = '\n'.join(stderr)
 
@@ -84,10 +86,10 @@ class ModeloProceso:
                 else:
                     self.mensaje.set(f"Ejecución completada con éxito.")
                     self.proceso.set(True)
-                    origen = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida'
-                    salida = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada'
-                    mover = mover_files(origen, salida)
-                    print("movi a", mover)
+                    #origen = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida'
+                    #salida = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada'
+                    #mover = mover_files(origen, salida)
+                    #print("movi a", mover)
                     
 
                 return stdout, stderr 
@@ -130,7 +132,7 @@ class ModeloProceso:
             return ui.card(
                 ui.card_header(
                     "",
-                    ui.p(f"Nombre del archivo: {file_name}"),
+                    ui.p(f"Nombre del archivo: {global_names_reactivos.get_name_file_db()}"),
                     ui.p(f"Fecha de última ejecución: {str(fecha_hora)}"),
                     ui.p(f"Estado: {self.mensaje.get() or default_message}"),
                     # ui.p(ui.output_text(self.mensaje_id)),

@@ -1,8 +1,15 @@
 import os
 import tempfile
 from shiny import ui, reactive, render
+from starlette.applications import Starlette
+from starlette.routing import Mount
+from starlette.staticfiles import StaticFiles
 from funciones.utils import create_zip_from_directory, create_zip_from_file_unico
 import re
+from clases.global_session import global_session
+
+
+#static_app = StaticFiles(directory='/mnt/c/Users/fvillanueva/flask_prueba/static', html=True)
 
 def sanitize_id(id_string):
     # Reemplazar cualquier cosa que no sea letra, num o guion bajo con un guion bajo
@@ -15,17 +22,22 @@ class ResultadoClassPrueba:
         self.html_content = {r['resultado_id']: reactive.Value("") for r in resultados}
         self.accordion_open = {r['resultado_id']: reactive.Value(False) for r in resultados}
         self.proceso_ok = reactive.Value(False)
+        self.proceso_user = reactive.Value(False)
+        self.user = reactive.Value()
         
-    def make_example(self, id, label: str, title):
-        id_str = str(id).strip()
-        print(id_str)
-        return ui.column(
-            4,
-            ui.div(
-                ui.download_button(id_str, label, class_="btn-primary"),
-            ),
-        )
-
+    def obtener_user_id(self):
+        @reactive.effect
+        def enviar_session():
+            if global_session.proceso.get():
+                state = global_session.session_state.get()
+                if state["is_logged_in"]:
+                    user_id = state["id"]
+                    user_id_cleaned = user_id.replace('|', '_') 
+                    self.proceso_user.set(True)
+                    print(f"antes de retornar{user_id_cleaned}")
+                    self.user.set(user_id_cleaned)
+                    return user_id_cleaned
+    
     def resultado_cards(self):
         # Crear todas las tarjetas de resultados
         cards = []
@@ -71,17 +83,19 @@ class ResultadoClassPrueba:
     def html_output_prueba(self, resultado_id):
         # Obtener el estado del acordeón específico para este resultado_id
         if resultado_id in self.accordion_open:
-            print(f"resultado esperado", resultado_id)
-            
+            #print(f"resultado esperado", resultado_id)
             resultado_path = next((r['resultado_path'] for r in self.resultados if r['resultado_id'] == resultado_id), None)
             print(resultado_path)
-            if resultado_path and self.accordion_open[resultado_id].get():
-                iframe_src = f'http://127.0.0.1:8080/static/{os.path.basename(resultado_path)}'
-                return ui.div(
-                    ui.tags.iframe(src=iframe_src, width='350%', height='500px'))
-            else:
-                return ui.HTML("<p>Archivo no encontrado</p>")
-       
+            if self.proceso_user.get():
+                if resultado_path and self.accordion_open[resultado_id].get():
+                    user_id = self.user.get()
+                    print(user_id ,"estoy NONE EN RESULTADOS?")
+                    iframe_src = f'/api/user_files/{os.path.basename(resultado_path)}?user_id={user_id}'
+                    return ui.div(
+                        ui.tags.iframe(src=iframe_src, width='350%', height='500px'))
+                else:
+                    return ui.HTML("<p>Archivo no encontrado</p>")
+        
 
     def descargar_resultados(self, directory_path):
         temp_zip_path = tempfile.NamedTemporaryFile(delete=False).name + '.zip'
@@ -96,10 +110,10 @@ class ResultadoClassPrueba:
         if resultado_id in self.accordion_open:
                 #print(f"resultado esperado", resultado_id)
                 resultado_path = next((r['resultado_path'] for r in self.resultados if r['resultado_id'] == resultado_id), None)
-                print(f"Resultado path: {resultado_path}")
+                #print(f"Resultado path: {resultado_path}")
                 if resultado_path and self.accordion_open[resultado_id].get():
                     temp_zip_path = tempfile.NamedTemporaryFile(delete=False).name + '.zip'
-                    print(f"Archivo ZIP temporal: {temp_zip_path}")
+                    #print(f"Archivo ZIP temporal: {temp_zip_path}")
                     create_zip_from_file_unico(resultado_path, temp_zip_path)
                     return temp_zip_path
                 else:
