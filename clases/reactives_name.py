@@ -8,7 +8,18 @@ class Reactividad:
         self.name_validacion_in_sample = reactive.Value(None)
         self.name_validacion_of_to_sample = reactive.Value(None)
         self.fecha_produccion = reactive.Value(None)
+        self.file_name = reactive.Value(None)
+        self.name_file_db = reactive.Value(None)
 
+
+    def set_file_name(self, name):
+        # Actualiza el valor de fechaHora usando el método set()
+        self.file_name.set(name)
+
+    def get_file_name(self):
+        return self.file_name.get()
+
+    
     def name_desarrollo_set(self, name):
         # Actualiza el valor de fechaHora usando el método set()
         self.name_desarrollo.set(name)
@@ -33,6 +44,12 @@ class Reactividad:
  
     def name_validacion_of_to_sample_get(self):
         return self.name_validacion_of_to_sample.get()
+    
+    def set_name_file_db(self, name):
+     self.name_file_db.set(name)
+ 
+    def get_name_file_db(self):
+        return self.name_file_db.get()
     
   
     

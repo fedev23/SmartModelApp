@@ -248,47 +248,81 @@ def obtener_nombre_version_por_id(version_id):
         # Cerrar la conexión
         conn.close()
         
-def eliminar_version(version_id):
+
+
+
+def obtener_versiones_por_proyecto(project_id, columnas , tabla, donde):
     conn = sqlite3.connect('Modeling_App.db')
     cur = conn.cursor()
-    
+
     try:
-        # Cambiar la tabla a 'version'
-        cur.execute('DELETE FROM version WHERE version_id = ?', (version_id,))
-        conn.commit()
-        print(f"Versión con ID {version_id} eliminada exitosamente.")
-    except Exception as e:
-        print(f"Error al eliminar la versión: {e}")
+        # Crear la consulta de forma dinámica
+        columnas_str = ", ".join(columnas)
+        consulta = f"SELECT {columnas_str} FROM {tabla} WHERE {donde} = ?"
+        
+        # Ejecutar la consulta
+        cur.execute(consulta, (project_id,))
+        
+        # Recuperar los datos
+        datos = cur.fetchall()
+
+        # Convertir los resultados en una lista de diccionarios
+        datos_list = [
+            {columnas[i]: dato for i, dato in enumerate(fila)}
+            for fila in datos
+        ]
+        
+        return datos_list
+
+    except sqlite3.Error as e:
+        print(f"Error al acceder a la base de datos: {e}")
+        return []
+    
     finally:
-        conn.close()
+        # Cerrar la conexión
+        conn.close()    
+        
+def insert_into_table(table_name, columns, values):
+    conn = sqlite3.connect('Modeling_App.db')
+    cur = conn.cursor()
+
+    placeholders = ', '.join(['?'] * len(values))
+    columns_str = ', '.join(columns)
+
+    query = f"INSERT INTO {table_name} ({columns_str}) VALUES ({placeholders})"
+    cur.execute(query, values)
+    conn.commit()
+    conn.close()
+
+    return cur.lastrowid
 
 
-def obtener_versiones_por_proyecto(project_id):
+def get_records(project_id):
     conn = sqlite3.connect('Modeling_App.db')
     cur = conn.cursor()
     
     try:
         # Realizar la consulta para obtener las versiones del proyecto específico
         cur.execute('''
-            SELECT version_id, nombre_version, execution_date
-            FROM version
+            SELECT id_files, nombre_archivo, fecha_de_carga
+            FROM name_files
             WHERE project_id = ?
         ''', (project_id,))
         
         # Recuperar todas las versiones
         versiones = cur.fetchall()
         
-        # Convertir los resultados en una lista de diccionarios
-        versiones_list = [
+        # Convertir los resultaos en una lista de diccionarios
+        files_list = [
             {
-                'version_id': version[0],
-                'nombre_version': version[1],
-                'execution_date': version[2]
+                'id_files': file[0],
+                'nombre_archivo': file[1],
+                'fecha_de_carga': file[2]
             }
-            for version in versiones
+            for file in versiones
         ]
         
-        return versiones_list  # Retornar la lista de versiones
+        return files_list  # Retornar la lista de versiones
     
     except sqlite3.Error as e:
         print(f"Error al acceder a la base de datos: {e}")
@@ -297,3 +331,79 @@ def obtener_versiones_por_proyecto(project_id):
     finally:
         # Cerrar la conexión
         conn.close()
+     
+
+
+def delete_record(table_name, condition, condition_value):
+    conn = sqlite3.connect('Modeling_App.db')
+    cur = conn.cursor()
+
+    query = f"DELETE FROM {table_name} WHERE {condition} = ?"
+    cur.execute(query, (condition_value,))
+    conn.commit()
+    conn.close()
+    
+    
+    
+
+import sqlite3
+
+def obtener_valor_por_id(id_files , base_datos='Modeling_App.db'):
+    
+        conn = sqlite3.connect(base_datos)
+        
+        try:
+            cursor = conn.cursor()
+            
+            # Consulta para obtener el nombre del archivo por project_id
+            query = """
+            SELECT nombre_archivo 
+            FROM name_files 
+            WHERE id_files  = ?
+            """
+            cursor.execute(query, (id_files ,))
+            
+            # Obtener el resultado
+            resultado = cursor.fetchone()
+            
+            # Verificar si se encontró un archivo
+            if resultado:
+                return resultado[0]  # Devolver el nombre del archivo
+            else:
+                return None  # Si no se encontró, retornar None
+
+        except sqlite3.Error as e:
+            print(f"Error al acceder a la base de datos: {e}")
+            return None
+
+        finally:
+            # Cerrar la conexión
+            conn.close()
+
+
+def eliminar_version(nombre_tabla, nombre_columna_id, id_dato):
+    # Conexión a la base de datos
+    conn = sqlite3.connect('Modeling_App.db')
+    cur = conn.cursor()
+
+    try:
+        # Validar que el nombre de la tabla y la columna sean identificadores válidos
+        if not nombre_tabla.isidentifier() or not nombre_columna_id.isidentifier():
+            raise ValueError("Nombre de tabla o columna no válido")
+
+        # Crear la consulta SQL de forma segura
+        query = f"DELETE FROM {nombre_tabla} WHERE {nombre_columna_id} = ?"
+        cur.execute(query, (id_dato,))
+        
+        # Confirmar los cambios
+        conn.commit()
+        print(f"Dato con ID {id_dato} eliminado exitosamente de la tabla {nombre_tabla}.")
+    except Exception as e:
+        print(f"Error al eliminar el dato: {e}")
+    finally:
+        # Cerrar la conexión
+        conn.close()
+
+# Ejemplo de uso
+#eliminar_dato_generico('name_files', 'id_files', 1)
+

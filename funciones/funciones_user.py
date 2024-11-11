@@ -135,7 +135,6 @@ def button_remove_version(project_id, target_version_id):
     #print(version)  # Debug: Imprime la versión encontrada o None
 
     if version:
-        print("La versión pertenece al proyecto.")
         sanitized_name = version['version_id']  # Obtén el ID de la versión
         # Devuelve un enlace de acción para eliminar la versión
         return ui.input_action_link(
@@ -146,6 +145,24 @@ def button_remove_version(project_id, target_version_id):
     else:
         print("La versión no pertenece al proyecto.")        
     
+def button_remove_dataSet(project_id, target_version_id):
+    # Obtiene la lista de versiones asociadas al proyecto
+    versions_list = get_records(project_id)
+    #print(versions_list)  # Debug: Imprime todas las versiones para verificar
+
+    # Busca si la versión especificada pertenece al proyecto
+    version = next((version for version in versions_list if str(version['id_files']) == str(target_version_id)), None)
+    #print(version)  # Debug: Imprime la versión encontrada o None
+
+    if version:
+        sanitized_name = version['id_files']  # Obtén el ID de la versión
+        # Devuelve un enlace de acción para eliminar la versión
+        return ui.input_action_link(
+            f"eliminar_version_{sanitized_name}", 
+            ui.tags.i(class_="fa fa-trash fa-2x"),  # Ícono de basura
+            # class_="btn btn-danger"  # Opcional: estilo de botón rojo
+        )
+         
 
     
     
@@ -195,3 +212,12 @@ def create_modal_versiones(id_proyecto):
             fade=True,
         )
         ui.modal_show(m)
+        
+        
+        
+def obtener_file_in_lista(files):
+    if files and isinstance(files, list) and len(files) > 0:
+        print("pase")
+        nombre_archivo = files[0].get('nombre_archivo')  # Accede al primer elemento y obtiene el valor
+        if nombre_archivo:
+            return nombre_archivo

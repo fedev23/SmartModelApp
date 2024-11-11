@@ -8,6 +8,7 @@ class GlobalSession:
         self.proyecto_seleccionado = reactive.Value(None) 
         self.id_user =  reactive.Value(None)    
         self.id_version = reactive.Value(None)
+        self.id_dataSet = reactive.Value(None)
         
         
     def actualizar_directorio(self, nuevo_directorio):
@@ -18,7 +19,13 @@ class GlobalSession:
         self.id_proyecto.set(id)
     
     def get_id_proyecto(self):
-        return self.id_proyecto.get()  
+        return self.id_proyecto.get() 
+    
+    def set_id_dataSet(self, id):
+        self.id_dataSet.set(id)
+    
+    def get_id_dataSet(self):
+        return self.id_dataSet.get()  
     
     def set_id_version(self, id):
         self.id_version.set(id)

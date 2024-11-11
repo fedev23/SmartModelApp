@@ -51,6 +51,19 @@ CREATE TABLE IF NOT EXISTS version (
 )
 ''')
 
+
+cur.execute('''
+            CREATE TABLE IF NOT EXISTS name_files (
+                id_files INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre_archivo TEXT NOT NULL,
+                fecha_de_carga TEXT NOT NULL,
+                project_id INTEGER,
+                version_id INTEGER,
+                FOREIGN KEY (project_id) REFERENCES project(id),
+                FOREIGN KEY (version_id) REFERENCES version(version_id)
+            )
+        ''')
+
 # Confirmar y cerrar la conexión
 conn.commit()
 conn.close()

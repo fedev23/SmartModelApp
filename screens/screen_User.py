@@ -23,6 +23,7 @@ screen_User = ui.page_fluid(
                 ui.output_ui("devolver_acordeon"),
                 # sfull_screen=True,
             ),
+            
         ),
         open=False,
     ),

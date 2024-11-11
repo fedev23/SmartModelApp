@@ -1,12 +1,15 @@
 from shiny import reactive, render, ui
 import pandas as pd
 import os
+from clases.global_reactives import global_estados
+from clases.global_session import *
 from global_var import global_data_loader_manager
 from clases.global_name import global_name_manager
 from clases.global_modelo import modelo_of_sample, modelo_produccion, global_desarollo
-from clases.data_loader import DataLoader
+from api.db import *
 from clases.global_reactives import global_estados
-
+from clases.reactives_name import *
+from datetime import datetime
 
 class ScreenClass():
     def __init__(self, directorio, name_suffix):
@@ -31,7 +34,13 @@ class ScreenClass():
     def cambiar_name(self, nuevo_nombre_archivo, file_info):
         # Obtén la ruta completa del archivo original
         nombre_archivo_a_editar = file_info[0]['datapath']
+        file_name = file_info[0]['name']
+        global_names_reactivos.set_file_name(file_name)
+        fecha_de_carga = datetime.now().strftime("%Y-%m-%d %H:%M")
+        name_add = insert_into_table("name_files", ['nombre_archivo', 'fecha_de_carga', 'project_id', 'version_id'], [file_name, fecha_de_carga, global_session.get_id_proyecto(), global_session.get_id_version()])
 
+        
+        print(nombre_archivo_a_editar, "antes de editar")
         # Define el nuevo nombre del archivo
         nuevo_nombre_archivo = nuevo_nombre_archivo
         nuevo_nombre_archivo_completo = os.path.join(

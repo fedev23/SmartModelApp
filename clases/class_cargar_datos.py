@@ -3,6 +3,9 @@ import os
 from shiny import ui, reactive
 from clases.global_reactives import global_estados
 import csv
+from api.db import *
+from datetime import datetime
+from clases.global_session import *
 
 class CargarDatos:
     def __init__(self, file_info, directorio_guardado):
@@ -24,6 +27,9 @@ class CargarDatos:
         
         file_path = self.file_info[0]["datapath"]
         file_name = self.file_info[0]["name"]
+        print(file_name, "estoy en el name del file")
+        #name_add = insert_into_table("name_files", ['nombre_archivo', 'fecha_de_carga', 'project_id', 'version_id'], [file_name, fecha_de_carga, global_session.get_id_proyecto(), global_session.get_id_version()])
+
         delimitador_detectado = self.detectar_delimitador(file_path)
         global_estados.set_delimitador(delimitador_detectado)
         
