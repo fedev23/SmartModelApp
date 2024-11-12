@@ -4,7 +4,8 @@ from clases.class_user_proyectName import global_user_proyecto
 from api import *
 from clases.global_session import global_session
 from clases.global_reactives import global_estados
-from funciones.funciones_user import create_modal_versiones, show_selected_project_card, create_modal_eliminar_bd, create_modal_v2, button_remove_version, obtener_file_in_lista
+from funciones.funciones_user import create_modal_versiones, show_selected_project_card, create_modal_eliminar_bd, create_modal_v2, button_remove_version
+from funciones.utils_2 import crear_carpeta_proyecto, crear_carpeta_version_por_proyecto
 
 
 def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
@@ -12,12 +13,11 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     proyect_ok = reactive.Value(False)
     proyectos_usuario = reactive.Value(None)
     proceso_eliminar = reactive.Value(False)
-    version_options = reactive.Value ({})
+    version_options = reactive.Value({})
     versiones_por_proyecto = reactive.Value(None)
-    archivo_dinamico = reactive.Value(None)
     nombre_file = reactive.Value(None)
-    fecha_subida_file = reactive.Value()
-    
+    id_proyecto_Recien_Creado = reactive.Value(None)
+    name_proyecto = reactive.Value(None)
 
     def see_session():
         @reactive.effect
@@ -44,55 +44,51 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         # Captura el ID del proyecto seleccionado
         selected_project_id = input.project_select()
         global_session.set_id_proyect(selected_project_id)
-        
+
         # Obtén el nombre del proyecto por el ID
-        nombre_proyecto = obtener_nombre_proyecto_por_id(global_session.get_id_proyecto())
+        nombre_proyecto = obtener_nombre_proyecto_por_id(
+            global_session.get_id_proyecto())
         global_session.proyecto_seleccionado.set(nombre_proyecto)
-        
+
         # Obtiene las versiones del proyecto
         versiones = get_project_versions(global_session.get_id_proyecto())
         version_options.set(
-            {str(version['version_id']): version['nombre_version'] for version in versiones}
+            {str(version['version_id']): version['nombre_version']
+             for version in versiones}
             if versiones else {"": "No hay versiones"}
         )
-        
+
         # Obtiene los archivos relacionados con el proyecto
         files_name = get_records(global_session.get_id_proyecto())
-        print(files_name, "es la lista de archivos")
-        #nombre_file.set(files_name)
-        
-        nombre_file.set({str(file['id_files']): file['nombre_archivo'] for file in files_name}if files_name else {"": "No hay archivos"})
-        #print(nombre_file.get(), "estoy en el get")
-        
+
+        nombre_file.set({str(file['id_files']): file['nombre_archivo']
+                        for file in files_name}if files_name else {"": "No hay archivos"})
+        # print(nombre_file.get(), "estoy en el get")
+
         ui.update_select("files_select", choices=nombre_file.get())
         ui.update_select("other_select", choices=version_options.get())
-        #ui.update_select("select_file", choices=nombre_file.get())
-        
-        
-        
+        # ui.update_select("select_file", choices=nombre_file.get())
+
     @output
     @render.ui
     def project_card_container():
         if proyect_ok:
             return show_selected_project_card(user_get.get(),  global_session.get_id_proyecto())
-        
-    
+
     @reactive.effect
     @reactive.event(input.other_select)  # Escuchar cambios en el selector
     def project_card_container():
         versiones_id = input.other_select()  # Captura el ID seleccionado
         print(versiones_id)
         global_session.set_id_version(versiones_id)
-    
-        
-        
+
     @output
     @render.ui
     def button_remove_versions():
-            return button_remove_version(global_session.get_id_proyecto(), global_session.get_id_version())
-        
-    
+        return button_remove_version(global_session.get_id_proyecto(), global_session.get_id_version())
+
     # boton para eliminar proyecto
+
     @reactive.Effect
     def boton_para_eliminar_version():
         eliminar_version_id = f"eliminar_version_{global_session.get_id_version()}"
@@ -100,46 +96,46 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         @reactive.Effect
         @reactive.event(input[eliminar_version_id])
         def eliminar_version_id():
-            nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
-            create_modal_v2(f"Seguro que quieres eliminar la version {nombre_version}?", "Confirmar", "Cancelar", "confirmar_id", "cancelar_id")
+            nombre_version = obtener_nombre_version_por_id(
+                global_session.get_id_version())
+            create_modal_v2(
+                f"Seguro que quieres eliminar la version {nombre_version}?", "Confirmar", "Cancelar", "confirmar_id", "cancelar_id")
 
-    
     @reactive.Effect
     @reactive.event(input["confirmar_id"])
     def eliminar_version_proyecto():
-        eliminar_version("version", "version_id" , global_session.get_id_version())
+        eliminar_version("version", "version_id",
+                         global_session.get_id_version())
         columnas = ['version_id', 'nombre_version', 'execution_date']
         lista_de_versiones_new = obtener_versiones_por_proyecto(global_session.get_id_proyecto(), columnas, "version", "project_id")
-        
-        #lista_de_versiones_new = obtener_versiones_por_proyecto(global_session.get_id_proyecto())
+
+        # lista_de_versiones_new = obtener_versiones_por_proyecto(global_session.get_id_proyecto())
         versiones_por_proyecto.set(lista_de_versiones_new)
         ui.update_select(
-                "other_select",
-                choices={str(vers['version_id']): vers['nombre_version']
-                        for vers in lista_de_versiones_new}
-            )
+            "other_select",
+            choices={str(vers['version_id']): vers['nombre_version']
+                     for vers in lista_de_versiones_new}
+        )
         ui.modal_remove()
-
-
 
     @reactive.Effect
     @reactive.event(input["confirmar_id_dataset"])
     def eliminar_dataset():
-        eliminar_version('name_files', 'id_files', global_session.get_id_dataSet())
+        eliminar_version('name_files', 'id_files',
+                         global_session.get_id_dataSet())
         columnas = ['id_files', 'nombre_archivo', 'fecha_de_carga']
-        lista_de_versiones_new = obtener_versiones_por_proyecto(global_session.get_id_proyecto(), columnas, "name_files", "project_id")
+        lista_de_versiones_new = obtener_versiones_por_proyecto(
+            global_session.get_id_proyecto(), columnas, "name_files", "project_id")
         nombre_file.set(lista_de_versiones_new)
         ui.update_select(
-                "files_select",
-                choices={str(vers['id_files']): vers['nombre_archivo']
-                        for vers in lista_de_versiones_new}
-            )
+            "files_select",
+            choices={str(vers['id_files']): vers['nombre_archivo']
+                     for vers in lista_de_versiones_new}
+        )
         ui.modal_remove()
-     
-        
-    
 
     # boton para eliminar proyecto
+
     @reactive.Effect
     def handle_delete_buttons():
         project_id = global_session.get_id_proyecto()
@@ -153,7 +149,10 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     @reactive.Effect
     @reactive.event(input["eliminar_proyecto_modal"])
     def eliminar_proyeco_modal():
+        session_id = global_session.get_id_proyecto()
+        print(session_id,"tenog session id")
         eliminar_proyecto(global_session.get_id_proyecto())
+        print(global_session.get_id_proyecto())
         # Actualiza proyectos_usuario después de eliminar el proyecto
         proyectos_actualizados = get_user_projects(user_get.get())
         # Refresca proyectos_usuario con la lista actualizada
@@ -193,7 +192,6 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         nombre_proyecto = obtener_nombre_proyecto_por_id(
             global_session.get_id_proyecto())
         create_modal_versiones(nombre_proyecto)
-        # global_user_proyecto.click_en_continuar.set(True)
 
     @reactive.effect
     @reactive.event(input.cancelar_eliminar)
@@ -201,21 +199,26 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         ui.modal_remove()
         # agregar_version
 
+
     @reactive.effect
     @reactive.event(input.continuar_version)
     def agregar_ver():
         name = input[f'name_version']()
-        print(name)
         id_proyect = global_session.get_id_proyecto()
         print(f"imprimo id, {id_proyect}")
         agregar_version(id_proyect, name)
         versiones = get_project_versions(global_session.get_id_proyecto())
-        ##actualizo la version por proyecto id
-        version_options.set({str(version['version_id']): version['nombre_version'] for version in versiones}if versiones else {"": "No hay versiones"})
+        # actualizo la version por proyecto id
+        version_options.set({str(version['version_id']): version['nombre_version']
+                            for version in versiones}if versiones else {"": "No hay versiones"})
         print(version_options.get())
         ui.update_select("other_select", choices=version_options.get())
+        print(id_proyecto_Recien_Creado.get(), "estoy en la session")
+        crear_carpeta_version_por_proyecto(user_get.get(),id_proyecto_Recien_Creado.get(), global_session.get_id_version(), name, name_proyecto.get())
         ui.modal_remove()
 
+
+    ##EVENTO PARA LA CREACION DEL PROYECTO
     @reactive.effect
     @reactive.event(input[f'start_{name_suffix}'])
     def crear_version():
@@ -236,9 +239,15 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                 user = user_get.get()
                 name = input[f'proyecto_nombre']()
                 # init_bd.list_tables()
+                name_proyecto.set(name)
                 add_project(user, name)
                 proyectos_usuario.set(get_user_projects(user))
-                create_navigation_handler('continuar', 'Screen_Desarollo')
+                proyect_id= global_session.get_id_proyecto()
+                ##CRE ESTE NUEVOEFECTO REACTIVO TEMPORAL, YA QUE NOSE POR QUE CAMBIA DE VALOR EL GLOBALSESSION ID
+                id_proyecto_Recien_Creado.set(proyect_id)
+                print(global_session.get_id_proyecto(), "este es el id del proyecto")
+                crear_carpeta_proyecto(user_get.get(), global_session.get_id_proyecto(), name)
+            
                 global_user_proyecto.click_en_continuar.set(False)
 
     @output
@@ -262,7 +271,8 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                             project_options,
                             width="60%"
                         ),
-                        ui.output_ui("project_card_container"),  # Alineado debajo del selector
+                        # Alineado debajo del selector
+                        ui.output_ui("project_card_container"),
                     ),
                     # Segunda columna para el selector de versiones y el botón de eliminar versiones
                     ui.column(
@@ -273,7 +283,8 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                             {'a': "a"},
                             width="100%"
                         ),
-                        ui.output_ui("button_remove_versions"),  # Alineado debajo del selector
+                        # Alineado debajo del selector
+                        ui.output_ui("button_remove_versions"),
                     ),
                 ),
                 ui.div(class_="mt-5"),  # Espaciado entre las filas
@@ -312,7 +323,8 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                         )
                     )
                 )
-            )        
+            )
+
     @reactive.effect
     @reactive.event(input[f'settings_{name_suffix}'])
     async def log_out():
@@ -330,18 +342,3 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         async def navigate():
             await session.send_custom_message('navigate', screen_name)
 
-    # create_navigation_handler('finalizar', 'Screen_Desarollo')
-
-    create_navigation_handler('load_Validacion_user', 'Screen_valid')
-    create_navigation_handler('load_Validacion_user', 'Screen_valid')
-    create_navigation_handler('screen_Desarollo_user', 'Screen_Desarollo')
-    create_navigation_handler('screen_Produccion_user', 'Screen_Porduccion')
-    create_navigation_handler('ir_result_user', 'Screen_Resultados')
-    create_navigation_handler('ir_carga_user', 'Screen_Desarollo')
-    create_navigation_handler('ir_modelos_user', 'Screen_3')
-    create_navigation_handler('screen_in_sample_user', 'screen_in_sample')
-
-    @reactive.Effect
-    @reactive.event(input.ir_carga_archivos)
-    async def go_to_carga_load_fila():
-        await session.send_custom_message('navigate', 'Screen_Desarollo')

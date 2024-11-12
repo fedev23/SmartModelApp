@@ -155,19 +155,6 @@ def server_in_sample(input, output, session, name_suffix):
                     user_id = state["id"]
                     user_id_cleaned = user_id.replace('|', '_')
             # Guardar los datos procesados en un archivo JSON
-<<<<<<< HEAD
-            #load_handler = LoadJson(input)
-            #load_handler.inputs['par_rango_niveles'] = niveles_mapeados
-            #load_handler.inputs['par_rango_segmentos'] = segmentosMap
-            #load_handler.inputs['par_rango_reportes'] = reportesMap
-            #load_handler.inputs['par_vars_segmento'] = par_vars_segmento
-            #load_handler.inputs.update(inputs_procesados)
-
-            #json_file_path = load_handler.loop_json()
-            #print(f"Inputs guardados en {json_file_path}, en {name_suffix}")
-            create_navigation_handler_validacion(f'load_param_{name_suffix}', 'Screen_3', no_error)
-            ui.update_accordion("my_accordion", show=["in_sample"])
-=======
                     load_handler = LoadJson(input, user_id_cleaned)
                     load_handler.inputs['par_rango_niveles'] = niveles_mapeados
                     load_handler.inputs['par_rango_segmentos'] = segmentosMap
@@ -179,7 +166,6 @@ def server_in_sample(input, output, session, name_suffix):
                     print(f"Inputs guardados en {json_file_path}, en {name_suffix}")
                     create_navigation_handler_validacion(f'load_param_{name_suffix}', 'Screen_3', no_error)
                     ui.update_accordion("my_accordion", show=["in_sample"])
->>>>>>> cambios_interface
         else:
             # Mostrar mensajes de error si existen
             mensaje_de_error.set("\n".join(error_messages))
