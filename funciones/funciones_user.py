@@ -124,15 +124,17 @@ def show_selected_project_card(user_id, project_id):
     else:
         return ui.div("No hay proyectos.")
     
-
 def button_remove_version(project_id, target_version_id):
     # Obtiene la lista de versiones asociadas al proyecto
     versions_list = get_project_versions(project_id)
-    #print(versions_list)  # Debug: Imprime todas las versiones para verificar
+    
+    # Si no hay versiones asociadas, no intentes buscar una versión específica
+    if not versions_list:
+        print(f"No hay versiones asociadas al proyecto con ID {project_id}.")
+        return None  # No hay botón de eliminación porque no hay versiones
 
     # Busca si la versión especificada pertenece al proyecto
     version = next((version for version in versions_list if str(version['version_id']) == str(target_version_id)), None)
-    #print(version)  # Debug: Imprime la versión encontrada o None
 
     if version:
         sanitized_name = version['version_id']  # Obtén el ID de la versión
@@ -143,8 +145,10 @@ def button_remove_version(project_id, target_version_id):
             # class_="btn btn-danger"  # Opcional: estilo de botón rojo
         )
     else:
-        print("La versión no pertenece al proyecto.")        
-    
+        # Solo se imprime el mensaje si había versiones, pero la específica no se encontró
+        print("La versión no pertenece al proyecto o no existe.")
+        return None
+        
 def button_remove_dataSet(project_id, target_version_id):
     # Obtiene la lista de versiones asociadas al proyecto
     versions_list = get_records(project_id)

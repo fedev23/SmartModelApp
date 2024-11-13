@@ -5,7 +5,7 @@ from api import *
 from clases.global_session import global_session
 from clases.global_reactives import global_estados
 from funciones.funciones_user import create_modal_versiones, show_selected_project_card, create_modal_eliminar_bd, create_modal_v2, button_remove_version
-from funciones.utils_2 import crear_carpeta_proyecto, crear_carpeta_version_por_proyecto
+from funciones.utils_2 import crear_carpeta_proyecto, crear_carpeta_version_por_proyecto, get_datasets_directory
 
 
 def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
@@ -45,28 +45,28 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         selected_project_id = input.project_select()
         global_session.set_id_proyect(selected_project_id)
 
-        # Obtén el nombre del proyecto por el ID
-        nombre_proyecto = obtener_nombre_proyecto_por_id(
-            global_session.get_id_proyecto())
-        global_session.proyecto_seleccionado.set(nombre_proyecto)
+        
+        nombre_proyecto = obtener_nombre_proyecto_por_id(global_session.get_id_proyecto())
+        global_session.set_name_proyecto(nombre_proyecto)
 
         # Obtiene las versiones del proyecto
         versiones = get_project_versions(global_session.get_id_proyecto())
-        version_options.set(
-            {str(version['version_id']): version['nombre_version']
-             for version in versiones}
+        version_options.set({str(version['version_id']): version['nombre_version']
+            for version in versiones}
             if versiones else {"": "No hay versiones"}
         )
 
         # Obtiene los archivos relacionados con el proyecto
         files_name = get_records(global_session.get_id_proyecto())
-
         nombre_file.set({str(file['id_files']): file['nombre_archivo']
-                        for file in files_name}if files_name else {"": "No hay archivos"})
-        # print(nombre_file.get(), "estoy en el get")
+                        for file in files_name} if files_name else {"": "No hay archivos"})
 
+        # Actualiza los selectores en la UI
+        data_Set =crear_carpeta_proyecto(user_get.get(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
+        print(data_Set, "estoy en dataset")
+        global_session.set_path_guardar_dataSet_en_proyectos(data_Set)
         ui.update_select("files_select", choices=nombre_file.get())
-        ui.update_select("other_select", choices=version_options.get())
+        ui.update_select("other_select", choices=version_options.get())    # print(nombre_file.get(), "estoy en el get")
         # ui.update_select("select_file", choices=nombre_file.get())
 
     @output
@@ -85,7 +85,8 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     @output
     @render.ui
     def button_remove_versions():
-        return button_remove_version(global_session.get_id_proyecto(), global_session.get_id_version())
+        if proyect_ok:
+            return button_remove_version(global_session.get_id_proyecto(), global_session.get_id_version())
 
     # boton para eliminar proyecto
 
@@ -121,8 +122,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     @reactive.Effect
     @reactive.event(input["confirmar_id_dataset"])
     def eliminar_dataset():
-        eliminar_version('name_files', 'id_files',
-                         global_session.get_id_dataSet())
+        eliminar_version('name_files', 'id_files',global_session.get_id_dataSet())
         columnas = ['id_files', 'nombre_archivo', 'fecha_de_carga']
         lista_de_versiones_new = obtener_versiones_por_proyecto(
             global_session.get_id_proyecto(), columnas, "name_files", "project_id")
@@ -213,8 +213,8 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                             for version in versiones}if versiones else {"": "No hay versiones"})
         print(version_options.get())
         ui.update_select("other_select", choices=version_options.get())
-        print(id_proyecto_Recien_Creado.get(), "estoy en la session")
-        crear_carpeta_version_por_proyecto(user_get.get(),id_proyecto_Recien_Creado.get(), global_session.get_id_version(), name, name_proyecto.get())
+        global_session.set_proyecto_seleccionado_id(id_proyecto_Recien_Creado.get())
+       # crear_carpeta_version_por_proyecto(user_get.get(),id_proyecto_Recien_Creado.get(), global_session.get_id_version(), name, name_proyecto.get())
         ui.modal_remove()
 
 
@@ -238,16 +238,30 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             if global_user_proyecto.click_en_continuar.get():
                 user = user_get.get()
                 name = input[f'proyecto_nombre']()
-                # init_bd.list_tables()
+                
+                # Crear el proyecto y obtener su ID
+                global_session.set_name_proyecto(name)
                 name_proyecto.set(name)
-                add_project(user, name)
+                add_project(user, name)  # Esta función debería establecer el ID del proyecto recién creado en la sesión global
                 proyectos_usuario.set(get_user_projects(user))
-                proyect_id= global_session.get_id_proyecto()
-                ##CRE ESTE NUEVOEFECTO REACTIVO TEMPORAL, YA QUE NOSE POR QUE CAMBIA DE VALOR EL GLOBALSESSION ID
+
+                # Aquí asegúrate de que `add_project` o cualquier otro mecanismo te da el `project_id`
+                proyect_id = global_session.get_id_proyecto()  # Obtener el ID del proyecto recién creado
+
+                # Establecer el ID en el estado global para que lo puedan usar otros efectos
                 id_proyecto_Recien_Creado.set(proyect_id)
+
+                print(id_proyecto_Recien_Creado.get(), "VER DIFERENCIA CON GET ID")
+                global_session.set_proyecto_seleccionado_id(id_proyecto_Recien_Creado.get())
+
                 print(global_session.get_id_proyecto(), "este es el id del proyecto")
+
+                global_session.set_id_user(user_get())
                 crear_carpeta_proyecto(user_get.get(), global_session.get_id_proyecto(), name)
-            
+                data_Set = get_datasets_directory(user_get.get(), global_session.get_proyecto_seleccionado_id(), global_session.get_name_proyecto())
+                global_session.set_path_guardar_dataSet_en_proyectos(data_Set)
+
+                # Reinicia el estado de click en continuar
                 global_user_proyecto.click_en_continuar.set(False)
 
     @output

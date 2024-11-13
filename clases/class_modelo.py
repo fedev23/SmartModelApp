@@ -5,7 +5,7 @@ import subprocess
 import datetime
 import asyncio
 import traceback
-from clases.reactives_name import global_names_reactivos
+from clases.global_session import global_session
 
 
 class ModeloProceso:
@@ -132,7 +132,7 @@ class ModeloProceso:
             return ui.card(
                 ui.card_header(
                     "",
-                    ui.p(f"Nombre del archivo: {global_names_reactivos.get_name_file_db()}"),
+                    ui.p(f"Nombre del archivo: {global_session.get_name_proyecto()}"),
                     ui.p(f"Fecha de última ejecución: {str(fecha_hora)}"),
                     ui.p(f"Estado: {self.mensaje.get() or default_message}"),
                     # ui.p(ui.output_text(self.mensaje_id)),

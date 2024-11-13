@@ -13,6 +13,7 @@ from funciones.utils_2 import get_user_directory
 from api.db import *
 from clases.global_session import *
 from clases.reactives_name import global_names_reactivos
+from funciones.funciones_cargaDatos import guardar_archivo
 
 
 def server_desarollo(input, output, session, name_suffix):
@@ -60,7 +61,16 @@ def server_desarollo(input, output, session, name_suffix):
     @reactive.Effect
     @reactive.event(input.file_desarollo)
     async def cargar_Datos_desarrollo():
-        await screen_instance.get().load_data(input.file_desarollo, name_suffix)
+        try:
+            # Llamar a la función guardar_archivo de manera asincrónica
+            ruta_guardado = await guardar_archivo(input.file_desarollo, name_suffix)
+            print(f"El archivo fue guardado en: {ruta_guardado}")
+            
+            # Después de guardar el archivo, puedes cargar los datos utilizando screen_instance
+            await screen_instance.get().load_data(input.file_desarollo, name_suffix)
+            
+        except Exception as e:
+            print(f"Error en la carga de datos: {e}")
 
     @output
     @render.ui

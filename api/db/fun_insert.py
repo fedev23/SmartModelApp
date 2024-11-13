@@ -25,13 +25,20 @@ def add_project(user_id, name):
     conn.close()
     return project_id
 # Función para obtener proyectos de un usuario específico
-
 def eliminar_proyecto(project_id):
     conn = sqlite3.connect('Modeling_App.db')
     cur = conn.cursor()
     
     try:
+        # Primero, eliminar registros en la tabla `file_name` relacionados con el proyecto (si existen)
+        cur.execute('DELETE FROM name_files WHERE project_id = ?', (project_id,))
+
+        # Eliminar las versiones asociadas al proyecto (si existen)
+        cur.execute('DELETE FROM version WHERE project_id = ?', (project_id,))
+
+        # Finalmente, eliminar el proyecto
         cur.execute('DELETE FROM project WHERE id = ?', (project_id,))
+        
         conn.commit()
         print(f"Proyecto con ID {project_id} eliminado exitosamente.")
     except Exception as e:
@@ -93,7 +100,7 @@ def execute_model(user_id, project_id, model_name):
 
 
 
-def obtener_nombre_proyecto_por_id(proyecto_id):
+def  obtener_nombre_proyecto_por_id(proyecto_id):
     # Conectar a la base de datos (asegúrate de cambiar la ruta de la base de datos según sea necesario)
     conn = sqlite3.connect('Modeling_App.db')
     

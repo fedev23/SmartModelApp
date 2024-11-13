@@ -62,7 +62,6 @@ def crear_carpetas_por_id_user(user_id):
     
     return user_id_cleaned
 
-
 def crear_carpeta_proyecto(user_id, proyecto_id, name_proyect):
     # Limpiar el user_id reemplazando cualquier '|' por '_'
     user_id_cleaned = user_id.replace('|', '_')
@@ -87,9 +86,14 @@ def crear_carpeta_proyecto(user_id, proyecto_id, name_proyect):
         os.makedirs(salida_proyecto_folder)
         print(f"Carpeta creada {salida_proyecto_folder}")
     
-    # Retornar la ruta de las carpetas de proyecto
-    return entrada_proyecto_folder, salida_proyecto_folder
-
+    # Crear la carpeta 'datasets' dentro de la carpeta del proyecto en entrada
+    datasets_folder = os.path.join(entrada_proyecto_folder, "datasets")
+    if not os.path.exists(datasets_folder):
+        os.makedirs(datasets_folder)
+        print(f"Carpeta creada {datasets_folder}")
+    
+    # Retornar la ruta de las carpetas de proyecto y datasets
+    return  datasets_folder
 
 def crear_carpeta_version_por_proyecto(user_id, proyecto_id, version_id, name_id, name_proyect):
     # Limpiar el user_id reemplazando cualquier '|' por '_'
@@ -137,7 +141,27 @@ def get_user_directory(user_id):
         print(f"El directorio {user_directory} no existe.")
         return None
     
-
+    
+def get_datasets_directory(user_id, proyecto_id, name_proyect):
+    # Limpiar el user_id reemplazando cualquier '|' por '_'
+    user_id_cleaned = user_id.replace('|', '_')
+    base_directory = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat'
+    
+    # Construir la ruta de la carpeta de entrada del usuario
+    entrada_folder = os.path.join(base_directory, f'datos_entrada_{user_id_cleaned}')
+    
+    # Construir la ruta de la carpeta del proyecto dentro de la carpeta de entrada
+    proyecto_folder = os.path.join(entrada_folder, f"proyecto_{proyecto_id}_{name_proyect}")
+    
+    # Construir la ruta de la carpeta 'datasets' dentro del proyecto
+    datasets_folder = os.path.join(proyecto_folder, 'datasets')
+    
+    # Verificar si la carpeta 'datasets' existe antes de devolverla
+    if os.path.exists(datasets_folder):
+        return datasets_folder
+    else:
+        print(f"La carpeta {datasets_folder} no existe.")
+        return None
 
 
 
