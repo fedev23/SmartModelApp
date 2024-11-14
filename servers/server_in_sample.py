@@ -56,12 +56,6 @@ def server_in_sample(input, output, session, name_suffix):
     name = "Validacion in sample"
     global_names_reactivos.name_validacion_in_sample_set(name_suffix)
 
-    def create_navigation_handler_validacion(input_id, screen_name, valid):
-        @reactive.Effect
-        @reactive.event(input[input_id])
-        async def navigate():
-            if valid.get():
-                await session.send_custom_message('navigate', screen_name)
 
     # HAGO EL INPUT FILE DE FILE_DESAROLLO FUNCIONE ACA TAMBIEN, ASI ENVIA EL MISMO ARCHIO A VALIDACION IN SAMPLE
 
@@ -164,7 +158,6 @@ def server_in_sample(input, output, session, name_suffix):
 
                     json_file_path = load_handler.loop_json()
                     print(f"Inputs guardados en {json_file_path}, en {name_suffix}")
-                    create_navigation_handler_validacion(f'load_param_{name_suffix}', 'Screen_3', no_error)
                     ui.update_accordion("my_accordion", show=["in_sample"])
         else:
             # Mostrar mensajes de error si existen
@@ -201,19 +194,3 @@ def server_in_sample(input, output, session, name_suffix):
 
     # Llamar a la función con la lista de botones
     create_modals(id_buttons)
-
-    def create_navigation_handler(input_id, screen_name):
-        @reactive.Effect
-        @reactive.event(input[input_id])
-        async def navigate():
-            await session.send_custom_message('navigate', screen_name)
-    # Navegaciones, hago siempre la misma funcion por un tema de simplicidad por el momento, ya que a el ser efectos reactivos crearla en utils, puede ser un trabajo que no haria falta por 3 lineas de codigo
-
-    create_navigation_handler('start_in_sample', 'Screen_User')
-    create_navigation_handler('screen_in_sample', 'screen_in_sample')
-    create_navigation_handler('screen_Desarollo_in_sample', 'Screen_Desarollo')
-    create_navigation_handler('load_in_sample', 'Screen_valid')
-    create_navigation_handler('load_Validacion_in_sample', 'Screen_Porduccion')
-    create_navigation_handler(f"ir_modelos_{name_suffix}", "Screen_3")
-    create_navigation_handler("ir_result_in_sample", "Screen_Resultados")
-    create_navigation_handler("volver_inSample", "Screen_User")

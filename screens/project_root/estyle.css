@@ -503,19 +503,23 @@ background: #0a0a0a;
     /* También puedes añadir otras propiedades si es necesario */
 }
 
-/*boton para ir a ejecucion, estilo */
-.btn-hover {
-    background-color: #808080;
-    color: white;
-    border-radius: 8px;
-    font-weight: bold;
-    padding: 10px 20px;
-    transition: background-color 0.3s ease;
-    border: none;
+.styled-text {
+    font-size: 14px;                /* Tamaño de fuente más pequeño */
+    font-weight: normal;            /* Fuente normal (sin negrita) */
+    color: #333;                    /* Color gris oscuro para mejor contraste */
+    margin: 5px 15px;               /* Espaciado entre elementos */
+    padding: 8px 12px;              /* Espaciado dentro de cada tarjeta */
+    background-color: #f8f9fa;      /* Fondo de color claro */
+    border-radius: 8px;             /* Bordes redondeados */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil para profundidad */
+    text-align: left;               /* Alineación a la izquierda */
+    line-height: 1.5;               /* Altura de línea para mayor legibilidad */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Transición suave */
 }
 
-.btn-hover:hover {
-    background-color: rgba(73, 67, 67, 0.7); /* Color azul con 70% de opacidad */
+.styled-text:hover {
+    background-color: #e9ecef;      /* Fondo ligeramente más oscuro al pasar el mouse */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Aumenta la sombra al pasar el mouse */
 }
 
 

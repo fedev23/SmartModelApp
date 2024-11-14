@@ -29,7 +29,7 @@ screenDesarollo = ui.page_fluid(
             choices=[str(i) for i in range(5, 26)],
             width="30%"
         ))),
-        ui.h4("Dataset"),
+        
         ui.output_text_verbatim("error"),
         ui.output_text_verbatim("error_proyecto"),
         ui.div(

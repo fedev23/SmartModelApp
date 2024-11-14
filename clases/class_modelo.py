@@ -124,16 +124,19 @@ class ModeloProceso:
         self.fecha_hora = formatted_now
         return formatted_now
 
-    def render_card(self, file_name, fecha_hora):
+    def render_card(self, file_name, #fecha_hora
+                    ): ##----> AGREGAR FECHA MAS ADELANTE
         default_message = "Aún no se ha ejecutado el proceso."
         if self.mensaje_error:
             self.mensaje = self.mensaje_error
         if file_name is not None:
+            #fecha = self.log_fecha_hora()
+            
             return ui.card(
                 ui.card_header(
                     "",
                     ui.p(f"Nombre del archivo: {global_names_reactivos.get_name_file_db()}"),
-                    ui.p(f"Fecha de última ejecución: {str(fecha_hora)}"),
+                    #ui.p(f"Fecha de última ejecución: {str(fecha_hora)}"),
                     ui.p(f"Estado: {self.mensaje.get() or default_message}"),
                     # ui.p(ui.output_text(self.mensaje_id)),
                     class_="d-flex justify-content-between align-items-center",

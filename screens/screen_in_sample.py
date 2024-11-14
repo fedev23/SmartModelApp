@@ -30,7 +30,14 @@ screenInSample = ui.page_fluid(
             ui.output_ui("mostrarOut_sample"),
             # ui.output_text("mostrar_mensaje_datos")
         ),
-        ui.h3("Parametros" " " f"{global_name_in_Sample}"),
+        #ui.h3("Parametros" " " f"{global_name_in_Sample}"),
+        ui.div(
+             ui.input_action_button("create_parameters", f"+ Create version parameters {global_name_in_Sample}", class_="btn btn-dark btn-sm me-2", style="font-size: 15px; padding: 8px 10px;"),
+            #class_="d-flex justify-content-center mb-3" 
+        ),
+        #ui.tags.hr(),
+        ui.div(class_="mt-5"),
+       
     ),
     ui.div(
         ui.card(

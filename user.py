@@ -28,7 +28,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                     user_id = state["id"]
                     global_session.id_user.set(user_id)
                     # -> llamo a el valor reactivo para tener la lista de los proyectos por user, dinamicamente, apretar control t y ver la funcion
-                    proyectos_usuario.set(get_user_projects(user_id))
+                    global_session.set_proyectos_usuarios(get_user_projects(user_id))
                     user_get.set(user_id.replace('|', '_'))
 
     see_session()
@@ -51,6 +51,8 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
 
         # Obtiene las versiones del proyecto
         versiones = get_project_versions(global_session.get_id_proyecto())
+        nombre_version = versiones[0]['nombre_version']  # O cualquier lógica para seleccionar una versión
+        global_session.set_versiones_name(nombre_version)
         version_options.set({str(version['version_id']): version['nombre_version']
             for version in versiones}
             if versiones else {"": "No hay versiones"}
@@ -264,51 +266,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                 # Reinicia el estado de click en continuar
                 global_user_proyecto.click_en_continuar.set(False)
 
-    @output
-    @render.ui
-    def devolver_acordeon():
-        projects = proyectos_usuario.get()  # Obtiene la lista actual de proyectos
-
-        if projects:
-            project_options = {
-                str(project['id']): project['name'] for project in projects
-            }
-            return ui.page_fluid(
-        # Contenedor principal con clase de Bootstrap para centrar el contenido
-        ui.div(
-            ui.div(
-                # Tarjeta con el contenido
-                ui.div(
-                    ui.h4("Data Management", class_="card-header text-center"),  # Título centrado
-                    
-                    ui.div(
-                        # Sección de carga de archivos
-                        ui.input_file("file_desarollo", "Upload File"),
-                        ui.br(),
-
-                        # Botones de creación
-                        ui.div(
-                            ui.input_action_button("create_project", "+ Create Project", class_="btn btn-dark me-2"),
-                            ui.input_action_button("create_version", "+ Create Version", class_="btn btn-dark"),
-                            class_="d-flex justify-content-center mb-3"  # Centrar los botones
-                        ),
-
-                        # Menús desplegables
-                        ui.div(
-                            ui.input_select("project_select", "Select Project", project_options),
-                            ui.input_select("other_select", "Select Version", {"a":'a'}),  
-                            ui.input_select("files_select", "Select Dataset", {"a":'a'}),
-                            class_="d-flex justify-content-center"  # Centrar los menús desplegables
-                        ),
-                        class_="card-body"
-                    ),
-                    class_="card"
-                ),
-                #class_="container mt-5 mb-5"  # Márgenes superior e inferior para centrar
-            ),
-            #class_="d-flex justify-content-center align-items-center vh-100"  # Centrado vertical y horizontal
-        )
-    )
+    
             
     @reactive.effect
     @reactive.event(input[f'settings_{name_suffix}'])

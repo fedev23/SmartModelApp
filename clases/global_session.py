@@ -12,6 +12,8 @@ class GlobalSession:
         self.proyecto_nombre = reactive.Value(None)
         self.proyecto_seleccionado_id = reactive.Value(None)
         self.path_guardar_dataSet_en_proyectos = reactive.Value(None)
+        self.proyectos_usuarios = reactive.Value(None)
+        self.versiones_name = reactive.Value(None)
         
         
     def actualizar_directorio(self, nuevo_directorio):
@@ -66,7 +68,26 @@ class GlobalSession:
         self.path_guardar_dataSet_en_proyectos.set(id)
     
     def get_path_guardar_dataSet_en_proyectos(self):
-        return self.path_guardar_dataSet_en_proyectos.get()       
+        return self.path_guardar_dataSet_en_proyectos.get()  
+    
+    def set_proyectos_usuarios(self, id):
+        self.proyectos_usuarios.set(id)
+    
+    def get_proyectos_usuarios(self):
+        return self.proyectos_usuarios.get()   
+    
+    
+    def set_versiones_name(self, name):
+        self.versiones_name.set(name)
+    
+    def get_versiones_name(self):
+        return self.versiones_name.get()   
+    
+    
+    
+    
+    
+         
             
     def obtener_id(self):
         @reactive.Effect  # Coloca el decorador aquí, fuera de la función interna
