@@ -3,7 +3,6 @@ from shiny.express import ui as express_ui
 import re
 from clases.global_session import global_session
 from clases.global_name import global_name_manager
-from clases.class_extact_time import global_fecha
 from global_names import global_name_in_Sample, global_name_desarrollo, global_name_out_of_Sample, global_name_produccion
 from api.db import *
 from global_names import *

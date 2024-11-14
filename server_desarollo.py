@@ -2,7 +2,6 @@ from shiny import reactive, render, ui
 from funciones.create_param import create_screen
 from clases.global_name import global_name_manager
 from clases.global_modelo import global_desarollo
-from clases.class_extact_time import global_fecha
 from funciones.create_nav_menu import create_nav_menu
 from clases.class_screens import ScreenClass
 from funciones.utils import retornar_card, mover_files
@@ -85,7 +84,8 @@ def server_desarollo(input, output, session, name_suffix):
     @output(id=f"summary_data_{name_suffix}")
     @render.data_frame
     def summary_data_desarollo():
-        return screen_instance.get().render_data_summary()
+        pass
+        #return screen_instance.get().render_data_summary()
 
     @output
     @render.ui
@@ -97,7 +97,7 @@ def server_desarollo(input, output, session, name_suffix):
     def card_desarollo2():
         return retornar_card(
             get_file_name=global_name_manager.get_file_name_desarrollo,
-            get_fecha=global_fecha.get_fecha_desarrollo,
+            #get_fecha=global_fecha.get_fecha_desarrollo,
             modelo=global_desarollo
         )
 
@@ -147,12 +147,3 @@ def server_desarollo(input, output, session, name_suffix):
         @reactive.event(input[input_id])
         async def navigate():
             await session.send_custom_message('navigate', screen_name)
-
-    create_navigation_handler('start_desarrollo', 'Screen_User')
-    create_navigation_handler('screen_in_sample_desarrollo', 'screen_in_sample')
-    create_navigation_handler('screen_Desarollo_desarrollo', 'Screen_Desarollo')
-    create_navigation_handler('load_Validacion_desarrollo', 'Screen_valid')
-    create_navigation_handler('screen_Produccion_desarrollo', 'Screen_Porduccion')
-    create_navigation_handler("ir_modelos_desarrollo", "Screen_3")
-    create_navigation_handler("ir_result_desarrollo", "Screen_Resultados")
-    create_navigation_handler("volver_etapas_desde_desarrollo", "Screen_User")

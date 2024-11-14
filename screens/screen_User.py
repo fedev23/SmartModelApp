@@ -12,32 +12,23 @@ from global_names import global_name_in_Sample, global_name_desarrollo, global_n
 from clases.class_resultado import ResultadoClassPrueba
 from screens.screen_desarollo import screenDesarollo
 
+
 screen_User = ui.page_fluid(
     ui.tags.button("SmartModeling", class_="logo-button"),
     ui.output_ui("create_user_menu"),
-     ui.tags.div(
-    ui.accordion(
-        ui.accordion_panel(
-            "Proyectos:",
+    ui.tags.div(
             ui.card(
-                ui.output_ui("devolver_acordeon"),
-                # sfull_screen=True,
-            ),
+                    ui.output_ui("devolver_acordeon"),
+                ),
             
-        ),
-        open=False,
+            
+        id="module_container",
     ),
-    id="module_container",
-    ),
-    
     ui.output_ui("create_sidebar"),
-    # ui.h3("Tarjeta de Usuario", fillable=True)
     ui.output_ui("despligue_menu"),
-    ui.navset_card_tab(
-    ui.nav_panel(f"{global_name_desarrollo}", screenDesarollo),
-    ui.nav_panel(f"{global_name_in_Sample}", screenInSample),
-    ui.nav_panel(f"{global_name_out_of_Sample}", screenValid), #-----> va tener que ser out of sample y scoring
-    #ui.nav_panel(f"{global_name_in_Sample}", screenInSample),
-    
+    ui.navset_card_tab(  # Usa un contenedor de navegación adecuado
+        ui.nav_panel(f"{global_name_desarrollo}", screenDesarollo),
+        ui.nav_panel(f"{global_name_in_Sample}", screenInSample),
+        ui.nav_panel(f"{global_name_out_of_Sample}", screenValid),
     ),
 )

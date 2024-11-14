@@ -62,7 +62,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                         for file in files_name} if files_name else {"": "No hay archivos"})
 
         # Actualiza los selectores en la UI
-        data_Set =crear_carpeta_proyecto(user_get.get(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
+        data_Set = crear_carpeta_proyecto(user_get.get(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
         print(data_Set, "estoy en dataset")
         global_session.set_path_guardar_dataSet_en_proyectos(data_Set)
         ui.update_select("files_select", choices=nombre_file.get())
@@ -93,7 +93,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     @reactive.Effect
     def boton_para_eliminar_version():
         eliminar_version_id = f"eliminar_version_{global_session.get_id_version()}"
-
+        print("es aca?", eliminar_version_id)
         @reactive.Effect
         @reactive.event(input[eliminar_version_id])
         def eliminar_version_id():
@@ -273,72 +273,43 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             project_options = {
                 str(project['id']): project['name'] for project in projects
             }
+            return ui.page_fluid(
+        # Contenedor principal con clase de Bootstrap para centrar el contenido
+        ui.div(
+            ui.div(
+                # Tarjeta con el contenido
+                ui.div(
+                    ui.h4("Data Management", class_="card-header text-center"),  # Título centrado
+                    
+                    ui.div(
+                        # Sección de carga de archivos
+                        ui.input_file("file_desarollo", "Upload File"),
+                        ui.br(),
 
-            return ui.div(
-                ui.row(
-                    # Primera columna para el selector de proyectos y el botón
-                    ui.column(
-                        6,  # Ancho de la columna
-                        ui.input_select(
-                            "project_select",
-                            "Selecciona un proyecto:",
-                            project_options,
-                            width="60%"
+                        # Botones de creación
+                        ui.div(
+                            ui.input_action_button("create_project", "+ Create Project", class_="btn btn-dark me-2"),
+                            ui.input_action_button("create_version", "+ Create Version", class_="btn btn-dark"),
+                            class_="d-flex justify-content-center mb-3"  # Centrar los botones
                         ),
-                        # Alineado debajo del selector
-                        ui.output_ui("project_card_container"),
-                    ),
-                    # Segunda columna para el selector de versiones y el botón de eliminar versiones
-                    ui.column(
-                        6,  # Ancho de la columna
-                        ui.input_select(
-                            "other_select",
-                            "Versiones",
-                            {'a': "a"},
-                            width="100%"
+
+                        # Menús desplegables
+                        ui.div(
+                            ui.input_select("project_select", "Select Project", project_options),
+                            ui.input_select("other_select", "Select Version", {"a":'a'}),  
+                            ui.input_select("files_select", "Select Dataset", {"a":'a'}),
+                            class_="d-flex justify-content-center"  # Centrar los menús desplegables
                         ),
-                        # Alineado debajo del selector
-                        ui.output_ui("button_remove_versions"),
+                        class_="card-body"
                     ),
+                    class_="card"
                 ),
-                ui.div(class_="mt-5"),  # Espaciado entre las filas
-
-                # Fila para el input de archivo y la tarjeta
-                ui.row(
-                    ui.column(
-                        12,  # Ancho de la columna para la tarjeta completa
-                        ui.card(
-                            ui.row(
-                                # Primera columna para el input de archivo
-                                ui.column(
-                                    6,  # Ocupa el 50% del espacio de la tarjeta
-                                    ui.input_file(
-                                        "file_desarollo",
-                                        "",
-                                        button_label='Seleccionar archivo',
-                                        placeholder='Subir un archivo',
-                                        accept=[".csv", ".txt"],
-                                        width="60%"  # Aseguramos que el input ocupe todo el ancho de la columna
-                                    )
-                                ),
-                                # Segunda columna para el input de select
-                                ui.column(
-                                    6,  # Ocupa el 50% del espacio de la tarjeta
-                                    ui.input_select(
-                                        "files_select",
-                                        "DataSets",
-                                        {'a': "a"},
-                                        width="60%"  # Aseguramos que el select ocupe todo el ancho de la columna
-                                    ),
-                                    ui.output_ui("remove_dataset"),
-                                )
-                            ),
-                            style="height: 150px;"  # Ajusta la altura de la tarjeta según sea necesario
-                        )
-                    )
-                )
-            )
-
+                #class_="container mt-5 mb-5"  # Márgenes superior e inferior para centrar
+            ),
+            #class_="d-flex justify-content-center align-items-center vh-100"  # Centrado vertical y horizontal
+        )
+    )
+            
     @reactive.effect
     @reactive.event(input[f'settings_{name_suffix}'])
     async def log_out():

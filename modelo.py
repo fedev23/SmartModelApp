@@ -2,7 +2,6 @@ from clases.class_modelo import ModeloProceso
 from shiny import reactive, render, ui
 from clases.global_name import global_name_manager
 from clases.global_modelo import global_desarollo
-from clases.class_extact_time import global_fecha
 from funciones.create_menu_resul_model import create_nav_menu_result_model
 from funciones.utils import retornar_card
 from clases.class_user_proyectName import global_user_proyecto
@@ -62,7 +61,7 @@ def server_modelos(input, output, session, name_suffix):
     def card_in_sample():
         return   retornar_card(
         get_file_name=global_name_manager.get_file_name_desarrollo,
-        get_fecha=global_fecha.get_fecha_in_sample,
+        #get_fecha=global_fecha.get_fecha_in_sample,
         modelo=modelo_in_sample
     )
     
@@ -104,7 +103,7 @@ def server_modelos(input, output, session, name_suffix):
     def card_out_to_sample():
         return  retornar_card(
         get_file_name=global_name_manager.get_file_name_validacion,
-        get_fecha=global_fecha.get_fecha_of_to_Sample,
+        #get_fecha=global_fecha.get_fecha_of_to_Sample,
         modelo=modelo_of_sample)
 
  

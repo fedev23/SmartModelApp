@@ -11,19 +11,6 @@ screenValid = ui.page_fluid(
     ui.div(
         # ui.h3(f"{global_name_out_of_Sample}", class_="custom-title"),  # Título principal
         ui.h4("Dataset"),  # Subtítulo
-        ui.column(12, 
-            ui.input_file("file_validation", "Selección de archivo CSV o TXT. Es importante seleccionar primero el delimitador, luego el dataset.", 
-                button_label='Cargar archivo', 
-                placeholder='Buscar el archivo', 
-                accept=[".csv", ".txt"], 
-                width="100%")  # Input para carga de archivos CSV o TXT
-        ),
-        ui.column(12, 
-            ui.input_select("delimiter_validacion_out_to", "Tipo de delimitador", 
-                choices=CHOICES["tipo"], 
-                width="100%")  # Input para seleccionar el delimitador
-        ),
-
         ui.column(12,
                   ui.input_file("file_validation", "Seleccion de archivo CSV o TXT",
                                 button_label='Cargar archivo',

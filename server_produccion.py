@@ -5,7 +5,6 @@ from global_var import global_data_loader_manager  # Importar el gestor global
 from funciones.create_param import create_screen
 from clases.global_name import global_name_manager
 from clases.global_modelo import modelo_produccion
-from clases.class_extact_time import global_fecha
 from funciones.create_nav_menu import create_nav_menu
 from clases.class_screens import ScreenClass
 from funciones.utils import retornar_card
@@ -105,7 +104,7 @@ def server_produccion(input, output, session, name_suffix):
     def card_produccion1():
         return retornar_card(
             get_file_name=global_name_manager.get_file_name_produccion,
-            get_fecha=global_fecha.get_fecha_produccion,
+            #get_fecha=global_fecha.get_fecha_produccion,
             modelo=modelo_produccion
         )
 
