@@ -218,10 +218,28 @@ def create_modal_versiones(id_proyecto):
         ui.modal_show(m)
         
         
+   
+def create_modal_versiones_param(id_proyecto, id_version):
+        m = ui.modal(
+            ui.row(
+                ui.column(12, ui.input_text(f"name_version_param",
+                          f" Version de parametros para el  {id_proyecto} en la version {id_version}", width="100%")),
+            ),
+            ui.div(
+                ui.div(
+                    ui.input_action_button(
+                        "continuar_version_param", "Continuar", class_="custom-ok-button", style="text-align: left"),
+                    ui.input_action_button(
+                        "cancelar_version_param", "Cancelar", class_="custom-cancel-button"),
+                ),
+            ),
+            title="Nueva versión de parametros",
+            easy_close=True,
+            footer=None,
+            size='m',
+            fade=True,
+        )
+        ui.modal_show(m)
         
-def obtener_file_in_lista(files):
-    if files and isinstance(files, list) and len(files) > 0:
-        print("pase")
-        nombre_archivo = files[0].get('nombre_archivo')  # Accede al primer elemento y obtiene el valor
-        if nombre_archivo:
-            return nombre_archivo
+ 
+        

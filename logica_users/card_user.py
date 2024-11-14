@@ -27,7 +27,7 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                 ui.div(
                     # Tarjeta con el contenido
                     ui.div(
-                        ui.h4("Data Management", class_="card-header text-center"),  # Título centrado
+                        #ui.h4("Data Management", class_="card-header text-center"),  # Título centrado
                         
                         ui.div(
                             # Sección de carga de archivos
@@ -44,7 +44,7 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                             # Menús desplegables con elementos adicionales
                             ui.div(
                                 # Añadir las UI outputs a la izquierda de los selectores
-                                ui.output_ui("project_card_container"),
+                                #ui.output_ui("project_card_container"),
                                 ui.input_select("project_select", "Select Project", project_options),
                                
 

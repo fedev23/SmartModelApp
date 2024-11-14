@@ -410,7 +410,30 @@ def eliminar_version(nombre_tabla, nombre_columna_id, id_dato):
     finally:
         # Cerrar la conexión
         conn.close()
+        
+def add_param_versions(project_id, version_id, name):
+    conn = sqlite3.connect('Modeling_App.db')
+    cur = conn.cursor()
 
+    # Obtener la fecha de carga actual
+    fecha_de_carga = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Insertar una nueva versión de parámetros en la tabla json_versions
+    cur.execute('''
+    INSERT INTO json_versions (nombre_version, fecha_de_carga, project_id, version_id)
+    VALUES (?, ?, ?, ?)
+    ''', (name, fecha_de_carga, project_id, version_id))  # Se insertan los valores para nombre, fecha, project_id y version_id
+
+    # Obtener el ID de la nueva versión de parámetros insertada
+    version_param_id = cur.lastrowid
+
+    # Confirmar los cambios en la base de datos
+    conn.commit()
+
+    # Cerrar la conexión
+    conn.close()
+
+    return version_param_id
 # Ejemplo de uso
 #eliminar_dato_generico('name_files', 'id_files', 1)
 

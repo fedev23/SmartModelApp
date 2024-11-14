@@ -95,7 +95,6 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     @reactive.Effect
     def boton_para_eliminar_version():
         eliminar_version_id = f"eliminar_version_{global_session.get_id_version()}"
-        print("es aca?", eliminar_version_id)
         @reactive.Effect
         @reactive.event(input[eliminar_version_id])
         def eliminar_version_id():
@@ -205,18 +204,21 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     @reactive.effect
     @reactive.event(input.continuar_version)
     def agregar_ver():
+        print("pase??")
         name = input[f'name_version']()
         id_proyect = global_session.get_id_proyecto()
         print(f"imprimo id, {id_proyect}")
         agregar_version(id_proyect, name)
+        #crear_carpeta_version_por_proyecto(user_id, proyecto_id, version_id, name_id, name_proyect)
         versiones = get_project_versions(global_session.get_id_proyecto())
         # actualizo la version por proyecto id
         version_options.set({str(version['version_id']): version['nombre_version']
                             for version in versiones}if versiones else {"": "No hay versiones"})
-        print(version_options.get())
         ui.update_select("other_select", choices=version_options.get())
+        print("llegue??")
         global_session.set_proyecto_seleccionado_id(id_proyecto_Recien_Creado.get())
-       # crear_carpeta_version_por_proyecto(user_get.get(),id_proyecto_Recien_Creado.get(), global_session.get_id_version(), name, name_proyecto.get())
+        print("llegue????")
+        crear_carpeta_version_por_proyecto(user_get.get(), global_session.get_id_proyecto(), global_session.get_id_version(), name, global_session.get_name_proyecto())
         ui.modal_remove()
 
 

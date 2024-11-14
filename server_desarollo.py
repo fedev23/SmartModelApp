@@ -84,8 +84,7 @@ def server_desarollo(input, output, session, name_suffix):
     @output(id=f"summary_data_{name_suffix}")
     @render.data_frame
     def summary_data_desarollo():
-        pass
-        #return screen_instance.get().render_data_summary()
+        return screen_instance.get().render_data_summary()
 
     @output
     @render.ui

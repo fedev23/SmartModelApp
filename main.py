@@ -18,6 +18,8 @@ from servers.server_in_sample import server_in_sample
 from auth.auth import server_login
 from logica_users.extend_of_user import extend_user_server
 from  logica_users.card_user import user_ui
+from servers.in_Sample_versions import in_sample_verions
+
 
 
 # Define the Shiny server function
@@ -25,6 +27,7 @@ def create_server(input, output, session):
     server_parametros_desarrollo(input, output, session, 'desarrollo')
     server_login(input, output, session),
     user_ui(input, output, session, 'user'),
+    in_sample_verions(input, output, session)
     extend_user_server(input, output, session)
     server_desarollo(input, output, session, 'desarrollo')
     server_out_of_sample(input, output, session, 'validacion')

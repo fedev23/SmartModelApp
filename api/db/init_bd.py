@@ -64,6 +64,48 @@ cur.execute('''
             )
         ''')
 
+cur.execute('''
+        CREATE TABLE json_versions (
+            id_jsons INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre_version TEXT NOT NULL,
+            fecha_de_carga TEXT NOT NULL,
+            project_id INTEGER,
+            version_id INTEGER,
+            FOREIGN KEY (project_id) REFERENCES project(id),
+            FOREIGN KEY (version_id) REFERENCES version(version_id)
+        );
+    ''')
+
+
+
+def recreate_json_versions_table():
+    conn = sqlite3.connect('Modeling_App.db')
+    cur = conn.cursor()
+
+    # Eliminar la tabla si existe
+    cur.execute('''DROP TABLE IF EXISTS json_verions;''')
+
+    # Crear la nueva tabla con la estructura correcta
+    cur.execute('''
+        CREATE TABLE json_versions (
+            id_jsons INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre_version TEXT NOT NULL,
+            fecha_de_carga TEXT NOT NULL,
+            project_id INTEGER,
+            version_id INTEGER,
+            FOREIGN KEY (project_id) REFERENCES project(id),
+            FOREIGN KEY (version_id) REFERENCES version(version_id)
+        );
+    ''')
+
+    # Confirmar cambios
+    conn.commit()
+
+    # Cerrar conexión
+    conn.close()
+    print("Tabla 'json_versions' recreada exitosamente.")
+
+
 # Confirmar y cerrar la conexión
 conn.commit()
 conn.close()
@@ -81,4 +123,5 @@ def list_tables():
     conn.close()
 
 # Llama a esta función para ver las tablas
-#list_tables()
+#recreate_json_versions_table()
+list_tables()

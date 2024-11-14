@@ -30,14 +30,34 @@ screenInSample = ui.page_fluid(
             ui.output_ui("mostrarOut_sample"),
             # ui.output_text("mostrar_mensaje_datos")
         ),
-        #ui.h3("Parametros" " " f"{global_name_in_Sample}"),
-        ui.div(
-             ui.input_action_button("create_parameters", f"+ Create version parameters {global_name_in_Sample}", class_="btn btn-dark btn-sm me-2", style="font-size: 15px; padding: 8px 10px;"),
-            #class_="d-flex justify-content-center mb-3" 
+        ui.row(
+            # Columna para el botón
+            ui.column(
+                # Ancho de la columna (puedes ajustarlo según sea necesario)
+                6,
+                ui.input_action_button(
+                    "create_parameters",
+                    f"+ Create version parameters {global_name_in_Sample}",
+                    class_="btn btn-dark btn-sm me-2",
+                    style="font-size: 15px; padding: 8px 10px;"
+                ),
+            ),
+
+            # Columna para el selector
+            ui.column(
+                # Ancho de la columna (puedes ajustarlo según sea necesario)
+                6,
+                ui.input_select(
+                    "version_selector",
+                    label=None,  # Si no deseas mostrar un texto de etiqueta
+                    choices=["Option 1", "Option 2", "Option 3"],
+                    #style="font-size: 15px;"
+                )
+            )
         ),
-        #ui.tags.hr(),
+        # ui.tags.hr(),
         ui.div(class_="mt-5"),
-       
+
     ),
     ui.div(
         ui.card(
