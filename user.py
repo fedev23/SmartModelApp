@@ -18,6 +18,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     nombre_file = reactive.Value(None)
     id_proyecto_Recien_Creado = reactive.Value(None)
     name_proyecto = reactive.Value(None)
+    list = reactive.Value(None)
 
     def see_session():
         @reactive.effect
@@ -51,25 +52,35 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
 
         # Obtiene las versiones del proyecto
         versiones = get_project_versions(global_session.get_id_proyecto())
-        nombre_version = versiones[0]['nombre_version']  # O cualquier lógica para seleccionar una versión
-        global_session.set_versiones_name(nombre_version)
+        print(versiones, "aca esta vacia")
         version_options.set({str(version['version_id']): version['nombre_version']
             for version in versiones}
             if versiones else {"": "No hay versiones"}
         )
+        
+        nombre_version = versiones[0]['nombre_version']  # O cualquier lógica para seleccionar una versión
+        global_session.set_versiones_name(nombre_version)
 
         # Obtiene los archivos relacionados con el proyecto
         files_name = get_records(global_session.get_id_proyecto())
         nombre_file.set({str(file['id_files']): file['nombre_archivo']
                         for file in files_name} if files_name else {"": "No hay archivos"})
+        
+        
+        versiones = get_project_versions_param(global_session.get_id_proyecto())
+        list.set({str(version['id_jsons']): version['nombre_version']
+            for version in versiones}
+            if versiones else {"": "No hay versiones"}
+        )
+
 
         # Actualiza los selectores en la UI
         data_Set = crear_carpeta_proyecto(user_get.get(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
-        print(data_Set, "estoy en dataset")
         global_session.set_path_guardar_dataSet_en_proyectos(data_Set)
         ui.update_select("files_select", choices=nombre_file.get())
-        ui.update_select("other_select", choices=version_options.get())    # print(nombre_file.get(), "estoy en el get")
-        # ui.update_select("select_file", choices=nombre_file.get())
+        ui.update_select("other_select", choices=version_options.get()) 
+        ui.update_select("version_selector",choices=list.get())# print(nombre_file.get(), "estoy en el get")
+        ui.update_select("select_file", choices=nombre_file.get())
 
     @output
     @render.ui
@@ -215,9 +226,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         version_options.set({str(version['version_id']): version['nombre_version']
                             for version in versiones}if versiones else {"": "No hay versiones"})
         ui.update_select("other_select", choices=version_options.get())
-        print("llegue??")
         global_session.set_proyecto_seleccionado_id(id_proyecto_Recien_Creado.get())
-        print("llegue????")
         crear_carpeta_version_por_proyecto(user_get.get(), global_session.get_id_proyecto(), global_session.get_id_version(), name, global_session.get_name_proyecto())
         ui.modal_remove()
 

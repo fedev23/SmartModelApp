@@ -434,6 +434,39 @@ def add_param_versions(project_id, version_id, name):
     conn.close()
 
     return version_param_id
-# Ejemplo de uso
-#eliminar_dato_generico('name_files', 'id_files', 1)
 
+
+
+def get_project_versions_param(project_id):
+    conn = sqlite3.connect('Modeling_App.db')
+    cur = conn.cursor()
+    
+    try:
+        # Realizar la consulta para obtener las versiones del proyecto específico
+        cur.execute('''
+            SELECT id_jsons, nombre_version
+            FROM json_versions
+            WHERE project_id = ?
+        ''', (project_id,))
+        
+        # Recuperar todas las versiones
+        versiones = cur.fetchall()
+        
+        # Convertir los resultaos en una lista de diccionarios
+        files_list = [
+            {
+                'id_jsons': file[0],
+                'nombre_version': file[1],
+            }
+            for file in versiones
+        ]
+        
+        return files_list  # Retornar la lista de versiones
+    
+    except sqlite3.Error as e:
+        print(f"Error al acceder a la base de datos: {e}")
+        return []
+    
+    finally:
+        # Cerrar la conexión
+        conn.close()

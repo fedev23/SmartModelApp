@@ -49,8 +49,8 @@ screenInSample = ui.page_fluid(
                 6,
                 ui.input_select(
                     "version_selector",
-                    label=None,  # Si no deseas mostrar un texto de etiqueta
-                    choices=["Option 1", "Option 2", "Option 3"],
+                    "Select Version de parametros", # Si no deseas mostrar un texto de etiqueta
+                    {"a": "a"},
                     #style="font-size: 15px;"
                 )
             )
