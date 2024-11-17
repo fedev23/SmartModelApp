@@ -4,7 +4,7 @@ from clases.class_user_proyectName import global_user_proyecto
 from api import * 
 from clases.global_session import global_session
 from clases.reactives_name import global_names_reactivos
-from funciones.funciones_user import button_remove_dataSet, create_modal_v2
+from funciones.funciones_user import button_remove, create_modal_v2
 
 def extend_user_server(input: Inputs, output: Outputs, session: Session):
     
@@ -20,7 +20,8 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session):
     @output
     @render.ui
     def remove_dataset():
-            return button_remove_dataSet(global_session.get_id_proyecto(), global_session.get_id_dataSet())
+            #return button_remove_dataSet(global_session.get_id_proyecto(), global_session.get_id_dataSet())
+            pass
         
         
     

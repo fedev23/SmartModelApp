@@ -6,6 +6,7 @@ from clases.global_session import global_session
 from clases.global_reactives import global_estados
 from funciones.funciones_user import create_modal_versiones, show_selected_project_card, create_modal_eliminar_bd, create_modal_v2, button_remove_version
 from funciones.utils_2 import crear_carpeta_proyecto, crear_carpeta_version_por_proyecto, get_datasets_directory
+from funciones.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version
 
 
 def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
@@ -18,7 +19,9 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     nombre_file = reactive.Value(None)
     id_proyecto_Recien_Creado = reactive.Value(None)
     name_proyecto = reactive.Value(None)
-    list = reactive.Value(None)
+    opciones_param = reactive.Value("")
+    valor_predeterminado_parms = reactive.Value("")
+    
 
     def see_session():
         @reactive.effect
@@ -52,7 +55,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
 
         # Obtiene las versiones del proyecto
         versiones = get_project_versions(global_session.get_id_proyecto())
-        print(versiones, "aca esta vacia")
+
         version_options.set({str(version['version_id']): version['nombre_version']
             for version in versiones}
             if versiones else {"": "No hay versiones"}
@@ -66,20 +69,19 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         nombre_file.set({str(file['id_files']): file['nombre_archivo']
                         for file in files_name} if files_name else {"": "No hay archivos"})
         
-        
-        versiones = get_project_versions_param(global_session.get_id_proyecto())
-        list.set({str(version['id_jsons']): version['nombre_version']
-            for version in versiones}
-            if versiones else {"": "No hay versiones"}
-        )
-
-
+        ##OBTENGO EL ULTIMO Y LAS OPCIONES PREDETERMINAS EN EL SELECCIONADOR DE PARAMETROS
+        versiones_parametros = get_project_versions_param(global_session.get_id_proyecto())
+        opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version")) 
+        valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
+        valor = opciones_param.get()
+        #print(valor, "estoy en valor!!! ")
         # Actualiza los selectores en la UI
         data_Set = crear_carpeta_proyecto(user_get.get(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
         global_session.set_path_guardar_dataSet_en_proyectos(data_Set)
+        
         ui.update_select("files_select", choices=nombre_file.get())
         ui.update_select("other_select", choices=version_options.get()) 
-        ui.update_select("version_selector",choices=list.get())# print(nombre_file.get(), "estoy en el get")
+        ui.update_select("version_selector",choices=opciones_param.get(), selected=valor_predeterminado_parms.get())
         ui.update_select("select_file", choices=nombre_file.get())
 
     @output

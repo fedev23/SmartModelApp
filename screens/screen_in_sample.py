@@ -35,24 +35,34 @@ screenInSample = ui.page_fluid(
             ui.column(
                 # Ancho de la columna (puedes ajustarlo según sea necesario)
                 6,
-                ui.input_action_button(
+                ui.div(
+                   ui.input_action_button(
                     "create_parameters",
                     f"+ Create version parameters {global_name_in_Sample}",
                     class_="btn btn-dark btn-sm me-2",
                     style="font-size: 15px; padding: 8px 10px;"
                 ),
+                   class_="d-flex justify-content-between",  
+                )
+                
             ),
 
             # Columna para el selector
             ui.column(
                 # Ancho de la columna (puedes ajustarlo según sea necesario)
                 6,
-                ui.input_select(
+                ui.div(
+                   ui.input_select(
                     "version_selector",
-                    "Select Version de parametros", # Si no deseas mostrar un texto de etiqueta
+                    "", # Si no deseas mostrar un texto de etiqueta
                     {"a": "a"},
                     #style="font-size: 15px;"
-                )
+                ) ,
+                   ui.output_ui("button_remove_versions_param"),
+                   class_="d-flex justify-content-between",  
+                ),
+                
+                
             )
         ),
         # ui.tags.hr(),
