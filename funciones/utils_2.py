@@ -4,6 +4,7 @@ import os
 import jwt
 import pandas as pd
 import csv 
+from clases.global_reactives import global_estados
 
 def errores(mensaje):
     if mensaje.get():
@@ -244,3 +245,13 @@ def leer_dataset(user_id, proyecto_id, name_proyect, dataset_name):
     except Exception as e:
         print(f"Error al leer el dataset: {e}")
         return None
+
+
+
+
+def render_data_summary(data):
+        #df = self.data_loader.getDataset()  # Usar el método heredado
+        if data is not None and not data.empty:
+            select_number_data_set = int(global_estados.get_numero_dataset())
+            # Devuelve un resumen de los primeros 5 registros
+            return pd.DataFrame(data.head(select_number_data_set))

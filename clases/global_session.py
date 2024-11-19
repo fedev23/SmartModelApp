@@ -15,6 +15,7 @@ class GlobalSession:
         self.proyectos_usuarios = reactive.Value(None)
         self.versiones_name = reactive.Value(None)
         self.version_parametros_id = reactive.Value(None)
+        self.data_set_reactivo = reactive.Value(None)
         
         
     def actualizar_directorio(self, nuevo_directorio):
@@ -88,7 +89,13 @@ class GlobalSession:
         self.version_parametros_id.set(name)
     
     def get_version_parametros_id(self):
-        return self.version_parametros_id.get()   
+        return self.version_parametros_id.get() 
+    
+    def set_data_set_reactivo(self, data):
+        self.data_set_reactivo.set(data)
+    
+    def get_data_set_reactivo(self):
+        return self.data_set_reactivo.get()   
     
     
   

@@ -13,7 +13,7 @@ from funciones.help_versios import obtener_opciones_versiones, obtener_ultimo_id
 
 
 
-def in_sample_verions(input: Inputs, output: Outputs, session: Session):
+def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_para_button):
     
     list = reactive.Value(None)
     id_versiones_params = reactive.Value(None)
@@ -67,14 +67,15 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session):
     @render.ui
     def button_remove_versions_param():
         versions_list = get_project_versions_param(global_session.get_id_proyecto())
-        return button_remove(versions_list, id_versiones_params.get(), "id_jsons")
+        name = global_session.get_versiones_name
+        return button_remove(versions_list, id_versiones_params.get(), "id_jsons", name_para_button)
     
     
     @reactive.Effect
     def handle_delete_buttons():
         id_verisones_param = global_session.get_version_parametros_id()
         print(id_verisones_param, "estoy en versiones")
-        eliminar_btn_id = f"eliminar_version_{global_session.get_version_parametros_id()}"
+        eliminar_btn_id = f"eliminar_version_{global_session.get_version_parametros_id()}_{name_para_button}"
         @reactive.Effect
         @reactive.event(input[eliminar_btn_id])
         def eliminar_param_boton():

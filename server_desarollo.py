@@ -8,12 +8,14 @@ from funciones.utils import retornar_card, mover_files
 from clases.class_user_proyectName import global_user_proyecto
 from funciones.utils import create_modal_parametros, id_buttons_desa
 from clases.global_session import global_session
-from funciones.utils_2 import get_user_directory
+from funciones.utils_2 import get_user_directory, render_data_summary
 from api.db import *
 from clases.global_session import *
 from clases.reactives_name import global_names_reactivos
 from funciones.funciones_cargaDatos import guardar_archivo
 from shiny.types import FileInfo
+from funciones.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version
+from clases.global_session import *
 
 
 def server_desarollo(input, output, session, name_suffix):
@@ -21,6 +23,8 @@ def server_desarollo(input, output, session, name_suffix):
     screen_instance = reactive.value(None)  # Mantener screen_instance como valor reactivo
     user_id_send = reactive.Value("")
     global_names_reactivos.name_desarrollo_set(name_suffix)
+    opciones_data = reactive.Value(None)
+    dataSet_predeterminado_parms = reactive.Value(None)
     
 
     def see_session():
@@ -67,9 +71,13 @@ def server_desarollo(input, output, session, name_suffix):
             print(input_name)
             global_names_reactivos.set_name_data_Set(input_name)
             ruta_guardado = await guardar_archivo(input.file_desarollo, name_suffix)
-            global_names_reactivos.set_proceso_leer_dataset(True)
-            print(f"El archivo fue guardado en: {ruta_guardado}")
             
+            global_names_reactivos.set_proceso_leer_dataset(True)
+            files_name = get_records(global_session.get_id_proyecto())
+            opciones_data.set(obtener_opciones_versiones(files_name, "id_files", "nombre_archivo"))
+            dataSet_predeterminado_parms.set(obtener_ultimo_id_version(files_name, "id_files"))
+            print(f"El archivo fue guardado en: {ruta_guardado}")
+            ui.update_select("files_select", choices=opciones_data.get(), selected=dataSet_predeterminado_parms.get())
             # Después de guardar el archivo, puedes cargar los datos utilizando screen_instance
             await screen_instance.get().load_data(input.file_desarollo, name_suffix)
             
@@ -84,12 +92,13 @@ def server_desarollo(input, output, session, name_suffix):
     @output
     @render.data_frame
     def summary_data_validacion_in_sample():
-        return screen_instance.get().render_data_summary()
+        return render_data_summary(global_session.get_data_set_reactivo())
 
     @output(id=f"summary_data_{name_suffix}")
     @render.data_frame
     def summary_data_desarollo():
-        return screen_instance.get().render_data_summary()
+        return render_data_summary(global_session.get_data_set_reactivo())
+        #return screen_instance.get().render_data_summary()
 
     @output
     @render.ui

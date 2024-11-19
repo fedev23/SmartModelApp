@@ -149,7 +149,7 @@ def button_remove_version(project_id, target_version_id):
         print("La versión no pertenece al proyecto o no existe.")
         return None
         
-def button_remove(versions_list, target_version_id, id):
+def button_remove(versions_list, target_version_id, id, name):
 
     # Busca si la versión especificada pertenece al proyecto
     version = next((version for version in versions_list if str(version[id]) == str(target_version_id)), None)
@@ -159,7 +159,7 @@ def button_remove(versions_list, target_version_id, id):
         sanitized_name = version[id]  # Obtén el ID de la versión
         # Devuelve un enlace de acción para eliminar la versión
         return ui.input_action_link(
-            f"eliminar_version_{sanitized_name}", 
+            f"eliminar_version_{sanitized_name}_{name}", 
             ui.tags.i(class_="fa fa-trash fa-2x"),  # Ícono de basura
             #class_="btn btn-danger"  # Opcional: estilo de botón rojo
         )

@@ -66,7 +66,7 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                         ui.input_file(
                             "file_desarollo",
                             "" ,
-                            placeholder="Seleccione un archivo",
+                            placeholder="Seleccione un nuevo archivo",
                             button_label=ui.tags.i(class_="fa fa-upload fa-sm"),
                             accept=[".csv", ".txt"],
                             width="40%",  # Asegura que el input ocupe todo el ancho de la columna

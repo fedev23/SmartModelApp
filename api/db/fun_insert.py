@@ -351,10 +351,6 @@ def delete_record(table_name, condition, condition_value):
     conn.close()
     
     
-    
-
-import sqlite3
-
 def obtener_valor_por_id(id_files , base_datos='Modeling_App.db'):
     
         conn = sqlite3.connect(base_datos)
@@ -437,7 +433,7 @@ def add_param_versions(project_id, version_id, name):
 
 
 
-def get_project_versions_param(project_id):
+def   get_project_versions_param(project_id):
     conn = sqlite3.connect('Modeling_App.db')
     cur = conn.cursor()
     

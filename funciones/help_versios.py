@@ -30,3 +30,20 @@ def obtener_ultimo_id_version(versiones, id):
         return str(versiones[-1][id])
     else:
         return ""
+
+
+def obtener_ultimo_nombre_archivo(versiones):
+    """
+    Función que devuelve el nombre del archivo del último valor en la lista de versiones.
+    
+    Args:
+    - versiones (list): Lista de diccionarios con la información de los archivos.
+    
+    Returns:
+    - str: El nombre del último archivo, si existe; si la lista está vacía, retorna una cadena vacía.
+    """
+    if versiones:
+        # Accede al último diccionario y obtiene el valor de la clave 'nombre_archivo'
+        return str(versiones[-1].get('nombre_archivo', ''))
+    else:
+        return ""
