@@ -57,6 +57,8 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session):
     def seleccionador_versiones_param():
         versiones_id = input.version_selector()
         id_versiones_params.set(versiones_id)
+        global_session.set_version_parametros_id(id_versiones_params.get())
+        print(id_versiones_params.get(), "ESTOY EN VER")
         versiones = get_project_versions_param(global_session.get_id_proyecto())
         
         
@@ -66,6 +68,37 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session):
     def button_remove_versions_param():
         versions_list = get_project_versions_param(global_session.get_id_proyecto())
         return button_remove(versions_list, id_versiones_params.get(), "id_jsons")
+    
+    
+    @reactive.Effect
+    def handle_delete_buttons():
+        id_verisones_param = global_session.get_version_parametros_id()
+        print(id_verisones_param, "estoy en versiones")
+        eliminar_btn_id = f"eliminar_version_{global_session.get_version_parametros_id()}"
+        @reactive.Effect
+        @reactive.event(input[eliminar_btn_id])
+        def eliminar_param_boton():
+            print("pase")
+            create_modal_v2("Eliminar versión de parametros", "Confirmar", "Cancelar", "confirmar_remove", "cancelar_remove")
+        
+        
+    @reactive.Effect
+    @reactive.event(input.confirmar_remove)
+    def remove_versiones_de_parametros():
+        eliminar_version("json_versions", "id_jsons", id_versiones_params.get())
+        columnas = ['id_jsons', 'nombre_version']
+        lista_de_versiones_new = obtener_versiones_por_proyecto(global_session.get_id_proyecto(), columnas, "json_versions", "project_id")
+        print(lista_de_versiones_new)
+        list.set(lista_de_versiones_new)
+        ui.update_select(
+            "version_selector",
+            choices={str(vers['id_jsons']): vers['nombre_version']
+                     for vers in lista_de_versiones_new}
+        )
+        ui.modal_remove()
+    
+    
+    
         
      
         

@@ -10,6 +10,8 @@ class Reactividad:
         self.fecha_produccion = reactive.Value(None)
         self.file_name = reactive.Value(None)
         self.name_file_db = reactive.Value(None)
+        self.name_data_Set = reactive.Value(None)
+        self.proceso_leer_dataset = reactive.Value(False)
 
 
     def set_file_name(self, name):
@@ -18,6 +20,22 @@ class Reactividad:
 
     def get_file_name(self):
         return self.file_name.get()
+    
+    ##NOMBRE DEL DATA SET QUE ENTRA POR INPUT DESARROLLO
+    def set_name_data_Set(self, name):
+        # Actualiza el valor de fechaHora usando el método set()
+        self.file_name.set(name)
+
+    def get_name_data_Set(self):
+        return self.file_name.get()
+    
+    
+    ##PROCESO PARA QUE SE EJECUTE LA FUCION LEER_DATASET
+    def set_proceso_leer_dataset(self, boolean):
+        self.proceso_leer_dataset.set(boolean)
+
+    def get_proceso_leer_dataset(self):
+        return self.proceso_leer_dataset.get()
 
     
     def name_desarrollo_set(self, name):

@@ -61,8 +61,8 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             if versiones else {"": "No hay versiones"}
         )
         
-        nombre_version = versiones[0]['nombre_version']  # O cualquier lógica para seleccionar una versión
-        global_session.set_versiones_name(nombre_version)
+        #nombre_version = versiones[0]['nombre_version']  # O cualquier lógica para seleccionar una versión
+        #global_session.set_versiones_name(nombre_version)
 
         # Obtiene los archivos relacionados con el proyecto
         files_name = get_records(global_session.get_id_proyecto())
@@ -73,8 +73,6 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         versiones_parametros = get_project_versions_param(global_session.get_id_proyecto())
         opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version")) 
         valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
-        valor = opciones_param.get()
-        #print(valor, "estoy en valor!!! ")
         # Actualiza los selectores en la UI
         data_Set = crear_carpeta_proyecto(user_get.get(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
         global_session.set_path_guardar_dataSet_en_proyectos(data_Set)
@@ -82,7 +80,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         ui.update_select("files_select", choices=nombre_file.get())
         ui.update_select("other_select", choices=version_options.get()) 
         ui.update_select("version_selector",choices=opciones_param.get(), selected=valor_predeterminado_parms.get())
-        ui.update_select("select_file", choices=nombre_file.get())
+        #ui.update_select("select_file", choices=nombre_file.get())
 
     @output
     @render.ui
@@ -111,20 +109,17 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         @reactive.Effect
         @reactive.event(input[eliminar_version_id])
         def eliminar_version_id():
-            nombre_version = obtener_nombre_version_por_id(
-                global_session.get_id_version())
-            create_modal_v2(
-                f"Seguro que quieres eliminar la version {nombre_version}?", "Confirmar", "Cancelar", "confirmar_id", "cancelar_id")
+            nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
+            create_modal_v2(f"Seguro que quieres eliminar la version {nombre_version}?", "Confirmar", "Cancelar", "confirmar_id", "cancelar_id")
+            
 
     @reactive.Effect
     @reactive.event(input["confirmar_id"])
     def eliminar_version_proyecto():
-        eliminar_version("version", "version_id",
-                         global_session.get_id_version())
+        eliminar_version("version", "version_id", global_session.get_id_version())
         columnas = ['version_id', 'nombre_version', 'execution_date']
         lista_de_versiones_new = obtener_versiones_por_proyecto(global_session.get_id_proyecto(), columnas, "version", "project_id")
 
-        # lista_de_versiones_new = obtener_versiones_por_proyecto(global_session.get_id_proyecto())
         versiones_por_proyecto.set(lista_de_versiones_new)
         ui.update_select(
             "other_select",
@@ -217,18 +212,18 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     @reactive.effect
     @reactive.event(input.continuar_version)
     def agregar_ver():
-        print("pase??")
         name = input[f'name_version']()
         id_proyect = global_session.get_id_proyecto()
         print(f"imprimo id, {id_proyect}")
         agregar_version(id_proyect, name)
-        #crear_carpeta_version_por_proyecto(user_id, proyecto_id, version_id, name_id, name_proyect)
+      
         versiones = get_project_versions(global_session.get_id_proyecto())
         # actualizo la version por proyecto id
         version_options.set({str(version['version_id']): version['nombre_version']
                             for version in versiones}if versiones else {"": "No hay versiones"})
         ui.update_select("other_select", choices=version_options.get())
         global_session.set_proyecto_seleccionado_id(id_proyecto_Recien_Creado.get())
+       
         crear_carpeta_version_por_proyecto(user_get.get(), global_session.get_id_proyecto(), global_session.get_id_version(), name, global_session.get_name_proyecto())
         ui.modal_remove()
 
@@ -257,7 +252,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                 # Crear el proyecto y obtener su ID
                 global_session.set_name_proyecto(name)
                 name_proyecto.set(name)
-                add_project(user, name)  # Esta función debería establecer el ID del proyecto recién creado en la sesión global
+                global_session.set_id_proyect(add_project(user, name))  # Esta función debería establecer el ID del proyecto recién creado en la sesión global
                 proyectos_usuario.set(get_user_projects(user))
 
                 # Aquí asegúrate de que `add_project` o cualquier otro mecanismo te da el `project_id`
@@ -270,10 +265,14 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                 global_session.set_proyecto_seleccionado_id(id_proyecto_Recien_Creado.get())
 
                 print(global_session.get_id_proyecto(), "este es el id del proyecto")
+                 
+                # Actualiza el selector con los proyectos restantes
+                ui.update_select("project_select", choices={str(proj['id']): proj['name'] for proj in get_user_projects(user_get.get())}
+                )
 
                 global_session.set_id_user(user_get())
                 crear_carpeta_proyecto(user_get.get(), global_session.get_id_proyecto(), name)
-                data_Set = get_datasets_directory(user_get.get(), global_session.get_proyecto_seleccionado_id(), global_session.get_name_proyecto())
+                data_Set = get_datasets_directory(user_get.get(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
                 global_session.set_path_guardar_dataSet_en_proyectos(data_Set)
 
                 # Reinicia el estado de click en continuar

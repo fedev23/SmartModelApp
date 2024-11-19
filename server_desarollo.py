@@ -13,6 +13,7 @@ from api.db import *
 from clases.global_session import *
 from clases.reactives_name import global_names_reactivos
 from funciones.funciones_cargaDatos import guardar_archivo
+from shiny.types import FileInfo
 
 
 def server_desarollo(input, output, session, name_suffix):
@@ -61,8 +62,12 @@ def server_desarollo(input, output, session, name_suffix):
     @reactive.event(input.file_desarollo)
     async def cargar_Datos_desarrollo():
         try:
-            # Llamar a la función guardar_archivo de manera asincrónica
+            file: list[FileInfo] | None = input.file_desarollo()
+            input_name = file[0]['name']
+            print(input_name)
+            global_names_reactivos.set_name_data_Set(input_name)
             ruta_guardado = await guardar_archivo(input.file_desarollo, name_suffix)
+            global_names_reactivos.set_proceso_leer_dataset(True)
             print(f"El archivo fue guardado en: {ruta_guardado}")
             
             # Después de guardar el archivo, puedes cargar los datos utilizando screen_instance

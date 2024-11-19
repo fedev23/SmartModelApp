@@ -142,7 +142,7 @@ def button_remove_version(project_id, target_version_id):
         return ui.input_action_link(
             f"eliminar_version_{sanitized_name}", 
             ui.tags.i(class_="fa fa-trash fa-2x"),  # Ícono de basura
-            # class_="btn btn-danger"  # Opcional: estilo de botón rojo
+            #class_="btn btn-danger"  # Opcional: estilo de botón rojo
         )
     else:
         # Solo se imprime el mensaje si había versiones, pero la específica no se encontró
@@ -161,7 +161,7 @@ def button_remove(versions_list, target_version_id, id):
         return ui.input_action_link(
             f"eliminar_version_{sanitized_name}", 
             ui.tags.i(class_="fa fa-trash fa-2x"),  # Ícono de basura
-            class_="btn btn-danger"  # Opcional: estilo de botón rojo
+            #class_="btn btn-danger"  # Opcional: estilo de botón rojo
         )
          
 

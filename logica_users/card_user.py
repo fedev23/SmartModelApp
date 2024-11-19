@@ -26,7 +26,7 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                         6,  # Ancho de la columna
                         # Botón para crear proyecto, alineado con el selector
                         ui.input_action_button(
-                            "create_project", 
+                            f"start_{name_suffix}", 
                             "+ Crear Proyecto", 
                             class_="btn btn-dark mb-2"
                         ),
@@ -43,7 +43,7 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                         6,  # Ancho de la columna
                         # Botón para crear versión, alineado con el selector
                         ui.input_action_button(
-                            "create_version", 
+                            f"version_{name_suffix}", 
                             "+ Crear Versión", 
                             class_="btn btn-dark mb-2"
                         ),

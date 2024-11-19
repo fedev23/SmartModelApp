@@ -643,7 +643,11 @@ background: #0a0a0a;
 
 
 
-
+.btn-adaptable {
+    color: white; /* Puedes ajustar según sea necesario */
+    background-color: black; /* Ajuste inicial */
+    mix-blend-mode: difference; /* Cambia el color del botón basado en el fondo */
+  }
 
 
 

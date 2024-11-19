@@ -2,7 +2,8 @@ import os
 from shiny import App, ui, reactive
 import os
 import jwt
-
+import pandas as pd
+import csv 
 
 def errores(mensaje):
     if mensaje.get():
@@ -43,6 +44,14 @@ def mostrar_error(mensaje_error):
             close_button=True
         )
         
+        
+        
+def detectar_delimitador(file_path):
+        """Detecta el delimitador de un archivo de texto o CSV automáticamente."""
+        with open(file_path, 'r') as file:
+            dialect = csv.Sniffer().sniff(file.readline(), delimiters=";,|\t")
+            print(dialect.delimiter)
+            return dialect.delimiter
         
 # Crear carpetas por ID de usuario
 def crear_carpetas_por_id_user(user_id):
@@ -203,4 +212,35 @@ def get_datasets_directory(user_id, proyecto_id, name_proyect):
         return None
 
 
+def leer_dataset(user_id, proyecto_id, name_proyect, dataset_name):
+    # Obtener la ruta de la carpeta de datasets
+    datasets_directory = get_datasets_directory(user_id, proyecto_id, name_proyect)
+    
+    # Verificar que la carpeta de datasets no sea None
+    if datasets_directory is None:
+        print("No se encontró la carpeta de datasets.")
+        return None
+    
+    # Construir la ruta completa del archivo del dataset
+    dataset_path = os.path.join(datasets_directory, dataset_name)
+    
+    # Verificar que el archivo existe
+    if not os.path.exists(dataset_path):
+        print(f"El archivo {dataset_path} no existe.")
+        return None
 
+    # Leer el archivo de datos usando pandas
+    try:
+        # Detectar el delimitador del archivo
+        delimitador = detectar_delimitador(dataset_path)
+
+        # Leer el archivo con el delimitador detectado
+        dataset = pd.read_csv(dataset_path, delimiter=delimitador)
+        print(f"Dataset {dataset_name} leyendo data_Set")
+        
+        # Retornar las primeras 10 filas del dataset
+        return dataset.head(10)
+
+    except Exception as e:
+        print(f"Error al leer el dataset: {e}")
+        return None

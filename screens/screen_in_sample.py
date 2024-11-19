@@ -58,9 +58,9 @@ screenInSample = ui.page_fluid(
                     {"a": "a"},
                     #style="font-size: 15px;"
                 ) ,
-                   ui.output_ui("button_remove_versions_param"),
                    class_="d-flex justify-content-between",  
                 ),
+                 ui.output_ui("button_remove_versions_param"),  
                 
                 
             )
