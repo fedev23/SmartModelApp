@@ -101,15 +101,14 @@ def create_zip_from_file_unico(file_path, zip_file_path):
 
 def retornar_card(get_file_name, modelo): #get_fecha
     # Llama a las funciones `get_file_name` y `get_fecha` proporcionadas
-    file_name = get_file_name()
+    file_name = get_file_name
     #fechaHora = get_fecha()
 
     # Asigna el valor de `fecha_actual_render` utilizando un operador ternario
     #fecha_actual_render = str(fechaHora) if fechaHora else ""
 
     # Renderiza y retorna la tarjeta usando el modelo proporcionado
-    return modelo.render_card(file_name, #fecha_actual_render
-                              )
+    return modelo.render_card(file_name)
 
 
 def transformar_reportes(df):

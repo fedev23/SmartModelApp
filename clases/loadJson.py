@@ -4,6 +4,7 @@ import json
 import traceback
 from shiny import reactive
 from funciones.utils_2 import get_user_directory
+from clases.global_session import *
 
 class LoadJson:
     def __init__(self, user_id ,input=None):
@@ -316,7 +317,8 @@ class LoadJson:
 
         # Crear la lista de diccionarios en el formato deseado
         #get_user_directory(self.user_id)
-        directorio_guardado = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{self.user_id}'
+        directorio_guardado = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{self.user_id}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+        #C:\Users\fvillanueva\Desktop\SmartModel_new_version\new_version_new\Automat\datos_entrada_auth0_670fc1b2ead82aaae5c1e9ba\proyecto_62_test now\version__Version ver
         ruta_json = os.path.join(
             directorio_guardado, 'Control de SmartModelStudio.json')
         with open(ruta_json, 'w', encoding='utf-8') as file:

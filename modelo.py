@@ -10,8 +10,11 @@ from clases.global_modelo import modelo_in_sample
 from clases.global_session import global_session
 from funciones.utils_2 import get_user_directory
 from api.db import *
+from clases.class_validacion import Validator
 
 def server_modelos(input, output, session, name_suffix):
+    mensaje = reactive.Value("")
+    
     def see_session():
         @reactive.effect
         def enviar_session():
@@ -86,6 +89,21 @@ def server_modelos(input, output, session, name_suffix):
         click_count_value = global_desarollo.click_counter.get()  # Obtener contador
         mensaje_value = global_desarollo.mensaje.get()  # Obtener mensaje actual
         proceso = global_desarollo.proceso.get()
+        validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
+
+        # Realizar las validaciones
+        validator.validate_column_identifiers()
+        validator.validate_iv()
+        validator.validate_target_column()
+        validator.validate_training_split()
+        error_messages = validator.get_errors()
+
+        # Si hay errores, mostrar el mensaje y detener el proceso
+        if error_messages:
+            mensaje.set("\n".join(error_messages))
+            return  # Detener ejecución si hay errores
+        
+        mensaje.set("")
         ejecutar_in_sample_ascyn(click_count_value, mensaje_value, proceso)
         insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_desarrollo())
         

@@ -13,6 +13,8 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     dataSet_predeterminado_parms = reactive.Value(None)
     list = reactive.Value(None)
     id = reactive.Value(None)
+    
+    
     @reactive.effect
     @reactive.event(input.files_select)  # Escuchar cambios en el selector
     def project_card_container():

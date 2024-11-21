@@ -8,10 +8,16 @@ from funciones.param_in_sample import param_in_sample
 from funciones.utils import transformar_segmentos, validar_columnas, transform_data, transformar_reportes, create_modal_parametros, id_buttons
 from global_var import global_data_loader_manager
 import pandas as pd
-from funciones.utils_2 import cambiarAstring, validar_proyecto
+from funciones.utils_2 import cambiarAstring, validar_proyecto, aplicar_transformaciones
 from clases.global_session import global_session
 from api.db import *
 from clases.reactives_name import global_names_reactivos
+from api.db import *
+from clases.class_validacion import Validator
+from clases.global_modelo import modelo_in_sample
+from clases.global_modelo import global_desarollo
+from funciones.help_versios import copiar_json_si_existe
+import os
 
 
 ejemplo_niveles_riesgo = pd.DataFrame({
@@ -49,6 +55,7 @@ styles = {
 def server_in_sample(input, output, session, name_suffix):
     screen_instance = ScreenClass("", name_suffix)
     mensaje_de_error = reactive.Value("")
+    mensaje = reactive.Value("")
     name = "validación in sample"
     data_loader = global_data_loader_manager.get_loader("desarrollo")
     count = reactive.value(0)
@@ -56,6 +63,9 @@ def server_in_sample(input, output, session, name_suffix):
     name = "Validacion in sample"
     global_names_reactivos.name_validacion_in_sample_set(name_suffix)
 
+
+
+    
 
     # HAGO EL INPUT FILE DE FILE_DESAROLLO FUNCIONE ACA TAMBIEN, ASI ENVIA EL MISMO ARCHIO A VALIDACION IN SAMPLE
 
@@ -101,69 +111,80 @@ def server_in_sample(input, output, session, name_suffix):
         'par_vars_segmento': cambiarAstring,
         
     }
-    @reactive.Effect
-    @reactive.event(input[f'load_param_{name_suffix}'])
-    def validacion():
-        error_messages = []
-
-        # 1. Validar si el dataset está cargado
-        if not global_name_manager.name_file_desarrollo.get():
-            error_messages.append(f"No se ha ingresado ningún dataset en {name}")
-            mensaje_de_error.set("\n".join(error_messages))
-            no_error.set(False)
-            return  # Detener la ejecución si no hay dataset
-
-        # 2. Obtener el dataset
-        df = data_loader.getDataset()
-        inputs_procesados = {key: transformacion(input[key]()) for key, transformacion in transformaciones.items()}
-
-        # 3. Validar si el proyecto está asignado
-        proyecto_nombre = global_session.get_id_user()
-        if not validar_proyecto(proyecto_nombre):
-            error_messages.append(f"Es necesario tener un proyecto asignado o creado para continuar en {name}")
-            mensaje_de_error.set("\n".join(error_messages))
-            no_error.set(False)
-            return  # Detener la ejecución si no hay proyecto asignado
-
-        # 4. Validar las columnas
-        par_vars_segmento = input['par_vars_segmento']()
-        columnas_validas = validar_columnas(df, par_vars_segmento)
+    
+    ##USO ESTE DECORADOR PARA CORRER EL PROCESO ANSYC Y NO HAYA INTERRUCIONES EN EL CODIGO LEER DOCUENTACION
+    #https://shiny.posit.co/py/docs/nonblocking.html
+    @ui.bind_task_button(button_id="execute_in_sample")
+    @reactive.extended_task
+    async def ejecutar_in_sample_ascyn(click_count, mensaje, proceso):
+        # Llamamos al método de la clase para ejecutar el proceso
+        await modelo_in_sample.ejecutar_proceso_prueba(click_count, mensaje, proceso)
         
-        if not columnas_validas:
-            error_messages.append(f"Error en columnas: {par_vars_segmento}, no encontradas en el dataset.")
-        
-        # 5. Procesar los demás inputs solo si no hubo errores previos
-        if not error_messages:
+    ##Luego utilizo el input del id del boton para llamar ala funcion de arriba y que se ejecute con normalidad
+    @reactive.effect
+    @reactive.event(input.execute_in_sample, ignore_none=True)
+    def ejecutar_in_sample_button():
+        click_count_value = global_desarollo.click_counter.get()  # Obtener contador
+        mensaje_value = global_desarollo.mensaje.get()  # Obtener mensaje actual
+        proceso = global_desarollo.proceso.get()
+        validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
+
+        # Ejecutar las validaciones
+        validator.validate_project()
+        validator.validate_columns()
+        validator.validate_column_identifiers()
+        validator.validate_iv()
+        validator.validate_target_column()
+        validator.validate_training_split()
+
+        # Verificar si hay errores, ver si agrego una validacion
+        if validator.is_valid():
+            # Procesar los inputs
+            inputs_procesados = {key: transformacion(input[key]()) for key, transformacion in transformaciones.items()}
             rango_reportes = par_rango_reportes.data_view()
             reportesMap = transformar_reportes(rango_reportes)
-
             segmentos_editados = par_rango_segmentos.data_view()
             segmentosMap = transformar_segmentos(segmentos_editados)
-
             df_editado = par_rango_niveles.data_view()
             niveles_mapeados = transform_data(df_editado)
-            ##global session es el manejo de los usarios.
-            if global_session.proceso.get():
-                state = global_session.session_state.get()
-                if state["is_logged_in"]:
-                    user_id = state["id"]
-                    user_id_cleaned = user_id.replace('|', '_')
-            # Guardar los datos procesados en un archivo JSON
-                    load_handler = LoadJson(input, user_id_cleaned)
-                    load_handler.inputs['par_rango_niveles'] = niveles_mapeados
-                    load_handler.inputs['par_rango_segmentos'] = segmentosMap
-                    load_handler.inputs['par_rango_reportes'] = reportesMap
-                    load_handler.inputs['par_vars_segmento'] = par_vars_segmento
-                    load_handler.inputs.update(inputs_procesados)
 
-                    json_file_path = load_handler.loop_json()
-                    print(f"Inputs guardados en {json_file_path}, en {name_suffix}")
-                    ui.update_accordion("my_accordion", show=["in_sample"])
+            # Guardar los datos procesados
+            load_handler = LoadJson(input, global_session.get_id_user().replace('|', '_'))
+            load_handler.inputs.update(inputs_procesados)
+            load_handler.inputs['par_rango_niveles'] = niveles_mapeados
+            load_handler.inputs['par_rango_segmentos'] = segmentosMap
+            load_handler.inputs['par_rango_reportes'] = reportesMap
+            json_file_path = load_handler.loop_json()
+            print(f"Inputs guardados en {json_file_path}")
+            base_path_entrada= '/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_'
+            base_path_salida = '/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_'
+            
+            destino = os.path.join(base_path_entrada, f'{global_session.get_id_user()}', f'proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}',
+                       f'version_{global_session.get_id_version()}_{global_session.get_versiones_name()}',
+                       f'version_parametros_{global_session.get_version_parametros_id()}',
+                       f'{global_session.get_versiones_parametros_nombre()}')
+            
+            destino_salida = os.path.join(base_path_salida, f'{global_session.get_id_user()}', f'proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}',
+                       f'version_{global_session.get_id_version()}_{global_session.get_versiones_name()}',
+                       f'version_parametros_{global_session.get_version_parametros_id()}',
+                       f'{global_session.get_versiones_parametros_nombre()}')
+            
+            
+            global_session.set_path_niveles_scorcads(destino)
+            global_session.set_path_niveles_scorcads_salida(destino_salida)
+            copiar_json_si_existe(json_file_path, destino)
+            inputs_procesados = aplicar_transformaciones(input, transformaciones)
+            insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_desarrollo())
+            modelo_in_sample.script_path = f"./Validar_Desa.sh {global_session.get_path_niveles_scorcads()} {global_session.get_path_niveles_scorcads_salida}"
+            ejecutar_in_sample_ascyn(click_count_value, mensaje_value, proceso) #-->EJECUTO EL PROCESO ACA
+     
         else:
-            # Mostrar mensajes de error si existen
-            mensaje_de_error.set("\n".join(error_messages))
+            # Mostrar errores
+            mensaje_de_error.set("\n".join(validator.get_errors()))
             no_error.set(False)
+            mensaje.set("")
         
+    
     @output
     @render.ui
     def salida_error():

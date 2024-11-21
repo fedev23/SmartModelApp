@@ -21,6 +21,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     name_proyecto = reactive.Value(None)
     opciones_param = reactive.Value("")
     valor_predeterminado_parms = reactive.Value("")
+    boolean_check = reactive.Value(False)
     
 
     def see_session():
@@ -49,38 +50,51 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         selected_project_id = input.project_select()
         global_session.set_id_proyect(selected_project_id)
 
-        
         nombre_proyecto = obtener_nombre_proyecto_por_id(global_session.get_id_proyecto())
         global_session.set_name_proyecto(nombre_proyecto)
 
         # Obtiene las versiones del proyecto
         versiones = get_project_versions(global_session.get_id_proyecto())
 
-        version_options.set({str(version['version_id']): version['nombre_version']
-            for version in versiones}
-            if versiones else {"": "No hay versiones"}
-        )
-        
-        #nombre_version = versiones[0]['nombre_version']  # O cualquier lógica para seleccionar una versión
-        #global_session.set_versiones_name(nombre_version)
+        # Configura boolean_check según la presencia de versiones
+        if versiones:
+            boolean_check.set(True)
+            version_options.set({
+                str(version['version_id']): version['nombre_version']
+                for version in versiones
+            })
+        else:
+            boolean_check.set(False)
+            version_options.set({"": "No hay versiones"})
+
+        # Si hay versiones, establece el nombre de la primera versión como predeterminado
+        if boolean_check():
+            nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
+            global_session.set_versiones_name(nombre_version)
 
         # Obtiene los archivos relacionados con el proyecto
         files_name = get_records(global_session.get_id_proyecto())
-        nombre_file.set({str(file['id_files']): file['nombre_archivo']
-                        for file in files_name} if files_name else {"": "No hay archivos"})
-        
-        ##OBTENGO EL ULTIMO Y LAS OPCIONES PREDETERMINAS EN EL SELECCIONADOR DE PARAMETROS
+        nombre_file.set({
+            str(file['id_files']): file['nombre_archivo']
+            for file in files_name
+        } if files_name else {"": "No hay archivos"})
+
+        # Obtiene y configura las versiones de parámetros
         versiones_parametros = get_project_versions_param(global_session.get_id_proyecto())
-        opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version")) 
+        opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version"))
         valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
-        # Actualiza los selectores en la UI
-        data_Set = crear_carpeta_proyecto(user_get.get(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
+
+        # Crea el path para guardar datasets
+        data_Set = crear_carpeta_proyecto(
+            user_get.get(), global_session.get_id_proyecto(), global_session.get_name_proyecto()
+        )
         global_session.set_path_guardar_dataSet_en_proyectos(data_Set)
         
+        
+        # Actualiza los selectores en la UI
         ui.update_select("files_select", choices=nombre_file.get())
-        ui.update_select("other_select", choices=version_options.get()) 
-        ui.update_select("version_selector",choices=opciones_param.get(), selected=valor_predeterminado_parms.get())
-        #ui.update_select("select_file", choices=nombre_file.get())
+        ui.update_select("other_select", choices=version_options.get())
+        ui.update_select("version_selector", choices=opciones_param.get(), selected=valor_predeterminado_parms.get())
 
     @output
     @render.ui
@@ -94,6 +108,9 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         versiones_id = input.other_select()  # Captura el ID seleccionado
         print(versiones_id)
         global_session.set_id_version(versiones_id)
+        nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
+        global_session.set_versiones_name(nombre_version)
+        
 
     @output
     @render.ui
@@ -261,10 +278,8 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                 # Establecer el ID en el estado global para que lo puedan usar otros efectos
                 id_proyecto_Recien_Creado.set(proyect_id)
 
-                print(id_proyecto_Recien_Creado.get(), "VER DIFERENCIA CON GET ID")
                 global_session.set_proyecto_seleccionado_id(id_proyecto_Recien_Creado.get())
 
-                print(global_session.get_id_proyecto(), "este es el id del proyecto")
                  
                 # Actualiza el selector con los proyectos restantes
                 ui.update_select("project_select", choices={str(proj['id']): proj['name'] for proj in get_user_projects(user_get.get())}

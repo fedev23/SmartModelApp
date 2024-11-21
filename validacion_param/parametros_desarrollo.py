@@ -144,10 +144,6 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
     def error_proyecto():
         return mostrar_error(mensjae_error_proyecto.get())
           
-    @output
-    @render.text
-    def error():
-      return mostrar_error(mensaje.get())
                
     
    
@@ -158,7 +154,7 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
     @reactive.Effect
     def update_column_choices():
         # Load the DataFrame and get its columns
-        df = data_loader.getDataset()  # Ensure you're fetching the DataFrame from the data loader
+        df = global_session.get_data_set_reactivo()  # Ensure you're fetching the DataFrame from the data loader
 
         if isinstance(df, pd.DataFrame) and not df.empty:
             column_names = df.columns.tolist() 

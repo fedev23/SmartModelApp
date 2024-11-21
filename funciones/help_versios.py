@@ -1,3 +1,7 @@
+import os 
+import shutil
+
+
 def obtener_opciones_versiones(versiones, id, name):
     """
     Función que devuelve un diccionario con todas las versiones para el selector.
@@ -13,7 +17,7 @@ def obtener_opciones_versiones(versiones, id, name):
     if versiones:
         return {str(version[id]): version[name] for version in versiones}
     else:
-        return {"": "No hay versiones"}
+        return {"": "No hay versiones"}, False
 
 def obtener_ultimo_id_version(versiones, id):
     """
@@ -47,3 +51,37 @@ def obtener_ultimo_nombre_archivo(versiones):
         return str(versiones[-1].get('nombre_archivo', ''))
     else:
         return ""
+    
+    
+
+def copiar_json_si_existe(origen: str, destino: str, nombre_archivo: str = "Control de SmartModelStudio.json"):
+    """
+    Verifica si un archivo JSON existe en la carpeta de origen y lo copia a la carpeta de destino.
+    
+    Si la carpeta de destino no existe, no la creará, y si el archivo no se encuentra en la carpeta de origen,
+    no realizará ninguna acción y devolverá un mensaje de error.
+    
+    :param origen: Ruta de la carpeta donde se buscará el archivo.
+    :param destino: Ruta de la carpeta donde se copiará el archivo.
+    :param nombre_archivo: Nombre del archivo JSON a verificar (por defecto es "Control de SmartModelStudio.json").
+    :return: True si el archivo fue copiado correctamente, False si no se encontró el archivo.
+    """
+    archivo_origen = os.path.join(origen, nombre_archivo)
+    
+    # Verificar si el archivo existe en el origen
+    if os.path.exists(archivo_origen):
+        archivo_destino = os.path.join(destino, nombre_archivo)
+        
+        # Verificar si la carpeta destino existe. Si no, no se hará nada.
+        if not os.path.exists(destino):
+            print(f"Error: La carpeta de destino '{destino}' no existe.")
+            return False
+        
+        # Copiar el archivo al destino
+        shutil.copy(archivo_origen, archivo_destino)
+        print(f"El archivo '{nombre_archivo}' se ha copiado a '{destino}'.")
+        return True
+    else:
+        # Si el archivo no existe, mostrar el mensaje de error
+        print(f"Error: El archivo '{nombre_archivo}' no existe en '{origen}'.")
+        return False

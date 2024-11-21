@@ -16,6 +16,9 @@ class GlobalSession:
         self.versiones_name = reactive.Value(None)
         self.version_parametros_id = reactive.Value(None)
         self.data_set_reactivo = reactive.Value(None)
+        self.versiones_parametros_nombre =  reactive.Value(None)
+        self.path_niveles_scorcads = reactive.Value(None)
+        self.path_niveles_scorcads_salida =  reactive.Value(None)
         
         
     def actualizar_directorio(self, nuevo_directorio):
@@ -95,7 +98,32 @@ class GlobalSession:
         self.data_set_reactivo.set(data)
     
     def get_data_set_reactivo(self):
-        return self.data_set_reactivo.get()   
+        return self.data_set_reactivo.get()  
+    
+    
+    def set_versiones_parametros_nombre(self, name):
+        self.versiones_parametros_nombre.set(name)
+    
+    def get_versiones_parametros_nombre(self):
+        return self.versiones_parametros_nombre.get()   
+    
+    def set_path_niveles_scorcads(self, path):
+        self.path_niveles_scorcads.set(path)
+    
+    def get_path_niveles_scorcads(self):
+        return self.path_niveles_scorcads.get()   
+    
+    def set_path_niveles_scorcads_salida(self, path):
+        self.path_niveles_scorcads_salida.set(path)
+    
+    def get_path_niveles_scorcads_salida(self):
+        return self.path_niveles_scorcads_salida.get()   
+    
+    
+    
+    
+    
+    
     
     
   

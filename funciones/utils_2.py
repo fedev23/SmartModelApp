@@ -255,3 +255,11 @@ def render_data_summary(data):
             select_number_data_set = int(global_estados.get_numero_dataset())
             # Devuelve un resumen de los primeros 5 registros
             return pd.DataFrame(data.head(select_number_data_set))
+        
+        
+def aplicar_transformaciones(input, transformaciones):
+    inputs_procesados = {}
+    for key, transformacion in transformaciones.items():
+        # Aplica la transformación a cada input
+        inputs_procesados[key] = transformacion(input[key]())
+    return inputs_procesados
