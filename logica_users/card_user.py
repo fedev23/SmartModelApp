@@ -36,6 +36,7 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                                 "+ Crear Proyecto",
                                 class_="btn btn-dark ml-3"
                             ),
+                            ui.output_ui("project_card_container"),
                             class_="d-flex align-items-center gap-3 mb-3"
                         )
                     ),
@@ -54,6 +55,7 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                                 "+ Crear Versión",
                                 class_="btn btn-dark ml-3"
                             ),
+                            ui.output_ui("button_remove_versions"), 
                             class_="d-flex align-items-center gap-3 mb-3"
                         )
                     ),
@@ -77,10 +79,10 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                                 ),
 
                             ),
-                                                            
+                            ui.output_ui("remove_dataset"),                  
                             class_="file-input-container d-flex align-items-center gap-3 mb-3"
                         ),
-                        ui.output_ui("remove_dataset"),
+                        
                     )
                 )
             )

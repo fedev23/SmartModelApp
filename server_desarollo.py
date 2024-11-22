@@ -18,9 +18,7 @@ from clases.global_session import *
 from clases.class_validacion import Validator
 from clases.loadJson import LoadJson
 from logica_users.var_globales_paths import base_path_entrada, base_path_salida
-import os
-
-
+from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
 
 def server_desarollo(input, output, session, name_suffix):
     directorio_desarollo = reactive.value("")
@@ -178,19 +176,17 @@ def server_desarollo(input, output, session, name_suffix):
             if state["is_logged_in"]:
                 user_id = state["id"]
                 user_id_cleaned = user_id.replace('|', '_')
-
                 json_loader = LoadJson(user_id_cleaned, input) 
                 json_loader.inputs.update(inputs_procesados)
                 json_file_path = json_loader.loop_json()
                 print(f"Inputs guardados en {json_file_path}")
-                #CREO EL PATH DONDE SE VA A EJECUTAR DESARROLLO DEPENDIENDO DEL PROYECYO Y LA VERSION QUE ESTE EN USO
-                print(global_session.get_id_user(), "ESTOY EN EL USER ID LRPM")
-                base_path = base_path_entrada.rstrip(os.sep)
                 path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+                path_datos_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
                 
-                path_datos_salida = path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
-                
-                
+                #CREO EL PATH DONDE SE VA A EJECUTAR DESARROLLO DEPENDIENDO DEL PROYECYO Y LA VERSION QUE ESTE EN USO
+                ##necesito tener el nombre del dataset seleccionado asi le cambio el nombre y lo
+                mover = mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), global_session.get_path_guardar_dataSet_en_proyectos(), name_suffix, path_datos_entrada)
+                print(f"resultados sobre mover {mover}")
                 global_desarollo.script_path = f'./Modelar.sh "{path_datos_entrada}" {path_datos_salida}'
                 ejectutar_desarrollo_asnyc(click_count_value, mensaje_value, proceso)
 

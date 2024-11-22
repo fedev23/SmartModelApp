@@ -10,6 +10,7 @@ from api.db import *
 from clases.global_reactives import global_estados
 from clases.reactives_name import *
 from datetime import datetime
+from funciones.cargar_archivosNEW import cargar_archivos
 
 class ScreenClass():
     def __init__(self, directorio, name_suffix):
@@ -98,7 +99,7 @@ class ScreenClass():
                 self.mensaje_Error.set("\n".join(self.error_messages))
             else:
                 # Obtener delimitador y cargar datos
-                await self.data_loader.cargar_archivos(file_info, self.directorio)
+                #cargar_archivos(file_info, self.directorio)
                 self.error_messages.clear()  # Limpiar errores después de la carga exitosa
                 self.proceso_a_completado.set(True)
                 return nombre_archivo
