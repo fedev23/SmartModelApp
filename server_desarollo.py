@@ -184,14 +184,14 @@ def server_desarollo(input, output, session, name_suffix):
                 json_file_path = json_loader.loop_json()
                 print(f"Inputs guardados en {json_file_path}")
                 #CREO EL PATH DONDE SE VA A EJECUTAR DESARROLLO DEPENDIENDO DEL PROYECYO Y LA VERSION QUE ESTE EN USO
-                path_datos_entrada = os.path.join(base_path_entrada, f'{global_session.get_id_user()}', f'proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}',
-                       f'version_{global_session.get_id_version()}_{global_session.get_versiones_name()}')
+                print(global_session.get_id_user(), "ESTOY EN EL USER ID LRPM")
+                base_path = base_path_entrada.rstrip(os.sep)
+                path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
                 
-                print(path_datos_entrada, "CHECK PATH!!!!!!!!!!!!!!!!")
-                path_datos_salida = os.path.join(base_path_salida, f'{global_session.get_id_user()}', f'proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}',
-                       f'version_{global_session.get_id_version()}_{global_session.get_versiones_name()}')
+                path_datos_salida = path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
                 
-                global_desarollo.script_path = f"./Modelar.sh {path_datos_entrada} {path_datos_salida}"
+                
+                global_desarollo.script_path = f'./Modelar.sh "{path_datos_entrada}" {path_datos_salida}'
                 ejectutar_desarrollo_asnyc(click_count_value, mensaje_value, proceso)
 
             

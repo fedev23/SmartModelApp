@@ -16,15 +16,7 @@ from screens.screen_desarollo import screenDesarollo
 screen_User = ui.page_fluid(
     ui.tags.button("SmartModeling", class_="logo-button"),
     ui.output_ui("create_user_menu"),
-    ui.tags.div(
-            ui.card(
-                    ui.output_ui("devolver_acordeon"),
-                ),
-            
-            
-        id="module_container",
-    ),
-    ui.output_ui("create_sidebar"),
+    #ui.output_ui("create_sidebar"),
     ui.output_ui("despligue_menu"),
     ui.navset_card_tab(  # Usa un contenedor de navegación adecuado
         ui.nav_panel(f"{global_name_desarrollo}", screenDesarollo),

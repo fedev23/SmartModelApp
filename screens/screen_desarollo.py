@@ -22,7 +22,16 @@ data_loader = global_data_loader_manager.get_loader(name_suffix)
 # Página principal de desarrollo
 screenDesarollo = ui.page_fluid(
     # Selección de columnas de dataset
+    
     ui.div(
+        ui.tags.div(
+            ui.card(
+                    ui.output_ui("devolver_acordeon"),
+                ),
+            
+            
+        id="module_container",
+    ),
         ui.tags.div(ui.column(12, ui.input_select(
             "number_choice",
             "Selecciona un número de columnas de dataset",

@@ -649,8 +649,30 @@ background: #0a0a0a;
     mix-blend-mode: difference; /* Cambia el color del botón basado en el fondo */
   }
 
+/* Alineación y tamaño del botón "+" */
+.custom-btn-file .btn {
+    height: 2.5rem; /* Ajustar altura */
+    line-height: 1.2rem; /* Ajustar la línea interna */
+    padding: 0 10px; /* Espaciado interno reducido */
+    font-size: 14px; /* Tamaño de la fuente */
+}
 
 
 
 
+.custom-btn-size {
+    max-width: 50px; /* Tamaño máximo del botón */
+}
 
+  .custom-alignment > * {
+    margin: 0 8px; /* Espaciado horizontal uniforme */
+}
+
+.custom-alignment .btn {
+    height: calc(100% + 10px); /* Ajusta la altura del botón */
+    line-height: normal;       /* Centrado del texto en el botón */
+}
+
+.custom-alignment .form-select {
+    vertical-align: middle;    /* Alineación vertical del seleccionador */
+}
