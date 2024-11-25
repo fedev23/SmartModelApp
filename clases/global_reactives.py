@@ -10,6 +10,7 @@ class Reactividad:
         self.fecha_produccion = reactive.Value(None)
         self.numero_de_dataset =  reactive.Value()
         self._delimitador = None
+        self.mensaje_por_defecto = reactive.Value()
 
     def set_process_desarrollo(self, proceso):
         # Actualiza el valor de fechaHora usando el método set()
@@ -44,6 +45,14 @@ class Reactividad:
 
     def get_delimitador(self):
         return self._delimitador
+    
+    def set_mensaje_por_defecto(self, mensaje):
+        self.mensaje_por_defecto = mensaje
+
+    def get_mensaje_por_defecto(self):
+        return self.mensaje_por_defecto
+    
+    
     
 
 global_estados = Reactividad()

@@ -466,3 +466,37 @@ def   get_project_versions_param(project_id):
     finally:
         # Cerrar la conexión
         conn.close()
+        
+        
+   
+def obtener_valor_por_id_versiones(id_files , base_datos='Modeling_App.db'):
+    
+        conn = sqlite3.connect(base_datos)
+        
+        try:
+            cursor = conn.cursor()
+            
+            # Consulta para obtener el nombre del archivo por project_id
+            query = """
+            SELECT nombre_version 
+            FROM json_versions 
+            WHERE id_jsons  = ?
+            """
+            cursor.execute(query, (id_files ,))
+            
+            # Obtener el resultado
+            resultado = cursor.fetchone()
+            
+            # Verificar si se encontró un archivo
+            if resultado:
+                return resultado[0]  # Devolver el nombre del archivo
+            else:
+                return None  # Si no se encontró, retornar None
+
+        except sqlite3.Error as e:
+            print(f"Error al acceder a la base de datos: {e}")
+            return None
+
+        finally:
+            # Cerrar la conexión
+            conn.close()

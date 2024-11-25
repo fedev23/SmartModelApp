@@ -18,7 +18,7 @@ from clases.global_modelo import modelo_in_sample
 from clases.global_modelo import global_desarollo
 from funciones.help_versios import copiar_json_si_existe
 import os
-
+from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
 
 ejemplo_niveles_riesgo = pd.DataFrame({
     "Nombre Nivel": ["BajoBajo", "BajoMedio", "BajoAlto", "MedioBajo", "MedioMedio", "Alto"],
@@ -156,10 +156,11 @@ def server_in_sample(input, output, session, name_suffix):
             load_handler.inputs['par_rango_reportes'] = reportesMap
             json_file_path = load_handler.loop_json()
             print(f"Inputs guardados en {json_file_path}")
+            
+            
             base_path_entrada= '/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_'
             base_path_salida = '/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_'
-            
-            destino = os.path.join(f'{base_path_entrada}',f'{global_session.get_id_user()}', f'proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}',
+            destino = os.path.join(base_path_entrada, f'{global_session.get_id_user()}', f'proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}',
                        f'version_{global_session.get_id_version()}_{global_session.get_versiones_name()}',
                        f'version_parametros_{global_session.get_version_parametros_id()}',
                        f'{global_session.get_versiones_parametros_nombre()}')
@@ -175,7 +176,8 @@ def server_in_sample(input, output, session, name_suffix):
             copiar_json_si_existe(json_file_path, destino)
             inputs_procesados = aplicar_transformaciones(input, transformaciones)
             insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_desarrollo())
-            ##PATH DONDE SE EJECUTA EL SCRIPT Y LAS CARPETAS QUE CORRESPONDEN AL USARIO, PROYECT, VERSION ACTUAL O EN USO
+            ##PATH DONDE SE EJECUTA EL SCRIPT Y LAS CARPETAS QUE CORRESPONDEN AL USARIO, PROYECT, VERSION ACTUAL O EN
+            mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), global_session.get_path_guardar_dataSet_en_proyectos(), name_suffix, base_path_entrada)
             modelo_in_sample.script_path = f"./Validar_Desa.sh {global_session.get_path_niveles_scorcads()} {global_session.get_path_niveles_scorcads_salida}"
             ejecutar_in_sample_ascyn(click_count_value, mensaje_value, proceso) #-->EJECUTO EL PROCESO ACA
      

@@ -19,6 +19,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
     id_versiones_params = reactive.Value(None)
     opciones_param = reactive.Value(None)
     valor_predeterminado_parms = reactive.Value(None)
+    nombre_version_seleccionador = reactive.Value(None)
     
 
     @reactive.effect
@@ -34,13 +35,14 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
         global_session.get_id_proyecto(), global_session.get_id_version(), name)
         global_session.set_version_parametros_id(add)
         id_versiones_params.set(add)
+        nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
         crear_carpeta_version_parametros(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_version_parametros_id(), name, global_session.get_name_proyecto(), global_session.get_versiones_name())
 
         ##ACTUALIZO ACA TAMBIEN EL SELECTOR YA QUE SI LO HAGO ACA CUANDO PONEN CONTINUAR LE DA LA ULT VERSION
         versiones_parametros = get_project_versions_param(global_session.get_id_proyecto())
         opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version")) 
         valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
-
+        
         ui.update_select("version_selector",choices=opciones_param.get(), selected=valor_predeterminado_parms.get())
         
         ui.modal_remove()
@@ -57,12 +59,12 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
         versiones_id = input.version_selector()
         id_versiones_params.set(versiones_id)
         global_session.set_version_parametros_id(id_versiones_params.get())
-        print(id_versiones_params.get(), "ESTOY EN VER")
         versiones = get_project_versions_param(global_session.get_id_proyecto())
         if versiones:
-            if opciones_param.get() is not False:
+            if opciones_param.get() is  None:
                 nombre_version = versiones[0]['nombre_version']
-                global_session.set_versiones_parametros_nombre(nombre_version)
+                print(nombre_version)
+                global_session.set_versiones_parametros_nombre(obtener_valor_por_id_versiones(global_session.get_version_parametros_id()))
             
         
         
