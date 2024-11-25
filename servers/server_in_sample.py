@@ -19,6 +19,7 @@ from clases.global_modelo import global_desarollo
 from funciones.help_versios import copiar_json_si_existe
 import os
 from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
+from funciones.utils import mover_file_reportes_puntoZip
 
 ejemplo_niveles_riesgo = pd.DataFrame({
     "Nombre Nivel": ["BajoBajo", "BajoMedio", "BajoAlto", "MedioBajo", "MedioMedio", "Alto"],
@@ -160,6 +161,7 @@ def server_in_sample(input, output, session, name_suffix):
             
             base_path_entrada= '/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_'
             base_path_salida = '/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_'
+            
             destino = os.path.join(base_path_entrada, f'{global_session.get_id_user()}', f'proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}',
                        f'version_{global_session.get_id_version()}_{global_session.get_versiones_name()}',
                        f'version_parametros_{global_session.get_version_parametros_id()}',
@@ -173,7 +175,12 @@ def server_in_sample(input, output, session, name_suffix):
             
             global_session.set_path_niveles_scorcads(destino)
             global_session.set_path_niveles_scorcads_salida(destino_salida)
+            
             copiar_json_si_existe(json_file_path, destino)
+            origen_modelo_puntoZip =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/Reportes'
+            destino_modelo_puntoZip = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+            ##MUEVO EL MODELO .ZIP QUE GENERO DESARROLO PARA QUE PUEDA SER USADO, ESTO DEBERIA SER USANDO EN TODAS LAS ISTANCIAS DE LOS MODELOS
+            mover_file_reportes_puntoZip(origen_modelo_puntoZip,destino_modelo_puntoZip )
             inputs_procesados = aplicar_transformaciones(input, transformaciones)
             insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_desarrollo())
             ##PATH DONDE SE EJECUTA EL SCRIPT Y LAS CARPETAS QUE CORRESPONDEN AL USARIO, PROYECT, VERSION ACTUAL O EN

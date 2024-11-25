@@ -65,7 +65,7 @@ cur.execute('''
         ''')
 
 cur.execute('''
-        CREATE TABLE json_versions (
+        CREATE TABLE IF NOT EXISTS json_versions (
             id_jsons INTEGER PRIMARY KEY AUTOINCREMENT,
             nombre_version TEXT NOT NULL,
             fecha_de_carga TEXT NOT NULL,
@@ -76,6 +76,17 @@ cur.execute('''
         );
     ''')
 
+cur.execute('''
+        CREATE TABLE IF NOT EXISTS  validation_scoring (
+            id_validacion_sc INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre_archivo_validation_sc TEXT NOT NULL,
+            fecha_de_carga TEXT NOT NULL,
+            project_id INTEGER,
+            version_id INTEGER,
+            FOREIGN KEY (project_id) REFERENCES project(id),
+            FOREIGN KEY (version_id) REFERENCES version(version_id)
+        );
+    ''')
 
 
 def recreate_json_versions_table():

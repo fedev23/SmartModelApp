@@ -23,6 +23,8 @@ def server_produccion(input, output, session, name_suffix):
     global_names_reactivos.name_produccion_set(name_suffix)
     mensaje = reactive.Value("")
     directorio = reactive.Value("")
+    validadacion_retornar_card = reactive.Value(True)
+    reactivo_dinamico =  reactive.Value("")
     
 
     @output
@@ -77,7 +79,6 @@ def server_produccion(input, output, session, name_suffix):
 
         # 3. Continuar si ambas validaciones anteriores pasan
         if screen_instance.get().proceso_a_completado.get():
-            create_navigation_handler(f'load_param_{name_suffix}', 'Screen_3')
             ui.update_accordion("my_accordion", show=["produccion"])
 
     @output
@@ -98,15 +99,32 @@ def server_produccion(input, output, session, name_suffix):
         return ui.TagList()
 
     # estoy usando la clase para la creacion de modelos aca, lueog veo si adapto todas o las dejo en modelo
+    
+    @reactive.Effect
+    @reactive.event(input.radio_models)
+    def seleccionador_de_radio_button():
+        input_radio = input.radio_models()
+        reactivo_dinamico.set(input_radio)
+            
 
     @output
     @render.ui
     def card_produccion1():
-        return retornar_card(
-            get_file_name=global_name_manager.get_file_name_produccion,
-            #get_fecha=global_fecha.get_fecha_produccion,
-            modelo=modelo_produccion
-        )
+        if  reactivo_dinamico.get() == "2":
+            return retornar_card(
+                get_file_name=global_name_manager.get_file_name_produccion,
+                #get_fecha=global_fecha.get_fecha_produccion,
+                modelo=modelo_produccion
+            )
+    
+    @output
+    @render.ui
+    def seleccionador_target():
+        if  reactivo_dinamico.get() == "2":
+            return  ui.card(
+            ui.input_selectize("selectize_columnas_target", "", 
+                                choices=[],  multiple=False, options={"placeholder": "seleccionar columna target."}) 
+            ),
 
     @output
     @render.text
@@ -132,26 +150,5 @@ def server_produccion(input, output, session, name_suffix):
         ejectutar_produccion(click_count_value, mensaje_value, proceso)
         insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_produccion())
         
-        
-
-    def create_navigation_handler(input_id, screen_name):
-        @reactive.Effect
-        @reactive.event(input[input_id])
-        async def navigate():
-            await session.send_custom_message('navigate', screen_name)
-
-    @reactive.Effect
-    @reactive.event(input[f'open_html_{modelo_produccion.nombre}'])
-    def enviar_result():
-        create_navigation_handler(
-            f'open_html_{modelo_produccion.nombre}', 'Screen_Resultados')
-        ui.update_accordion("my_accordion", show=["produccion"])
-
-    create_navigation_handler('start_produccion', 'Screen_User')
-    create_navigation_handler('screen_in_sample_produccion', 'screen_in_sample')
-    create_navigation_handler('screen_Desarollo_produccion', 'Screen_Desarollo')
-    create_navigation_handler('load_Validacion_produccion', 'Screen_valid')
-    create_navigation_handler('screen_Produccion_produccion', 'Screen_Porduccion')
-    create_navigation_handler('ir_modelos_produccion', 'Screen_3')
-    create_navigation_handler("ir_result_produccion", "Screen_Resultados")
-    create_navigation_handler("volver_produccion", "Screen_User")
+   
+  

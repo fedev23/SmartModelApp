@@ -10,6 +10,7 @@ from clases.global_session import global_session
 from api.db import *
 from clases.global_name import global_name_manager
 from clases.reactives_name import global_names_reactivos
+from funciones.utils import retornar_card
 
 
 
@@ -22,6 +23,7 @@ def server_out_of_sample(input, output, session, name_suffix):
     name = "Out-Of-Sample"
     global_names_reactivos.name_validacion_of_to_sample_set(name_suffix)
     data_loader = global_data_loader_manager.get_loader(name_suffix)
+    validadacion_retornar_card = reactive.Value("")
     
 
     # Instanciamos la clase ScreenClass
@@ -79,7 +81,7 @@ def server_out_of_sample(input, output, session, name_suffix):
 
         # 3. Continuar si ambas validaciones anteriores pasan
         if screen_instance.get().proceso_a_completado.get():
-            create_navigation_handler(f'load_param_{name_suffix}', 'Screen_3')
+            #create_navigation_handler(f'load_param_{name_suffix}', 'Screen_3')
             ui.update_accordion("my_accordion", show=["out_to_sample"])
 
 
@@ -92,14 +94,6 @@ def server_out_of_sample(input, output, session, name_suffix):
     @render.data_frame
     def summary_data_validacion_out_to_sample():
         return screen_instance.get().render_data_summary()
-
-    @output
-    @render.ui
-    def mostrarOut():
-        if proceso_a_completado.get():
-            print("entre")
-            return ui.input_action_button("ir_ejecucion_validacion_out_to", "Ir a ejecución")
-        return ui.TagList()
 
     # retorno funcion de parametros
     @output
@@ -126,29 +120,36 @@ def server_out_of_sample(input, output, session, name_suffix):
         ejecutar_of_to_sample(click_count_value, mensaje_value, proceso)
         insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_validacion())
         
+        
     @reactive.Effect
     @reactive.event(input[f'open_html_{modelo_of_sample.nombre}'])
     def enviar_result():
-        create_navigation_handler(f'open_html_{modelo_of_sample.nombre}', 'Screen_Resultados')
         ui.update_navs("Resultados_nav", selected="out_to_sample",)
         
+    ##ESTA PARTE VA ESAR DEDICADA A LA LOGICA DE SI EN LA SCREEN SELCCIONO  out_to_sample MANEJARLA ADECUADAMENTE
     
-
-    def create_navigation_handler(input_id, screen_name):
-        @reactive.Effect
-        @reactive.event(input[input_id])
-        async def navigate():
-            await session.send_custom_message('navigate', screen_name)
-
-    create_navigation_handler('start_validacion_', 'Screen_User')
-    create_navigation_handler(
-        'screen_in_sample_validacion', 'screen_in_sample')
-    create_navigation_handler(
-        'screen_Desarollo_validacion', 'Screen_Desarollo')
-    create_navigation_handler(
-        'load_Validacion_out_to_validacion', 'Screen_valid')
-    create_navigation_handler(
-        'screen_Produccion_validacion', 'Screen_Porduccion')
-    create_navigation_handler('ir_modelos_validacion', 'Screen_3')
-    create_navigation_handler("ir_result_validacion", "Screen_Resultados")
-    create_navigation_handler("volver_validacion", "Screen_User")
+    
+    @reactive.Effect
+    @reactive.event(input.radio_models)
+    def seleccionador_de_radio_button():
+        input_radio = input.radio_models()
+        validadacion_retornar_card.set(input_radio)
+        
+        
+    @output
+    @render.ui
+    def card_out_to_sample():
+        if validadacion_retornar_card.get()== "1":
+            return  retornar_card(
+            get_file_name=global_name_manager.get_file_name_validacion(),
+            #get_fecha=global_fecha.get_fecha_of_to_Sample,
+            modelo=modelo_of_sample)
+        else:
+              return ui.div()
+            
+    
+    
+    @output
+    @render.text
+    def mensaje_of_sample():
+        return modelo_of_sample.mostrar_mensaje()

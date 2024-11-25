@@ -1,7 +1,7 @@
 
 from shiny import reactive, render, ui
-from funciones.utils import  mover_files
-import subprocess
+from funciones.utils import  mover_file_reportes_puntoZip
+from clases.global_session import *
 import datetime
 import asyncio
 import traceback
@@ -86,10 +86,12 @@ class ModeloProceso:
                 else:
                     self.mensaje.set(f"Ejecución completada con éxito.")
                     self.proceso.set(True)
-                    #origen = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida'
-                    #salida = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada'
-                    #mover = mover_files(origen, salida)
-                    #print("movi a", mover)
+                    origen_modelo_puntoZip =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/Reportes'
+                    destino_modelo_puntoZip = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+                    ##MUEVO EL MODELO .ZIP QUE GENERO DESARROLO PARA QUE PUEDA SER USADO, ESTO DEBERIA SER USANDO EN TODAS LAS ISTANCIAS DE LOS MODELOS
+                    movi = mover_file_reportes_puntoZip(origen_modelo_puntoZip,destino_modelo_puntoZip )
+                    print (f"movi .zip a {movi}")
+                    
                     
 
                 return stdout, stderr 

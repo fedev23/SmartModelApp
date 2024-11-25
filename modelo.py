@@ -26,7 +26,7 @@ def server_modelos(input, output, session, name_suffix):
                     print(user)
                     user_id_cleaned = user_id.replace('|', '_')
                     #directorio_desarollo.set(user)
-                    modelo_in_sample.script_path = f"./Validar_Desa.sh datos_entrada_{user_id_cleaned} datos_salida_{user_id_cleaned}"
+                    #modelo_in_sample.script_path = f"./Validar_Desa.sh datos_entrada_{user_id_cleaned} datos_salida_{user_id_cleaned}"
     
     
     see_session()
@@ -116,14 +116,7 @@ def server_modelos(input, output, session, name_suffix):
         
     
       ##Retorna la tarjeta del accordeon Y modelo_out_to_sample
-    @output
-    @render.ui
-    def card_out_to_sample():
-        return  retornar_card(
-        get_file_name=global_name_manager.get_file_name_validacion,
-        #get_fecha=global_fecha.get_fecha_of_to_Sample,
-        modelo=modelo_of_sample)
-
+    
  
     @output
     @render.text
@@ -133,17 +126,3 @@ def server_modelos(input, output, session, name_suffix):
         
         
     ##las demas instancias estan el cada servidor por un tema de prueba, luego vere si las dejo ahi o si las traigo aca
-    
-    create_navigation_handler('start_modelo', 'Screen_User')
-    create_navigation_handler('screen_in_sample_modelo', 'screen_in_sample')
-    create_navigation_handler('screen_Desarollo_modelo', 'Screen_Desarollo')
-    create_navigation_handler('load_Validacion_modelo', 'Screen_valid')
-    create_navigation_handler('screen_Produccion_modelo', 'Screen_Porduccion')
-    create_navigation_handler("ir_modelos_modelo", "screen_3")
-    create_navigation_handler("ir_result_modelo", "Screen_Resultados")
-    create_navigation_handler("volver_modelo", "Screen_User")
-     
-
- 
-    
-   

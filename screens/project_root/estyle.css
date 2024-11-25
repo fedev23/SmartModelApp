@@ -676,3 +676,19 @@ background: #0a0a0a;
 .custom-alignment .form-select {
     vertical-align: middle;    /* Alineación vertical del seleccionador */
 }
+
+
+.file-alignment {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espaciado horizontal entre los elementos */
+}
+
+.file-alignment .form-control {
+    margin-bottom: 0; /* Asegura que no haya márgenes no deseados */
+}
+
+.file-alignment input,
+.file-alignment select {
+    height: 2.5rem; /* Asegura que ambos tengan la misma altura */
+}

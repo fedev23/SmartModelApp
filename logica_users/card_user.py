@@ -43,6 +43,7 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                     # Seleccionador 2 y botón Crear Versión
                     ui.column(
                         12,
+                        #ui.row(
                         ui.div(
                             ui.input_select(
                                 "other_select",
@@ -58,6 +59,7 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                             ui.output_ui("button_remove_versions"), 
                             class_="d-flex align-items-center gap-3 mb-3"
                         )
+                       
                     ),
                     # Seleccionador de Archivos y InputFile alineados correctamente
                     ui.column(

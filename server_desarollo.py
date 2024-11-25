@@ -3,7 +3,7 @@ from funciones.create_param import create_screen
 from clases.global_modelo import global_desarollo
 from funciones.create_nav_menu import create_nav_menu
 from clases.class_screens import ScreenClass
-from funciones.utils import retornar_card, mover_files
+from funciones.utils import retornar_card, mover_file_reportes_puntoZip
 from clases.class_user_proyectName import global_user_proyecto
 from funciones.utils import create_modal_parametros, id_buttons_desa
 from clases.global_session import global_session
