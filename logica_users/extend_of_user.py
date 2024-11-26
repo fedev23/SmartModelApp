@@ -73,7 +73,7 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     @reactive.Effect
     @reactive.event(input["cancelar_id_dataSet"])
     def remove_modal_Dataset():
-     ui.remove()
+      ui.modal_remove()   
      
      
     @reactive.Effect

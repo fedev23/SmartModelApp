@@ -19,6 +19,7 @@ from clases.global_sessionV2 import *
 from funciones.utils_2 import leer_dataset
 from funciones.validacionY_Scoring.create_card import crate_file_input_y_seleccionador
 import pandas as pd
+from funciones.funciones_user import button_remove, create_modal_v2
 
 
 def server_out_of_sample(input, output, session, name_suffix):
@@ -34,6 +35,7 @@ def server_out_of_sample(input, output, session, name_suffix):
     data_predeterminado = reactive.Value("")
     files_name  = reactive.Value("")
     lista = reactive.Value("")
+    
     
 
     # Instanciamos la clase ScreenClass
@@ -157,8 +159,55 @@ def server_out_of_sample(input, output, session, name_suffix):
         data = leer_dataset(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), dataSet_predeterminado_parms.get())
         global_session_V2.set_data_set_reactivo_validacion_sc(data)
         ##actualizo el selector de columna target
-        
-        
+    
+    
+    ##BOTON PARA REMOVER DATASET
+    
+    @output
+    @render.ui
+    def remove_dataset_data_alidacionSC():
+        lista_2_borrar = (get_records(table='validation_scoring',
+            columns=['id_validacion_sc', 'nombre_archivo_validation_sc', 'fecha_de_carga'],
+            where_clause='project_id = ?',
+            where_params=(global_session.get_id_proyecto(),)))
+        #name.set(global_names_reactivos.get_name_file_db())
+        #print(lista_2_borrar, "estoy en lista dos de borrar")
+        return button_remove(lista_2_borrar, global_session_V2.get_id_Data_validacion_sc(), "id_validacion_sc", name_suffix)
+    
+    @reactive.Effect
+    def boton_para_eliminar_name_data_set_validacion_sc():
+        eliminar_version_id = f"eliminar_version_{global_session_V2.get_id_Data_validacion_sc()}_{name_suffix}"
+
+        @reactive.Effect
+        @reactive.event(input[eliminar_version_id])
+        def eliminar_version_id():
+            base_datos = 'Modeling_App.db'
+            tabla = 'validation_scoring'
+            columna_objetivo = 'nombre_archivo_validation_sc'
+            columna_filtro = 'id_validacion_sc'
+            nombre_version = obtener_valor_por_id(base_datos, tabla, columna_objetivo, columna_filtro, global_session_V2.get_id_Data_validacion_sc())
+            #nombre_version = obtener_valor_por_id(global_session.get_id_dataSet())
+            create_modal_v2(f"Seguro que quieres eliminar el Dataset {nombre_version}?", "Confirmar", "Cancelar", "confirmar_id_borrar_dataset_validacion_Sc", "cancelar_id_dataSet_validacion_Sc")
+    
+    @reactive.Effect
+    @reactive.event(input["confirmar_id_borrar_dataset_validacion_Sc"])
+    def remove_modal_Dataset():
+        ui.modal_remove()     
+     
+     
+    @reactive.Effect
+    @reactive.event(input.confirmar_id_borrar_dataset_validacion_Sc)
+    def remove_versiones_de_parametros():
+        eliminar_version("validation_scoring", "id_validacion_sc", global_session_V2.get_id_Data_validacion_sc())
+        columnas = ['id_validacion_sc', 'nombre_archivo_validation_sc']
+        lista_de_versiones_new = obtener_versiones_por_proyecto(global_session.get_id_proyecto(), columnas, "validation_scoring", "project_id")
+        lista.set(lista_de_versiones_new)
+        ui.update_select(
+            "files_select_validation_scoring",
+            choices={str(vers['id_validacion_sc']): vers['nombre_archivo_validation_sc']
+                     for vers in lista_de_versiones_new}
+        )
+        ui.modal_remove()   
   
 
     @reactive.Effect

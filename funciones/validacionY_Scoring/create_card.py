@@ -31,6 +31,7 @@ def crate_file_input_y_seleccionador():
                         width="50%"
                     ),
                     # ui.output_ui("remove_dataset"),
+                    ui.output_ui("remove_dataset_data_alidacionSC"),
                     class_="file-input-container d-flex align-items-center gap-3 mb-3"
                 ),
 
