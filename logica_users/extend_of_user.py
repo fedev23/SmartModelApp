@@ -26,8 +26,8 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
         columna_objetivo = 'nombre_archivo'
         columna_filtro = 'id_files'
         nombre_file = obtener_valor_por_id(base_datos, tabla, columna_objetivo, columna_filtro, global_session.get_id_dataSet())
-        #nombre_file = obtener_valor_por_id(global_session.get_id_dataSet())
         
+        ##OBTENGO LOS VALORES ASOCIADOS A LA TABALA
         list = get_records(table='name_files',
             columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
             where_clause='project_id = ?',
@@ -46,7 +46,7 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     @output
     @render.ui
     def remove_dataset():
-        list.set( get_records(table='name_files',
+        list.set(get_records(table='name_files',
             columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
             where_clause='project_id = ?',
             where_params=(global_session.get_id_proyecto(),)))
@@ -61,7 +61,12 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
         @reactive.Effect
         @reactive.event(input[eliminar_version_id])
         def eliminar_version_id():
-            nombre_version = obtener_valor_por_id(global_session.get_id_dataSet())
+            base_datos = 'Modeling_App.db'
+            tabla = 'name_files'
+            columna_objetivo = 'nombre_archivo'
+            columna_filtro = 'id_files'
+            nombre_version = obtener_valor_por_id(base_datos, tabla, columna_objetivo, columna_filtro, global_session.get_id_dataSet())
+            #nombre_version = obtener_valor_por_id(global_session.get_id_dataSet())
             create_modal_v2(f"Seguro que quieres eliminar el Dataset {nombre_version}?", "Confirmar", "Cancelar", "confirmar_id_borrar_dataset", "cancelar_id_dataSet")
     
     

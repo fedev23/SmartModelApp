@@ -2,7 +2,7 @@ from shiny import reactive, render, ui
 import pandas as pd
 from api.db import *
 from global_var import global_data_loader_manager  # Importar el gestor global
-from funciones.create_param import create_screen
+from clases.global_sessionV2 import global_session_V2
 from clases.global_name import global_name_manager
 from clases.global_modelo import modelo_produccion
 from funciones.create_nav_menu import create_nav_menu
@@ -11,20 +11,22 @@ from funciones.utils import retornar_card
 from clases.class_user_proyectName import global_user_proyecto
 from funciones.utils_2 import errores, validar_proyecto
 from clases.global_session import global_session
-from funciones.utils_2 import get_user_directory
+from funciones.utils_2 import get_user_directory, leer_dataset
+from funciones.help_versios import obtener_ultimo_nombre_archivo
 from clases.reactives_name import global_names_reactivos
 
 def server_produccion(input, output, session, name_suffix):
     proceso_a_completado = reactive.Value(False)
     directorio = reactive.Value("")
     screen_instance = reactive.Value("")
-    directorio_produccion = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat'
     name = "Producción"
     global_names_reactivos.name_produccion_set(name_suffix)
     mensaje = reactive.Value("")
     directorio = reactive.Value("")
-    validadacion_retornar_card = reactive.Value(True)
+    lista = reactive.Value(True)
     reactivo_dinamico =  reactive.Value("")
+    dataSet_predeterminado_parms =  reactive.Value("")
+    
     
 
     @output
@@ -120,12 +122,58 @@ def server_produccion(input, output, session, name_suffix):
     @output
     @render.ui
     def seleccionador_target():
-        if  reactivo_dinamico.get() == "2":
-            return  ui.card(
-            ui.input_selectize("selectize_columnas_target", "", 
-                                choices=[],  multiple=False, options={"placeholder": "seleccionar columna target."}) 
-            ),
+        # Reactivo para verificar el valor del radio botón y actualizar dinámicamente
+        @reactive.Effect
+        def handle_radio_change():
+            if reactivo_dinamico.get() == "2":
+                # Actualiza la lista de registros
+                lista.set(get_records(
+                    table='validation_scoring',
+                    columns=['id_validacion_sc', 'nombre_archivo_validation_sc', 'fecha_de_carga'],
+                    where_clause='project_id = ?',
+                    where_params=(global_session.get_id_proyecto(),)
+                ))
 
+                # Determina el dataset predeterminado o usa uno existente
+                if global_session_V2.get_nombre_dataset_validacion_sc() is None:
+                    dataSet_predeterminado_parms.set(
+                        obtener_ultimo_nombre_archivo(lista.get())
+                    )
+                else:
+                    dataSet_predeterminado_parms.set(
+                        global_session_V2.get_nombre_dataset_validacion_sc()
+                    )
+
+                # Leer el dataset y actualizar datos globales
+                data = leer_dataset(
+                    global_session.get_id_user(),
+                    global_session.get_id_proyecto(),
+                    global_session.get_name_proyecto(),
+                    dataSet_predeterminado_parms.get()
+                )
+                global_session_V2.set_data_set_reactivo_validacion_sc(data)
+
+                # Verificar si el dataset es válido y obtener nombres de columnas
+                if isinstance(data, pd.DataFrame) and not data.empty:
+                    column_names = data.columns.tolist()
+                else:
+                    column_names = []
+
+                # Actualizar el selector con las columnas disponibles
+                ui.update_selectize("selectize_columnas_target", choices=column_names)
+
+        # Devuelve el selector con opciones dinámicamente actualizadas
+        if reactivo_dinamico.get() == "2":
+            return ui.input_selectize(
+                "selectize_columnas_target",
+                "",
+                choices=[],
+                multiple=False,
+                options={"placeholder": "Seleccionar columna target."}
+            )
+        else:
+            return None
+        
     @output
     @render.text
     def mensaje_produccion():

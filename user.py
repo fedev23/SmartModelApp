@@ -50,6 +50,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     def project_card_container():
         # Captura el ID del proyecto seleccionado
         selected_project_id = input.project_select()
+        #print(selected_project_id, "proyecto")
         global_session.set_id_proyect(selected_project_id)
 
         nombre_proyecto = obtener_nombre_proyecto_por_id(global_session.get_id_proyecto())
@@ -105,9 +106,9 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                 where_params=(global_session.get_id_proyecto(),)
             )
         
-        print("files??", nombre_files_validacion_sc)
         global_session_V2.set_opciones_name_dataset_Validation_sc(obtener_opciones_versiones(nombre_files_validacion_sc, "id_validacion_sc", "nombre_archivo_validation_sc"))
         data_predeterminado.set(obtener_ultimo_id_version(nombre_files_validacion_sc, "id_validacion_sc"))
+        
         
         
         # Actualiza los selectores en la UI
@@ -126,7 +127,6 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     @reactive.event(input.other_select)  # Escuchar cambios en el selector
     def project_card_container():
         versiones_id = input.other_select()  # Captura el ID seleccionado
-        print(versiones_id)
         global_session.set_id_version(versiones_id)
         nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
         global_session.set_versiones_name(nombre_version)

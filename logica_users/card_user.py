@@ -12,7 +12,7 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
     @render.ui
     def devolver_acordeon():
         projects = global_session.get_proyectos_usuarios()  # Obtiene la lista actual de proyectos
-
+        
         if projects:
             project_options = {
                 str(project['id']): project['name'] for project in projects

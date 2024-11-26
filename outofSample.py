@@ -18,6 +18,7 @@ from funciones.help_versios import obtener_opciones_versiones, obtener_ultimo_id
 from clases.global_sessionV2 import *
 from funciones.utils_2 import leer_dataset
 from funciones.validacionY_Scoring.create_card import crate_file_input_y_seleccionador
+import pandas as pd
 
 
 def server_out_of_sample(input, output, session, name_suffix):
@@ -32,6 +33,7 @@ def server_out_of_sample(input, output, session, name_suffix):
     validadacion_retornar_card = reactive.Value("")
     data_predeterminado = reactive.Value("")
     files_name  = reactive.Value("")
+    lista = reactive.Value("")
     
 
     # Instanciamos la clase ScreenClass
@@ -109,7 +111,7 @@ def server_out_of_sample(input, output, session, name_suffix):
             # Actualizar opciones y seleccionar predeterminados
             global_session_V2.set_opciones_name_dataset_Validation_sc(obtener_opciones_versiones(files_name.get(), "id_validacion_sc", "nombre_archivo_validation_sc"))
             data_predeterminado.set(obtener_ultimo_id_version(files_name.get(), "id_validacion_sc"))
-            print("hasta aca llego?")
+            
             
             ui.update_select(
                 "files_select_validation_scoring",
@@ -123,13 +125,14 @@ def server_out_of_sample(input, output, session, name_suffix):
             error_message = f"Error en loadOutSample: {e}"
             #ui.update_text("error_message", error_message)  # Asume que hay un output de texto para mostrar errores
             print(error_message)
-      
+    
       
 
     @reactive.Effect
     @reactive.event(input.files_select_validation_scoring)
     def seleccionador():
         #PREPARO LA CONSULTA
+        
         data_id = input.files_select_validation_scoring()  # Captura el ID seleccionado
         global_session_V2.set_id_Data_validacion_sc(data_id)
         base_datos = 'Modeling_App.db'
@@ -141,20 +144,22 @@ def server_out_of_sample(input, output, session, name_suffix):
         global_session_V2.set_nombre_dataset_validacion_sc(nombre_file)
         
         ##obengo los valores de la tabla
-        list = get_records(table='validation_scoring',
+        lista.set(get_records(table='validation_scoring',
                 columns=['id_validacion_sc', 'nombre_archivo_validation_sc', 'fecha_de_carga'],
                 where_clause='project_id = ?',
-                where_params=(global_session.get_id_proyecto(),))
+                where_params=(global_session.get_id_proyecto(),)))
         
         if global_session_V2.get_nombre_dataset_validacion_sc() is None:
-            dataSet_predeterminado_parms.set(obtener_ultimo_nombre_archivo(list))
+            dataSet_predeterminado_parms.set(obtener_ultimo_nombre_archivo(lista.get()))
         else:
             dataSet_predeterminado_parms.set(global_session_V2.get_nombre_dataset_validacion_sc())
         
         data = leer_dataset(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), dataSet_predeterminado_parms.get())
         global_session_V2.set_data_set_reactivo_validacion_sc(data)
+        ##actualizo el selector de columna target
         
         
+  
 
     @reactive.Effect
     @reactive.event(input[f'load_param_{name_suffix}'])

@@ -352,6 +352,7 @@ def delete_record(table_name, condition, condition_value):
     cur.execute(query, (condition_value,))
     conn.commit()
     conn.close()
+  
     
 def obtener_valor_por_id(base_datos, tabla, columna_objetivo, columna_filtro, valor_filtro):
     """
