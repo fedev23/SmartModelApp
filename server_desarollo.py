@@ -17,7 +17,7 @@ from funciones.help_versios import obtener_opciones_versiones, obtener_ultimo_id
 from clases.global_session import *
 from clases.class_validacion import Validator
 from clases.loadJson import LoadJson
-from logica_users.var_globales_paths import base_path_entrada, base_path_salida
+from datetime import datetime
 from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
 
 def server_desarollo(input, output, session, name_suffix):
@@ -85,9 +85,14 @@ def server_desarollo(input, output, session, name_suffix):
             print(input_name)
             global_names_reactivos.set_name_data_Set(input_name)
             ruta_guardado = await guardar_archivo(input.file_desarollo, name_suffix)
-            
+            fecha_de_carga = datetime.now().strftime("%Y-%m-%d %H:%M")
+            ##GUARDO LEL DATO CARGADO EN LA TABLA
+            insert_into_table("name_files", ['nombre_archivo', 'fecha_de_carga', 'project_id', 'version_id'], [input_name, fecha_de_carga, global_session.get_id_proyecto(), global_session.get_id_version()])
             global_names_reactivos.set_proceso_leer_dataset(True)
-            files_name = get_records(global_session.get_id_proyecto())
+            files_name = get_records(table='name_files',
+            columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
+            where_clause='project_id = ?',
+            where_params=(global_session.get_id_proyecto(),))
             opciones_data.set(obtener_opciones_versiones(files_name, "id_files", "nombre_archivo"))
             dataSet_predeterminado_parms.set(obtener_ultimo_id_version(files_name, "id_files"))
             print(f"El archivo fue guardado en: {ruta_guardado}")

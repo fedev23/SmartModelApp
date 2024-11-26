@@ -4,6 +4,7 @@ from clases.class_user_proyectName import global_user_proyecto
 from api import *
 from clases.global_session import global_session
 from clases.global_reactives import global_estados
+from clases.global_sessionV2 import *
 from funciones.funciones_user import create_modal_versiones, show_selected_project_card, create_modal_eliminar_bd, create_modal_v2, button_remove_version
 from funciones.utils_2 import crear_carpeta_proyecto, crear_carpeta_version_por_proyecto, get_datasets_directory
 from funciones.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version
@@ -22,6 +23,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     opciones_param = reactive.Value("")
     valor_predeterminado_parms = reactive.Value("")
     boolean_check = reactive.Value(False)
+    data_predeterminado = reactive.Value("")
     
 
     def see_session():
@@ -73,7 +75,11 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             global_session.set_versiones_name(nombre_version)
 
         # Obtiene los archivos relacionados con el proyecto
-        files_name = get_records(global_session.get_id_proyecto())
+        files_name = get_records(table='name_files',
+            columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
+            where_clause='project_id = ?',
+            where_params=(global_session.get_id_proyecto(),))
+        
         nombre_file.set({
             str(file['id_files']): file['nombre_archivo']
             for file in files_name
@@ -91,7 +97,21 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         global_session.set_path_guardar_dataSet_en_proyectos(data_Set)
         
         
+        ##Actualizo tambien los dataSet de Validacion y scroing
+        nombre_files_validacion_sc = get_records(
+                table='validation_scoring',
+                columns=['id_validacion_sc', 'nombre_archivo_validation_sc', 'fecha_de_carga'],
+                where_clause='project_id = ?',
+                where_params=(global_session.get_id_proyecto(),)
+            )
+        
+        print("files??", nombre_files_validacion_sc)
+        global_session_V2.set_opciones_name_dataset_Validation_sc(obtener_opciones_versiones(nombre_files_validacion_sc, "id_validacion_sc", "nombre_archivo_validation_sc"))
+        data_predeterminado.set(obtener_ultimo_id_version(nombre_files_validacion_sc, "id_validacion_sc"))
+        
+        
         # Actualiza los selectores en la UI
+        ui.update_select("files_select_validation_scoring",choices=global_session_V2.get_opciones_name_dataset_Validation_sc(), selected=data_predeterminado.get())
         ui.update_select("files_select", choices=nombre_file.get())
         ui.update_select("other_select", choices=version_options.get())
         ui.update_select("version_selector", choices=opciones_param.get(), selected=valor_predeterminado_parms.get())

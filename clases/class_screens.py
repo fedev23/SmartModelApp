@@ -37,8 +37,8 @@ class ScreenClass():
         nombre_archivo_a_editar = file_info[0]['datapath']
         file_name = file_info[0]['name']
         global_names_reactivos.set_file_name(file_name)
-        fecha_de_carga = datetime.now().strftime("%Y-%m-%d %H:%M")
-        name_add = insert_into_table("name_files", ['nombre_archivo', 'fecha_de_carga', 'project_id', 'version_id'], [file_name, fecha_de_carga, global_session.get_id_proyecto(), global_session.get_id_version()])
+        #fecha_de_carga = datetime.now().strftime("%Y-%m-%d %H:%M")
+        #name_add = insert_into_table("name_files", ['nombre_archivo', 'fecha_de_carga', 'project_id', 'version_id'], [file_name, fecha_de_carga, global_session.get_id_proyecto(), global_session.get_id_version()])
 
         
         print(nombre_archivo_a_editar, "antes de editar")

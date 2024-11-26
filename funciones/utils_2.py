@@ -215,8 +215,9 @@ def get_datasets_directory(user_id, proyecto_id, name_proyect):
 
 def leer_dataset(user_id, proyecto_id, name_proyect, dataset_name):
     # Obtener la ruta de la carpeta de datasets
+    #print(user_id, proyecto_id, name_proyect, dataset_name)
     datasets_directory = get_datasets_directory(user_id, proyecto_id, name_proyect)
-    
+    #print(datasets_directory)
     # Verificar que la carpeta de datasets no sea None
     if datasets_directory is None:
         print("No se encontró la carpeta de datasets.")
@@ -236,6 +237,7 @@ def leer_dataset(user_id, proyecto_id, name_proyect, dataset_name):
         delimitador = detectar_delimitador(dataset_path)
 
         # Leer el archivo con el delimitador detectado
+        dataset = pd.DataFrame()
         dataset = pd.read_csv(dataset_path, delimiter=delimitador)
         print(f"Dataset {dataset_name} leyendo data_Set")
         
@@ -251,7 +253,7 @@ def leer_dataset(user_id, proyecto_id, name_proyect, dataset_name):
 
 def render_data_summary(data):
         #df = self.data_loader.getDataset()  # Usar el método heredado
-        if data is not None and not data.empty:
+        if data is not None:
             select_number_data_set = int(global_estados.get_numero_dataset())
             # Devuelve un resumen de los primeros 5 registros
             return pd.DataFrame(data.head(select_number_data_set))

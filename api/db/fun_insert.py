@@ -304,39 +304,42 @@ def insert_into_table(table_name, columns, values):
     return cur.lastrowid
 
 
-def get_records(project_id):
-    conn = sqlite3.connect('Modeling_App.db')
+def get_records(table, columns, where_clause=None, where_params=()):
+    """
+    Recupera registros de una tabla específica en la base de datos fija.
+
+    :param table: Nombre de la tabla de la que se desean recuperar los registros.
+    :param columns: Lista de columnas a recuperar.
+    :param where_clause: (Opcional) Condición WHERE para filtrar los registros.
+    :param where_params: (Opcional) Parámetros para la cláusula WHERE.
+    :return: Lista de diccionarios con los registros obtenidos.
+    """
+    database = 'Modeling_App.db'  # Base de datos fija
+    conn = sqlite3.connect(database)
     cur = conn.cursor()
     
     try:
-        # Realizar la consulta para obtener las versiones del proyecto específico
-        cur.execute('''
-            SELECT id_files, nombre_archivo, fecha_de_carga
-            FROM name_files
-            WHERE project_id = ?
-        ''', (project_id,))
+        # Construir la consulta dinámica
+        columns_str = ', '.join(columns)
+        query = f"SELECT {columns_str} FROM {table}"
         
-        # Recuperar todas las versiones
-        versiones = cur.fetchall()
+        if where_clause:
+            query += f" WHERE {where_clause}"
         
-        # Convertir los resultaos en una lista de diccionarios
-        files_list = [
-            {
-                'id_files': file[0],
-                'nombre_archivo': file[1],
-                'fecha_de_carga': file[2]
-            }
-            for file in versiones
+        cur.execute(query, where_params)
+        
+        # Recuperar los registros
+        records = cur.fetchall()
+        
+        # Convertir los resultados en una lista de diccionarios
+        records_list = [
+            {columns[i]: record[i] for i in range(len(columns))}
+            for record in records
         ]
         
-        return files_list  # Retornar la lista de versiones
-    
-    except sqlite3.Error as e:
-        print(f"Error al acceder a la base de datos: {e}")
-        return []
-    
+        return records_list
     finally:
-        # Cerrar la conexión
+        # Asegurar el cierre de la conexión
         conn.close()
      
 
@@ -350,40 +353,51 @@ def delete_record(table_name, condition, condition_value):
     conn.commit()
     conn.close()
     
+def obtener_valor_por_id(base_datos, tabla, columna_objetivo, columna_filtro, valor_filtro):
+    """
+    Obtiene el valor de una columna específica en una tabla, filtrando por un valor dado.
+
+    Args:
+        base_datos (str): Ruta a la base de datos SQLite.
+        tabla (str): Nombre de la tabla donde se realizará la consulta.
+        columna_objetivo (str): Nombre de la columna cuyo valor se desea obtener.
+        columna_filtro (str): Nombre de la columna utilizada para el filtro.
+        valor_filtro: Valor para filtrar la consulta.
+
+    Returns:
+        El valor encontrado o None si no se encuentra.
+    """
+    conn = sqlite3.connect(base_datos)
     
-def obtener_valor_por_id(id_files , base_datos='Modeling_App.db'):
-    
-        conn = sqlite3.connect(base_datos)
+    try:
+        cursor = conn.cursor()
         
-        try:
-            cursor = conn.cursor()
-            
-            # Consulta para obtener el nombre del archivo por project_id
-            query = """
-            SELECT nombre_archivo 
-            FROM name_files 
-            WHERE id_files  = ?
-            """
-            cursor.execute(query, (id_files ,))
-            
-            # Obtener el resultado
-            resultado = cursor.fetchone()
-            
-            # Verificar si se encontró un archivo
-            if resultado:
-                return resultado[0]  # Devolver el nombre del archivo
-            else:
-                return None  # Si no se encontró, retornar None
+        # Construcción dinámica de la consulta
+        query = f"""
+        SELECT {columna_objetivo} 
+        FROM {tabla} 
+        WHERE {columna_filtro} = ?
+        """
+        cursor.execute(query, (valor_filtro,))
+        
+        # Obtener el resultado
+        resultado = cursor.fetchone()
+        
+        # Verificar si se encontró un valor
+        if resultado:
+            return resultado[0]  # Devolver el valor encontrado
+        else:
+            return None  # Si no se encontró, retornar None
 
-        except sqlite3.Error as e:
-            print(f"Error al acceder a la base de datos: {e}")
-            return None
+    except sqlite3.Error as e:
+        print(f"Error al acceder a la base de datos: {e}")
+        return None
 
-        finally:
-            # Cerrar la conexión
-            conn.close()
-
-
+    finally:
+        # Cerrar la conexión
+        conn.close()
+        
+        
 def eliminar_version(nombre_tabla, nombre_columna_id, id_dato):
     # Conexión a la base de datos
     conn = sqlite3.connect('Modeling_App.db')

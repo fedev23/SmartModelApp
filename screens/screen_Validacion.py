@@ -9,31 +9,7 @@ CHOICES = {
 # Definición de la pantalla de validación
 screenValid = ui.page_fluid(
     ui.div(
-        ui.column(
-                12,ui.div(
-                                ui.input_file(
-                                    "file_validation",
-                                    "",
-                                    placeholder="Seleccione un archivo",
-                                    button_label="+",
-                                    accept=[".csv", ".txt"],
-                                    width="50%"
-                                ),
-
-                            ),
-                        ui.div(
-                            ui.input_select(
-                                "files_select_validation_scoring",
-                                "",
-                                {'a': "Archivo A", 'b': "Archivo B"},
-                                width="50%"
-                            ),
-                            #ui.output_ui("remove_dataset"),                  
-                            class_="file-input-container d-flex align-items-center gap-3 mb-3"
-                        ),
-                        
-                    ),
-
+        ui.output_ui("retornar_carga_file_y_seleccionador"),
         # Tarjeta para mostrar datos de validación
         ui.card(
             # Encabezado de la tarjeta

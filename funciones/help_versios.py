@@ -17,7 +17,7 @@ def obtener_opciones_versiones(versiones, id, name):
     if versiones:
         return {str(version[id]): version[name] for version in versiones}
     else:
-        return {"": "No hay versiones"}, False
+        return {"": "No hay versiones"}
 
 def obtener_ultimo_id_version(versiones, id):
     """

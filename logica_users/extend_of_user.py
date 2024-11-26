@@ -20,8 +20,18 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     def project_card_container():
         data_id = input.files_select()  # Captura el ID seleccionado
         global_session.set_id_dataSet(data_id)
-        nombre_file = obtener_valor_por_id(global_session.get_id_dataSet())
-        list = get_records(global_session.get_id_proyecto())
+        
+        base_datos = 'Modeling_App.db'
+        tabla = 'name_files'
+        columna_objetivo = 'nombre_archivo'
+        columna_filtro = 'id_files'
+        nombre_file = obtener_valor_por_id(base_datos, tabla, columna_objetivo, columna_filtro, global_session.get_id_dataSet())
+        #nombre_file = obtener_valor_por_id(global_session.get_id_dataSet())
+        
+        list = get_records(table='name_files',
+            columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
+            where_clause='project_id = ?',
+            where_params=(global_session.get_id_proyecto(),))
         global_names_reactivos.set_name_file_db(nombre_file)
         
         if global_names_reactivos.get_name_file_db() is None:
@@ -36,7 +46,10 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     @output
     @render.ui
     def remove_dataset():
-        list.set(get_records(global_session.get_id_proyecto()))
+        list.set( get_records(table='name_files',
+            columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
+            where_clause='project_id = ?',
+            where_params=(global_session.get_id_proyecto(),)))
         #name.set(global_names_reactivos.get_name_file_db())
         return button_remove(list.get(), global_session.get_id_dataSet(), "id_files", name)
         

@@ -4,19 +4,25 @@ from funciones.create_nav_menu import create_nav_menu
 from clases.class_screens import ScreenClass
 from clases.class_user_proyectName import global_user_proyecto
 from global_var import global_data_loader_manager
-from funciones.utils_2 import errores, validar_proyecto, get_user_directory
+from funciones.utils_2 import errores, validar_proyecto, get_user_directory, render_data_summary
 from clases.global_modelo import modelo_of_sample
 from clases.global_session import global_session
 from api.db import *
 from clases.global_name import global_name_manager
 from clases.reactives_name import global_names_reactivos
 from funciones.utils import retornar_card
-
+from shiny.types import FileInfo
+from datetime import datetime
+from funciones.funciones_cargaDatos import guardar_archivo
+from funciones.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version, obtener_ultimo_nombre_archivo
+from clases.global_sessionV2 import *
+from funciones.utils_2 import leer_dataset
+from funciones.validacionY_Scoring.create_card import crate_file_input_y_seleccionador
 
 
 def server_out_of_sample(input, output, session, name_suffix):
     # Obtener el loader de datos desde el manage
-    proceso_a_completado = reactive.Value(False)
+    dataSet_predeterminado_parms = reactive.Value(None)
     directorio = reactive.Value("")
     screen_instance = reactive.Value(None)
     mensaje = reactive.Value("")
@@ -24,6 +30,8 @@ def server_out_of_sample(input, output, session, name_suffix):
     global_names_reactivos.name_validacion_of_to_sample_set(name_suffix)
     data_loader = global_data_loader_manager.get_loader(name_suffix)
     validadacion_retornar_card = reactive.Value("")
+    data_predeterminado = reactive.Value("")
+    files_name  = reactive.Value("")
     
 
     # Instanciamos la clase ScreenClass
@@ -45,6 +53,11 @@ def server_out_of_sample(input, output, session, name_suffix):
     
     see_session()
     
+    @output
+    @render.ui
+    def retornar_carga_file_y_seleccionador(): 
+        if global_session.get_id_user():
+            return crate_file_input_y_seleccionador()
    
     @output
     @render.text
@@ -61,8 +74,87 @@ def server_out_of_sample(input, output, session, name_suffix):
     @reactive.Effect
     @reactive.event(input.file_validation)
     async def loadOutSample():
-        print("entre")
-        await screen_instance.get().load_data(input.file_validation, name_suffix)
+        try:
+            file: list[FileInfo] | None = input.file_validation()
+            if not file:
+                raise ValueError("No se recibió ningún archivo para validar.")
+
+            print(file, "estoy en fila")
+            input_name = file[0]['name']
+            print(f"Nombre del archivo recibido: {input_name}")
+
+            # Guardar el archivo
+            name_suffix = "_validation"  # Ejemplo de sufijo, ajusta según sea necesario
+            ruta_guardado = await guardar_archivo(input.file_validation, name_suffix)
+            print(f"El archivo fue guardado en {ruta_guardado}")
+
+            # Obtener fecha actual
+            fecha_de_carga = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+            # Insertar datos en la tabla
+            id = insert_into_table(
+                "validation_scoring",
+                ['nombre_archivo_validation_sc', 'fecha_de_carga', 'project_id', 'version_id'],
+                [input_name, fecha_de_carga, global_session.get_id_proyecto(), global_session.get_id_version()]
+            )
+            print("Datos insertados en la tabla validation_scoring.")
+            global_session_V2.set_id_Data_validacion_sc(id)
+            # Extraer datos
+            files_name.set(get_records(
+                table='validation_scoring',
+                columns=['id_validacion_sc', 'nombre_archivo_validation_sc', 'fecha_de_carga'],
+                where_clause='project_id = ?',
+                where_params=(global_session.get_id_proyecto(),)
+            ))
+            # Actualizar opciones y seleccionar predeterminados
+            global_session_V2.set_opciones_name_dataset_Validation_sc(obtener_opciones_versiones(files_name.get(), "id_validacion_sc", "nombre_archivo_validation_sc"))
+            data_predeterminado.set(obtener_ultimo_id_version(files_name.get(), "id_validacion_sc"))
+            print("hasta aca llego?")
+            
+            ui.update_select(
+                "files_select_validation_scoring",
+                choices=global_session_V2.get_opciones_name_dataset_Validation_sc(),
+                selected=data_predeterminado.get()
+            )
+            print("Opciones y selección actualizadas correctamente.")
+
+        except Exception as e:
+            # Manejar errores y notificar al usuario
+            error_message = f"Error en loadOutSample: {e}"
+            #ui.update_text("error_message", error_message)  # Asume que hay un output de texto para mostrar errores
+            print(error_message)
+      
+      
+
+    @reactive.Effect
+    @reactive.event(input.files_select_validation_scoring)
+    def seleccionador():
+        #PREPARO LA CONSULTA
+        data_id = input.files_select_validation_scoring()  # Captura el ID seleccionado
+        global_session_V2.set_id_Data_validacion_sc(data_id)
+        base_datos = 'Modeling_App.db'
+        tabla = 'validation_scoring'
+        columna_objetivo = 'nombre_archivo_validation_sc'
+        columna_filtro = 'id_validacion_sc'
+        nombre_file = obtener_valor_por_id(base_datos, tabla, columna_objetivo, columna_filtro, global_session_V2.get_id_Data_validacion_sc())
+        
+        global_session_V2.set_nombre_dataset_validacion_sc(nombre_file)
+        
+        ##obengo los valores de la tabla
+        list = get_records(table='validation_scoring',
+                columns=['id_validacion_sc', 'nombre_archivo_validation_sc', 'fecha_de_carga'],
+                where_clause='project_id = ?',
+                where_params=(global_session.get_id_proyecto(),))
+        
+        if global_session_V2.get_nombre_dataset_validacion_sc() is None:
+            dataSet_predeterminado_parms.set(obtener_ultimo_nombre_archivo(list))
+        else:
+            dataSet_predeterminado_parms.set(global_session_V2.get_nombre_dataset_validacion_sc())
+        
+        data = leer_dataset(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), dataSet_predeterminado_parms.get())
+        global_session_V2.set_data_set_reactivo_validacion_sc(data)
+        
+        
 
     @reactive.Effect
     @reactive.event(input[f'load_param_{name_suffix}'])
@@ -93,7 +185,7 @@ def server_out_of_sample(input, output, session, name_suffix):
     @output
     @render.data_frame
     def summary_data_validacion_out_to_sample():
-        return screen_instance.get().render_data_summary()
+        return render_data_summary(global_session_V2.get_data_reactivo_validacion_sc())
 
     # retorno funcion de parametros
     @output
