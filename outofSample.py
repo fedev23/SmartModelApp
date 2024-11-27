@@ -20,6 +20,7 @@ from funciones.utils_2 import leer_dataset
 from funciones.validacionY_Scoring.create_card import crate_file_input_y_seleccionador
 import pandas as pd
 from funciones.funciones_user import button_remove, create_modal_v2
+from clases.global_modelo import modelo_of_sample
 
 
 def server_out_of_sample(input, output, session, name_suffix):
@@ -35,6 +36,7 @@ def server_out_of_sample(input, output, session, name_suffix):
     data_predeterminado = reactive.Value("")
     files_name  = reactive.Value("")
     lista = reactive.Value("")
+    reactivo_dinamico = reactive.Value("")
     
     
 
@@ -172,6 +174,7 @@ def server_out_of_sample(input, output, session, name_suffix):
         #print(lista_2_borrar, "estoy en lista dos de borrar")
         return button_remove(lista_2_borrar, global_session_V2.get_id_Data_validacion_sc(), "id_validacion_sc", name_suffix)
     
+    
     @reactive.Effect
     def boton_para_eliminar_name_data_set_validacion_sc():
         eliminar_version_id = f"eliminar_version_{global_session_V2.get_id_Data_validacion_sc()}_{name_suffix}"
@@ -261,6 +264,15 @@ def server_out_of_sample(input, output, session, name_suffix):
         click_count_value = modelo_of_sample.click_counter.get()  # Obtener contador
         mensaje_value = modelo_of_sample.mensaje.get()  # Obtener mensaje actual
         proceso = modelo_of_sample.proceso.get()
+        
+        #path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+        #path_datos_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+        path_entrada = obtener_path_por_proyecto_version(global_session.get_id_proyecto(), global_session.get_id_version(), 'entrada')
+        path_salida = obtener_path_por_proyecto_version(global_session.get_id_proyecto(), global_session.get_id_version(), 'salida')
+        print(path_entrada, "estoy en entrada")
+        print(path_salida, "estoy en salida")
+        
+        modelo_of_sample.script_path = f'./Validar_Nueva.sh "{path_entrada}" {path_salida}'
         ejecutar_of_to_sample(click_count_value, mensaje_value, proceso)
         insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_validacion())
         
@@ -277,7 +289,9 @@ def server_out_of_sample(input, output, session, name_suffix):
     @reactive.event(input.radio_models)
     def seleccionador_de_radio_button():
         input_radio = input.radio_models()
+        print(input_radio, "estoy en radio")
         validadacion_retornar_card.set(input_radio)
+      
         
         
     @output
@@ -292,6 +306,61 @@ def server_out_of_sample(input, output, session, name_suffix):
         else:
               return ui.div()
             
+    
+    @output
+    @render.ui
+    def seleccionador_target():
+        # Reactivo para verificar el valor del radio botón y actualizar dinámicamente
+        @reactive.Effect
+        def handle_radio_change():
+            if validadacion_retornar_card.get() == "1":
+                # Actualiza la lista de registros
+                lista.set(get_records(
+                    table='validation_scoring',
+                    columns=['id_validacion_sc', 'nombre_archivo_validation_sc', 'fecha_de_carga'],
+                    where_clause='project_id = ?',
+                    where_params=(global_session.get_id_proyecto(),)
+                ))
+
+                # Determina el dataset predeterminado o usa uno existente
+                if global_session_V2.get_nombre_dataset_validacion_sc() is None:
+                    dataSet_predeterminado_parms.set(
+                        obtener_ultimo_nombre_archivo(lista.get())
+                    )
+                else:
+                    dataSet_predeterminado_parms.set(
+                        global_session_V2.get_nombre_dataset_validacion_sc()
+                    )
+
+                # Leer el dataset y actualizar datos globales
+                data = leer_dataset(
+                    global_session.get_id_user(),
+                    global_session.get_id_proyecto(),
+                    global_session.get_name_proyecto(),
+                    dataSet_predeterminado_parms.get()
+                )
+                global_session_V2.set_data_set_reactivo_validacion_sc(data)
+
+                # Verificar si el dataset es válido y obtener nombres de columnas
+                if isinstance(data, pd.DataFrame) and not data.empty:
+                    column_names = data.columns.tolist()
+                else:
+                    column_names = []
+
+                # Actualizar el selector con las columnas disponibles
+                ui.update_selectize("selectize_columnas_target", choices=column_names)
+        
+        # Devuelve el selector con opciones dinámicamente actualizadas
+        if validadacion_retornar_card.get() == "1":
+            return ui.input_selectize(
+                "selectize_columnas_target",
+                "",
+                choices=[],
+                multiple=False,
+                options={"placeholder": "Seleccionar columna target."}
+            )
+        else:
+            return None
     
     
     @output

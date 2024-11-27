@@ -93,13 +93,7 @@ def server_produccion(input, output, session, name_suffix):
     def summary_data_produccion():
         return screen_instance.get().render_data_summary()
 
-    @output
-    @render.ui
-    def mostrarOut_produccion():
-        if proceso_a_completado.get():
-            return ui.input_action_button("ir_ejecucion_produccion", "Ir a ejecución")
-        return ui.TagList()
-
+    
     # estoy usando la clase para la creacion de modelos aca, lueog veo si adapto todas o las dejo en modelo
     
     @reactive.Effect
@@ -114,65 +108,12 @@ def server_produccion(input, output, session, name_suffix):
     def card_produccion1():
         if  reactivo_dinamico.get() == "2":
             return retornar_card(
-                get_file_name=global_name_manager.get_file_name_produccion,
+                get_file_name=global_session_V2.get_nombre_dataset_validacion_sc(),
                 #get_fecha=global_fecha.get_fecha_produccion,
                 modelo=modelo_produccion
             )
     
-    @output
-    @render.ui
-    def seleccionador_target():
-        # Reactivo para verificar el valor del radio botón y actualizar dinámicamente
-        @reactive.Effect
-        def handle_radio_change():
-            if reactivo_dinamico.get() == "2":
-                # Actualiza la lista de registros
-                lista.set(get_records(
-                    table='validation_scoring',
-                    columns=['id_validacion_sc', 'nombre_archivo_validation_sc', 'fecha_de_carga'],
-                    where_clause='project_id = ?',
-                    where_params=(global_session.get_id_proyecto(),)
-                ))
 
-                # Determina el dataset predeterminado o usa uno existente
-                if global_session_V2.get_nombre_dataset_validacion_sc() is None:
-                    dataSet_predeterminado_parms.set(
-                        obtener_ultimo_nombre_archivo(lista.get())
-                    )
-                else:
-                    dataSet_predeterminado_parms.set(
-                        global_session_V2.get_nombre_dataset_validacion_sc()
-                    )
-
-                # Leer el dataset y actualizar datos globales
-                data = leer_dataset(
-                    global_session.get_id_user(),
-                    global_session.get_id_proyecto(),
-                    global_session.get_name_proyecto(),
-                    dataSet_predeterminado_parms.get()
-                )
-                global_session_V2.set_data_set_reactivo_validacion_sc(data)
-
-                # Verificar si el dataset es válido y obtener nombres de columnas
-                if isinstance(data, pd.DataFrame) and not data.empty:
-                    column_names = data.columns.tolist()
-                else:
-                    column_names = []
-
-                # Actualizar el selector con las columnas disponibles
-                ui.update_selectize("selectize_columnas_target", choices=column_names)
-
-        # Devuelve el selector con opciones dinámicamente actualizadas
-        if reactivo_dinamico.get() == "2":
-            return ui.input_selectize(
-                "selectize_columnas_target",
-                "",
-                choices=[],
-                multiple=False,
-                options={"placeholder": "Seleccionar columna target."}
-            )
-        else:
-            return None
         
     @output
     @render.text

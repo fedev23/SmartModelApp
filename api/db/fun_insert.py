@@ -290,19 +290,32 @@ def obtener_versiones_por_proyecto(project_id, columnas , tabla, donde):
         conn.close()    
         
 def insert_into_table(table_name, columns, values):
+    """
+    Inserta un registro en la tabla especificada.
+    
+    :param table_name: Nombre de la tabla.
+    :param columns: Lista de nombres de columnas.
+    :param values: Lista de valores a insertar.
+    :return: El ID del último registro insertado o None si hubo un error.
+    """
     conn = sqlite3.connect('Modeling_App.db')
     cur = conn.cursor()
-
-    placeholders = ', '.join(['?'] * len(values))
-    columns_str = ', '.join(columns)
-
-    query = f"INSERT INTO {table_name} ({columns_str}) VALUES ({placeholders})"
-    cur.execute(query, values)
-    conn.commit()
-    conn.close()
-
-    return cur.lastrowid
-
+    
+    try:
+        placeholders = ', '.join(['?'] * len(values))
+        columns_str = ', '.join(columns)
+        query = f"INSERT INTO {table_name} ({columns_str}) VALUES ({placeholders})"
+        
+        cur.execute(query, values)
+        conn.commit()
+        last_row_id = cur.lastrowid
+        print(f"Registro insertado correctamente en '{table_name}' con ID: {last_row_id}")
+        return last_row_id
+    except sqlite3.IntegrityError as e:
+        print(f"Error al insertar en '{table_name}': {e}")
+        return None
+    finally:
+        conn.close()
 
 def get_records(table, columns, where_clause=None, where_params=()):
     """
@@ -515,3 +528,40 @@ def obtener_valor_por_id_versiones(id_files , base_datos='Modeling_App.db'):
         finally:
             # Cerrar la conexión
             conn.close()
+
+
+def obtener_path_por_proyecto_version(project_id, version_id, tipo_path):
+    conn = sqlite3.connect('Modeling_App.db')
+    cur = conn.cursor()
+    try:
+        consulta = '''
+            SELECT path
+            FROM paths_de_ejecucion
+            WHERE project_id = ? AND version_id = ? AND tipo_path = ?
+        '''
+        cur.execute(consulta, (project_id, version_id, tipo_path))
+        datos = cur.fetchone()
+
+        return datos[0] if datos else None
+
+    except sqlite3.Error as e:
+        print(f"Error al acceder a la base de datos: {e}")
+        return None
+
+    finally:
+        conn.close()
+
+def insertar_path(path, project_id, version_id, tipo_path):
+    conn = sqlite3.connect('Modeling_App.db')
+    cur = conn.cursor()
+    try:
+        cur.execute('''
+            INSERT INTO paths_de_ejecucion (path, project_id, version_id, tipo_path)
+            VALUES (?, ?, ?, ?)
+        ''', (path, project_id, version_id, tipo_path))
+        conn.commit()
+        print("Path insertado correctamente con tipo_path:", tipo_path)
+    except sqlite3.IntegrityError as e:
+        print(f"Error al insertar el path: {e}")
+    finally:
+        conn.close()

@@ -89,6 +89,33 @@ cur.execute('''
     ''')
 
 
+cur.execute('''
+    CREATE TABLE IF NOT EXISTS paths_de_ejecucion (
+        id_path INTEGER PRIMARY KEY AUTOINCREMENT,
+        path TEXT NOT NULL,
+        project_id INTEGER,
+        version_id INTEGER,
+        FOREIGN KEY (project_id) REFERENCES project(id),
+        FOREIGN KEY (version_id) REFERENCES version(version_id)
+    );
+''')
+
+# Función para crear el índice único
+def crear_indice_unico(conn):
+    cur = conn.cursor()
+    try:
+        cur.execute('''
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_path 
+            ON paths_de_ejecucion (path, project_id, version_id);
+        ''')
+        conn.commit()
+        print("Índice único creado correctamente en paths_de_ejecucion.")
+    except sqlite3.OperationalError as e:
+        print(f"Error al crear el índice: {e}")
+
+
+
+crear_indice_unico(conn)
 def recreate_json_versions_table():
     conn = sqlite3.connect('Modeling_App.db')
     cur = conn.cursor()

@@ -158,30 +158,20 @@ def server_in_sample(input, output, session, name_suffix):
             json_file_path = load_handler.loop_json()
             print(f"Inputs guardados en {json_file_path}")
             
+            ##ESTO NO PUEDE SER UNA CONSTANTE POR QUE NECESITO SEGUIR EL FLUJO DE EJUCION, ES DECIR AL SER REACTIVO TIENEN QUE ESTAR DENTRO DE UN EFECTO REACTIVO, SI PONGO LA FUNCION PARA QUE SE EJECUTE CUANDO EMPIEZA LA APP, HAY VALORES QUE NO VAN A ESTAR
+            path_entrada = obtener_path_por_proyecto_version(global_session.get_id_proyecto(), global_session.get_id_version(), 'entrada')
+            path_salida = obtener_path_por_proyecto_version(global_session.get_id_proyecto(), global_session.get_id_version(), 'salida')
+        
+            global_session.set_path_niveles_scorcads(path_entrada)
+            global_session.set_path_niveles_scorcads_salida(path_salida)
             
-            base_path_entrada= '/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_'
-            base_path_salida = '/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_'
-            
-            destino = os.path.join(base_path_entrada, f'{global_session.get_id_user()}', f'proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}',
-                       f'version_{global_session.get_id_version()}_{global_session.get_versiones_name()}',
-                       f'version_parametros_{global_session.get_version_parametros_id()}',
-                       f'{global_session.get_versiones_parametros_nombre()}')
-            
-            destino_salida = os.path.join(base_path_salida, f'{global_session.get_id_user()}', f'proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}',
-                       f'version_{global_session.get_id_version()}_{global_session.get_versiones_name()}',
-                       f'version_parametros_{global_session.get_version_parametros_id()}',
-                       f'{global_session.get_versiones_parametros_nombre()}')
-            
-            
-            global_session.set_path_niveles_scorcads(destino)
-            global_session.set_path_niveles_scorcads_salida(destino_salida)
-            
-            copiar_json_si_existe(json_file_path, destino)
+            ##COPIO EL JSON DE LA CARPETA De la carpeta y lo fusion por si hay IN SAMPLE
+            copiar_json_si_existe(json_file_path, path_entrada)
             inputs_procesados = aplicar_transformaciones(input, transformaciones)
             insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_desarrollo())
             ##PATH DONDE SE EJECUTA EL SCRIPT Y LAS CARPETAS QUE CORRESPONDEN AL USARIO, PROYECT, VERSION ACTUAL O EN
-            mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), global_session.get_path_guardar_dataSet_en_proyectos(), name_suffix, base_path_entrada)
-            modelo_in_sample.script_path = f"./Validar_Desa.sh {global_session.get_path_niveles_scorcads()} {global_session.get_path_niveles_scorcads_salida}"
+            mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), global_session.get_path_guardar_dataSet_en_proyectos(), name_suffix, path_entrada)
+            modelo_in_sample.script_path = f"./Validar_Desa.sh {global_session.get_path_niveles_scorcads()} {global_session.get_path_niveles_scorcads_salida()}"
             ejecutar_in_sample_ascyn(click_count_value, mensaje_value, proceso) #-->EJECUTO EL PROCESO ACA
      
         else:

@@ -22,10 +22,10 @@ screenValid = ui.page_fluid(
 
     ui.input_radio_buttons(  
         "radio_models",  
-        "Model to execute",
-        {"1": "Out-of-Sample Validation", "2": "Scroring"},  
+        "Validacion",
+        {"1": "Full", "2": "Estabilidad"},  
          inline=True,
-         selected=None,
+         selected=1,
     ),
     
     #ui.input_text_area(placeholder="Ingrese el ")

@@ -188,9 +188,14 @@ def server_desarollo(input, output, session, name_suffix):
                 json_loader.inputs.update(inputs_procesados)
                 json_file_path = json_loader.loop_json()
                 print(f"Inputs guardados en {json_file_path}")
+                
+                ##Y NO LO PUEDO PONER CON ESPACIO O CON OS.JION POR QUE ME GENERA / DONDE NO VAN
                 path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
                 path_datos_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
                 
+                ##CARGO EL PATH VINCULADO AL PROYECTO
+                insertar_path(path_datos_entrada, global_session.get_id_proyecto(), global_session.get_id_version(), 'entrada')
+                insertar_path(path_datos_salida, global_session.get_id_proyecto(), global_session.get_id_version(), 'salida')
                 #CREO EL PATH DONDE SE VA A EJECUTAR DESARROLLO DEPENDIENDO DEL PROYECYO Y LA VERSION QUE ESTE EN USO
                 ##necesito tener el nombre del dataset seleccionado asi le cambio el nombre y lo
                 mover = mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), global_session.get_path_guardar_dataSet_en_proyectos(), name_suffix, path_datos_entrada)
