@@ -69,11 +69,12 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         else:
             boolean_check.set(False)
             version_options.set({"": "No hay versiones"})
-
+        
         # Si hay versiones, establece el nombre de la primera versión como predeterminado
         if boolean_check():
             nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
             global_session.set_versiones_name(nombre_version)
+            
 
         # Obtiene los archivos relacionados con el proyecto
         files_name = get_records(table='name_files',

@@ -3,7 +3,7 @@ from shiny import reactive
 class GlobalSessionV2:
     def __init__(self):
         self.id_Data_validacion_sc = reactive.Value("")
-        self.data_reactivo_validacion_sc = reactive.Value("")
+        self.data_reactivo_validacion_sc = reactive.Value(None)
         self.opciones_name_dataset_Validation_sc = reactive.Value()
         self.nombre_dataset_validacion_sc = reactive.Value()
         self.lista_nombre_datos_validacion_Sc = reactive.Value()

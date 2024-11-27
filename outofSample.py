@@ -134,7 +134,6 @@ def server_out_of_sample(input, output, session, name_suffix):
     @reactive.event(input.files_select_validation_scoring)
     def seleccionador():
         #PREPARO LA CONSULTA
-        
         data_id = input.files_select_validation_scoring()  # Captura el ID seleccionado
         global_session_V2.set_id_Data_validacion_sc(data_id)
         base_datos = 'Modeling_App.db'
@@ -162,7 +161,6 @@ def server_out_of_sample(input, output, session, name_suffix):
     
     
     ##BOTON PARA REMOVER DATASET
-    
     @output
     @render.ui
     def remove_dataset_data_alidacionSC():
@@ -287,7 +285,8 @@ def server_out_of_sample(input, output, session, name_suffix):
     def card_out_to_sample():
         if validadacion_retornar_card.get()== "1":
             return  retornar_card(
-            get_file_name=global_name_manager.get_file_name_validacion(),
+                #prin(get_data_reactivo_validacion_sc)
+            get_file_name=global_session_V2.get_nombre_dataset_validacion_sc(),
             #get_fecha=global_fecha.get_fecha_of_to_Sample,
             modelo=modelo_of_sample)
         else:

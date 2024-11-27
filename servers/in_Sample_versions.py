@@ -46,12 +46,13 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
         ui.update_select("version_selector",choices=opciones_param.get(), selected=valor_predeterminado_parms.get())
         
         ui.modal_remove()
-
+        
     @reactive.effect
     @reactive.event(input.cancelar_version_param)
     def Ko_verions():
         ui.modal_remove()
-        
+    
+    
         
     @reactive.effect
     @reactive.event(input.version_selector)
@@ -66,7 +67,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
                 print(nombre_version)
                 global_session.set_versiones_parametros_nombre(obtener_valor_por_id_versiones(global_session.get_version_parametros_id()))
             
-        
+              
         
     @output
     @render.ui
@@ -104,6 +105,8 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
         ui.modal_remove()
     
     
+    
+        
     
         
      
