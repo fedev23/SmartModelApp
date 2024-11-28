@@ -81,6 +81,7 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
             #ui.update_text("error_message", error_message)  # Asume que hay un output de texto para mostrar errores
             print(error_message)
     
+    
       
 
     @reactive.Effect

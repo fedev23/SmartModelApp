@@ -61,8 +61,9 @@ def server_out_of_sample(input, output, session, name_suffix):
     @render.ui
     def nav_out_to_sample():
         return create_nav_menu(name_suffix, name)
+    
 
-
+    
     @reactive.Effect
     @reactive.event(input[f'load_param_{name_suffix}'])
     def desarollo_out_to_and_valid():

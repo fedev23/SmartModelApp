@@ -197,9 +197,8 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     @reactive.event(input["eliminar_proyecto_modal"])
     def eliminar_proyeco_modal():
         session_id = global_session.get_id_proyecto()
-        print(session_id,"tenog session id")
+        
         eliminar_proyecto(global_session.get_id_proyecto())
-        print(global_session.get_id_proyecto())
         # Actualiza proyectos_usuario después de eliminar el proyecto
         proyectos_actualizados = get_user_projects(user_get.get())
         # Refresca proyectos_usuario con la lista actualizada
@@ -252,7 +251,6 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     def agregar_ver():
         name = input[f'name_version']()
         id_proyect = global_session.get_id_proyecto()
-        print(f"imprimo id, {id_proyect}")
         agregar_version(id_proyect, name)
       
         versiones = get_project_versions(global_session.get_id_proyecto())

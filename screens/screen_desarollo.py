@@ -97,7 +97,7 @@ screenDesarollo = ui.page_fluid(
             ui.output_ui(f"error_{name_suffix}"),
         ),
         ui.output_text_verbatim(f"param_validation_3_{name_suffix}"),
-        class_="custom-column"
+        #class_="custom-column"
     ),
     
     ui.tags.hr(),  # Separador

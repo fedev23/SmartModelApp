@@ -52,31 +52,8 @@ def server_produccion(input, output, session, name_suffix):
     @render.ui
     def nav_out_to_produccion():
         return create_nav_menu(name_suffix, name)
-
-    @reactive.Effect
-    @reactive.event(input.file_produccion)
-    async def loadOutSample():
-        print("entre")
-        await screen_instance.get().load_data(input.file_produccion, input.delimiter_produccion, name_suffix)
-
-    @reactive.Effect
-    @reactive.event(input.load_param_produccion)
-    def produccion_out_to_and_valid():
-        df = global_data_loader_manager.getDataset()
-        if df is None:
-            mensaje.set(f"No se seleccionó ningún archivo en {name}")
-            return  # Detener la ejecución si no hay dataset
-
-        # 2. Validar si el proyecto está asignado
-        proyecto_nombre = global_session.get_id_user()
-        if not validar_proyecto(proyecto_nombre):
-            mensaje.set(f"Es necesario tener un proyecto asignado o creado para continuar en {name}")
-            return  # Detener la ejecución si no hay proyecto asignado
-
-        # 3. Continuar si ambas validaciones anteriores pasan
-        if screen_instance.get().proceso_a_completado.get():
-            ui.update_accordion("my_accordion", show=["produccion"])
-
+    
+    
     @output
     @render.text
     def error_in_produccion():

@@ -49,22 +49,25 @@ screenInSample = ui.page_fluid(
 
             # Columna para el selector
             ui.column(
-                # Ancho de la columna (puedes ajustarlo según sea necesario)
                 6,
-                ui.div(
+                ui.row(
+                    ui.div(
                    ui.input_select(
                     "version_selector",
                     "", # Si no deseas mostrar un texto de etiqueta
                     {"a": "a"},
                     #style="font-size: 15px;"
-                ) ,
-                   class_="d-flex justify-content-between",  
                 ),
-                 ui.output_ui("button_remove_versions_param"),  
+                    ui.column(1, ui.HTML("<div style='width: 20px;'></div>")),
+                    ui.output_ui("button_remove_versions_param"),  
+                   class_="d-flex justify-content-center",  
+                ),
                 
-                
-            )
+            )   
         ),
+                ),
+                # Ancho de la columna (puedes ajustarlo según sea necesario)
+                
         # ui.tags.hr(),
         ui.div(class_="mt-5"),
 
@@ -78,6 +81,7 @@ screenInSample = ui.page_fluid(
                                   ui.card_header(
                                       ui.row(
                                           # Texto a la izquierda
+                                          ui.column(3, ui.HTML("<div style='width: 20px;'></div>")),
                                           ui.column(
                                               10, "Tabla de Niveles de Riesgo"),
                                           ui.column(2,
@@ -87,28 +91,12 @@ screenInSample = ui.page_fluid(
                                       ),
                                   ),
                                   ui.output_data_frame("par_rango_niveles"),
-                                  class_="custom-card"
+                                  class_="custom-card",
+                                  style="margin-left: 30px;"
                               )
                           )
                           ),
-                ui.column(4,
-                          ui.row(
-                              ui.card(
-                                  ui.card_header(
-                                      ui.row(
-                                          # Texto a la izquierda
-                                          ui.column(10, "Tabla de Segmentos"),
-                                          ui.column(2,
-                                                    ui.input_action_link("help_segmentos", ui.tags.i(
-                                                        class_="fa fa-question-circle-o", style="font-size:24px")),
-                                                    )
-                                      ),
-                                  ),
-                                  ui.output_data_frame("par_rango_segmentos"),
-                                  class_="custom-card"
-                              )
-                          )
-                          ),
+                ui.column(3, ui.HTML("<div style='width: 20px;'></div>")),
                 ui.column(4,
                           ui.row(
                               ui.card(
@@ -127,9 +115,11 @@ screenInSample = ui.page_fluid(
                               )
                           )
                           ),
-                ui.row(
-                    ui.column(12, ui.HTML("<div style='height: 30px;'></div>"))
-                ),
+                
+                
+                ui.tags.hr(),
+                ui.row(ui.HTML("<div style='width: 20px;'></div>")),
+                
                 ui.row(
                     crear_card_con_input_seleccionador("par_vars_segmento", "Variables para reportes por Segmento", "vars_segmento", ui.tags.i(
                         class_="fa fa-question-circle-o", style="font-size:24px")),
@@ -145,7 +135,7 @@ screenInSample = ui.page_fluid(
         ),
         # class_="custom-card"
 
-        ui.tags.hr(),
+        #ui.tags.hr(),
 
 
         ui.navset_card_underline(

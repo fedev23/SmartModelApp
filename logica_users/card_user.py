@@ -37,7 +37,8 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                                 class_="btn btn-dark ml-3"
                             ),
                             ui.output_ui("project_card_container"),
-                            class_="d-flex align-items-center gap-3 mb-3"
+                            class_="d-flex align-items-center gap-3 mb-3",
+                            style="margin-top: -5px;"   
                         )
                     ),
                     # Seleccionador 2 y botón Crear Versión
@@ -57,7 +58,8 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                                 class_="btn btn-dark ml-3"
                             ),
                             ui.output_ui("button_remove_versions"), 
-                            class_="d-flex align-items-center gap-3 mb-3"
+                            class_="d-flex align-items-center gap-3 mb-3",
+                            style="margin-top: -5px;"   
                         )
                        
                     ),
@@ -69,8 +71,11 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                                 "files_select",
                                 "",
                                 {'a': "Archivo A", 'b': "Archivo B"},
-                                width="50%"
-                            ),ui.div(
+                                width="50%",
+                                #style="margin-top: -2px;"
+                            ),  ui.HTML("<div style='width: 15px;'></div>"),
+                            
+                            ui.div(
                                 ui.input_file(
                                     "file_desarollo",
                                     "",
@@ -81,10 +86,13 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                                 ),
 
                             ),
-                            ui.output_ui("remove_dataset"),                  
-                            class_="file-input-container d-flex align-items-center gap-3 mb-3"
+                            ui.HTML("<div style='width: 10px;'></div>"),
+                            ui.output_ui("remove_dataset"),  
+                            class_= "d-flex justify-content-end:" , 
+                            style="margin-top: -5px;"          
+                            #class_="file-input-container d-flex align-items-center gap-3 mb-3"
                         ),
                         
                     )
-                )
+                ),
             )

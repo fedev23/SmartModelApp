@@ -301,7 +301,7 @@ class LoadJson:
                 },
                 {
                     "parameter": "data_source_scoring_delim_path",
-                    "value": self.inputs["file_produccion"],
+                    "value": self.inputs["file_validation"],
                     "Descripción": "Ubicación del archivo de datos para scoring en formato plano",
                     "type": "string"
                 }
