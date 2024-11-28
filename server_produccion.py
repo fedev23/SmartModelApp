@@ -23,12 +23,7 @@ def server_produccion(input, output, session, name_suffix):
     global_names_reactivos.name_produccion_set(name_suffix)
     mensaje = reactive.Value("")
     directorio = reactive.Value("")
-    lista = reactive.Value(True)
-    reactivo_dinamico =  reactive.Value("")
-    dataSet_predeterminado_parms =  reactive.Value("")
     
-    
-
     @output
     @render.text
     def nombre_proyecto_produccion():
@@ -46,7 +41,6 @@ def server_produccion(input, output, session, name_suffix):
                     print(user)
                     user_id_cleaned = user_id.replace('|', '_')
                     directorio.set(user)
-                    modelo_produccion.script_path = f"./Scoring.sh datos_entrada_{user_id_cleaned} datos_salida_{user_id_cleaned}"
                     ##voy a usar la clase como efecto reactivo, ya que si queda encapsulada dentro de la funcion no la podria usar
                     screen_instance.set(ScreenClass(directorio.get(), name_suffix))
                     
@@ -96,24 +90,6 @@ def server_produccion(input, output, session, name_suffix):
     
     # estoy usando la clase para la creacion de modelos aca, lueog veo si adapto todas o las dejo en modelo
     
-    @reactive.Effect
-    @reactive.event(input.radio_models)
-    def seleccionador_de_radio_button():
-        input_radio = input.radio_models()
-        reactivo_dinamico.set(input_radio)
-            
-
-    @output
-    @render.ui
-    def card_produccion1():
-        if  reactivo_dinamico.get() == "2":
-            return retornar_card(
-                get_file_name=global_session_V2.get_nombre_dataset_validacion_sc(),
-                #get_fecha=global_fecha.get_fecha_produccion,
-                modelo=modelo_produccion
-            )
-    
-
         
     @output
     @render.text
@@ -136,8 +112,20 @@ def server_produccion(input, output, session, name_suffix):
         click_count_value = modelo_produccion.click_counter.get()  # Obtener contador
         mensaje_value = modelo_produccion.mensaje.get()  # Obtener mensaje actual
         proceso = modelo_produccion.proceso.get()
-        ejectutar_produccion(click_count_value, mensaje_value, proceso)
-        insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_produccion())
+        try:
+            path_entrada = obtener_path_por_proyecto_version(global_session.get_id_proyecto(), global_session.get_id_version(), 'entrada')
+            path_salida = obtener_path_por_proyecto_version(global_session.get_id_proyecto(), global_session.get_id_version(), 'salida')
+            
+            if not path_entrada or not path_salida:
+                raise ValueError("No se pudieron obtener las rutas de entrada y/o salida")
+                
+    
+            modelo_produccion.script_path = f"./Scoring.sh {path_entrada} {path_salida}"
+            ejectutar_produccion(click_count_value, mensaje_value, proceso)
+            
+        except Exception as e:
+            mensaje_value.set(f"Primero ejecutar el proceso de Desarrollo para poder ejecutar el proceso  full {str(e)}")
+            return
         
-   
+        
   

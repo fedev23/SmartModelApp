@@ -19,6 +19,7 @@ from auth.auth import server_login
 from logica_users.extend_of_user import extend_user_server
 from  logica_users.card_user import user_ui
 from servers.in_Sample_versions import in_sample_verions
+from servers.logica_scoring_valid import logica_server_Validacion_scroing
 
 
 
@@ -26,6 +27,7 @@ from servers.in_Sample_versions import in_sample_verions
 def create_server(input, output, session):
     server_parametros_desarrollo(input, output, session, 'desarrollo')
     server_login(input, output, session),
+    logica_server_Validacion_scroing(input, output, session, 'Scroring_out_of_sample')
     user_ui(input, output, session, 'user'),
     in_sample_verions(input, output, session,"versiones_json")
     extend_user_server(input, output, session, "extend_user_server")

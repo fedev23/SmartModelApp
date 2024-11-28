@@ -30,14 +30,19 @@ CREATE TABLE IF NOT EXISTS execution_log (
 # Crear la tabla `model_execution` que referencia a `project`
 cur.execute('''
 CREATE TABLE IF NOT EXISTS model_execution (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER,
-    project_id INTEGER,
-    execution_date TEXT,
-    model_name TEXT,
-    dataset_name TEXT,
-    FOREIGN KEY (project_id) REFERENCES project(id)
-)
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            project_id INTEGER,
+            execution_date TEXT,
+            model_name TEXT,
+            dataset_name TEXT,
+            version_id INTEGER,  -- Nueva columna para la versión
+            execution_id TEXT,
+            model_type TEXT,
+            execution_state TEXT DEFAULT 'pendiente',  -- Estado inicial del modelo
+            FOREIGN KEY (project_id) REFERENCES project(id),
+            FOREIGN KEY (version_id) REFERENCES versions(id)  -- Relación con la tabla 'versions'
+        );
 ''')
 
 # Crear la tabla `version` que referencia a `project`

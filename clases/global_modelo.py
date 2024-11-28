@@ -25,7 +25,7 @@ modelo_of_sample = ModeloProceso(
         name_file = "", 
         mensaje_id= "mensaje_of_sample",
         directorio=r"/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat",
-        script_name="Levantar_Contenedor.sh",
+        script_name="",
         script_path=""
     )
 

@@ -1,5 +1,6 @@
 import sqlite3
 from datetime import datetime
+import uuid
 
 def add_project(user_id, name):
     conn = sqlite3.connect('Modeling_App.db')
@@ -128,23 +129,28 @@ def  obtener_nombre_proyecto_por_id(proyecto_id):
         conn.close()
         
         
-def insert_table_model(user_id, project_id, model_name, dataset_name):
-    conn = sqlite3.connect('Modeling_App.db')
-    cur = conn.cursor()
+def insert_table_model(user_id, project_id, execution_date, model_name, dataset_name, version_id, model_type, execution_state):
+    try:
+        # Conexión a la base de datos
+        
+        execution_id = str(uuid.uuid4())
+        conn = sqlite3.connect('Modeling_App.db')
+        cur = conn.cursor()
 
-    # Obtener la fecha y hora de ejecución
-    execution_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # Insertar los datos en la tabla 'model_execution'
+        cur.execute('''
+        INSERT INTO model_execution (user_id, project_id, execution_date, model_name, dataset_name, version_id, execution_id, model_type, execution_state)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+        ''', (user_id, project_id, execution_date, model_name, dataset_name, version_id, execution_id, model_type, execution_state))
 
-    # Insertar el registro en `model_execution`
-    cur.execute('''
-        INSERT INTO model_execution (user_id, project_id, execution_date, model_name, dataset_name)
-        VALUES (?, ?, ?, ?, ?)
-    ''', (user_id, project_id, execution_date, model_name, dataset_name))
+        # Confirmar los cambios
+        conn.commit()
+        return f"Modelo '{model_name}' ejecutado  para el proyecto {project_id} con estado '{execution_state}'."
 
-    conn.commit()
-    conn.close()
-    print(f"Ejecución registrada en 'model_execution': {model_name} para el proyecto ID {project_id} a las {execution_date}.")
-
+    except sqlite3.Error as e:
+        print(f"Error al insertar datos en 'model_execution': {e}")
+    finally:
+        conn.close()
 
 
 def show_execution_logs():

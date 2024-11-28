@@ -33,12 +33,12 @@ def cargar_archivos(file_info, directorio):
 
 def mover_y_renombrar_archivo(nombre_archivo, directorio_base, name_suffix, destino_base):
     """
-    Busca un archivo, lo mueve y lo renombra según el sufijo proporcionado.
+    Busca un archivo, lo copia al destino con un nuevo nombre y mantiene el original en el lugar.
 
     :param nombre_archivo: Nombre del archivo (incluyendo la extensión).
     :param directorio_base: Directorio donde se buscará el archivo.
     :param name_suffix: Sufijo que define el nuevo nombre del archivo.
-    :param destino_base: Directorio base donde se moverá el archivo.
+    :param destino_base: Directorio base donde se copiará el archivo.
     :return: Ruta completa del archivo en el destino.
     """
     try:
@@ -71,10 +71,10 @@ def mover_y_renombrar_archivo(nombre_archivo, directorio_base, name_suffix, dest
         # Ruta completa del archivo destino
         ruta_destino = os.path.join(destino_base, nuevo_nombre)
 
-        # Mover y renombrar el archivo
-        shutil.move(file_path, ruta_destino)
+        # Copiar el archivo al destino con el nuevo nombre
+        shutil.copy2(file_path, ruta_destino)
 
-        print(f"Archivo movido y renombrado: {ruta_destino}")
+        print(f"Archivo copiado y renombrado: {ruta_destino}")
         return ruta_destino
 
     except FileNotFoundError as e:
