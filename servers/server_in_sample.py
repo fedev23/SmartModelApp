@@ -1,5 +1,4 @@
 from shiny import reactive, render, ui
-from funciones.create_nav_menu import create_nav_menu
 from clases.class_user_proyectName import global_user_proyecto
 from clases.class_screens import ScreenClass
 from clases.global_name import global_name_manager
@@ -85,11 +84,7 @@ def server_in_sample(input, output, session, name_suffix):
     def nombre_proyecto_in_sample():
         return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo(global_session.proyecto_seleccionado())}'
     
-    @output
-    @render.ui
-    def menuInSample():
-        return create_nav_menu(name_suffix, name)
-
+  
     @output
     @render.data_frame
     def par_rango_niveles():

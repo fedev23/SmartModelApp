@@ -5,7 +5,6 @@ from global_var import global_data_loader_manager  # Importar el gestor global
 from clases.global_sessionV2 import global_session_V2
 from clases.global_name import global_name_manager
 from clases.global_modelo import modelo_produccion
-from funciones.create_nav_menu import create_nav_menu
 from clases.class_screens import ScreenClass
 from funciones.utils import retornar_card
 from clases.class_user_proyectName import global_user_proyecto
@@ -47,13 +46,6 @@ def server_produccion(input, output, session, name_suffix):
     see_session()
 
    
-
-    @output
-    @render.ui
-    def nav_out_to_produccion():
-        return create_nav_menu(name_suffix, name)
-    
-    
     @output
     @render.text
     def error_in_produccion():

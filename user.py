@@ -8,6 +8,7 @@ from clases.global_sessionV2 import *
 from funciones.funciones_user import create_modal_versiones, show_selected_project_card, create_modal_eliminar_bd, create_modal_v2, button_remove_version
 from funciones.utils_2 import crear_carpeta_proyecto, crear_carpeta_version_por_proyecto, get_datasets_directory
 from funciones.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version
+from funciones.utils_cargar_json import leer_control_json
 
 
 def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
@@ -111,6 +112,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         data_predeterminado.set(obtener_ultimo_id_version(nombre_files_validacion_sc, "id_validacion_sc"))
         
         
+        #LEEO ELDATA SET SI EXISTE
         
         # Actualiza los selectores en la UI
         ui.update_select("files_select_validation_scoring",choices=global_session_V2.get_opciones_name_dataset_Validation_sc(), selected=data_predeterminado.get())
@@ -128,11 +130,15 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     @reactive.event(input.other_select)  # Escuchar cambios en el selector
     def project_card_container():
         versiones_id = input.other_select()  # Captura el ID seleccionado
+        print(versiones_id, "viendo el id")
         global_session.set_id_version(versiones_id)
         nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
         global_session.set_versiones_name(nombre_version)
+        param_json = leer_control_json(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_id_version(), global_session.get_versiones_name())
+        global_session_V2.set_json_params_desarrollo(param_json)
+        #print(global_session_V2.get_json_params_desarrollo(), "ESTOY VIENDO EL JSON")
         
-
+   
     @output
     @render.ui
     def button_remove_versions():

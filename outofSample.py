@@ -1,6 +1,5 @@
 from shiny import reactive, render, ui
 from funciones.create_param import create_screen
-from funciones.create_nav_menu import create_nav_menu
 from clases.class_screens import ScreenClass
 from clases.class_user_proyectName import global_user_proyecto
 from global_var import global_data_loader_manager
@@ -57,11 +56,7 @@ def server_out_of_sample(input, output, session, name_suffix):
 
   
 
-    @output
-    @render.ui
-    def nav_out_to_sample():
-        return create_nav_menu(name_suffix, name)
-    
+   
 
     
     @reactive.Effect

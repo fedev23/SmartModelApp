@@ -1,15 +1,14 @@
 from shiny import reactive, render, ui
 from funciones.create_param import create_screen
 from clases.global_modelo import global_desarollo
-from funciones.create_nav_menu import create_nav_menu
 from clases.class_screens import ScreenClass
-from funciones.utils import retornar_card, mover_file_reportes_puntoZip
+from funciones.utils import retornar_card
 from clases.class_user_proyectName import global_user_proyecto
 from funciones.utils import create_modal_parametros, id_buttons_desa
-from clases.global_session import global_session
 from funciones.utils_2 import get_user_directory, render_data_summary, aplicar_transformaciones, mostrar_error, cambiarAstring, trans_nulos_adic
 from api.db import *
 from clases.global_session import *
+from clases.global_sessionV2 import *
 from clases.reactives_name import global_names_reactivos
 from funciones.funciones_cargaDatos import guardar_archivo
 from shiny.types import FileInfo
@@ -19,6 +18,7 @@ from clases.class_validacion import Validator
 from clases.loadJson import LoadJson
 from datetime import datetime
 from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
+from funciones.utils_cargar_json import parametros_sin_version, create_parametros_from_json
 
 def server_desarollo(input, output, session, name_suffix):
     directorio_desarollo = reactive.value("")
@@ -71,10 +71,16 @@ def server_desarollo(input, output, session, name_suffix):
     def nombre_proyecto_desarrollo():
         return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo(global_session.proyecto_seleccionado())}'
 
+   
+    #RETORNO LOS PARAMETROS DE DESARROLO
     @output
     @render.ui
-    def conten_nav():
-        return create_nav_menu(name_suffix, name)
+    def parametros_desarrolo():
+        print("ESTOY ANTES DE RETORNAR")
+        if global_session_V2.get_json_params_desarrollo():
+            return create_parametros_from_json(name_suffix, global_session_V2.get_json_params_desarrollo())
+        else:
+            return parametros_sin_version(name_suffix)
 
     @reactive.Effect
     @reactive.event(input.file_desarollo)

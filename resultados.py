@@ -281,20 +281,4 @@ def server_resul(input, output, session, name_suffix):
     
     
 
-    def create_navigation_handler(input_id, screen_name):
-        @reactive.Effect
-        @reactive.event(input[input_id])
-        async def navigate():
-            await session.send_custom_message('navigate', screen_name)
-    # NAVEGACIONES DE MENU
-    create_navigation_handler('start_resultados', 'Screen_User')
-    create_navigation_handler(
-        'screen_in_sample_resultados', 'screen_in_sample')
-    create_navigation_handler(
-        'screen_Desarollo_resultados', 'Screen_Desarollo')
-    create_navigation_handler('load_Validacion_resultados', 'Screen_valid')
-    create_navigation_handler(
-        'screen_Produccion_resultados', 'Screen_Porduccion')
-    create_navigation_handler("ir_modelos_resultados", "Screen_3")
-    create_navigation_handler("ir_result_resultados", "Screen_Resultados")
-    create_navigation_handler("volver_resultados", "Screen_User")
+    

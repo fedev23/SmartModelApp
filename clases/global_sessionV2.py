@@ -7,6 +7,7 @@ class GlobalSessionV2:
         self.opciones_name_dataset_Validation_sc = reactive.Value()
         self.nombre_dataset_validacion_sc = reactive.Value()
         self.lista_nombre_datos_validacion_Sc = reactive.Value()
+        self.json_desarrollo = reactive.Value()
         
 
     def set_id_Data_validacion_sc(self, id):
@@ -38,6 +39,13 @@ class GlobalSessionV2:
     
     def get_lista_nombre_datos_validacion_Sc(self):
         return self.lista_nombre_datos_validacion_Sc.get() 
+    
+    def set_json_params_desarrollo(self, json):
+        self.json_desarrollo.set(json)
+        
+      
+    def get_json_params_desarrollo(self):
+        return self.json_desarrollo.get()
     
     
 
