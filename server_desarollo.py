@@ -18,7 +18,6 @@ from clases.class_validacion import Validator
 from clases.loadJson import LoadJson
 from datetime import datetime
 from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
-from funciones.utils_cargar_json import parametros_sin_version, create_parametros_from_json
 
 def server_desarollo(input, output, session, name_suffix):
     directorio_desarollo = reactive.value("")
@@ -73,14 +72,9 @@ def server_desarollo(input, output, session, name_suffix):
 
    
     #RETORNO LOS PARAMETROS DE DESARROLO
-    @output
-    @render.ui
-    def parametros_desarrolo():
-        print("ESTOY ANTES DE RETORNAR")
-        if global_session_V2.get_json_params_desarrollo():
-            return create_parametros_from_json(name_suffix, global_session_V2.get_json_params_desarrollo())
-        else:
-            return parametros_sin_version(name_suffix)
+  
+        #else:
+            #return parametros_sin_version(name_suffix)
 
     @reactive.Effect
     @reactive.event(input.file_desarollo)

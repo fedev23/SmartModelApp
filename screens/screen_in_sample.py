@@ -120,16 +120,16 @@ screenInSample = ui.page_fluid(
                 ui.tags.hr(),
                 ui.row(ui.HTML("<div style='width: 20px;'></div>")),
                 
-                ui.row(
-                    crear_card_con_input_seleccionador("par_vars_segmento", "Variables para reportes por Segmento", "vars_segmento", ui.tags.i(
-                        class_="fa fa-question-circle-o", style="font-size:24px")),
-                    crear_card_con_input_numeric("par_times", "Submuestras para bootstrap", "times_sub", ui.tags.i(
-                        class_="fa fa-question-circle-o", style="font-size:24px"), value=25),
-                    crear_card_con_input_numeric("par_cant_reportes", "Cantidad de reportes", "cant_reportes", ui.tags.i(
-                        class_="fa fa-question-circle-o", style="font-size:24px"), value=100),
+                #ui.row(
+                    #crear_card_con_input_seleccionador("par_vars_segmento", "Variables para reportes por Segmento", "vars_segmento", ui.tags.i(
+                        #class_="fa fa-question-circle-o", style="font-size:24px")),
+                    #crear_card_con_input_numeric("par_times", "Submuestras para bootstrap", "times_sub", ui.tags.i(
+                        #class_="fa fa-question-circle-o", style="font-size:24px"), value=25),
+                    #crear_card_con_input_numeric("par_cant_reportes", "Cantidad de reportes", "cant_reportes", ui.tags.i(
+                        #class_="fa fa-question-circle-o", style="font-size:24px"), value=100),
                     # ui.column(4, ui.input_text("par_vars_segmento", "Variables para reportes por Segmento")),
                     # ui.column(4, ui.input_numeric("par_cant_reportes", "Cantidad de reportes", value=100)),
-                ),
+                #),
 
             ),
         ),

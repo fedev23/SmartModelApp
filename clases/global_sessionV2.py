@@ -8,6 +8,7 @@ class GlobalSessionV2:
         self.nombre_dataset_validacion_sc = reactive.Value()
         self.lista_nombre_datos_validacion_Sc = reactive.Value()
         self.json_desarrollo = reactive.Value()
+        self.retornado = reactive.Value(False)
         
 
     def set_id_Data_validacion_sc(self, id):
@@ -46,6 +47,14 @@ class GlobalSessionV2:
       
     def get_json_params_desarrollo(self):
         return self.json_desarrollo.get()
+    
+    
+    def set_retornado(self, json):
+        self.retornado.set(json)
+        
+      
+    def get_retornado(self):
+        return self.retornado.get()
     
     
 

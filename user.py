@@ -136,7 +136,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         global_session.set_versiones_name(nombre_version)
         param_json = leer_control_json(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_id_version(), global_session.get_versiones_name())
         global_session_V2.set_json_params_desarrollo(param_json)
-        #print(global_session_V2.get_json_params_desarrollo(), "ESTOY VIENDO EL JSON")
+        print(global_session_V2.get_json_params_desarrollo(), "ESTOY VIENDO EL JSON")
         
    
     @output

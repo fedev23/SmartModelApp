@@ -228,6 +228,33 @@ def crear_card_con_input_seleccionador(input_id, input_label, action_link_id, ic
         )
     
     )
+
+def crear_card_con_input_seleccionador_V3(input_id, input_label, action_link_id, icon):
+    return ui.column(4, 
+        ui.card_header(
+            ui.row(
+                ui.column(
+                    10,  # Width for the selectize input
+                    ui.input_selectize(
+                        input_id,
+                        input_label,
+                        choices=[],  # Initially empty; will be updated reactively
+                        multiple=True,
+                        options={"placeholder": "seleccionar columnas..."}
+                    )
+                ),
+                ui.column(
+                    2,  # Width for the action link
+                    ui.input_action_link(
+                        action_link_id, 
+                        label="",  # Can be modified to add text if needed
+                        icon=icon
+                    )
+                )
+            )
+        )
+    
+    )
     
 
 def crear_card_con_input_seleccionador_V2(input_id, input_label, action_link_id, icon):
