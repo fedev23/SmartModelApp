@@ -253,7 +253,7 @@ def render_data_summary(data):
         # Retornar un DataFrame vacío para evitar errores en Shiny
         print("Advertencia: 'data' es None o un DataFrame vacío.")
         return pd.DataFrame()  # Retorna un DataFrame vacío
-
+    #global_estados.set_numero_dataset(5)
     select_number_data_set = int(global_estados.get_numero_dataset())
     return pd.DataFrame(data.head(select_number_data_set))        
         

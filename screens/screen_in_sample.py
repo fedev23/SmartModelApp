@@ -2,7 +2,7 @@ from shiny import App, ui, reactive
 from clases.loadJson import LoadJson
 from global_var import global_data_loader_manager
 from faicons import icon_svg
-from funciones.utils import crear_card_con_input, crear_card_con_input_numeric, crear_card_con_input_seleccionador
+from funciones.utils import  crear_card_con_input_numeric, crear_card_con_input_seleccionador_V3, crear_card_con_input_numeric_2
 from global_names import global_name_in_Sample
 
 data = reactive.Value()
@@ -73,7 +73,6 @@ screenInSample = ui.page_fluid(
 
     ),
     ui.div(
-        ui.card(
             ui.row(
                 ui.column(4,
                           ui.row(
@@ -114,30 +113,14 @@ screenInSample = ui.page_fluid(
                                   class_="custom-card"
                               )
                           )
-                          ),
-                
-                
-                ui.tags.hr(),
-                ui.row(ui.HTML("<div style='width: 20px;'></div>")),
-                
-                #ui.row(
-                    #crear_card_con_input_seleccionador("par_vars_segmento", "Variables para reportes por Segmento", "vars_segmento", ui.tags.i(
-                        #class_="fa fa-question-circle-o", style="font-size:24px")),
-                    #crear_card_con_input_numeric("par_times", "Submuestras para bootstrap", "times_sub", ui.tags.i(
-                        #class_="fa fa-question-circle-o", style="font-size:24px"), value=25),
-                    #crear_card_con_input_numeric("par_cant_reportes", "Cantidad de reportes", "cant_reportes", ui.tags.i(
-                        #class_="fa fa-question-circle-o", style="font-size:24px"), value=100),
-                    # ui.column(4, ui.input_text("par_vars_segmento", "Variables para reportes por Segmento")),
-                    # ui.column(4, ui.input_numeric("par_cant_reportes", "Cantidad de reportes", value=100)),
-                #),
-
-            ),
+                          ),    
         ),
+             ui.output_ui("parametros_json_niveles"),
         # class_="custom-card"
+        #ui.row(ui.HTML("<div style='width: 20px;'></div>")),
+        ui.tags.hr(),
 
-        #ui.tags.hr(),
-
-
+        ui.div(class_="mt-5"),
         ui.navset_card_underline(
             ui.nav_panel(
                 "Ejecución",

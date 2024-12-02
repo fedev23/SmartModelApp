@@ -11,3 +11,5 @@ mensaje_por_defecto = "Versión por defecto"
 
 ##Me llevo el mensaje por defecto por el navbar de usarios
 global_estados.set_mensaje_por_defecto(mensaje_por_defecto)
+
+

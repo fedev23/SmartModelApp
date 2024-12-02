@@ -1,53 +1,17 @@
 from shiny import App, reactive, render, ui
-from funciones.utils import validar_columnas, validate_par_iv, process_target_col1, create_modal_parametros, id_buttons
-from clases.loadJson import LoadJson
 from global_var import global_data_loader_manager
 import pandas as pd 
-from funciones.utils_2 import cambiarAstring, trans_nulos_adic, validar_proyecto, mostrar_error
+from funciones.utils_2 import  mostrar_error
 from clases.global_session import global_session
-from clases.global_reactives import global_estados
-from clases.class_cargar_datos import CargarDatos
+
 from clases.global_sessionV2 import *
 from funciones.utils_cargar_json import get_parameter_value, parametros_sin_version
-from funciones.utils import crear_card_con_input_seleccionador, crear_card_con_input_numeric_2, crear_card_con_input_seleccionador_V2, crear_card_con_input_seleccionador_V3
+from funciones.utils import  crear_card_con_input_numeric_2, crear_card_con_input_seleccionador_V2, crear_card_con_input_seleccionador_V3
 
 
 def server_parametros_desarrollo(input, output, session, name_suffix):
     # Obtener el DataLoader correspondiente basado en name_suffix, ya que necesita un key la clase dataloader
     data_loader = global_data_loader_manager.get_loader(name_suffix)
-    
-    def user_session():
-        @reactive.Effect
-        def obtener_user() -> str:
-            if global_session.proceso.get():
-                state = global_session.session_state.get()
-                if state["is_logged_in"]:
-                    user_id = state["id"]
-                    return user_id
-        
-    
-    
-         # Definir las unciones de transformación para cada input
-    transformaciones = {
-        'par_ids': cambiarAstring,
-        'par_target': cambiarAstring,
-        'cols_forzadas_a_predictoras': cambiarAstring,
-        'par_var_grupo': cambiarAstring,
-        'cols_nulos_adic': trans_nulos_adic,
-        'cols_forzadas_a_cat': cambiarAstring,
-        'cols_no_predictoras': cambiarAstring
-        
-    }
-
-    
-    
-    def create_navigation_handler(input_id, screen_name, valid):
-        @reactive.Effect
-        @reactive.event(input[input_id])
-        async def navigate():
-            if valid.get():
-                await session.send_custom_message('navigate', screen_name)
-    
     mensaje = reactive.Value("")  # Reactive value para el mensaje de error
     mensjae_error_proyecto = reactive.Value("")
     no_error = reactive.Value(True)
@@ -94,6 +58,7 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
                 json_params = global_session_V2.get_json_params_desarrollo()
                 for selectize_id, param_name in selectize_params.items():
                     # Obtén el valor del parámetro
+                    print()
                     value = get_parameter_value(param_name, json_params)
                     
                     # Procesa el valor si es una cadena con elementos separados por comas
@@ -101,7 +66,7 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
                         value = [v.strip() for v in value.split(",")]
                     
                     # Actualiza el selectize con los valores seleccionados
-            
+                    #print(selectize_id)
                     ui.update_selectize(selectize_id, choices=column_names, selected=value)        
                 
         
@@ -110,10 +75,7 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
         @output
         @render.ui
         def parametros_desarrolo():
-            print("ESTOY ANTES DE RETORNAR")
             if global_session_V2.get_json_params_desarrollo():
-                value_par_id = get_parameter_value('par_ids', global_session_V2.get_json_params_desarrollo())
-                value_par_id = [value_par_id]
                 return ui.div(
                     ui.output_ui(f"acordeon_columnas_{name_suffix}"),
                     ui.card(
@@ -178,14 +140,3 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
                 )
             else:
                   return parametros_sin_version(name_suffix)
-
-
-                    
-            
-
-            
-            
-        
-    
-        
-    

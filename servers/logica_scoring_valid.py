@@ -41,8 +41,8 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
             print(f"Nombre del archivo recibido: {input_name}")
 
             # Guardar el archivo
-            name_suffix = "_validation"  # Ejemplo de sufijo, ajusta según sea necesario
-            ruta_guardado = await guardar_archivo(input.file_validation, name_suffix)
+            name = "validation"  # Ejemplo de sufijo, ajusta según sea necesario
+            ruta_guardado = await guardar_archivo(input.file_validation, name)
             print(f"El archivo fue guardado en {ruta_guardado}")
 
             # Obtener fecha actual
@@ -80,8 +80,7 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
             error_message = f"Error en loadOutSample: {e}"
             #ui.update_text("error_message", error_message)  # Asume que hay un output de texto para mostrar errores
             print(error_message)
-    
-    
+        
       
 
     @reactive.Effect

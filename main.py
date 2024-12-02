@@ -8,7 +8,8 @@ import os
 from starlette.responses import FileResponse, JSONResponse
 from app_ui import app_ui
 from outofSample import server_out_of_sample
-from validacion_param.parametros_desarrollo import server_parametros_desarrollo
+from parametros.parametros_desarrollo import server_parametros_desarrollo
+from parametros.niveles_Scorcards.parametros_ui import server_niveles_Scorcards
 from modelo import server_modelos
 from server_desarollo import server_desarollo
 from server_produccion import server_produccion
@@ -35,6 +36,7 @@ def create_server(input, output, session):
     server_out_of_sample(input, output, session, 'validacion')
     server_produccion(input, output, session, 'produccion')
     server_in_sample(input, output, session, 'in_sample')
+    server_niveles_Scorcards(input, output, session, 'in_sample')
     server_modelos(input, output, session, 'modelo')
     server_resul(input, output, session, 'resultados')
     user_server(input, output, session, 'user')

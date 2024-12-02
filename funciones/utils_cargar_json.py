@@ -2,6 +2,7 @@ import os
 import json
 from funciones.utils import crear_card_con_input_seleccionador, crear_card_con_input_numeric_2, crear_card_con_input_seleccionador_V2, crear_card_con_input_seleccionador_V3
 from shiny import ui
+from clases.global_sessionV2 import *
 
 
 def get_datasets_directory_json(user_id, proyecto_id, name_proyect, id_version, nombre_version):
@@ -118,3 +119,21 @@ def parametros_sin_version(name_suffix):
         ui.output_text_verbatim(f"param_validation_3_{name_suffix}"),
         #class_="custom-column"
     )
+
+
+def parametros_sin_version_niveles_scorcads(name_suffix):
+    return ui.div(
+                    #ui.column(3, style="margin-right:40px;"),
+                    ui.row(
+                     crear_card_con_input_numeric_2("par_times", "Submuestras para bootstrap", "times_sub", ui.tags.i(
+                        class_="fa fa-question-circle-o", style="font-size:24px"),
+                                                   [], default_value=25, min_value=0, max_value=2, step=0.01),
+                    crear_card_con_input_numeric_2("par_cant_reportes", "Cantidad de reportes", "cant_reportes", ui.tags.i(
+                        class_="fa fa-question-circle-o", style="font-size:24px"),[], default_value=100, min_value=0, max_value=2, step=0.01),
+                    crear_card_con_input_seleccionador("par_vars_segmento", "Variables para reportes por Segmento", "vars_segmento", ui.tags.i(
+                        class_="fa fa-question-circle-o", style="font-size:24px")),
+                       
+                    ),
+                     class_= "d-flex justify-content-end:" 
+                )
+                
