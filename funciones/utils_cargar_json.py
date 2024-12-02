@@ -2,6 +2,7 @@ import os
 import json
 from funciones.utils import crear_card_con_input_seleccionador, crear_card_con_input_numeric_2, crear_card_con_input_seleccionador_V2, crear_card_con_input_seleccionador_V3
 from shiny import ui
+from clases.global_sessionV2 import  *
 
 
 def get_datasets_directory_json(user_id, proyecto_id, name_proyect, id_version, nombre_version):
@@ -71,6 +72,32 @@ def get_parameter_value(parameter_name, lista):
     return None
 
 
+def update_selectize_from_columns_and_json(column_names, selectize_params, json_params=None):
+    """
+    Actualiza los selectores con las columnas disponibles y valores seleccionados del JSON.
+
+    Args:
+        column_names (list): Lista de nombres de columnas disponibles.
+        selectize_params (dict): Diccionario con los IDs de selectores y los nombres de parámetros en el JSON.
+        json_params (dict, optional): Parámetros cargados desde el JSON. Default es None.
+    """
+    # Actualiza siempre las opciones disponibles en los selectores
+    for selectize_id in selectize_params.keys():
+        ui.update_selectize(selectize_id, choices=column_names, selected=[])
+
+    # Si hay parámetros en el JSON, actualiza los valores seleccionados
+    if json_params:
+        for selectize_id, param_name in selectize_params.items():
+            # Obtén el valor del parámetro
+            value = get_parameter_value(param_name, json_params)
+
+            # Procesa el valor si es una cadena con elementos separados por comas
+            if isinstance(value, str):
+                value = [v.strip() for v in value.split(",")]
+
+            # Actualiza el selectize con los valores seleccionados
+            ui.update_selectize(selectize_id, choices=column_names, selected=value)
+
 def parametros_sin_version(name_suffix):
     return ui.div(
         ui.output_ui(f"acordeon_columnas_{name_suffix}"),
@@ -118,3 +145,33 @@ def parametros_sin_version(name_suffix):
         ui.output_text_verbatim(f"param_validation_3_{name_suffix}"),
         #class_="custom-column"
     )
+    
+def parametros_sin_version_niveles_scorcads():
+    return ui.div( ui.row(
+                        crear_card_con_input_numeric_2(
+                            "par_times", "Submuestras para bootstrap", "times_sub",
+                            ui.tags.i(class_="fa fa-question-circle-o",
+                                      style="font-size:24px"),
+                            global_session_V2.get_json_params_desarrollo(),
+                            default_value=25, min_value=0, max_value=2, step=0.01
+
+                        ),
+                        crear_card_con_input_numeric_2(
+                            "par_cant_reportes", "Cantidad de reportes", "cant_reportes",
+                            ui.tags.i(
+                                class_="fa fa-question-circle-o", style="font-size:24px"),
+                            global_session_V2.get_json_params_desarrollo(),
+                            default_value=100, min_value=0, max_value=2, step=0.01
+                        ),
+                        crear_card_con_input_seleccionador_V3(
+                            "par_vars_segmento", "Variables para reportes por Segmento", "vars_segmento",
+                            ui.tags.i(
+                                class_="fa fa-question-circle-o", style="font-size:24px")
+                        ),
+
+                        # style="display: flex; justify-content: space-around; align-items: center;"  # Estilo para mantener todo alineado
+                    ),
+ 
+    )
+    
+

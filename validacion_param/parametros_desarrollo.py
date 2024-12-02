@@ -8,7 +8,7 @@ from clases.global_session import global_session
 from clases.global_reactives import global_estados
 from clases.class_cargar_datos import CargarDatos
 from clases.global_sessionV2 import *
-from funciones.utils_cargar_json import get_parameter_value, parametros_sin_version
+from funciones.utils_cargar_json import get_parameter_value, parametros_sin_version, update_selectize_from_columns_and_json
 from funciones.utils import crear_card_con_input_seleccionador, crear_card_con_input_numeric_2, crear_card_con_input_seleccionador_V2, crear_card_con_input_seleccionador_V3
 
 
@@ -89,20 +89,10 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
                 "par_vars_segmento": "par_vars_segmento",
             }
 
-            # Si hay parámetros en el JSON, actualiza los valores seleccionados
-            if global_session_V2.get_json_params_desarrollo():
-                json_params = global_session_V2.get_json_params_desarrollo()
-                for selectize_id, param_name in selectize_params.items():
-                    # Obtén el valor del parámetro
-                    value = get_parameter_value(param_name, json_params)
-                    
-                    # Procesa el valor si es una cadena con elementos separados por comas
-                    if isinstance(value, str):
-                        value = [v.strip() for v in value.split(",")]
-                    
-                    # Actualiza el selectize con los valores seleccionados
-            
-                    ui.update_selectize(selectize_id, choices=column_names, selected=value)        
+            json_params = global_session_V2.get_json_params_desarrollo()
+
+        # Llama a la función genérica para actualizar los selectores
+            update_selectize_from_columns_and_json(column_names, selectize_params, json_params) 
                 
         
     @reactive.effect
