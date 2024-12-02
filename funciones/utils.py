@@ -46,7 +46,8 @@ def validar_columnas(df, nombre_input):
             print("ok", column)
             return False
         else:
-            mensaje = (f"error en el parametro '{nombre_input}',  '{column}' no encontrada.")
+            mensaje = (
+                f"error en el parametro '{nombre_input}',  '{column}' no encontrada.")
             return mensaje
 
         return False
@@ -63,7 +64,8 @@ def create_zip_from_directory(directory_path, zip_file_path):
                         zipf.write(file_path, os.path.relpath(
                             file_path, directory_path))
                     except PermissionError as e:
-                        print(f"Error de permiso al intentar leer el archivo: {file_path}")
+                        print(
+                            f"Error de permiso al intentar leer el archivo: {file_path}")
 
 
 def process_target_col(df, target_col):
@@ -78,12 +80,12 @@ def process_target_col1(target_col):
     if not target_col:  # Esto verifica si está vacío o None
         return False
     # Aquí puedes agregar más lógica de validación si es necesario
-    return True  # 
+    return True  #
 
 
 def validate_par_iv(value):
     if value > 10 or value < 0.5:
-        return  False
+        return False
     else:
         print("Ok par iv")
         return True
@@ -99,13 +101,13 @@ def create_zip_from_file_unico(file_path, zip_file_path):
             print(f"El archivo no existe: {file_path}")
 
 
-def retornar_card(get_file_name, modelo): #get_fecha
+def retornar_card(get_file_name, modelo):  # get_fecha
     # Llama a las funciones `get_file_name` y `get_fecha` proporcionadas
     file_name = get_file_name
-    #fechaHora = get_fecha()
+    # fechaHora = get_fecha()
 
     # Asigna el valor de `fecha_actual_render` utilizando un operador ternario
-    #fecha_actual_render = str(fechaHora) if fechaHora else ""
+    # fecha_actual_render = str(fechaHora) if fechaHora else ""
 
     # Renderiza y retorna la tarjeta usando el modelo proporcionado
     return modelo.render_card(file_name)
@@ -122,7 +124,7 @@ def transformar_reportes(df):
         # Crear el diccionario para cada entrada
         value_dict = {
             "Variables de corte": variable_corte
-}
+        }
 
         # Agregar el diccionario a la lista
         value_list.append(value_dict)
@@ -203,89 +205,94 @@ def crear_card_con_input(input_id, input_label, action_link_id, icon):
 def crear_card_con_input_seleccionador(input_id, input_label, action_link_id, icon):
     # Create a card structure with a row and columns for selectize and action link
     id_buttons.append(action_link_id)
-    return ui.column(4, 
-        ui.card_header(
-            ui.row(
-                ui.column(
-                    10,  # Width for the selectize input
-                    ui.input_selectize(
-                        input_id,
-                        input_label,
-                        choices=[],  # Initially empty; will be updated reactively
-                        multiple=True,
-                        options={"placeholder": "seleccionar columnas..."}
-                    )
-                ),
-                ui.column(
-                    2,  # Width for the action link
-                    ui.input_action_link(
-                        action_link_id, 
-                        label="",  # Can be modified to add text if needed
-                        icon=icon
-                    )
-                )
-            )
-        )
-    
-    )
+    return ui.column(4,
+                     ui.card_header(
+                         ui.row(
+                             ui.column(
+                                 10,  # Width for the selectize input
+                                 ui.input_selectize(
+                                     input_id,
+                                     input_label,
+                                     choices=[],  # Initially empty; will be updated reactively
+                                     multiple=True,
+                                     options={
+                                         "placeholder": "seleccionar columnas..."}
+                                 )
+                             ),
+                             ui.column(
+                                 2,  # Width for the action link
+                                 ui.input_action_link(
+                                     action_link_id,
+                                     label="",  # Can be modified to add text if needed
+                                     icon=icon
+                                 )
+                             )
+                         )
+                     )
+
+                     )
+
 
 def crear_card_con_input_seleccionador_V3(input_id, input_label, action_link_id, icon):
-    return ui.column(4, 
-        ui.card_header(
-            ui.row(
-                ui.column(
-                    10,  # Width for the selectize input
-                    ui.input_selectize(
-                        input_id,
-                        input_label,
-                        choices=[],  # Initially empty; will be updated reactively
-                        multiple=True,
-                        options={"placeholder": "seleccionar columnas..."}
-                    )
-                ),
-                ui.column(
-                    2,  # Width for the action link
-                    ui.input_action_link(
-                        action_link_id, 
-                        label="",  # Can be modified to add text if needed
-                        icon=icon
-                    )
-                )
-            )
-        )
-    
-    )
-    
+    return ui.column(4,
+                     ui.card_header(
+                         ui.row(
+                             ui.column(
+                                 10,  # Width for the selectize input
+                                 ui.input_selectize(
+                                     input_id,
+                                     input_label,
+                                     choices=[],  # Initially empty; will be updated reactively
+                                     multiple=True,
+                                     options={
+                                         "placeholder": "seleccionar columnas..."}
+                                 )
+                             ),
+                             ui.column(
+                                 2,  # Width for the action link
+                                 ui.input_action_link(
+                                     action_link_id,
+                                     label="",  # Can be modified to add text if needed
+                                     icon=icon
+                                 )
+                             )
+                         )
+                     )
+
+                     )
+
 
 def crear_card_con_input_seleccionador_V2(input_id, input_label, action_link_id, icon):
     # Create a card structure with a row and columns for selectize and action link
     id_buttons.append(action_link_id)
-    return ui.column(4, 
-        ui.card_header(
-            ui.row(
-                ui.column(
-                    10,  # Width for the selectize input
-                    ui.input_selectize(
-                        input_id,
-                        input_label,
-                        choices=[],  # Initially empty; will be updated reactively
-                        multiple=True,
-                        options={"placeholder": "seleccionar columnas..."}
-                    )
-                ),
-                ui.column(
-                    2,  # Width for the action link
-                    ui.input_action_link(
-                        action_link_id, 
-                        label="",  # Can be modified to add text if needed
-                        icon=icon
-                    )
-                )
-            )
-        )
-    
-    )
-    
+    return ui.column(4,
+                     ui.card_header(
+                         ui.row(
+                             ui.column(
+                                 10,  # Width for the selectize input
+                                 ui.input_selectize(
+                                     input_id,
+                                     input_label,
+                                     choices=[],  # Initially empty; will be updated reactively
+                                     multiple=True,
+                                     options={
+                                         "placeholder": "seleccionar columnas..."}
+                                 )
+                             ),
+                             ui.column(
+                                 2,  # Width for the action link
+                                 ui.input_action_link(
+                                     action_link_id,
+                                     label="",  # Can be modified to add text if needed
+                                     icon=icon
+                                 )
+                             )
+                         )
+                     )
+
+                     )
+
+
 def crear_card_con_input_numeric(input_id, input_label, action_link_id, icon, value=0):
     id_buttons.append(action_link_id)
     # descripcion = descripciones.get(input_id, "")
@@ -360,22 +367,22 @@ def crear_card_con_input_numeric_2(input_id, input_label, action_link_id, icon, 
 
     return ui.column(4,
                      ui.card_header(
-                     ui.row(   
-                              ui.column(10, ui.input_numeric(
-                                         input_id,
-                                         input_label,
-                                         value=input_value,  # Cambié esto para usar input_value
-                                         min=min_value,
-                                         max=max_value,
-                                         step=step
-                                     )),
-                                     ui.column(2,
-                                               ui.input_action_link(
-                                                   action_link_id, "", icon=icon)
-                                               )
-                                 
-                             )
-                         
+                         ui.row(
+                             ui.column(10, ui.input_numeric(
+                                 input_id,
+                                 input_label,
+                                 value=input_value,  # Cambié esto para usar input_value
+                                 min=min_value,
+                                 max=max_value,
+                                 step=step
+                             )),
+                             ui.column(2,
+                                       ui.input_action_link(
+                                           action_link_id, "", icon=icon)
+                                       )
+
+                         )
+
                      )
                      )
 
@@ -409,7 +416,8 @@ def create_modal_parametros(id):
     # Crear el modal
     m = ui.modal(
         "",
-        title=f"Descripción del parámetro:  {descripcion}",  # Usar el ID para el título
+        # Usar el ID para el título
+        title=f"Descripción del parámetro:  {descripcion}",
         body=descripcion,               # Usar la descripción en el cuerpo
         easy_close=True,
         footer=None,

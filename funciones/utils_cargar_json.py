@@ -97,6 +97,7 @@ def update_selectize_from_columns_and_json(column_names, selectize_params, json_
 
             # Actualiza el selectize con los valores seleccionados
             ui.update_selectize(selectize_id, choices=column_names, selected=value)
+            
 
 def parametros_sin_version(name_suffix):
     return ui.div(
