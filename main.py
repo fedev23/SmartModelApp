@@ -20,6 +20,7 @@ from logica_users.extend_of_user import extend_user_server
 from  logica_users.card_user import user_ui
 from servers.in_Sample_versions import in_sample_verions
 from servers.logica_scoring_valid import logica_server_Validacion_scroing
+from parametros.niveles_Scorcards.parametros_ui import server_niveles_Scorcards
 
 
 
@@ -34,6 +35,7 @@ def create_server(input, output, session):
     server_desarollo(input, output, session, 'desarrollo')
     server_out_of_sample(input, output, session, 'validacion')
     server_produccion(input, output, session, 'produccion')
+    server_niveles_Scorcards(input, output, session, 'in_sample')
     server_in_sample(input, output, session, 'in_sample')
     server_modelos(input, output, session, 'modelo')
     server_resul(input, output, session, 'resultados')

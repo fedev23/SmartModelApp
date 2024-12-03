@@ -53,7 +53,9 @@ def server_niveles_Scorcards(input, output, session, name_suffix):
                     global_session_V2.set_retorne_niveles(True)
                 )
             else:
-                return parametros_sin_version_niveles_scorcads(name_suffix)
+                print("estoy, aca")
+                global_session_V2.set_retorne_niveles(True)
+                return parametros_sin_version_niveles_scorcads()
             
             
 
@@ -67,6 +69,8 @@ def server_niveles_Scorcards(input, output, session, name_suffix):
             column_names = []
 
         # Define un diccionario para mapear los IDs de selectize con los nombres de parámetros en el JSON
+        
+        ui.update_selectize("par_vars_segmento", choices=column_names)
         selectize_params = {
             "par_vars_segmento": "par_vars_segmento",
         }

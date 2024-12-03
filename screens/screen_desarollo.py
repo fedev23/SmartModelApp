@@ -51,10 +51,6 @@ screenDesarollo = ui.page_fluid(
     ),
     
     ui.tags.hr(),  # Separador
-
-    
-    
-    ui.tags.hr(),  # Separador
     
     # Estado del archivo y contenido de pantalla
     ui.row(

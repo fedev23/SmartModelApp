@@ -9,6 +9,7 @@ class GlobalSessionV2:
         self.lista_nombre_datos_validacion_Sc = reactive.Value()
         self.json_desarrollo = reactive.Value()
         self.retornado = reactive.Value(False)
+        self.retorne_niveles = reactive.Value(False)
         
 
     def set_id_Data_validacion_sc(self, id):
@@ -55,6 +56,13 @@ class GlobalSessionV2:
       
     def get_retornado(self):
         return self.retornado.get()
+    
+    def set_retorne_niveles(self, json):
+        self.retorne_niveles.set(json)
+        
+      
+    def get_retorne_niveles(self):
+        return self.retorne_niveles.get()
     
     
 

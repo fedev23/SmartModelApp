@@ -70,6 +70,7 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
     def update_column_choices():
         # Verifica si el retorno está listo
         if global_session_V2.get_retornado():
+            print("pase, aca??")
             # Carga el DataFrame y obtiene sus columnas
             df = global_session.get_data_set_reactivo()  # Asegúrate de obtener el DataFrame del cargador de datos
             if isinstance(df, pd.DataFrame) and not df.empty:
@@ -167,7 +168,9 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
                     global_session_V2.set_retornado(True)
                 )
             else:
-                  return parametros_sin_version(name_suffix)
+                    
+                global_session_V2.set_retornado(True),
+                return parametros_sin_version(name_suffix)
 
 
                     

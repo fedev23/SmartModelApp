@@ -73,7 +73,7 @@ screenInSample = ui.page_fluid(
 
     ),
     ui.div(
-        ui.card(
+        ui.div(
             ui.row(
                 ui.column(4,
                           ui.row(
@@ -117,9 +117,8 @@ screenInSample = ui.page_fluid(
                           ),
                 
                 
-                ui.tags.hr(),
-                ui.row(ui.HTML("<div style='width: 20px;'></div>")),
-                 ui.output_ui("parametros_json_niveles")
+                
+                ui.output_ui("parametros_json_niveles")
                 
                 #ui.row(
                     #crear_card_con_input_seleccionador("par_vars_segmento", "Variables para reportes por Segmento", "vars_segmento", ui.tags.i(
@@ -136,7 +135,7 @@ screenInSample = ui.page_fluid(
         ),
         # class_="custom-card"
 
-        #ui.tags.hr(),
+        ui.tags.hr(),
 
 
         ui.navset_card_underline(
