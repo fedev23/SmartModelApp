@@ -8,7 +8,6 @@ import os
 from starlette.responses import FileResponse, JSONResponse
 from app_ui import app_ui
 from outofSample import server_out_of_sample
-from validacion_param.parametros_desarrollo import server_parametros_desarrollo
 from modelo import server_modelos
 from server_desarollo import server_desarollo
 from server_produccion import server_produccion
@@ -21,6 +20,7 @@ from  logica_users.card_user import user_ui
 from servers.in_Sample_versions import in_sample_verions
 from servers.logica_scoring_valid import logica_server_Validacion_scroing
 from parametros.niveles_Scorcards.parametros_ui import server_niveles_Scorcards
+from parametros.parametros_desarrollo.parametros_desarrollo import server_parametros_desarrollo
 
 
 

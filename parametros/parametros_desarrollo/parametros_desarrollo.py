@@ -8,8 +8,8 @@ from clases.global_session import global_session
 from clases.global_reactives import global_estados
 from clases.class_cargar_datos import CargarDatos
 from clases.global_sessionV2 import *
-from funciones.utils_cargar_json import get_parameter_value, parametros_sin_version, update_selectize_from_columns_and_json
-from funciones.utils import crear_card_con_input_seleccionador, crear_card_con_input_numeric_2, crear_card_con_input_seleccionador_V2, crear_card_con_input_seleccionador_V3
+from funciones.utils_cargar_json import get_parameter_value, update_selectize_from_columns_and_json, update_numeric_from_parameters
+from funciones.utils import  crear_card_con_input_numeric_2, crear_card_con_input_seleccionador_V2, crear_card_con_input_seleccionador_V3
 
 
 def server_parametros_desarrollo(input, output, session, name_suffix):
@@ -114,10 +114,15 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
                                                             ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
                                                             ),
                             
-                            crear_card_con_input_numeric_2(f"par_split", "Training and Testing", "help_training_testing", 
-                                                        ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"), 
-                                                        global_session_V2.get_json_params_desarrollo(), default_value=0, min_value=0, max_value=2, step=0.01),
-                            
+                            crear_card_con_input_numeric_2(
+                            input_id="par_split",
+                            input_label="Training and Testing",
+                            action_link_id="help_training_testing",
+                            icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
+                            min_value=0,
+                            max_value=2,
+                            step=0.01
+                            ),
                             crear_card_con_input_seleccionador_V3("par_target", "Columna Target", "help_target_col", 
                                                             ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
                                                             ),
@@ -139,26 +144,47 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
                                                                 "help_nulos_adic", ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
                                                                 ),
                             
-                            crear_card_con_input_numeric_2(f"par_cor_show", "Mostrar variables por alta correlación:", "help_par_cor_show", 
-                                                        ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"), 
-                                                        global_session_V2.get_json_params_desarrollo(), default_value=0, min_value=0, max_value=1, step=0.01),
-                            
-                            crear_card_con_input_numeric_2(f"par_iv", "Límite para descartar variables por bajo IV", "help_iv", 
-                                                        ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"), 
-                                                        global_session_V2.get_json_params_desarrollo(), default_value=3, min_value=0.5, max_value=10, step=0.1),
-
+                           crear_card_con_input_numeric_2(
+                            input_id="par_cor_show",
+                            input_label="Mostrar variables por alta correlación:",
+                            action_link_id="help_par_cor_show",
+                            icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
+                            min_value=0,
+                            max_value=1,
+                            step=0.01
+                        ), 
+                            crear_card_con_input_numeric_2(
+                            input_id="par_iv",
+                            input_label="Límite para descartar variables por bajo IV",
+                            action_link_id="help_iv",
+                            icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
+                            min_value=0.5,
+                            max_value=10,
+                            step=0.1
+                        ),
                             # Fila 4
                             crear_card_con_input_seleccionador_V3(f"cols_no_predictoras", "Columnas excluidas del modelo", 
                                                                 "help_cols_no_predictoras", ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
                                                                 ),
                             
-                            crear_card_con_input_numeric_2(f"par_cor", "Descartar variables por alta correlación", "help_par_cor", 
-                                                        ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"), 
-                                                        global_session_V2.get_json_params_desarrollo(), default_value=3, min_value=0.5, max_value=10, step=0.1),
-                            
-                            crear_card_con_input_numeric_2(f"par_minpts1", "Casos mínimos de bin de primera etapa", "help_minpts", 
-                                                        ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"), 
-                                                        global_session_V2.get_json_params_desarrollo(), default_value=3, min_value=0.5, max_value=10, step=0.1)
+                            crear_card_con_input_numeric_2(
+                            input_id="par_cor",
+                            input_label="Descartar variables por alta correlación",
+                            action_link_id="help_par_cor",
+                            icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
+                            min_value=0.5,
+                            max_value=10,
+                            step=0.1
+                        ),
+                            crear_card_con_input_numeric_2(
+                        input_id="par_minpts1",
+                        input_label="Casos mínimos de bin de primera etapa",
+                        action_link_id="help_minpts",
+                        icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
+                        min_value=0.5,
+                        max_value=10,
+                        step=0.1
+                    ),
                         ),
                         ui.output_ui(f"error_{name_suffix}"),
                     ),
@@ -170,11 +196,32 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
             else:
                     
                 global_session_V2.set_retornado(True),
-                return parametros_sin_version(name_suffix)
+                #return parametros_sin_version(name_suffix)
 
 
                     
-            
+    @reactive.Effect
+    def up_date_inputs_numerics():
+        numeric_params = {
+            "par_split": "par_split",
+            "par_cor_show": "par_cor_show",
+            "par_iv": "par_iv",
+            "par_cor": "par_cor",
+            "par_minpts1": "par_minpts1"
+        }
+        
+        json_params = global_session_V2.get_json_params_desarrollo()
+        
+        default_values = {
+            "par_split": 0.7,
+            "par_cor_show": 0.8,
+            "par_iv": 3.0,
+            "par_cor": 0.9,
+            "par_minpts1": 0.5
+        }
+
+        update_numeric_from_parameters(numeric_params, json_params, default_values)
+  
 
             
             

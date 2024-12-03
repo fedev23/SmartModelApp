@@ -346,46 +346,47 @@ def crear_card_con_input_2(input_id, input_label, action_link_id, icon, paramete
                      )
                      )
 
+def crear_card_con_input_numeric_2(input_id, input_label, action_link_id, icon, min_value=None, max_value=None, step=None):
+    """
+    Crea una tarjeta con un input numérico y un botón de acción.
 
-def crear_card_con_input_numeric_2(input_id, input_label, action_link_id, icon, parameters, default_value=0, min_value=None, max_value=None, step=None):
+    Args:
+        input_id (str): ID del input numérico.
+        input_label (str): Etiqueta del input numérico.
+        action_link_id (str): ID del botón de acción.
+        icon (str): Icono para el botón de acción.
+        min_value (int/float, optional): Valor mínimo para el input numérico.
+        max_value (int/float, optional): Valor máximo para el input numérico.
+        step (int/float, optional): Paso para el input numérico.
+    """
+    # Añade el ID del botón de acción a la lista global (si es necesario)
     id_buttons_desa.append(action_link_id)
 
-    # Encontrar el parámetro que corresponde al input_id
-    input_value = default_value
-    for param in parameters:
-        if param["parameter"] == input_id:
-            # Si el valor es una lista, obtenemos el primer elemento
-            if isinstance(param["value"], list) and len(param["value"]) > 0:
-                # Suponiendo que solo se desea el primer valor numérico
-                # Cambia 'size' por la clave que necesites
-                input_value = param["value"][0].get("size", default_value)
-            # Si es un valor simple, lo asignamos directamente
-            # Para asegurarnos que es un número
-            elif isinstance(param["value"], (int, float)):
-                input_value = param["value"]
-            break
-
-    return ui.column(4,
-                     ui.card_header(
-                         ui.row(
-                             ui.column(10, ui.input_numeric(
-                                 input_id,
-                                 input_label,
-                                 value=input_value,  # Cambié esto para usar input_value
-                                 min=min_value,
-                                 max=max_value,
-                                 step=step
-                             )),
-                             ui.column(2,
-                                       ui.input_action_link(
-                                           action_link_id, "", icon=icon)
-                                       )
-
-                         )
-
-                     )
-                     )
-
+    # Retorna el diseño de la tarjeta con el input numérico y el botón
+    return ui.column(
+        4,
+        ui.card_header(
+            ui.row(
+                ui.column(
+                    10,
+                    ui.input_numeric(
+                        input_id,
+                        input_label,
+                        value=None,  # El valor se actualizará externamente
+                        min=min_value,
+                        max=max_value,
+                        step=step
+                    )
+                ),
+                ui.column(
+                    2,
+                    ui.input_action_link(
+                        action_link_id, "", icon=icon
+                    )
+                )
+            )
+        )
+    )
 
 descripciones = {
     "par_vars_segmento": "Este parámetro se utiliza para definir las variables que se mostrarán en los reportes por segmento.",

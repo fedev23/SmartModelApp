@@ -20,3 +20,17 @@ Shiny.addCustomMessageHandler('open-accordion', function(data) {
         section.querySelector('button').click(); // Simula un click para abrir el acordeón
     }
 });
+
+
+Shiny.addCustomMessageHandler("render_screen", function(message) {
+    var screen_id = message.screen_id;
+
+    // Mostrar los elementos de la pantalla solicitada, pero sin cambiar la pestaña activa
+    var screen_elements = document.getElementById(screen_id);
+
+    if (screen_elements) {
+        // Aquí simplemente se asegura de que el contenido de la pantalla se renderice.
+        // No se cambia el display de la pestaña activa, solo renderizamos los elementos.
+        screen_elements.style.display = 'block'; // Aseguramos que los componentes se muestren
+    }
+});

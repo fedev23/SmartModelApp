@@ -10,6 +10,7 @@ class GlobalSessionV2:
         self.json_desarrollo = reactive.Value()
         self.retornado = reactive.Value(False)
         self.retorne_niveles = reactive.Value(False)
+        self.active_screen = reactive.Value(False)
         
 
     def set_id_Data_validacion_sc(self, id):
@@ -50,19 +51,27 @@ class GlobalSessionV2:
         return self.json_desarrollo.get()
     
     
-    def set_retornado(self, json):
-        self.retornado.set(json)
+    def set_retornado(self, boolean):
+        self.retornado.set(boolean)
         
       
     def get_retornado(self):
         return self.retornado.get()
     
-    def set_retorne_niveles(self, json):
-        self.retorne_niveles.set(json)
+    def set_retorne_niveles(self, boolean):
+        self.retorne_niveles.set(boolean)
         
       
     def get_retorne_niveles(self):
         return self.retorne_niveles.get()
+    
+    
+    def set_active_screen(self, boolean):
+        self.active_screen.set(boolean)
+        
+      
+    def get_active_screen(self):
+        return self.active_screen.get()
     
     
 

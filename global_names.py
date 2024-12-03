@@ -1,7 +1,7 @@
 from clases.global_reactives import global_estados
 global_name_desarrollo = "Desarrollo"
 
-global_name_in_Sample = "In-Sample"
+global_name_in_Sample = "Niveles & Scorcards"
 
 global_name_out_of_Sample = "Validacion & Scroring"
 

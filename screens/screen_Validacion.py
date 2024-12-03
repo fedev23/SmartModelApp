@@ -1,15 +1,42 @@
 from shiny import App, ui, reactive
 from global_names import global_name_out_of_Sample
+from clases.global_sessionV2 import *
 
-# Opciones para los tipos de delimitador disponibles
-CHOICES = {
-    "tipo": [",", '\\t', "' '", ";", "|"],
-}
 
-# Definición de la pantalla de validación
+#projects = global_session_V2.get_opciones_name_dataset_Validation_sc()
 screenValid = ui.page_fluid(
+    
     ui.div(
-        ui.output_ui("retornar_carga_file_y_seleccionador"),
+        #ui.output_ui("retornar_carga_file_y_seleccionador"),
+        ui.div(
+            ui.column(
+                12, ui.div(
+                    ui.input_file(
+                        "file_validation",
+                        "",
+                        placeholder="Seleccione un archivo",
+                        button_label="+",
+                        accept=[".csv", ".txt"],
+                        width="50%"
+                    ),
+
+                ),
+                ui.div(
+                    ui.input_select(
+                        "files_select_validation_scoring",
+                        "",
+                        [],
+                        width="50%"
+                    ),
+                    # ui.output_ui("remove_dataset"),
+                    ui.output_ui("remove_dataset_data_alidacionSC"),
+                    class_="file-input-container d-flex align-items-center gap-3 mb-3"
+                ),
+
+            ),
+        ),
+
+        
         # Tarjeta para mostrar datos de validación
         ui.card(
             # Encabezado de la tarjeta

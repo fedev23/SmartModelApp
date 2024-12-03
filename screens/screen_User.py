@@ -13,6 +13,8 @@ from clases.class_resultado import ResultadoClassPrueba
 from screens.screen_desarollo import screenDesarollo
 
 
+
+
 screen_User = ui.page_fluid(
     ui.tags.button("SmartModeling", class_="logo-button"),
     ui.output_ui("create_user_menu"),
@@ -20,8 +22,10 @@ screen_User = ui.page_fluid(
     ui.output_ui("create_sidebar"),
     ui.output_ui("despligue_menu"),
     ui.navset_card_tab(  # Usa un contenedor de navegación adecuado
-        ui.nav_panel(f"{global_name_desarrollo}", screenDesarollo),
-        ui.nav_panel(f"{global_name_in_Sample}", screenInSample),
-        ui.nav_panel(f"{global_name_out_of_Sample}", screenValid),
+        ui.nav_panel(f"{global_name_desarrollo}", screenDesarollo, value="screen_desarrolo"),
+        ui.nav_panel(f"{global_name_in_Sample}", screenInSample, value="screen_niveles_scorcads"),
+        ui.nav_panel(f"{global_name_out_of_Sample}", screenValid, value="screen_validacion_scoring"),
+        
+        id="navset",
     ),
 )

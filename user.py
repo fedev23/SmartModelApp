@@ -9,7 +9,7 @@ from funciones.funciones_user import create_modal_versiones, show_selected_proje
 from funciones.utils_2 import crear_carpeta_proyecto, crear_carpeta_version_por_proyecto, get_datasets_directory
 from funciones.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version
 from funciones.utils_cargar_json import leer_control_json
-
+import asyncio
 
 def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     user_get = reactive.Value(None)
@@ -26,7 +26,9 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     boolean_check = reactive.Value(False)
     data_predeterminado = reactive.Value("")
     
-
+    async def send_render_screen(screen_id):
+        await session.send_custom_message("render_screen", {"screen_id": screen_id})
+    
     def see_session():
         @reactive.effect
         def enviar_session():
@@ -35,6 +37,8 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                 if state["is_logged_in"]:
                     user_id = state["id"]
                     global_session.id_user.set(user_id)
+                    global_session_V2.set_active_screen(True)
+                    asyncio.create_task(send_render_screen("screen_niveles_scorcads"))
                     # -> llamo a el valor reactivo para tener la lista de los proyectos por user, dinamicamente, apretar control t y ver la funcion
                     global_session.set_proyectos_usuarios(get_user_projects(user_id))
                     user_get.set(user_id.replace('|', '_'))
@@ -136,7 +140,6 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         global_session.set_versiones_name(nombre_version)
         param_json = leer_control_json(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_id_version(), global_session.get_versiones_name())
         global_session_V2.set_json_params_desarrollo(param_json)
-        print(global_session_V2.get_json_params_desarrollo(), "ESTOY VIENDO EL JSON")
         
    
     @output

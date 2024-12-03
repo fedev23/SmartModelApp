@@ -72,6 +72,27 @@ def get_parameter_value(parameter_name, lista):
     return None
 
 
+def get_parameter_value_numeric(param_name, json_params, default=None):
+    """
+    Obtiene el valor de un parámetro desde una lista de parámetros JSON.
+
+    Args:
+        param_name (str): Nombre del parámetro a buscar.
+        json_params (list): Lista de diccionarios que contienen parámetros.
+        default (optional): Valor predeterminado si no se encuentra el parámetro. Default es None.
+
+    Returns:
+        El valor del parámetro si se encuentra, de lo contrario, el valor predeterminado.
+    """
+    if isinstance(json_params, list):
+        # Recorre la lista buscando el parámetro por su nombre
+        for param in json_params:
+            if param.get("parameter") == param_name:
+                return param.get("value", default)
+    return default
+
+
+
 def update_selectize_from_columns_and_json(column_names, selectize_params, json_params=None):
     """
     Actualiza los selectores con las columnas disponibles y valores seleccionados del JSON.
@@ -91,88 +112,46 @@ def update_selectize_from_columns_and_json(column_names, selectize_params, json_
             # Obtén el valor del parámetro
             value = get_parameter_value(param_name, json_params)
 
-            # Procesa el valor si es una cadena con elementos separados por comas
+            # Procesa el valor si es un str  con elementos separados por comas
             if isinstance(value, str):
                 value = [v.strip() for v in value.split(",")]
 
             # Actualiza el selectize con los valores seleccionados
             ui.update_selectize(selectize_id, choices=column_names, selected=value)
             
+def update_numeric_from_parameters(numeric_params, json_params=None, default_values=None):
+    """
+    Actualiza las entradas numéricas (`input_numeric`) con valores desde un JSON o un valor predeterminado.
 
-def parametros_sin_version(name_suffix):
-    return ui.div(
-        ui.output_ui(f"acordeon_columnas_{name_suffix}"),
-        ui.card(
-            ui.row(
-                # Fila 1
-                crear_card_con_input_seleccionador("par_ids", "Columnas identificadora:", "help_columnas_id", 
-                                                   ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px")),
-                crear_card_con_input_numeric_2(f"par_split", "Training and Testing", "help_training_testing", 
-                                               ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"), 
-                                               [], default_value=0, min_value=0, max_value=2, step=0.01),
-                crear_card_con_input_seleccionador("par_target", "Columna Target", "help_target_col", 
-                                                   ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px")),
-                
-                # Fila 2
-                crear_card_con_input_seleccionador(f"cols_forzadas_a_predictoras", "Variables forzadas a variables candidatas", 
-                                                   "help_vars_forzadas", ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px")),
-                crear_card_con_input_seleccionador(f"cols_forzadas_a_cat", "Columnas forzadas a categorías", 
-                                                   "help_cols_forzadas_a_cat", ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px")),
-                crear_card_con_input_seleccionador(f"par_var_grupo", "Define grupos para evaluar las candidatas", 
-                                                   "help_par_var_grupo", ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px")),
-                
-                # Fila 3
-                crear_card_con_input_seleccionador("cols_nulos_adic", "Lista de variables y códigos de nulos", 
-                                                      "help_nulos_adic", ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px")),
-                crear_card_con_input_numeric_2(f"par_cor_show", "Mostrar variables por alta correlación:", "help_par_cor_show", 
-                                               ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"), 
-                                               [], default_value=0, min_value=0, max_value=1, step=0.01),
-                crear_card_con_input_numeric_2(f"par_iv", "Límite para descartar variables por bajo IV", "help_iv", 
-                                               ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"), 
-                                               [], default_value=3, min_value=0.5, max_value=10, step=0.1),
-                
-                # Fila 4
-                crear_card_con_input_seleccionador_V2(f"cols_no_predictoras", "Columnas excluidas del modelo", 
-                                                      "help_cols_no_predictoras", ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px")),
-                crear_card_con_input_numeric_2(f"par_cor", "Descartar variables por alta correlación", "help_par_cor", 
-                                               ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"), 
-                                               [], default_value=3, min_value=0.5, max_value=10, step=0.1),
-                crear_card_con_input_numeric_2(f"par_minpts1", "Casos mínimos de bin de primera etapa", "help_minpts", 
-                                               ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"), 
-                                               [], default_value=3, min_value=0.5, max_value=10, step=0.1)
-            ),
-            ui.output_ui(f"error_{name_suffix}"),
-        ),
-        ui.output_text_verbatim(f"param_validation_3_{name_suffix}"),
-        #class_="custom-column"
-    )
-    
-def parametros_sin_version_niveles_scorcads():
-    return ui.div( ui.row(
-                        crear_card_con_input_numeric_2(
-                            "par_times", "Submuestras para bootstrap", "times_sub",
-                            ui.tags.i(class_="fa fa-question-circle-o",
-                                      style="font-size:24px"),
-                            global_session_V2.get_json_params_desarrollo(),
-                            default_value=25, min_value=0, max_value=2, step=0.01
+    Args:
+        numeric_params (dict): Diccionario donde las claves son IDs de los `input_numeric` y los valores son nombres de parámetros en el JSON.
+        json_params (dict, optional): Parámetros cargados desde el JSON. Default es None.
+        default_values (dict, optional): Diccionario con valores predeterminados para cada `input_numeric`.
+                                          Si no está definido un valor predeterminado para un `input_numeric`,
+                                          se usará `0`.
+    """
+    if default_values is None:
+        default_values = {}
 
-                        ),
-                        crear_card_con_input_numeric_2(
-                            "par_cant_reportes", "Cantidad de reportes", "cant_reportes",
-                            ui.tags.i(
-                                class_="fa fa-question-circle-o", style="font-size:24px"),
-                            global_session_V2.get_json_params_desarrollo(),
-                            default_value=100, min_value=0, max_value=2, step=0.01
-                        ),
-                        crear_card_con_input_seleccionador_V3(
-                            "par_vars_segmento", "Variables para reportes por Segmento", "vars_segmento",
-                            ui.tags.i(
-                                class_="fa fa-question-circle-o", style="font-size:24px")
-                        ),
+    for numeric_id, param_name in numeric_params.items():
+        # Obtén el valor predeterminado específico para este numeric_id, o usa 0 como default general
+        default_value = default_values.get(numeric_id, 0)
 
-                        # style="display: flex; justify-content: space-around; align-items: center;"  # Estilo para mantener todo alineado
-                    ),
- 
-    )
-    
+        # Inicializa el valor con el predeterminado
+        value = default_value
+
+        # Si hay parámetros en el JSON, busca el valor correspondiente
+        if json_params:
+            value = get_parameter_value_numeric(param_name, json_params, default=default_value)
+
+            # Si el valor es una lista, selecciona el primer elemento
+            if isinstance(value, list) and len(value) > 0:
+                value = value[0]
+            
+            # Verifica que sea numérico, de lo contrario usa el valor predeterminado
+            if not isinstance(value, (int, float)):
+                value = default_value
+
+        # Actualiza el valor del `input_numeric`
+        ui.update_numeric(numeric_id, value=value)
 

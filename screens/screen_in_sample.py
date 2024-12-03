@@ -4,7 +4,7 @@ from global_var import global_data_loader_manager
 from faicons import icon_svg
 from funciones.utils import crear_card_con_input, crear_card_con_input_numeric, crear_card_con_input_seleccionador
 from global_names import global_name_in_Sample
-
+from funciones.utils import crear_card_con_input_numeric, crear_card_con_input_seleccionador_V3, crear_card_con_input_numeric_2
 data = reactive.Value()
 data_loader = global_data_loader_manager.get_loader("desarrollo")
 
@@ -116,20 +116,37 @@ screenInSample = ui.page_fluid(
                           )
                           ),
                 
-                
-                
-                ui.output_ui("parametros_json_niveles")
-                
-                #ui.row(
-                    #crear_card_con_input_seleccionador("par_vars_segmento", "Variables para reportes por Segmento", "vars_segmento", ui.tags.i(
-                        #class_="fa fa-question-circle-o", style="font-size:24px")),
-                    #crear_card_con_input_numeric("par_times", "Submuestras para bootstrap", "times_sub", ui.tags.i(
-                        #class_="fa fa-question-circle-o", style="font-size:24px"), value=25),
-                    #crear_card_con_input_numeric("par_cant_reportes", "Cantidad de reportes", "cant_reportes", ui.tags.i(
-                        #class_="fa fa-question-circle-o", style="font-size:24px"), value=100),
-                    # ui.column(4, ui.input_text("par_vars_segmento", "Variables para reportes por Segmento")),
-                    # ui.column(4, ui.input_numeric("par_cant_reportes", "Cantidad de reportes", value=100)),
-                #),
+                ui.div( ui.row(
+                        crear_card_con_input_numeric_2(
+                        input_id="par_times",
+                        input_label="Submuestras para bootstrap",
+                        action_link_id="times_sub",
+                        icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
+                        min_value=0,
+                        max_value=2,
+                        step=0.01
+                        ),
+
+                        crear_card_con_input_numeric_2(
+                        input_id="par_cant_reportes",
+                        input_label="Cantidad de reportes",
+                        action_link_id="cant_reportes",
+                        icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
+                        min_value=0,
+                        max_value=2,
+                        step=0.01
+                        ),
+                                            crear_card_con_input_seleccionador_V3(
+                            "par_vars_segmento", "Variables para reportes por Segmento", "vars_segmento",
+                            ui.tags.i(
+                                class_="fa fa-question-circle-o", style="font-size:24px")
+                        ),
+
+                        # style="display: flex; justify-content: space-around; align-items: center;"  # Estilo para mantener todo alineado
+                    ),
+ 
+    ),
+               
 
             ),
         ),
