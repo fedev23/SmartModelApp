@@ -3,6 +3,7 @@ import json
 from funciones.utils import crear_card_con_input_seleccionador, crear_card_con_input_numeric_2, crear_card_con_input_seleccionador_V2, crear_card_con_input_seleccionador_V3
 from shiny import ui
 from clases.global_sessionV2 import  *
+import pandas as pd
 
 
 def get_datasets_directory_json(user_id, proyecto_id, name_proyect, id_version, nombre_version):
@@ -155,3 +156,72 @@ def update_numeric_from_parameters(numeric_params, json_params=None, default_val
         # Actualiza el valor del `input_numeric`
         ui.update_numeric(numeric_id, value=value)
 
+
+
+def update_dataframe_from_json(json_data):
+    """
+    Loads specific values from JSON and converts them to predefined DataFrames.
+
+    Args:
+        json_data (list of dict): JSON input as a list of dictionaries.
+
+    Returns:
+        dict: A dictionary containing the required DataFrames.
+    """
+    # Define default structures
+    default_niveles_riesgo = pd.DataFrame({
+        "Nombre Nivel": ["BajoBajo", "BajoMedio", "BajoAlto", "MedioBajo", "MedioMedio", "Alto"],
+        "Regla": ["> 955", "> 930", "> 895", "> 865", "> 750", "<= 750"],
+        "Tasa de Malos Máxima": ["3.0%", "6.0%", "9.0%", "15.0%", "18.0%", "100.0%"]
+    })
+
+    default_segmentos = pd.DataFrame({
+        "Segment": ["Female_Employees", "Male_Employees", "Other", "Other"],
+        "Rule": [
+            "Gender == 'F' & Job_Type == 'E'",
+            "Gender == 'M' & Job_Type == 'E'",
+            "Gender == 'F' & (is.na(Job_Type) | Job_Type != 'E')",
+            "Gender == 'M' & (is.na(Job_Type) | Job_Type != 'E')"
+        ]
+    })
+
+    default_rangos = pd.DataFrame({
+        "Variables de corte": ["Segmento", "TipoOpe, TipoCmr"]
+    })
+
+    # Initialize result with default values
+    result = {
+        "niveles_riesgo": default_niveles_riesgo,
+        "segmentos": default_segmentos,
+        "rangos": default_rangos
+    }
+
+    # Map parameter names in JSON to result keys
+    param_mapping = {
+        "par_rango_niveles": "niveles_riesgo",
+        "par_rango_segmentos": "segmentos",
+        "par_rango_reportes": "rangos"
+    }
+
+    for entry in json_data:
+        param_name = entry.get("parameter")
+        param_type = entry.get("type")
+        value = entry.get("value")
+
+        # Process only parameters that are mapped and of type "data.frame"
+        if param_name in param_mapping and param_type == "data.frame":
+            try:
+                # Check if value is empty or invalid and replace with default
+                if isinstance(value, dict) and not value:
+                    df = result[param_mapping[param_name]]  # Use default
+                elif isinstance(value, list) and all(isinstance(row, dict) for row in value):
+                    df = pd.DataFrame(value)  # Convert list of dicts to DataFrame
+                else:
+                    df = pd.DataFrame()  # Fallback to empty DataFrame
+
+                # Update the result with the loaded or default DataFrame
+                result[param_mapping[param_name]] = df
+            except Exception as e:
+                print(f"Error processing parameter {param_name}: {e}")
+
+    return result

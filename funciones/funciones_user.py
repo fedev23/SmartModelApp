@@ -118,9 +118,8 @@ def show_selected_project_card(user_id, project_id):
         sanitized_name =  project['id']
         return  ui.input_action_link(
             f"eliminar_proyect_{sanitized_name}", 
-            ui.tags.i(class_="fa fa-trash fa-2x"),  # Ícono de basura
-            #class_="btn btn-danger"  # Opcional: estilo de botón rojo
-            ),
+            ui.tags.i(class_="fa fa-trash fa-2x text-danger"),  # Ícono de basura en rojo
+            style="background: none; border: none;")
     else:
         return ui.div("No hay proyectos.")
     
@@ -141,9 +140,9 @@ def button_remove_version(project_id, target_version_id):
         # Devuelve un enlace de acción para eliminar la versión
         return ui.input_action_link(
             f"eliminar_version_{sanitized_name}", 
-            ui.tags.i(class_="fa fa-trash fa-2x"),  # Ícono de basura
-            #class_="btn btn-danger"  # Opcional: estilo de botón rojo
-        )
+           ui.tags.i(class_="fa fa-trash fa-2x text-danger"),  # Ícono de basura en rojo
+            style="background: none; border: none;")
+        
     else:
         # Solo se imprime el mensaje si había versiones, pero la específica no se encontró
         print("La versión no pertenece al proyecto o no existe.")
@@ -160,9 +159,9 @@ def button_remove(versions_list, target_version_id, id, name):
         # Devuelve un enlace de acción para eliminar la versión
         return ui.input_action_link(
             f"eliminar_version_{sanitized_name}_{name}", 
-            ui.tags.i(class_="fa fa-trash fa-2x"),  # Ícono de basura
-            #class_="btn btn-danger"  # Opcional: estilo de botón rojo
-        )
+            ui.tags.i(class_="fa fa-trash fa-2x text-danger"),  # Ícono de basura en rojo
+            style="background: none; border: none;")
+        
          
 
     

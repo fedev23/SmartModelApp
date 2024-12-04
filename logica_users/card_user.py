@@ -38,7 +38,7 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                             ),
                             ui.output_ui("project_card_container"),
                             class_="d-flex align-items-center gap-3 mb-3",
-                            style="margin-top: -5px;"   
+                            style="margin-top: -3px;"   
                         )
                     ),
                     # Seleccionador 2 y botón Crear Versión

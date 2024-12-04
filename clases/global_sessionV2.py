@@ -11,6 +11,7 @@ class GlobalSessionV2:
         self.retornado = reactive.Value(False)
         self.retorne_niveles = reactive.Value(False)
         self.active_screen = reactive.Value(False)
+        self.json_read = reactive.Value(False)
         
 
     def set_id_Data_validacion_sc(self, id):
@@ -74,7 +75,14 @@ class GlobalSessionV2:
         return self.active_screen.get()
     
     
-
+    def set_json_read(self, boolean):
+        self.json_read.set(boolean)
+        
+      
+    def get_json_read(self):
+        return self.json_read.get()
+    
+    
 
 
 global_session_V2 = GlobalSessionV2()

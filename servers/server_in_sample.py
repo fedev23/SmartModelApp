@@ -19,6 +19,8 @@ from funciones.help_versios import copiar_json_si_existe
 import os
 from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
 from funciones.utils import mover_file_reportes_puntoZip
+from funciones.utils_cargar_json import update_dataframe_from_json
+from clases.global_sessionV2 import *
 
 ejemplo_niveles_riesgo = pd.DataFrame({
     "Nombre Nivel": ["BajoBajo", "BajoMedio", "BajoAlto", "MedioBajo", "MedioMedio", "Alto"],
@@ -41,16 +43,6 @@ ejemplos_rangos = pd.DataFrame({
 })
 
 
-styles = {
-    "cols": None,  # Aplica a todas las columnas
-    "style": {
-        "background-color": "gray",  # El color de fondo será gris
-        # El texto será blanco (opcional, por visibilidad)
-        "color": "white",
-        "font-weight": "bold",       # El texto en negrita (opcional)
-    }
-}
-
 
 def server_in_sample(input, output, session, name_suffix):
     screen_instance = ScreenClass("", name_suffix)
@@ -62,6 +54,7 @@ def server_in_sample(input, output, session, name_suffix):
     no_error = reactive.Value(True)
     name = "Validacion in sample"
     global_names_reactivos.name_validacion_in_sample_set(name_suffix)
+    df_rango_niveles = reactive.Value()
 
 
 
@@ -84,17 +77,42 @@ def server_in_sample(input, output, session, name_suffix):
     def nombre_proyecto_in_sample():
         return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo(global_session.proyecto_seleccionado())}'
     
+
   
     @output
     @render.data_frame
     def par_rango_niveles():
-        return render.DataGrid(ejemplo_niveles_riesgo, editable=True, width='500px')
-        # ejemplo_niveles_riesgo
+        # Obtén el diccionario con los DataFrames
+        if global_session_V2.get_json_params_desarrollo() is not None:
+            df_dict = update_dataframe_from_json(global_session_V2.get_json_params_desarrollo())
+            
+            # Asegúrate de que 'niveles_riesgo' esté en el diccionario y sea un DataFrame válido
+            if "par_rango_niveles" in df_dict and isinstance(df_dict["par_rango_niveles"], pd.DataFrame):
+                df_niveles_riesgo = df_dict["par_rango_niveles"]
+                return render.DataGrid(df_niveles_riesgo, editable=True, width='500px')
+                #print(df_niveles_riesgo, "que tiene este df?")
+            else:
+                print("Error: 'niveles_riesgo' no es un DataFrame válido o está ausente.")
+                return render.DataGrid(ejemplo_niveles_riesgo, editable=True, width='500px')
+
+            # Renderizar el DataFrame específico
+            #return render.DataGrid(df_niveles_riesgo, editable=True, width='500px')
 
     @output
     @render.data_frame
     def par_rango_segmentos():
-        return render.DataGrid(ejemplo_segmentos, editable=True,  width='500px')
+        if global_session_V2.get_json_params_desarrollo() is not None:
+            df_dict = update_dataframe_from_json(global_session_V2.get_json_params_desarrollo())
+            
+            if "par_rango_segmentos" in df_dict and isinstance(df_dict["par_rango_segmentos"], pd.DataFrame):
+                df_niveles_segmentos = df_dict["par_rango_segmentos"]
+                return render.DataGrid(df_niveles_segmentos, editable=True,  width='500px')
+                #print(df_niveles_riesgo, "que tiene este df?")
+            else:
+                print("Error: 'niveles_riesgo' no es un DataFrame válido o está ausente.")
+                #return render.DataGrid(ejemplo_niveles_riesgo, editable=True, width='500px')
+
+       
 
     @output
     @render.data_frame

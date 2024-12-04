@@ -117,7 +117,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         
         
         #LEEO ELDATA SET SI EXISTE
-        
+        #print(global_session_V2.get_json_params_desarrollo())
         # Actualiza los selectores en la UI
         ui.update_select("files_select_validation_scoring",choices=global_session_V2.get_opciones_name_dataset_Validation_sc(), selected=data_predeterminado.get())
         ui.update_select("files_select", choices=nombre_file.get())
@@ -140,7 +140,6 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         global_session.set_versiones_name(nombre_version)
         param_json = leer_control_json(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_id_version(), global_session.get_versiones_name())
         global_session_V2.set_json_params_desarrollo(param_json)
-        
    
     @output
     @render.ui
