@@ -12,7 +12,7 @@ from clases.global_sessionV2 import *
 from clases.reactives_name import global_names_reactivos
 from funciones.funciones_cargaDatos import guardar_archivo
 from shiny.types import FileInfo
-from funciones.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version
+from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version
 from clases.global_session import *
 from clases.class_validacion import Validator
 from clases.loadJson import LoadJson

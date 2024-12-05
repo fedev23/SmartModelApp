@@ -9,7 +9,7 @@ from clases.global_reactives import global_estados
 from funciones.funciones_user import create_modal_v2, create_modal_versiones_param, button_remove
 from api.db import *
 from funciones.utils_2 import crear_carpeta_version_parametros
-from funciones.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version
+from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version
 
 
 

@@ -9,7 +9,7 @@ from funciones.utils import retornar_card
 from shiny.types import FileInfo
 from datetime import datetime
 from funciones.funciones_cargaDatos import guardar_archivo
-from funciones.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version, obtener_ultimo_nombre_archivo
+from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version, obtener_ultimo_nombre_archivo
 from clases.global_sessionV2 import *
 from funciones.utils_2 import leer_dataset
 import pandas as pd

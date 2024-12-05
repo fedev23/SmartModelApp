@@ -215,22 +215,37 @@ def agregar_version(project_id, version_name):
 def get_project_versions(project_id):
     conn = sqlite3.connect('Modeling_App.db')
     cur = conn.cursor()
-
-    # Realizar la consulta para obtener las versiones del proyecto específico
-    cur.execute('''
-    SELECT version_id, nombre_version, execution_date
-    FROM version
-    WHERE project_id = ?
-    ''', (project_id,))
-
-    # Recuperar todos los resultados
-    versions = cur.fetchall()
-    conn.close()
-
-    # Convertir los resultados en una lista de diccionarios
-    return [{'version_id': version[0], 'nombre_version': version[1], 'execution_date': version[2]} for version in versions]
-
-
+    
+    try:
+        # Realizar la consulta para obtener las versiones del proyecto específico
+        cur.execute('''
+            SELECT version_id, nombre_version
+            FROM version
+            WHERE project_id = ?
+        ''', (project_id,))
+        
+        # Recuperar todas las versiones
+        versiones = cur.fetchall()
+        
+        # Convertir los resultaos en una lista de diccionarios
+        files_list = [
+            {
+                'version_id': file[0],
+                'nombre_version': file[1],
+            }
+            for file in versiones
+        ]
+        
+        return files_list  # Retornar la lista de versiones
+    
+    except sqlite3.Error as e:
+        print(f"Error al acceder a la base de datos: {e}")
+        return []
+    
+    finally:
+        # Cerrar la conexión
+        conn.close()
+        
 
 
 

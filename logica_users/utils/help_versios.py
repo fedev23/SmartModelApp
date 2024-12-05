@@ -85,3 +85,27 @@ def copiar_json_si_existe(origen: str, destino: str, nombre_archivo: str = "Cont
         # Si el archivo no existe, mostrar el mensaje de error
         print(f"Error: El archivo '{nombre_archivo}' no existe en '{origen}'.")
         return False
+    
+
+
+def eliminar_carpeta(carpeta_path):
+    """
+    Elimina una carpeta y todo su contenido del sistema de archivos.
+
+    Args:
+        carpeta_path (str): Ruta completa de la carpeta a eliminar.
+
+    Returns:
+        bool: True si la carpeta se eliminó correctamente, False si no se encontró.
+    """
+    if os.path.exists(carpeta_path):
+        try:
+            shutil.rmtree(carpeta_path)  # Elimina la carpeta y su contenido
+            print(f"Carpeta eliminada: {carpeta_path}")
+            return True
+        except Exception as e:
+            print(f"Error al eliminar la carpeta {carpeta_path}: {e}")
+            return False
+    else:
+        print(f"La carpeta no existe: {carpeta_path}")
+        return False

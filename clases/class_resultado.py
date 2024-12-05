@@ -113,11 +113,13 @@ class ResultadoClassPrueba:
         if resultado_id in self.accordion_open:
                 #print(f"resultado esperado", resultado_id)
                 resultado_path = next((r['resultado_path'] for r in self.resultados if r['resultado_id'] == resultado_id), None)
+                path_datos_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/Reportes/{resultado_path}'
+                
                 #print(f"Resultado path: {resultado_path}")
                 if resultado_path and self.accordion_open[resultado_id].get():
                     temp_zip_path = tempfile.NamedTemporaryFile(delete=False).name + '.zip'
                     #print(f"Archivo ZIP temporal: {temp_zip_path}")
-                    create_zip_from_file_unico(resultado_path, temp_zip_path)
+                    create_zip_from_file_unico(path_datos_salida, temp_zip_path)
                     return temp_zip_path
                 else:
                     print("<p>Archivo no encontrado</p>")

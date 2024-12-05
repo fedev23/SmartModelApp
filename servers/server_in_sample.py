@@ -15,7 +15,7 @@ from api.db import *
 from clases.class_validacion import Validator
 from clases.global_modelo import modelo_in_sample
 from clases.global_modelo import global_desarollo
-from funciones.help_versios import copiar_json_si_existe
+from logica_users.utils.help_versios import copiar_json_si_existe
 import os
 from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
 from funciones.utils import mover_file_reportes_puntoZip
