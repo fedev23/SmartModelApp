@@ -93,7 +93,7 @@ screenValid = ui.page_fluid(
                     ui.output_ui("download_ui"),
 
                     ui.column(4, ui.download_button(
-                        "descargar_resultados_produccion", "Descargar Todos los reportes validacion")),
+                        "descargar_resultados_produccion", "Descargar Todos los reportes Scoring")),
                     ui.output_ui("resultado_card_produccion"),
                     value="produccion"
 

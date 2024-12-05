@@ -10,6 +10,7 @@ from funciones.utils_2 import crear_carpeta_proyecto, crear_carpeta_version_por_
 from funciones.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version
 from funciones.utils_cargar_json import leer_control_json
 import asyncio
+from auth.utils import help_api 
 
 def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     user_get = reactive.Value(None)
@@ -25,6 +26,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     valor_predeterminado_parms = reactive.Value("")
     boolean_check = reactive.Value(False)
     data_predeterminado = reactive.Value("")
+    diccionario_reactivo = reactive.Value("")
     
     async def send_render_screen(screen_id):
         await session.send_custom_message("render_screen", {"screen_id": screen_id})
@@ -119,6 +121,20 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         #LEEO ELDATA SET SI EXISTE
         #print(global_session_V2.get_json_params_desarrollo())
         # Actualiza los selectores en la UI
+        nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
+        global_session.set_versiones_name(nombre_version)
+        
+        print(global_session.get_id_user(), global_session.get_name_proyecto(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_versiones_name(), "QUE FALLA???")
+        if (global_session.get_id_user() and
+            global_session.get_name_proyecto() and
+            global_session.get_id_proyecto() and
+            global_session.get_id_version() and
+            global_session.get_versiones_name()):   
+            help_api.procesar_starlette_api(global_session.get_id_user(), global_session.get_name_proyecto(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_versiones_name())
+        else:
+            print("FALLARON LOS DATOS")
+        
+        global_session_V2.set_active_screen(True)
         ui.update_select("files_select_validation_scoring",choices=global_session_V2.get_opciones_name_dataset_Validation_sc(), selected=data_predeterminado.get())
         ui.update_select("files_select", choices=nombre_file.get())
         ui.update_select("other_select", choices=version_options.get())
@@ -134,10 +150,10 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     @reactive.event(input.other_select)  # Escuchar cambios en el selector
     def project_card_container():
         versiones_id = input.other_select()  # Captura el ID seleccionado
-        print(versiones_id, "viendo el id")
         global_session.set_id_version(versiones_id)
         nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
         global_session.set_versiones_name(nombre_version)
+        print(f"nombre version", {global_session.get_versiones_name()})
         param_json = leer_control_json(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_id_version(), global_session.get_versiones_name())
         global_session_V2.set_json_params_desarrollo(param_json)
    

@@ -21,7 +21,7 @@ from servers.in_Sample_versions import in_sample_verions
 from servers.logica_scoring_valid import logica_server_Validacion_scroing
 from parametros.niveles_Scorcards.parametros_ui import server_niveles_Scorcards
 from parametros.parametros_desarrollo.parametros_desarrollo import server_parametros_desarrollo
-
+from urllib.parse import unquote
 
 
 # Define the Shiny server function
@@ -48,45 +48,59 @@ app_shiny = App(app_ui, create_server)
 
 
 class ProcessUserIDEndpoint(HTTPEndpoint):
-    async def get(self, request):
-        print("Received request")
-        user_id = request.query_params.get("user_id")  # Obtiene el user_id de los parametros de consulta
-        print(f"User ID: {user_id}")
-        if user_id:
-            return JSONResponse({"message": f"User ID {user_id} processed successfully"})
+    async def post(self, request):
+        # Parsear el cuerpo JSON de la solicitud
+        data = await request.json()
+        user_id = data.get("user_id")
+        nombre_proyecto = data.get("nombre_proyecto")
+        id_proyecto = data.get("id_proyecto")
+        id_version = data.get("id_version")
+        nombre_version = data.get("nombre_version")
+
+        # Validar si todos los parámetros están presentes
+        if user_id and nombre_proyecto and id_proyecto and id_version and nombre_version:
+            return JSONResponse({
+                "message": f"User ID {user_id} with Project '{nombre_proyecto}' (ID {id_proyecto}) "
+                           f"and Version '{nombre_version}' (ID {id_version}) processed successfully"
+            })
         else:
-            return JSONResponse({"error": "User ID not provided"}, status_code=400)
+            return JSONResponse({
+                "error": "Missing required parameters"
+            }, status_code=400)        
         
-        
+
 class DynamicStaticFileEndpoint(HTTPEndpoint):
     async def get(self, request):
-        user_id = request.query_params.get("user_id")  # Obtener el user_id de los parámetros de consulta
-        if user_id:
-            # Construir el directorio del usuario
-            user_directory = f"/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id}/Reportes"
-            
-            # Obtener el nombre del archivo solicitado
-            file_path = request.path_params["file_name"]
-            full_path = os.path.join(user_directory, file_path)
-            
-            # Comprobar si el archivo existe
-            if os.path.isfile(full_path):
-                return FileResponse(full_path)
+        user_id = request.query_params.get("user_id")
+        nombre_proyecto = request.query_params.get("nombre_proyecto")
+        id_proyecto = request.query_params.get("id_proyecto")
+        id_version = request.query_params.get("id_version")
+        nombre_version = request.query_params.get("nombre_version")
+        file_name = request.query_params.get("file_name")
+
+        
+        file_name = unquote(file_name)
+
+        if user_id and nombre_proyecto and id_proyecto and id_version and nombre_version and file_name:
+            user_directory = (
+                f"/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id}/proyecto_{id_proyecto}_{nombre_proyecto}/version_{id_version}_{nombre_version}/Reportes/{file_name}"
+            )
+            #full_path = os.path.join(user_directory, file_name)
+            #print(full_path, "ESTOY VIENDO EL FULL PATH")
+            if os.path.isfile(user_directory):
+                return FileResponse(user_directory)
             else:
                 return JSONResponse({"error": "File not found"}, status_code=404)
         else:
-            return JSONResponse({"error": "User ID not provided"}, status_code=400)
-
+            return JSONResponse({"error": "Missing required parameters"}, status_code=400)
 
 # Define the routes for Starlette
 routes = [
-    Route('/api/user_files/{file_name}', DynamicStaticFileEndpoint), 
-    #http://127.0.0.1:3000/api/user_files/{file_name}?user_id=12345
-    Route('/api/process_user_id', ProcessUserIDEndpoint),
+    Route('/api/user_files', DynamicStaticFileEndpoint, methods=["GET"]),
+    Route('/api/process_user_id', ProcessUserIDEndpoint, methods=["POST"]),
     Mount('/shiny', app=app_shiny),
-   
 ]
-
+#C:\Users\fvillanueva\Desktop\SmartModel_new_version\new_version_new\Automat\datos_salida_auth0_670fc1b2ead82aaae5c1e9ba\proyecto_57_Proyecto_prueba_De_Datos\version_30_Inicial\Reportes
 # Create the main Starlette app with the defined routes
 app = Starlette(routes=routes)
 

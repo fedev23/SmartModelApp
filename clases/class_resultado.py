@@ -6,6 +6,7 @@ from starlette.routing import Mount
 from starlette.staticfiles import StaticFiles
 from funciones.utils import create_zip_from_directory, create_zip_from_file_unico
 import re
+from urllib.parse import urlencode
 from clases.global_session import global_session
 
 
@@ -24,6 +25,7 @@ class ResultadoClassPrueba:
         self.proceso_ok = reactive.Value(False)
         self.proceso_user = reactive.Value(False)
         self.user = reactive.Value()
+        self.path_salida =  reactive.Value()
         
     def obtener_user_id(self):
         @reactive.effect
@@ -35,6 +37,8 @@ class ResultadoClassPrueba:
                     user_id_cleaned = user_id.replace('|', '_') 
                     self.proceso_user.set(True)
                     print(f"antes de retornar{user_id_cleaned}")
+                    path_datos_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+                    self.path_salida.set(path_datos_salida)
                     self.user.set(user_id_cleaned)
                     return user_id_cleaned
     
@@ -85,12 +89,11 @@ class ResultadoClassPrueba:
         if resultado_id in self.accordion_open:
             #print(f"resultado esperado", resultado_id)
             resultado_path = next((r['resultado_path'] for r in self.resultados if r['resultado_id'] == resultado_id), None)
-            print(resultado_path)
             if self.proceso_user.get():
                 if resultado_path and self.accordion_open[resultado_id].get():
-                    user_id = self.user.get()
-                    print(user_id ,"estoy NONE EN RESULTADOS?")
-                    iframe_src = f'/api/user_files/{os.path.basename(resultado_path)}?user_id={user_id}'
+                    print("Resultado Path:", resultado_path)
+                    iframe_src = f"/api/user_files?{urlencode({'user_id': self.user.get(), 'nombre_proyecto': global_session.get_name_proyecto(), 'id_proyecto': global_session.get_id_proyecto(), 'id_version': global_session.get_id_version(), 'nombre_version': global_session.get_versiones_name(), 'file_name': os.path.basename(resultado_path)})}"
+                    print("Iframe SRC:", iframe_src)
                     return ui.div(
                         ui.tags.iframe(src=iframe_src, width='350%', height='500px'))
                 else:

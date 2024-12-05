@@ -39,7 +39,7 @@ def server_resul(input, output, session, name_suffix):
         resultados_desarrollo = [
             {
                 "resultado_id": "Clean_Transf",
-                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id}/Reportes/Clean-Transf.html",
+                "resultado_path": f"Clean-Transf.html",
                 "salida": "result_Clean_Transf",
                 "salida_unic": "salida_prueba_Clean_Transf",
                 "descarga_unic": "download_btn1_Clean_Transf",
@@ -53,14 +53,14 @@ def server_resul(input, output, session, name_suffix):
             },
             {
                 "resultado_id": "Detalle_agrupación_continuas",
-                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id}/Reportes/Detalle agrupación x WoE Continuas (Monotonía más Interpolación Lineal a Trozos).html",
+                "resultado_path": f"Detalle agrupación_x_WoE_Continuas.html",
                 "salida": "download_btn_Detalle_agrupacionContinuas",
                 "descarga_unic": "download_btn_Detalle_agrupacion_continuas",
                 "salida_unic": "salida_prueba_Detalle_agrupación_continuas",
             },
             {
                 "resultado_id": "detalle_monotonia",
-                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id}/Reportes/Detalle agrupación x WoE Continuas (Monotonía).html",
+                "resultado_path": f"Detalle agrupación x WoE Continuas  Monotonia.html",
                 "salida": "detalle_monotonia_salida",
                 "descarga_unic": "download_btn_detalle_monotonia",
                 "salida_unic": "salida_detalle_monotonia",
@@ -77,34 +77,37 @@ def server_resul(input, output, session, name_suffix):
     
     resultados_desarrollo = crear_resultados_desarrollo()
 
+    def resultados_niveles_Scorcards():
+        resultados_in_sample = [
+            {
+                "resultado_id": "Validation_InS",
+                "resultado_path": f"Validation_InS.html",
+                "salida": "result_in_sample_salida",
+                "descarga_unic": "download_btn1_insample",
+                "salida_unic": "salida_prueba_in_sample",
+            },
+        ]
+        return resultados_in_sample
 
-    resultados_in_sample = [
-        {
-            "resultado_id": "Validation_InS",
-            "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Validation_InS.html",
-            "salida": "result_in_sample_salida",
-            "salida_unic": "salida_prueba_in_sample",
-            "descarga_unic": "download_btn1_insample",
-        },
-    ]
-
+    resultados_in_sample = resultados_niveles_Scorcards()
+    
     resultados_out_to_sample = [
         {
             "resultado_id": "Resultados_Oss",
-            "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Validation_OoS.html",
+            "resultado_path": "Validation_OoS.html",
             "salida": "output_modelling_out",
-            "salida_unic": "salida_prueba_out_to",
             "descarga_unic": "download_btn1",
+            "salida_unic": "salida_prueba_out_to",
         },
     ]
 
     resultados_produccion = [
         {
             "resultado_id": "Scoring",
-            "resultado_path": r"/mnt/c/Users/fvillanueva/flask_prueba/static/Scoring.html",
+            "resultado_path": "Scoring.html",
             "salida": "output_modelling",
-            "salida_unic": "salida_prueba",
             "descarga_unic": "download_produccion_scoring",
+            "salida_unic": "salida_prueba",
         },
         
     ]
@@ -160,7 +163,7 @@ def server_resul(input, output, session, name_suffix):
 
             create_salida_unic(resultado_id, salida_unic)
 
-            descargas_dinamicas(resultado_id, descarga_unic,filename)
+            #descargas_dinamicas(resultado_id, descarga_unic,filename)
 
     # Invocar la función para registrar los outputs
     combined_results = resultados_produccion + resultados_out_to_sample + resultados_in_sample + resultados_desarrollo
@@ -179,18 +182,21 @@ def server_resul(input, output, session, name_suffix):
     @render.ui
     def resultado_card_validacion_in_sample():
         resultado_in_sample.abrir_acordeon(input)
+        resultado_in_sample.obtener_user_id()
         return resultado_in_sample.resultado_cards()
 
     @output
     @render.ui
     def resultado_card_validacion_out_to_sample():
         resultado_class_instance.abrir_acordeon(input)
+        resultado_class_instance.obtener_user_id()
         return resultado_class_instance.resultado_cards()
 
     @output
     @render.ui
     def resultado_card_produccion():
         resultado_class_instance_produccion.abrir_acordeon(input)
+        resultado_class_instance_produccion.obtener_user_id()
         return resultado_class_instance_produccion.resultado_cards()
 
     # register_outputs(resultados_produccion)
@@ -199,6 +205,7 @@ def server_resul(input, output, session, name_suffix):
     @render.ui
     def resultado_card_produccion():
         resultado_class_instance_produccion.abrir_acordeon(input)
+        resultado_class_instance_produccion.obtener_user_id()
         return resultado_class_instance_produccion.resultado_cards()
     
     
