@@ -6,10 +6,6 @@ from global_var import global_data_loader_manager
 from clases.global_session import global_session
 data_loader = global_data_loader_manager.get_loader("desarrollo")
 
-user_id = global_session.obtener_id()
-json_loader = LoadJson(user_id=user_id)
-values = json_loader.load_json()
-
 
 def create_screen(name_suffix):
     # Obtener los valores previos para este name_suffix o usar un valor predeterminado

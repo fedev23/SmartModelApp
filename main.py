@@ -7,20 +7,20 @@ from shiny import App, reactive
 import os 
 from starlette.responses import FileResponse, JSONResponse
 from app_ui import app_ui
-from outofSample import server_out_of_sample
+from servers.server_validacion_scoring.outofSample import server_out_of_sample
 from modelo import server_modelos
-from server_desarollo import server_desarollo
-from server_produccion import server_produccion
+from servers.server_desarrollo.server_desarollo import server_desarollo
+from servers.server_validacion_scoring.server_produccion import server_produccion
 from resultados import server_resul
 from user import user_server    
-from servers.server_in_sample import server_in_sample
+from servers.server_niveles_scorcards.server_in_sample import server_in_sample
 from auth.auth import server_login
 from logica_users.extend_of_user import extend_user_server
 from  logica_users.card_user import user_ui
-from servers.in_Sample_versions import in_sample_verions
-from servers.logica_scoring_valid import logica_server_Validacion_scroing
-from parametros.niveles_Scorcards.parametros_ui import server_niveles_Scorcards
-from parametros.parametros_desarrollo.parametros_desarrollo import server_parametros_desarrollo
+from servers.server_niveles_scorcards.in_Sample_versions import in_sample_verions
+from servers.server_validacion_scoring.logica_scoring_valid import logica_server_Validacion_scroing
+from servers.parametros.niveles_Scorcards.parametros_ui import server_niveles_Scorcards
+from servers.parametros.parametros_desarrollo.parametros_desarrollo import server_parametros_desarrollo
 from urllib.parse import unquote
 
 

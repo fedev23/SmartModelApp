@@ -6,6 +6,7 @@ import pandas as pd
 import csv 
 from clases.global_reactives import global_estados
 
+
 def errores(mensaje):
     if mensaje.get():
         ui.notification_show(
@@ -229,12 +230,15 @@ def leer_dataset(user_id, proyecto_id, name_proyect, dataset_name):
     if not os.path.exists(dataset_path):
         print(f"El archivo {dataset_path} no existe.")
         return pd.DataFrame()  # Retornar un DataFrame vacío
-
+        
     # Leer el archivo de datos usando pandas
     try:
         # Detectar el delimitador del archivo
         delimitador = detectar_delimitador(dataset_path)
-
+        #load_handler = LoadJson(input)
+       #load_handler.inputs['delimiter_desarollo'] = delimitador
+        #json_file_path = load_handler.loop_json()
+        #print(f"delimitador guardado en {json_file_path}")
         # Leer el archivo con el delimitador detectado
         dataset = pd.read_csv(dataset_path, delimiter=delimitador)
         print(f"Dataset {dataset_name} leyendo data_Set")

@@ -5,7 +5,7 @@ from clases.class_screens import ScreenClass
 from funciones.utils import retornar_card
 from clases.class_user_proyectName import global_user_proyecto
 from funciones.utils import create_modal_parametros, id_buttons_desa
-from funciones.utils_2 import get_user_directory, render_data_summary, aplicar_transformaciones, mostrar_error, cambiarAstring, trans_nulos_adic
+from funciones.utils_2 import get_user_directory, render_data_summary, aplicar_transformaciones, mostrar_error, cambiarAstring, trans_nulos_adic, get_datasets_directory, detectar_delimitador
 from api.db import *
 from clases.global_session import *
 from clases.global_sessionV2 import *
@@ -17,7 +17,10 @@ from clases.global_session import *
 from clases.class_validacion import Validator
 from clases.loadJson import LoadJson
 from datetime import datetime
+from clases.global_reactives import global_estados
 from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
+import os 
+
 
 def server_desarollo(input, output, session, name_suffix):
     directorio_desarollo = reactive.value("")
@@ -184,8 +187,14 @@ def server_desarollo(input, output, session, name_suffix):
             if state["is_logged_in"]:
                 user_id = state["id"]
                 user_id_cleaned = user_id.replace('|', '_')
-                json_loader = LoadJson(user_id_cleaned, input) 
+                json_loader = LoadJson(input) 
+                #delimitador = global_estados.get_delimitador()
+                
+                #datasets_directory = get_datasets_directory(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
+                #dataset_path = os.path.join(datasets_directory, global_session_V2.get_dataSet_seleccionado())
+                #delimitador = detectar_delimitador(dataset_path)
                 json_loader.inputs.update(inputs_procesados)
+                json_loader.inputs['delimiter_desarollo'] = global_estados.get_delimitador()
                 json_file_path = json_loader.loop_json()
                 print(f"Inputs guardados en {json_file_path}")
                 

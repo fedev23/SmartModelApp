@@ -7,10 +7,6 @@ from global_names import global_name_desarrollo
 from clases.global_session import global_session
 from global_var import global_data_loader_manager
 
-user_id = global_session.obtener_id()
-json_loader = LoadJson(user_id=user_id)
-previous_values = json_loader.load_json()
-nombre_proyecto = global_user_proyecto
 
 name_suffix = "desarrollo"
 CHOICES = {

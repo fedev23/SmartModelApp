@@ -12,6 +12,7 @@ class GlobalSessionV2:
         self.retorne_niveles = reactive.Value(False)
         self.active_screen = reactive.Value(False)
         self.json_read = reactive.Value(False)
+        self.dataSet_seleccionado = reactive.Value("")
         
 
     def set_id_Data_validacion_sc(self, id):
@@ -81,6 +82,15 @@ class GlobalSessionV2:
       
     def get_json_read(self):
         return self.json_read.get()
+    
+    
+    def set_dataSet_seleccionado(self, nombre_dataset):
+        self.dataSet_seleccionado.set(nombre_dataset)
+        
+      
+    def get_dataSet_seleccionado(self):
+        return self.dataSet_seleccionado.get()
+    
     
     
 

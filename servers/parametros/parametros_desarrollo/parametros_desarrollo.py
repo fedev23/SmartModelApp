@@ -8,7 +8,7 @@ from clases.global_session import global_session
 from clases.global_reactives import global_estados
 from clases.class_cargar_datos import CargarDatos
 from clases.global_sessionV2 import *
-from funciones.utils_cargar_json import get_parameter_value, update_selectize_from_columns_and_json, update_numeric_from_parameters
+from funciones.utils_cargar_json import get_parameter_value, update_selectize_from_columns_and_json, update_numeric_from_parameters, parametros_sin_version
 from funciones.utils import  crear_card_con_input_numeric_2, crear_card_con_input_seleccionador_V2, crear_card_con_input_seleccionador_V3
 
 
@@ -196,7 +196,7 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
             else:
                     
                 global_session_V2.set_retornado(True),
-                #return parametros_sin_version(name_suffix)
+                return parametros_sin_version(name_suffix)
 
 
                     

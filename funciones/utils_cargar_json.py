@@ -4,7 +4,7 @@ from funciones.utils import crear_card_con_input_seleccionador, crear_card_con_i
 from shiny import ui
 from clases.global_sessionV2 import  *
 import pandas as pd
-
+from funciones.utils import crear_card_con_input_numeric
 
 def get_datasets_directory_json(user_id, proyecto_id, name_proyect, id_version, nombre_version):
     # Limpiar el user_id reemplazando cualquier '|' por '_'
@@ -225,3 +225,53 @@ def update_dataframe_from_json(json_data):
                 print(f"Error processing parameter {param_name}: {e}")
 
     return result
+
+
+
+def parametros_sin_version(name_suffix):
+    return ui.div(
+        ui.output_ui(f"acordeon_columnas_{name_suffix}"),
+        ui.card(
+            ui.row(
+                # Fila 1
+                crear_card_con_input_seleccionador("par_ids", "Columnas identificadora:", "help_columnas_id", 
+                                                   ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px")),
+                crear_card_con_input_numeric(f"par_split", "Training and Testing", "help_training_testing", 
+                                               ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"), 
+                                               value=0),
+                crear_card_con_input_seleccionador("par_target", "Columna Target", "help_target_col", 
+                                                   ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px")),
+                
+                # Fila 2
+                crear_card_con_input_seleccionador(f"cols_forzadas_a_predictoras", "Variables forzadas a variables candidatas", 
+                                                   "help_vars_forzadas", ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px")),
+                crear_card_con_input_seleccionador(f"cols_forzadas_a_cat", "Columnas forzadas a categorías", 
+                                                   "help_cols_forzadas_a_cat", ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px")),
+                crear_card_con_input_seleccionador(f"par_var_grupo", "Define grupos para evaluar las candidatas", 
+                                                   "help_par_var_grupo", ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px")),
+                
+                # Fila 3
+                crear_card_con_input_seleccionador("cols_nulos_adic", "Lista de variables y códigos de nulos", 
+                                                      "help_nulos_adic", ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px")),
+                crear_card_con_input_numeric(f"par_cor_show", "Mostrar variables por alta correlación:", "help_par_cor_show", 
+                                               ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"), 
+                                              value=0),
+                crear_card_con_input_numeric(f"par_iv", "Límite para descartar variables por bajo IV", "help_iv", 
+                                               ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"), 
+                                              value=0.5),
+                
+                # Fila 4
+                crear_card_con_input_seleccionador_V2(f"cols_no_predictoras", "Columnas excluidas del modelo", 
+                                                      "help_cols_no_predictoras", ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px")),
+                crear_card_con_input_numeric(f"par_cor", "Descartar variables por alta correlación", "help_par_cor", 
+                                               ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"), 
+                                              value=10),
+                crear_card_con_input_numeric(f"par_minpts1", "Casos mínimos de bin de primera etapa", "help_minpts", 
+                                               ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"), 
+                                               value=0)
+            ),
+            ui.output_ui(f"error_{name_suffix}"),
+        ),
+        ui.output_text_verbatim(f"param_validation_3_{name_suffix}"),
+        #class_="custom-column"
+    )

@@ -163,7 +163,7 @@ def server_in_sample(input, output, session, name_suffix):
             niveles_mapeados = transform_data(df_editado)
 
             # Guardar los datos procesados
-            load_handler = LoadJson(input, global_session.get_id_user().replace('|', '_'))
+            load_handler = LoadJson(input)
             load_handler.inputs.update(inputs_procesados)
             load_handler.inputs['par_rango_niveles'] = niveles_mapeados
             load_handler.inputs['par_rango_segmentos'] = segmentosMap

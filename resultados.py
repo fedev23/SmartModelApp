@@ -137,6 +137,7 @@ def server_resul(input, output, session, name_suffix):
             html_in_sample = resultado_in_sample.html_output_prueba(resultado_id)
             return html_prueba, html_produccion, html_in_sample, html_desarrollo
 
+
     def descargas_dinamicas(resultado_id, descarga_unic,filename):
         @output(id=descarga_unic)
         @render.download(filename=filename)
