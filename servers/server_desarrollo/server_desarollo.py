@@ -20,6 +20,7 @@ from datetime import datetime
 from clases.global_reactives import global_estados
 from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
 import os 
+from clases.reactives_name import global_names_reactivos
 
 
 def server_desarollo(input, output, session, name_suffix):
@@ -37,6 +38,7 @@ def server_desarollo(input, output, session, name_suffix):
         'par_target': cambiarAstring,
         'cols_forzadas_a_predictoras': cambiarAstring,
         'par_var_grupo': cambiarAstring,
+        'par_weight': cambiarAstring,
         'cols_nulos_adic': trans_nulos_adic,
         'cols_forzadas_a_cat': cambiarAstring,
         'cols_no_predictoras': cambiarAstring
@@ -188,13 +190,11 @@ def server_desarollo(input, output, session, name_suffix):
                 user_id = state["id"]
                 user_id_cleaned = user_id.replace('|', '_')
                 json_loader = LoadJson(input) 
-                #delimitador = global_estados.get_delimitador()
-                
-                #datasets_directory = get_datasets_directory(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
-                #dataset_path = os.path.join(datasets_directory, global_session_V2.get_dataSet_seleccionado())
-                #delimitador = detectar_delimitador(dataset_path)
                 json_loader.inputs.update(inputs_procesados)
+                #ACTUALIZO VARIOS INPUTS QUE SON DINAMICOS CON EL FIN DE QUE NO ESTEN NULOS EN LA LLAMADA AL JSON
                 json_loader.inputs['delimiter_desarollo'] = global_estados.get_delimitador()
+                json_loader.inputs['proyecto_nombre'] = global_session.get_name_proyecto() 
+                json_loader.inputs['file_desarollo'] = global_names_reactivos.get_name_file_db()
                 json_file_path = json_loader.loop_json()
                 print(f"Inputs guardados en {json_file_path}")
                 

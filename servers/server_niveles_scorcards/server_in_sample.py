@@ -21,6 +21,7 @@ from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
 from funciones.utils import mover_file_reportes_puntoZip
 from funciones.utils_cargar_json import update_dataframe_from_json
 from clases.global_sessionV2 import *
+from clases.global_reactives import *
 
 ejemplo_niveles_riesgo = pd.DataFrame({
     "Nombre Nivel": ["BajoBajo", "BajoMedio", "BajoAlto", "MedioBajo", "MedioMedio", "Alto"],
@@ -165,6 +166,9 @@ def server_in_sample(input, output, session, name_suffix):
             # Guardar los datos procesados
             load_handler = LoadJson(input)
             load_handler.inputs.update(inputs_procesados)
+            load_handler.inputs['delimiter_desarollo'] = global_estados.get_delimitador()
+            load_handler.inputs['proyecto_nombre'] = global_session.get_name_proyecto()
+                
             load_handler.inputs['par_rango_niveles'] = niveles_mapeados
             load_handler.inputs['par_rango_segmentos'] = segmentosMap
             load_handler.inputs['par_rango_reportes'] = reportesMap
@@ -178,7 +182,7 @@ def server_in_sample(input, output, session, name_suffix):
             global_session.set_path_niveles_scorcads(path_entrada)
             global_session.set_path_niveles_scorcads_salida(path_salida)
             
-            ##COPIO EL JSON DE LA CARPETA De la carpeta y lo fusion por si hay IN SAMPLE
+            ##COPIO EL JSON DE LA CARPETA y lo fusion por si hay IN SAMPLE
             copiar_json_si_existe(json_file_path, path_entrada)
             inputs_procesados = aplicar_transformaciones(input, transformaciones)
             insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_desarrollo())

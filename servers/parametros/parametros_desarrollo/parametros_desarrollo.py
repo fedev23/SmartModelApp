@@ -88,6 +88,9 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
                 "cols_nulos_adic": "cols_nulos_adic",
                 "cols_forzadas_a_predictoras": "cols_forzadas_a_predictoras",
                 "par_vars_segmento": "par_vars_segmento",
+                
+                
+                
             }
 
             json_params = global_session_V2.get_json_params_desarrollo()

@@ -16,7 +16,7 @@ class LoadJson:
     def loop_json(self):
         try:
             self.inputs = {
-                "nombre_archivo": self.input["file_desarollo"](),
+                "nombre_archivo": self.inputs.get("file_desarollo"),
                 "par_split": self.input["par_split"](),
                 "par_ids": self.inputs.get("par_ids"),
                 "par_target": self.inputs.get("par_target"),
@@ -50,7 +50,7 @@ class LoadJson:
                 "par_minpts_cat": self.input["par_minpts_cat"](),
                 "par_minpts2": self.input["par_minpts2"](),
                 "par_perf_bins": self.input["par_perf_bins"](),
-                "par_weight": self.input["par_weight"]()
+                "par_weight": self.inputs.get("par_weight"),
 
             }
 
