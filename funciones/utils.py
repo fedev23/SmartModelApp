@@ -234,6 +234,7 @@ def crear_card_con_input_seleccionador(input_id, input_label, action_link_id, ic
 
 
 def crear_card_con_input_seleccionador_V3(input_id, input_label, action_link_id, icon):
+    id_buttons_desa.append(action_link_id)
     return ui.column(4,
                      ui.card_header(
                          ui.row(

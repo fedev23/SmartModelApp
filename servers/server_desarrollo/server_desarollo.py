@@ -230,21 +230,5 @@ def server_desarollo(input, output, session, name_suffix):
       return mostrar_error(mensaje.get())
                
         
+
     
-    @reactive.effect
-    @reactive.event(input[f'open_html_{global_desarollo.nombre}'])
-    def enviar_result():
-        ui.update_navs("Resultados_nav", selected="desarrollo")
-
-    def create_modals(id_buttons_desa):
-        for id_button in id_buttons_desa:
-            @reactive.Effect
-            @reactive.event(input[id_button])
-            def monitor_clicks(id_button=id_button):
-                count.set(count() + 1)	
-                if count.get() > 0:
-                    print(id_button, count.get())
-                    modal = create_modal_parametros(id_button)
-                    ui.modal_show(modal)
-
-    create_modals(id_buttons_desa)

@@ -455,7 +455,7 @@ def eliminar_version(nombre_tabla, nombre_columna_id, id_dato):
     finally:
         # Cerrar la conexión
         conn.close()
-        
+   
 def add_param_versions(project_id, version_id, name):
     conn = sqlite3.connect('Modeling_App.db')
     cur = conn.cursor()
@@ -482,22 +482,23 @@ def add_param_versions(project_id, version_id, name):
 
 
 
-def   get_project_versions_param(project_id):
+def   get_project_versions_param(project_id, version_id):
     conn = sqlite3.connect('Modeling_App.db')
     cur = conn.cursor()
     
     try:
-        # Realizar la consulta para obtener las versiones del proyecto específico
+        # Realizar la consulta para obtener las versiones específicas
         cur.execute('''
-            SELECT id_jsons, nombre_version
-            FROM json_versions
-            WHERE project_id = ?
-        ''', (project_id,))
+            SELECT j.id_jsons, j.nombre_version
+            FROM json_versions j
+            JOIN version v ON j.version_id = v.version_id
+            WHERE v.project_id = ? AND j.version_id = ?
+        ''', (project_id, version_id))
         
-        # Recuperar todas las versiones
+        # Recuperar los resultados
         versiones = cur.fetchall()
         
-        # Convertir los resultaos en una lista de diccionarios
+        # Convertir los resultados en una lista de diccionarios
         files_list = [
             {
                 'id_jsons': file[0],
@@ -506,7 +507,7 @@ def   get_project_versions_param(project_id):
             for file in versiones
         ]
         
-        return files_list  # Retornar la lista de versiones
+        return files_list  # Retornar la lista de resultados
     
     except sqlite3.Error as e:
         print(f"Error al acceder a la base de datos: {e}")
@@ -514,8 +515,7 @@ def   get_project_versions_param(project_id):
     
     finally:
         # Cerrar la conexión
-        conn.close()
-        
+        conn.close()    
         
    
 def obtener_valor_por_id_versiones(id_files , base_datos='Modeling_App.db'):

@@ -8,6 +8,7 @@ from clases.global_session import global_session
 from clases.global_reactives import global_estados
 from clases.class_cargar_datos import CargarDatos
 from clases.global_sessionV2 import *
+from funciones.utils import create_modal_parametros, id_buttons_desa
 from funciones.utils_cargar_json import get_parameter_value, update_selectize_from_columns_and_json, update_numeric_from_parameters, parametros_sin_version
 from funciones.utils import  crear_card_con_input_numeric_2, crear_card_con_input_seleccionador_V2, crear_card_con_input_seleccionador_V3
 
@@ -15,6 +16,7 @@ from funciones.utils import  crear_card_con_input_numeric_2, crear_card_con_inpu
 def server_parametros_desarrollo(input, output, session, name_suffix):
     # Obtener el DataLoader correspondiente basado en name_suffix, ya que necesita un key la clase dataloader
     data_loader = global_data_loader_manager.get_loader(name_suffix)
+    count = reactive.value(0)
     
     def user_session():
         @reactive.Effect
@@ -97,6 +99,20 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
 
         # Llama a la función genérica para actualizar los selectores
             update_selectize_from_columns_and_json(column_names, selectize_params, json_params) 
+            
+    def create_modals(id_buttons_desa):
+            for id_button in id_buttons_desa:
+                @reactive.Effect
+                @reactive.event(input[id_button])
+                def monitor_clicks(id_button=id_button):
+                    count.set(count() + 1)	
+                    if count.get() > 0:
+                        print(id_button, count.get())
+                        modal = create_modal_parametros(id_button)
+                        ui.modal_show(modal)
+
+   
+
                 
         
     @reactive.effect
@@ -193,7 +209,7 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
                     ),
                     
                     ui.output_text_verbatim(f"param_validation_3_{name_suffix}"),
-                    
+                    create_modals(id_buttons_desa),
                     global_session_V2.set_retornado(True)
                 )
             else:

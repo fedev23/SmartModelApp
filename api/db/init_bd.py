@@ -70,15 +70,13 @@ cur.execute('''
         ''')
 
 cur.execute('''
-        CREATE TABLE IF NOT EXISTS json_versions (
-            id_jsons INTEGER PRIMARY KEY AUTOINCREMENT,
-            nombre_version TEXT NOT NULL,
-            fecha_de_carga TEXT NOT NULL,
-            project_id INTEGER,
-            version_id INTEGER,
-            FOREIGN KEY (project_id) REFERENCES project(id),
-            FOREIGN KEY (version_id) REFERENCES version(version_id)
-        );
+         CREATE TABLE json_versions (
+                id_jsons INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre_version TEXT NOT NULL,
+                fecha_de_carga TEXT NOT NULL,
+                version_id INTEGER,
+                FOREIGN KEY (version_id) REFERENCES version(version_id)
+            );
     ''')
 
 cur.execute('''
@@ -93,6 +91,17 @@ cur.execute('''
         );
     ''')
 
+##LA TENGO QUE BORRAR HACE REFERNECIA A JSON_VERSIO,
+cur.execute('''
+        CREATE TABLE IF NOT EXISTS  versiones_niveles_scorcad (
+            id_version_niveles INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre_version_niveles TEXT NOT NULL,
+            project_id INTEGER,
+            version_id INTEGER,
+            FOREIGN KEY (project_id) REFERENCES project(id),
+            FOREIGN KEY (version_id) REFERENCES version(version_id)
+        );
+    ''')
 
 cur.execute('''
     CREATE TABLE IF NOT EXISTS paths_de_ejecucion (

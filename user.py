@@ -38,7 +38,6 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                 if state["is_logged_in"]:
                     user_id = state["id"]
                     global_session.id_user.set(user_id)
-                    global_session_V2.set_active_screen(True)
                     # -> llamo a el valor reactivo para tener la lista de los proyectos por user, dinamicamente, apretar control t y ver la funcion
                     global_session.set_proyectos_usuarios(get_user_projects(user_id))
                     user_get.set(user_id.replace('|', '_'))
@@ -85,7 +84,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         } if files_name else {"": "No hay archivos"})
 
         # Obtiene y configura las versiones de parámetros
-        versiones_parametros = get_project_versions_param(global_session.get_id_proyecto())
+        versiones_parametros = get_project_versions_param(global_session.get_id_proyecto(), global_session.get_id_version())
         opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version"))
         valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
 
@@ -136,13 +135,19 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     @reactive.event(input.other_select)  # Escuchar cambios en el selector
     def project_card_container():
         global_session.set_id_version(input.other_select()) # Captura el ID seleccionado
-        #global_session.set_id_version(versiones_id)
-        print(global_session.get_id_version(), "ESTOY VIENDO EL VALOR DE IS VERSIONES")
         nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
         global_session.set_versiones_name(nombre_version)
         print(f"nombre version", {global_session.get_versiones_name()})
         param_json = leer_control_json(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_id_version(), global_session.get_versiones_name())
         global_session_V2.set_json_params_desarrollo(param_json)
+        
+        
+        ##ACTUALIZO LAS VERSIONES DE NIELES Y SCORCARDS ACA Y EN LA SCREEN CORRESPONDIENTE DE NIVELES Y SC
+        versiones_parametros = get_project_versions_param(global_session.get_id_proyecto(), global_session.get_id_version())
+        opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version")) 
+        valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
+        
+        ui.update_select("version_selector",choices=opciones_param.get(), selected=valor_predeterminado_parms.get())
    
     @output
     @render.ui
