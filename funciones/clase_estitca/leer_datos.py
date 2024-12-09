@@ -46,7 +46,7 @@ class DatasetHandler:
             print(f"Dataset {dataset_name} leído correctamente.")
             
             # Retornar las primeras 10 filas del dataset
-            return dataset.head(10)
+            return dataset
 
         except Exception as e:
             print(f"Error al leer el dataset: {e}")

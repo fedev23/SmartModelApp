@@ -28,12 +28,6 @@ screenDesarollo = ui.page_fluid(
             
         id="module_container",
     ),
-        ui.tags.div(ui.column(12, ui.input_select(
-            "number_choice",
-            "Selecciona un número de columnas de dataset",
-            choices=[str(i) for i in range(5, 26)],
-            width="30%"
-        ))),
         
         ui.output_text_verbatim("error"),
         ui.output_text_verbatim("error_proyecto"),

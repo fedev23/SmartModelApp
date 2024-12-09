@@ -9,12 +9,14 @@ from funciones.utils_2 import leer_dataset
 from logica_users.utils.help_versios import obtener_ultimo_nombre_archivo
 from funciones.clase_estitca.leer_datos import DatasetHandler
 from clases.global_sessionV2 import *
+from clases.global_reactives import global_estados
 
 def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     
     dataSet_predeterminado_parms = reactive.Value(None)
     list = reactive.Value(None)
     id = reactive.Value(None)
+    select_number_data_set =  reactive.Value(5)
     
     
     @reactive.effect
@@ -93,4 +95,44 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
         )
         ui.modal_remove()
             
+            
+    def create_modal():
+        return ui.modal(
+            ui.tags.div(
+                ui.row(
+                    ui.column(
+                        12  ,  # Ajusta el ancho de la columna para que los elementos queden alineados
+                        ui.input_select(
+                            "number_choice",
+                            "Selecciona un número de columnas de dataset",
+                            choices=[str(i) for i in range(5, 26)],
+                            width="100%"  # Usa 100% de la columna asignada
+                        )
+                    ),
+                )
+            ),
+            title="Configuración",
+            easy_close=True,
+             size='l',
+            footer=ui.input_action_button("close_modal", "Cerrar")
+        )
+
+        
+    @reactive.Effect
+    @reactive.event(input["configuracion"])
+    def modal():
+        modal = create_modal()
+        ui.modal_show(modal)
+        
     
+    @reactive.effect
+    def capturar_num_seleccionador_dataSet():
+        valor_Defult = "5"
+        select_number_data_set = input.number_choice()
+        global_estados.set_numero_dataset(select_number_data_set)
+        
+        
+    @reactive.Effect
+    @reactive.event(input["close_modal"])
+    def cerrar_modal_config():
+      return ui.modal_remove()

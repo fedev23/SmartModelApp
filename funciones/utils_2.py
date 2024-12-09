@@ -258,6 +258,7 @@ def render_data_summary(data):
         print("Advertencia: 'data' es None o un DataFrame vacío.")
         return pd.DataFrame()  # Retorna un DataFrame vacío
 
+    valor_Defult = 5
     select_number_data_set = int(global_estados.get_numero_dataset())
     return pd.DataFrame(data.head(select_number_data_set))        
         
