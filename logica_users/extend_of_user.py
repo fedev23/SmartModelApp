@@ -10,6 +10,8 @@ from logica_users.utils.help_versios import obtener_ultimo_nombre_archivo
 from funciones.clase_estitca.leer_datos import DatasetHandler
 from clases.global_sessionV2 import *
 from clases.global_reactives import global_estados
+from api.db.sqlite_utils import *
+
 
 def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     
@@ -17,7 +19,6 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     list = reactive.Value(None)
     id = reactive.Value(None)
     select_number_data_set =  reactive.Value(5)
-    
     
     @reactive.effect
     @reactive.event(input.files_select)  # Escuchar cambios en el selector
@@ -31,6 +32,7 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
         columna_filtro = 'id_files'
         nombre_file = obtener_valor_por_id(base_datos, tabla, columna_objetivo, columna_filtro, global_session.get_id_dataSet())
         
+        actualizar_ultimo_seleccionado(base_datos, 'name_files', 'id_files', data_id)
         ##OBTENGO LOS VALORES ASOCIADOS A LA TABALA
         list = get_records(table='name_files',
             columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
@@ -83,7 +85,6 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     @reactive.Effect
     @reactive.event(input.confirmar_id_borrar_dataset)
     def remove_versiones_de_parametros():
-        print(list.get(), "ESTOY EN LA LISTA ANTES D EBORRAR")
         eliminar_version("name_files", "id_files", global_session.get_id_dataSet())
         columnas = ['id_files', 'nombre_archivo']
         lista_de_versiones_new = obtener_versiones_por_proyecto(global_session.get_id_proyecto(), columnas, "name_files", "project_id")

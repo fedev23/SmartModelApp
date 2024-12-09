@@ -63,7 +63,7 @@ def get_user_projects(user_id):
     conn.close()
 
     # Convertir los resultados en una lista de diccionarios
-    return [{'id': project[0], 'name': project[1], 'created_date': project[2]} for project in projects]
+    return [{'id': project[0], 'name': project[1]} for project in projects]
 # Función que gestiona el acceso del usuario
 
 def user_login(user_id):

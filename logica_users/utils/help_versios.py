@@ -1,6 +1,6 @@
 import os 
 import shutil
-
+import re
 
 def obtener_opciones_versiones(versiones, id, name):
     """
@@ -109,3 +109,29 @@ def eliminar_carpeta(carpeta_path):
     else:
         print(f"La carpeta no existe: {carpeta_path}")
         return False
+    
+    
+    
+
+def limpiar_identificador(texto):
+    """
+    Limpia un texto para convertirlo en un identificador válido:
+    - Reemplaza caracteres no alfanuméricos por guiones bajos (_).
+    - Asegura que el identificador solo contenga letras, números y guiones bajos.
+
+    :param texto: Texto a limpiar.
+    :return: Identificador válido.
+    """
+    return re.sub(r'[^a-zA-Z0-9_]', '_', texto)
+
+
+
+def mapear_valor_a_clave(valor, diccionario):
+    """
+    Mapea un valor de tipo string a su clave correspondiente en un diccionario.
+
+    :param valor: El valor de tipo string que se desea mapear.
+    :param diccionario: Un diccionario donde se buscará la clave asociada al valor.
+    :return: La clave correspondiente si se encuentra, o None si no hay coincidencia.
+    """
+    return next((key for key, value in diccionario.items() if value == valor), None)

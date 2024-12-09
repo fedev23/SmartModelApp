@@ -23,31 +23,8 @@ screenInSample = ui.page_fluid(
     ),
     # ui.output_ui("menuInSample"),
     ui.output_ui("salida_error"),
-    ui.div(
-        ui.card(
-            ui.card_header(f"{global_name_in_Sample}"),
-            ui.output_data_frame("summary_data_validacion_in_sample"),
-            ui.output_ui("mostrarOut_sample"),
-            # ui.output_text("mostrar_mensaje_datos")
-        ),
+    
         ui.row(
-            # Columna para el botón
-            ui.column(
-                # Ancho de la columna (puedes ajustarlo según sea necesario)
-                6,
-                ui.div(
-                   ui.input_action_button(
-                    "create_parameters",
-                    f"+ Create version parameters {global_name_in_Sample}",
-                    class_="btn btn-dark btn-sm me-2",
-                    style="font-size: 15px; padding: 8px 10px;"
-                ),
-                   class_="d-flex justify-content-between",  
-                )
-                
-            ),
-
-            # Columna para el selector
             ui.column(
                 6,
                 ui.row(
@@ -59,15 +36,40 @@ screenInSample = ui.page_fluid(
                     #style="font-size: 15px;"
                 ),
                     ui.column(1, ui.HTML("<div style='width: 20px;'></div>")),
-                    ui.output_ui("button_remove_versions_param"),  
                    class_="d-flex justify-content-center",  
                 ),
                 
             )   
         ),
+            # Columna para el botón
+            ui.column(
+                # Ancho de la columna (puedes ajustarlo según sea necesario)
+                6,
+                ui.div(
+                   ui.input_action_button(
+                    "create_parameters",
+                    f"+ Create version parameters {global_name_in_Sample}",
+                    class_="btn btn-dark btn-sm me-2",
+                    style="font-size: 15px; padding: 8px 10px;"
+                ),
+                   ui.output_ui("button_remove_versions_param"),  
+                   class_="d-flex justify-content-between",  
+                )
+                
+            ),
+
+            # Columna para el selector
+            
                 ),
                 # Ancho de la columna (puedes ajustarlo según sea necesario)
                 
+    ui.div(
+        ui.card(
+            ui.card_header(f"{global_name_in_Sample}"),
+            ui.output_data_frame("summary_data_validacion_in_sample"),
+            ui.output_ui("mostrarOut_sample"),
+            # ui.output_text("mostrar_mensaje_datos")
+        ),
         # ui.tags.hr(),
         ui.div(class_="mt-5"),
 

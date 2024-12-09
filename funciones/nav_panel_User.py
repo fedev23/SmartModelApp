@@ -12,7 +12,7 @@ def create_nav_menu_user(name_suffix):
         ui.nav_control(ui.p(f"Archivo: {global_names_reactivos.get_name_file_db() or 'No hay un DataSet seleccionado'}", class_="styled-text")),
          ui.nav_control(
             ui.p(
-                f"Versión in sample: {global_session.get_versiones_parametros_nombre() or 'Versión por defecto'}",
+                f"Validacion & Scroring: {global_session.get_versiones_parametros_nombre() or 'Versión por defecto'}",
                 class_="styled-text"
             )
         ),    

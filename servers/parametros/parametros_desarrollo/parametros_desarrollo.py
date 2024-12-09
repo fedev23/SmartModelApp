@@ -102,6 +102,7 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
             
     def create_modals(id_buttons_desa):
             for id_button in id_buttons_desa:
+
                 @reactive.Effect
                 @reactive.event(input[id_button])
                 def monitor_clicks(id_button=id_button):
@@ -154,7 +155,7 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
                                                             "help_cols_forzadas_a_cat", ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
                                                             ),
                             
-                            crear_card_con_input_seleccionador_V3(f"par_var_grupo", "Define grupos para evaluar las candidatas", 
+                            crear_card_con_input_seleccionador_V3(f"par_var_grupo", "Grupos para evaluar las candidatas", 
                                                             "help_par_var_grupo", ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
                                                             ),
 

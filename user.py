@@ -3,32 +3,32 @@ from funciones.nav_panel_User import create_nav_menu_user
 from clases.class_user_proyectName import global_user_proyecto
 from api import *
 from clases.global_session import global_session
-from clases.global_reactives import global_estados
 from clases.global_sessionV2 import *
 from funciones.funciones_user import create_modal_versiones, show_selected_project_card, create_modal_eliminar_bd, create_modal_v2, button_remove_version
 from funciones.utils_2 import crear_carpeta_proyecto, crear_carpeta_version_por_proyecto, get_datasets_directory
-from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version, eliminar_carpeta
+from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version, eliminar_carpeta, mapear_valor_a_clave
 from funciones.utils_cargar_json import leer_control_json
 import asyncio
 from auth.utils import help_api 
+from api.db.sqlite_utils import *
 
 def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     user_get = reactive.Value(None)
     proyect_ok = reactive.Value(False)
     proyectos_usuario = reactive.Value(None)
     proceso_eliminar = reactive.Value(False)
-    version_options = reactive.Value({})
     versiones_por_proyecto = reactive.Value(None)
     nombre_file = reactive.Value(None)
     id_proyecto_Recien_Creado = reactive.Value(None)
     name_proyecto = reactive.Value(None)
     opciones_param = reactive.Value("")
     opciones_de_versiones_por_proyecto = reactive.Value("")
+    ultimo_proyecto_seleccionado =  reactive.Value("")
     ultimo_id_versiones_proyecto = reactive.Value("")
-    ultimo_id_proyecto =  reactive.Value("")
     valor_predeterminado_parms = reactive.Value("")
     boolean_check = reactive.Value(False)
     data_predeterminado = reactive.Value("")
+    base_datos = 'Modeling_App.db'
     
     def see_session():
         @reactive.effect
@@ -41,13 +41,15 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                     # -> llamo a el valor reactivo para tener la lista de los proyectos por user, dinamicamente, apretar control t y ver la funcion
                     global_session.set_proyectos_usuarios(get_user_projects(user_id))
                     user_get.set(user_id.replace('|', '_'))
+                    proyectos_usuario.set(get_user_projects(global_session.get_id_user()))
+        
+                    #ui.update_select("project_select",choices=proyectos_choise, selected=key_proyecto_mach if key_proyecto_mach else next(iter(proyectos_choise), ""))
+        
+                    
 
     see_session()
 
-    @reactive.effect
-    def capturar_num_seleccionador_dataSet():
-        select_number_data_set = input.number_choice()
-        global_estados.set_numero_dataset(select_number_data_set)
+    
 
     @reactive.effect
     @reactive.event(input.project_select)  # Escuchar cambios en el selector
@@ -59,13 +61,21 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
 
         nombre_proyecto = obtener_nombre_proyecto_por_id(global_session.get_id_proyecto())
         global_session.set_name_proyecto(nombre_proyecto)
-
-        # Obtiene las versiones del proyecto
-        versiones_de_proyecto = get_project_versions(global_session.get_id_proyecto())
-        print(versiones_de_proyecto)
-        opciones_de_versiones_por_proyecto.set(obtener_opciones_versiones(versiones_de_proyecto, "version_id", "nombre_version"))
-        ultimo_id_versiones_proyecto.set(obtener_ultimo_id_version(versiones_de_proyecto, "version_id"))
         
+        actualizar_ultimo_seleccionado(base_datos, 'project', 'id', global_session.get_id_proyecto())
+        proyectos_usuario.set(get_user_projects(global_session.get_id_user()))
+        
+        proyectos_choise = obtener_opciones_versiones(proyectos_usuario.get(), "id", "name")
+       
+        ultimo_proyecto_seleccionado.set(obtener_ultimo_seleccionado(base_datos, 'project', 'name'))
+       
+        key_proyecto_mach = mapear_valor_a_clave(ultimo_proyecto_seleccionado.get(), proyectos_choise)
+        print("estoy en key",  key_proyecto_mach)
+        versiones_de_proyecto = get_project_versions(global_session.get_id_proyecto())
+        opciones_de_versiones_por_proyecto.set(obtener_opciones_versiones(versiones_de_proyecto, "version_id", "nombre_version"))
+        
+        ultimo_id_versiones_proyecto.set(obtener_ultimo_seleccionado(base_datos, 'version', 'nombre_version'))
+        key_versiones_mach = mapear_valor_a_clave(ultimo_id_versiones_proyecto.get(), opciones_de_versiones_por_proyecto.get())
         # Si hay versiones, establece el nombre de la primera versión como predeterminado
         if boolean_check():
             nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
@@ -103,15 +113,12 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         
         global_session_V2.set_opciones_name_dataset_Validation_sc(obtener_opciones_versiones(nombre_files_validacion_sc, "id_validacion_sc", "nombre_archivo_validation_sc"))
         data_predeterminado.set(obtener_ultimo_id_version(nombre_files_validacion_sc, "id_validacion_sc"))
-        
-        
+
         #LEEO ELDATA SET SI EXISTE
-        #print(global_session_V2.get_json_params_desarrollo())
         # Actualiza los selectores en la UI
         nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
         global_session.set_versiones_name(nombre_version)
-        
-        print(global_session.get_id_user(), global_session.get_name_proyecto(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_versiones_name(), "QUE FALLA???")
+
         if (global_session.get_id_user() and
             global_session.get_name_proyecto() and
             global_session.get_id_proyecto() and
@@ -120,9 +127,15 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             help_api.procesar_starlette_api(global_session.get_id_user(), global_session.get_name_proyecto(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_versiones_name())
         
         global_session_V2.set_active_screen(True)
+        
+        ultimo_archivo = obtener_ultimo_seleccionado(base_datos, 'name_files', 'nombre_archivo')
+        global_session_V2.set_dataSet_seleccionado(ultimo_archivo)
+        selected_key = mapear_valor_a_clave(global_session_V2.get_dataSet_seleccionado(), nombre_file.get())
+        
+        ui.update_select("project_select",choices=proyectos_choise, selected=key_proyecto_mach if key_proyecto_mach else next(iter(proyectos_choise), ""))
         ui.update_select("files_select_validation_scoring",choices=global_session_V2.get_opciones_name_dataset_Validation_sc(), selected=data_predeterminado.get())
-        ui.update_select("files_select", choices=nombre_file.get())
-        ui.update_select("other_select", choices=opciones_de_versiones_por_proyecto.get(), selected=ultimo_id_versiones_proyecto.get())
+        ui.update_select("files_select", choices=nombre_file.get(),  selected=selected_key if selected_key else next(iter(nombre_file.get()), ""))
+        ui.update_select("other_select", choices=opciones_de_versiones_por_proyecto.get(), selected=key_versiones_mach if selected_key else next(iter(opciones_de_versiones_por_proyecto.get()), ""))
         ui.update_select("version_selector", choices=opciones_param.get(), selected=valor_predeterminado_parms.get())
 
     @output
@@ -136,8 +149,9 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     def project_card_container():
         global_session.set_id_version(input.other_select()) # Captura el ID seleccionado
         nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
+        ##ACTUALIZO EL ULTIMO SELECCIONADO EN LA TABALA DE BD
+        actualizar_ultimo_seleccionado(base_datos, 'version', 'version_id', global_session.get_id_version())
         global_session.set_versiones_name(nombre_version)
-        print(f"nombre version", {global_session.get_versiones_name()})
         param_json = leer_control_json(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_id_version(), global_session.get_versiones_name())
         global_session_V2.set_json_params_desarrollo(param_json)
         
@@ -171,7 +185,6 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     @reactive.event(input["confirmar_eliminar_version"])
     def eliminar_version_proyecto():
         eliminar_version("version", "version_id", global_session.get_id_version())
-        print(f"ID ANTES DE BORRAR {global_session.get_id_version()}")
         path_carpeta_versiones_borrar_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
         path_carpeta_versiones_borrar_entrada  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
         

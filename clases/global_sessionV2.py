@@ -92,6 +92,7 @@ class GlobalSessionV2:
         return self.dataSet_seleccionado.get()
     
     
+   
     
 
 

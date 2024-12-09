@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS project (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     name TEXT NOT NULL,
+    is_last_selected BOOLEAN DEFAULT 0
     created_date TEXT
 )
 ''')
@@ -52,6 +53,7 @@ CREATE TABLE IF NOT EXISTS version (
     project_id INTEGER NOT NULL,
     nombre_version TEXT NOT NULL,
     execution_date TEXT,
+    is_last_selected BOOLEAN DEFAULT 0
     FOREIGN KEY (project_id) REFERENCES project(id)
 )
 ''')
@@ -64,6 +66,7 @@ cur.execute('''
                 fecha_de_carga TEXT NOT NULL,
                 project_id INTEGER,
                 version_id INTEGER,
+                is_last_selected BOOLEAN DEFAULT 0,
                 FOREIGN KEY (project_id) REFERENCES project(id),
                 FOREIGN KEY (version_id) REFERENCES version(version_id)
             )
