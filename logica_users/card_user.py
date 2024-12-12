@@ -18,32 +18,46 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                 str(project['id']): project['name'] for project in projects
             }
 
-            return ui.div(
+            return ui.page_fluid(
                 # Fila principal con seleccionadores y botones alineados
                 ui.row(
                     # Seleccionador 1 y botón Crear Proyecto
                     ui.column(
-                        12,
-                        ui.div(
-                            ui.input_select(
+                        6,
+                        ui.row(
+                            ui.div(
+                                 ui.input_select(
                                 "project_select",
                                 "",
                                 project_options,
                                 width="50%"
                             ),
-                            ui.input_action_button(
+                                #ui.column(1, ui.HTML("<div style='width: 20px;'></div>")),
+                                #class_="d-flex justify-content-center",  
+                                ),
+                           
+                        ),
+                    ),
+                     ui.column(
+                            6,
+                            ui.div(
+                                ui.input_action_button(
                                 f"start_{name_suffix}",
                                 "+ Crear Proyecto",
-                                class_="btn btn-dark ml-3"
+                                style="font-size: 15px; padding: 8px 10px;",
+                                class_="btn btn-dark btn-sm me-2",
                             ),
                             ui.output_ui("project_card_container"),
-                            class_="d-flex align-items-center gap-3 mb-3",
-                            style="margin-top: -3px;"   
+                            #class_="d-flex align-items-center gap-1 mb-1",
+                            #style="margin-top: -3px;"   
+                            )
                         )
-                    ),
+                    
+                ),
                     # Seleccionador 2 y botón Crear Versión
-                    ui.column(
-                        12,
+                    ui.row(
+                         ui.column(
+                        6,
                         #ui.row(
                         ui.div(
                             ui.input_select(
@@ -52,17 +66,27 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                                 {"a": "a"},
                                 width="50%"
                             ),
-                            ui.input_action_button(
+                        )
+                    ),
+                    ui.column(
+                        6,
+                        ui.div(
+                         ui.input_action_button(
                                 f"version_{name_suffix}",
                                 "+ Crear Versión",
-                                class_="btn btn-dark ml-3"
+                               style="font-size: 15px; padding: 8px 10px;",
+                                class_="btn btn-dark btn-sm me-2",
                             ),
                             ui.output_ui("button_remove_versions"), 
-                            class_="d-flex align-items-center gap-3 mb-3",
-                            style="margin-top: -5px;"   
+                            #style="font-size: 15px; padding: 8px 10px;",
+                            #class_="btn btn-dark btn-sm me-2",   
                         )
-                       
+                        
+                        ),
+                        
                     ),
+                            
+                       
                     # Seleccionador de Archivos y InputFile alineados correctamente
                     ui.column(
                         12,
@@ -95,4 +119,4 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                         
                     )
                 ),
-            )
+            

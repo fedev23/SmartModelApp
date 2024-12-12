@@ -175,7 +175,7 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
                         ), 
                             crear_card_con_input_numeric_2(
                             input_id="par_iv",
-                            input_label="Límite para descartar variables por bajo IV",
+                            input_label="Descartar variables por bajo IV",
                             action_link_id="help_iv",
                             icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
                             min_value=0.5,
@@ -211,12 +211,14 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
                     
                     ui.output_text_verbatim(f"param_validation_3_{name_suffix}"),
                     create_modals(id_buttons_desa),
-                    global_session_V2.set_retornado(True)
+                    global_session_V2.set_retornado(True),
+                   
                 )
             else:
                     
                 global_session_V2.set_retornado(True),
                 return parametros_sin_version(name_suffix)
+                
 
 
                     

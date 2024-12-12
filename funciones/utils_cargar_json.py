@@ -256,7 +256,7 @@ def parametros_sin_version(name_suffix):
                 crear_card_con_input_numeric(f"par_cor_show", "Mostrar variables por alta correlación:", "help_par_cor_show", 
                                                ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"), 
                                               value=0),
-                crear_card_con_input_numeric(f"par_iv", "Límite para descartar variables por bajo IV", "help_iv", 
+                crear_card_con_input_numeric(f"par_iv", "Descartar variables por bajo IV", "help_iv", 
                                                ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"), 
                                               value=0.5),
                 

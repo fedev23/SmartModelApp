@@ -1,13 +1,12 @@
 from shiny import reactive, render, ui
 from clases.class_user_proyectName import global_user_proyecto
 from clases.class_screens import ScreenClass
-from clases.global_name import global_name_manager
+from datetime import datetime
 from clases.loadJson import LoadJson
 from funciones.param_in_sample import param_in_sample
-from funciones.utils import transformar_segmentos, validar_columnas, transform_data, transformar_reportes, create_modal_parametros, id_buttons
-from global_var import global_data_loader_manager
+from funciones.utils import transformar_segmentos, transform_data, transformar_reportes, create_modal_parametros, id_buttons
 import pandas as pd
-from funciones.utils_2 import cambiarAstring, validar_proyecto, aplicar_transformaciones
+from funciones.utils_2 import cambiarAstring, aplicar_transformaciones
 from clases.global_session import global_session
 from api.db import *
 from clases.reactives_name import global_names_reactivos
@@ -16,12 +15,11 @@ from clases.class_validacion import Validator
 from clases.global_modelo import modelo_in_sample
 from clases.global_modelo import global_desarollo
 from logica_users.utils.help_versios import copiar_json_si_existe
-import os
 from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
-from funciones.utils import mover_file_reportes_puntoZip
 from funciones.utils_cargar_json import update_dataframe_from_json
 from clases.global_sessionV2 import *
 from clases.global_reactives import *
+from servers.utils import help_params
 
 ejemplo_niveles_riesgo = pd.DataFrame({
     "Nombre Nivel": ["BajoBajo", "BajoMedio", "BajoAlto", "MedioBajo", "MedioMedio", "Alto"],
@@ -49,14 +47,11 @@ def server_in_sample(input, output, session, name_suffix):
     screen_instance = ScreenClass("", name_suffix)
     mensaje_de_error = reactive.Value("")
     mensaje = reactive.Value("")
-    name = "validación in sample"
-    data_loader = global_data_loader_manager.get_loader("desarrollo")
     count = reactive.value(0)
     no_error = reactive.Value(True)
-    name = "Validacion in sample"
     global_names_reactivos.name_validacion_in_sample_set(name_suffix)
-    df_rango_niveles = reactive.Value()
-
+    primer_valor = None
+    list_transformada = reactive.Value([])
 
 
     
@@ -98,7 +93,7 @@ def server_in_sample(input, output, session, name_suffix):
 
             # Renderizar el DataFrame específico
             #return render.DataGrid(df_niveles_riesgo, editable=True, width='500px')
-
+            
     @output
     @render.data_frame
     def par_rango_segmentos():
@@ -107,18 +102,39 @@ def server_in_sample(input, output, session, name_suffix):
             
             if "par_rango_segmentos" in df_dict and isinstance(df_dict["par_rango_segmentos"], pd.DataFrame):
                 df_niveles_segmentos = df_dict["par_rango_segmentos"]
+                print(df_niveles_segmentos)
                 return render.DataGrid(df_niveles_segmentos, editable=True,  width='500px')
                 #print(df_niveles_riesgo, "que tiene este df?")
             else:
                 print("Error: 'niveles_riesgo' no es un DataFrame válido o está ausente.")
                 #return render.DataGrid(ejemplo_niveles_riesgo, editable=True, width='500px')
 
-       
 
     @output
     @render.data_frame
     def par_rango_reportes():
-        return render.DataGrid(ejemplos_rangos, editable=True,  width='500px')
+        print(list_transformada.get(),"que tiene este print")
+        if list_transformada.get(): 
+            valor_anolne, valor_multi = help_params.split_list(list_transformada.get())
+            print(valor_anolne) 
+            print(valor_multi)
+            
+            ejemplos_rangos_edit = pd.DataFrame({
+                "Variables de corte": [valor_anolne, [", ".join(valor_multi)]]
+            })
+            print(ejemplos_rangos_edit)
+            df = ejemplos_rangos_edit
+            print("Columnas del DataFrame:", df.columns.tolist())
+            print(df['Variables de corte'])
+
+            return render.DataGrid(ejemplos_rangos_edit, editable=True,  width='500px')
+
+       
+
+    #@output
+    #@render.data_frame
+    #def par_rango_reportes():
+        #return render.DataGrid(ejemplos_rangos, editable=True,  width='500px')
         # ejemplo_niveles_riesgo
         
         
@@ -126,6 +142,21 @@ def server_in_sample(input, output, session, name_suffix):
         'par_vars_segmento': cambiarAstring,
         
     }
+    
+    @reactive.effect
+    @reactive.event(input.par_vars_segmento)
+    def ver_input():
+        print("hola??")
+        print(f"{input.par_vars_segmento()} estoy haciendo elprint??")
+        valor1 = input.par_vars_segmento()
+        trans_formara_lista = list(valor1)
+        list_transformada.set(trans_formara_lista)
+        #print(trans_formara_lista)
+        
+            
+
+            
+        
     
     ##USO ESTE DECORADOR PARA CORRER EL PROCESO ANSYC Y NO HAYA INTERRUCIONES EN EL CODIGO LEER DOCUENTACION
     #https://shiny.posit.co/py/docs/nonblocking.html
@@ -145,12 +176,7 @@ def server_in_sample(input, output, session, name_suffix):
         validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
 
         # Ejecutar las validaciones
-        validator.validate_project()
-        validator.validate_columns()
-        validator.validate_column_identifiers()
-        validator.validate_iv()
-        validator.validate_target_column()
-        validator.validate_training_split()
+        #validator.validate_project()
 
         # Verificar si hay errores, ver si agrego una validacion
         if validator.is_valid():
@@ -158,11 +184,12 @@ def server_in_sample(input, output, session, name_suffix):
             inputs_procesados = {key: transformacion(input[key]()) for key, transformacion in transformaciones.items()}
             rango_reportes = par_rango_reportes.data_view()
             reportesMap = transformar_reportes(rango_reportes)
-            segmentos_editados = par_rango_segmentos.data_view()
-            segmentosMap = transformar_segmentos(segmentos_editados)
+            #segmentos_editados = par_rango_segmentos.data_view()
+            #segmentosMap = transformar_segmentos(segmentos_editados)
             df_editado = par_rango_niveles.data_view()
             niveles_mapeados = transform_data(df_editado)
 
+            
             # Guardar los datos procesados
             load_handler = LoadJson(input)
             load_handler.inputs.update(inputs_procesados)
@@ -170,7 +197,7 @@ def server_in_sample(input, output, session, name_suffix):
             load_handler.inputs['proyecto_nombre'] = global_session.get_name_proyecto()
                 
             load_handler.inputs['par_rango_niveles'] = niveles_mapeados
-            load_handler.inputs['par_rango_segmentos'] = segmentosMap
+            #load_handler.inputs['par_rango_segmentos'] = segmentosMap
             load_handler.inputs['par_rango_reportes'] = reportesMap
             json_file_path = load_handler.loop_json()
             print(f"Inputs guardados en {json_file_path}")
@@ -185,11 +212,18 @@ def server_in_sample(input, output, session, name_suffix):
             ##COPIO EL JSON DE LA CARPETA y lo fusion por si hay IN SAMPLE
             copiar_json_si_existe(json_file_path, path_entrada)
             inputs_procesados = aplicar_transformaciones(input, transformaciones)
-            insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_desarrollo())
+            #insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_desarrollo())
             ##PATH DONDE SE EJECUTA EL SCRIPT Y LAS CARPETAS QUE CORRESPONDEN AL USARIO, PROYECT, VERSION ACTUAL O EN
             mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), global_session.get_path_guardar_dataSet_en_proyectos(), name_suffix, path_entrada)
             modelo_in_sample.script_path = f"./Validar_Desa.sh {global_session.get_path_niveles_scorcads()} {global_session.get_path_niveles_scorcads_salida()}"
             ejecutar_in_sample_ascyn(click_count_value, mensaje_value, proceso) #-->EJECUTO EL PROCESO ACA
+            if proceso:
+                    estado = insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), datetime.now().strftime("%Y-%m-%d %H:%M"), modelo_in_sample.nombre, global_names_reactivos.get_name_file_db(), global_session.get_id_version(), 'in_sample', 'completado')
+                    print(f'estado de la ejecucion {estado}')
+            else:
+                    estado = insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), datetime.now().strftime("%Y-%m-%d %H:%M"), modelo_in_sample.nombre, global_names_reactivos.get_name_file_db(), global_session.get_id_version(), 'in_sample', 'error')
+                    print(f'estado de la ejecucion {estado}')
+                 
      
         else:
             # Mostrar errores

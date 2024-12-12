@@ -112,25 +112,45 @@ def retornar_card(get_file_name, modelo):  # get_fecha
     # Renderiza y retorna la tarjeta usando el modelo proporcionado
     return modelo.render_card(file_name)
 
-
 def transformar_reportes(df):
+    # Verificar la existencia de la columna
+    if 'Variables de corte' not in df.columns:
+        raise KeyError("La columna 'Variables de corte' no existe en el DataFrame.")
+
     # Lista para almacenar los valores procesados
     value_list = []
 
     # Iterar sobre las filas del DataFrame
     for index, row in df.iterrows():
-        variable_corte = row['Variables de corte']
+        try:
+            # Acceso seguro al valor
+            variable_corte = row['Variables de corte']
 
-        # Crear el diccionario para cada entrada
-        value_dict = {
-            "Variables de corte": variable_corte
-        }
+            # Validar y procesar el contenido según su tipo
+            if isinstance(variable_corte, list):
+                # Convertir lista en un string unido por comas (si es necesario)
+                processed_value = ', '.join(variable_corte)
+            elif isinstance(variable_corte, str):
+                # Dejar el string como está
+                processed_value = variable_corte
+            else:
+                # Manejo de casos inesperados
+                print(f"Advertencia: Tipo inesperado en la fila {index}: {type(variable_corte)}")
+                continue
 
-        # Agregar el diccionario a la lista
-        value_list.append(value_dict)
+            # Crear el diccionario para cada entrada
+            value_dict = {
+                "Variables de corte": processed_value
+            }
+
+            # Agregar el diccionario a la lista
+            value_list.append(value_dict)
+
+        except Exception as e:
+            print(f"Error en la fila {index}: {e}")
+            continue
 
     return value_list
-
 
 def transformar_segmentos(df):
     # Lista para almacenar los valores procesados
@@ -258,8 +278,8 @@ def crear_card_con_input_seleccionador_V3(input_id, input_label, action_link_id,
                                  )
                              )
                          )
-                     )
-
+                     ),
+                         class_="custom-card-desa"
                      )
 
 
@@ -309,9 +329,11 @@ def crear_card_con_input_numeric(input_id, input_label, action_link_id, icon, va
                                                    action_link_id, "", icon=icon)
                                                )
                                  )
-                             )
+                             ),
+                             class_="custom-card-desa"
                          )
-                     )
+                     ),
+                      
                      )
 
 
@@ -386,7 +408,8 @@ def crear_card_con_input_numeric_2(input_id, input_label, action_link_id, icon, 
                     )
                 )
             )
-        )
+        ),
+         class_="custom-card-desa"
     )
 
 descripciones = {
