@@ -56,7 +56,7 @@ screenValid = ui.page_fluid(
     ui.input_radio_buttons(  
         "radio_models",  
         "Validacion",
-        {"1": "Full", "2": "Estabilidad"},  
+        {"1": "Full", "2": "Scoring"},  
          inline=True,
          selected=1,
     ),
