@@ -139,9 +139,10 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
                             input_label="Training and Testing",
                             action_link_id="help_training_testing",
                             icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
+                            default_value=0.7,
                             min_value=0,
                             max_value=2,
-                            step=0.01
+                            step=1,
                             ),
                             crear_card_con_input_seleccionador_V3("par_target", "Columna Target", "help_target_col", 
                                                             ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
@@ -169,8 +170,9 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
                             input_label="Mostrar variables por alta correlación:",
                             action_link_id="help_par_cor_show",
                             icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
+                            default_value=0.9,
                             min_value=0,
-                            max_value=1,
+                            max_value=0.9,
                             step=0.01
                         ), 
                             crear_card_con_input_numeric_2(
@@ -178,6 +180,7 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
                             input_label="Descartar variables por bajo IV",
                             action_link_id="help_iv",
                             icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
+                            default_value=10,
                             min_value=0.5,
                             max_value=10,
                             step=0.1
@@ -192,6 +195,7 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
                             input_label="Descartar variables por alta correlación",
                             action_link_id="help_par_cor",
                             icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
+                            default_value=0.5,
                             min_value=0.5,
                             max_value=10,
                             step=0.1
@@ -201,9 +205,10 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
                         input_label="Casos mínimos de bin de primera etapa",
                         action_link_id="help_minpts",
                         icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
-                        min_value=0.5,
+                        default_value=200,
+                        min_value=200,
                         max_value=10,
-                        step=0.1
+                        step=1,
                     ),
                         ),
                         ui.output_ui(f"error_{name_suffix}"),
@@ -236,10 +241,10 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
         
         default_values = {
             "par_split": 0.7,
-            "par_cor_show": 0.8,
+            "par_cor_show": 0.9,
             "par_iv": 3.0,
             "par_cor": 0.9,
-            "par_minpts1": 0.5
+            "par_minpts1":200
         }
 
         update_numeric_from_parameters(numeric_params, json_params, default_values)

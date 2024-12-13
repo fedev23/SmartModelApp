@@ -12,6 +12,7 @@ from clases.reactives_name import global_names_reactivos
 from clases.global_sessionV2 import *
 from funciones.validacionY_Scoring.create_card import crate_file_input_y_seleccionador
 from clases.global_modelo import modelo_of_sample
+from datetime import datetime
 
 
 def server_out_of_sample(input, output, session, name_suffix):
@@ -119,8 +120,17 @@ def server_out_of_sample(input, output, session, name_suffix):
             print(path_entrada, "estoy en entrada")
             print(path_salida, "estoy en salida")
             
+            modelo_of_sample.script_path = f'./Validar_Nueva.sh --input-dir {path_entrada} --output-dir {path_salida}'
+            #./Validar_Nueva.sh --input-dir <dir_in> [--output-dir <dir_out>] [--quick <true/false>] [--help]
             ejecutar_of_to_sample(click_count_value, mensaje_value, proceso)
             insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_validacion())
+            if proceso:
+                    estado = insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), datetime.now().strftime("%Y-%m-%d %H:%M"), modelo_of_sample.nombre, global_names_reactivos.get_name_file_db(), global_session.get_id_version(), 'out_to_sample', 'completado')
+                    print(f'estado de la ejecucion {estado}')
+            else:
+                    estado = insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), datetime.now().strftime("%Y-%m-%d %H:%M"), modelo_of_sample.nombre, global_names_reactivos.get_name_file_db(), global_session.get_id_version(), 'out_to_sample', 'error')
+                    print(f'estado de la ejecucion {estado}')
+                
             
         except Exception as e:
             mensaje_value.set(f"Primero ejecutar el proceso de Desarrollo para poder ejecutar el proceso  full {str(e)}")

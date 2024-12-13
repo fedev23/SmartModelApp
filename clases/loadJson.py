@@ -33,8 +33,8 @@ class LoadJson:
                 "par_nbins1": self.input["par_nbins1"](),
                 "par_nbins2": self.input["par_nbins2"](),
                 "par_maxlevels": self.input["par_maxlevels"](),
-                "par_limit_by_minbinq": self.input["par_limit_by_minbinq"](),
-                "par_limit_by_minbinw": self.input["par_limit_by_minbinw"](),
+                "par_minpts_nulos": self.input["par_minpts_nulos"](),
+                "par_conf_level": self.input["par_conf_level"](),
                 "par_iv_cuantiles_gb_min": self.input["par_iv_cuantiles_gb_min"](),
                 "par_iv_tot_min": self.input["par_iv_tot_min"](),
                 "par_iv_tot_gb_min": self.input["par_iv_tot_gb_min"](),
@@ -172,9 +172,9 @@ class LoadJson:
                     "type": "numeric",
                 },
                 {
-                    "parameter": "par_limit_by_minbinq",
-                    "value": self.inputs["par_limit_by_minbinq"],
-                    "Descripción": "Medir el tamaño de los bines según su cantidad de casos",
+                    "parameter": "par_minpts_nulos",
+                    "value": self.inputs["par_minpts_nulos"],
+                    "Descripción": "Nro. de casos mínimos para asignar WoE a nulos",
                     "type": "numeric",
                 },
                 {
@@ -183,9 +183,9 @@ class LoadJson:
                     "type": "string"
                 },
                 {
-                    "parameter": "par_limit_by_minbinw",
-                    "value": self.inputs["par_limit_by_minbinw"],
-                    "Descripción": "Medir el tamaño de los bines según su peso dado par_weight",
+                    "parameter": "par_conf_level",
+                    "value": self.inputs["par_conf_level"],
+                    "Descripción": "Límite para descartar variables por test de Chi-Sq en Forward",
                     "type": "numeric",
                 },
                 {
@@ -294,13 +294,13 @@ class LoadJson:
                 },
                 {
                     "parameter": "data_source_val_delim_path",
-                    "value": self.inputs["file_validation"],
+                    "value": "./Datos/Muestra_Validación.txt",
                     "Descripción": "Ubicación del archivo de datos de validación en formato plano",
                     "type": "string"
                 },
                 {
                     "parameter": "data_source_scoring_delim_path",
-                    "value": self.inputs["file_validation"],
+                    "value":"./Datos/Muestra_Scoring.txt",
                     "Descripción": "Ubicación del archivo de datos para scoring en formato plano",
                     "type": "string"
                 }

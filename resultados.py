@@ -39,7 +39,7 @@ def server_resul(input, output, session, name_suffix):
         resultados_desarrollo = [
             {
                 "resultado_id": "Clean_Transf",
-                "resultado_path": f"Clean-Transf.html",
+                "resultado_path": f"Clean_Transf_quick.html",
                 "salida": "result_Clean_Transf",
                 "salida_unic": "salida_prueba_Clean_Transf",
                 "descarga_unic": "download_btn1_Clean_Transf",
@@ -67,7 +67,7 @@ def server_resul(input, output, session, name_suffix):
             },
             {
                 "resultado_id": "modelling",
-                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id}/Reportes/Modelling.html",
+                "resultado_path": f"Modelling_quick.html",
                 "salida": "detalle_modelling",
                 "descarga_unic": "download_btn_modelling",
                 "salida_unic": "salida_modelling",

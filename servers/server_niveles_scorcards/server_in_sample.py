@@ -6,6 +6,7 @@ from clases.loadJson import LoadJson
 from funciones.param_in_sample import param_in_sample
 from funciones.utils import transformar_segmentos, transform_data, transformar_reportes, create_modal_parametros, id_buttons
 import pandas as pd
+from funciones.utils import mover_file_reportes_puntoZip
 from funciones.utils_2 import cambiarAstring, aplicar_transformaciones
 from clases.global_session import global_session
 from api.db import *
@@ -113,7 +114,6 @@ def server_in_sample(input, output, session, name_suffix):
     @output
     @render.data_frame
     def par_rango_reportes():
-        print(list_transformada.get(),"que tiene este print")
         if list_transformada.get(): 
             valor_anolne, valor_multi = help_params.split_list(list_transformada.get())
             print(valor_anolne) 
@@ -128,6 +128,9 @@ def server_in_sample(input, output, session, name_suffix):
             print(df['Variables de corte'])
 
             return render.DataGrid(ejemplos_rangos_edit, editable=True,  width='500px')
+        else:
+          data_view =  pd.DataFrame()
+          return render.DataGrid(data_view, editable=True,  width='500px')
 
        
 
@@ -153,11 +156,7 @@ def server_in_sample(input, output, session, name_suffix):
         list_transformada.set(trans_formara_lista)
         #print(trans_formara_lista)
         
-            
 
-            
-        
-    
     ##USO ESTE DECORADOR PARA CORRER EL PROCESO ANSYC Y NO HAYA INTERRUCIONES EN EL CODIGO LEER DOCUENTACION
     #https://shiny.posit.co/py/docs/nonblocking.html
     @ui.bind_task_button(button_id="execute_in_sample")
@@ -174,22 +173,17 @@ def server_in_sample(input, output, session, name_suffix):
         mensaje_value = global_desarollo.mensaje.get()  # Obtener mensaje actual
         proceso = global_desarollo.proceso.get()
         validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
-
-        # Ejecutar las validaciones
-        #validator.validate_project()
-
         # Verificar si hay errores, ver si agrego una validacion
         if validator.is_valid():
             # Procesar los inputs
             inputs_procesados = {key: transformacion(input[key]()) for key, transformacion in transformaciones.items()}
+            #par_rango_reportes.data_view()
             rango_reportes = par_rango_reportes.data_view()
             reportesMap = transformar_reportes(rango_reportes)
             #segmentos_editados = par_rango_segmentos.data_view()
             #segmentosMap = transformar_segmentos(segmentos_editados)
             df_editado = par_rango_niveles.data_view()
             niveles_mapeados = transform_data(df_editado)
-
-            
             # Guardar los datos procesados
             load_handler = LoadJson(input)
             load_handler.inputs.update(inputs_procesados)
@@ -206,16 +200,27 @@ def server_in_sample(input, output, session, name_suffix):
             path_entrada = obtener_path_por_proyecto_version(global_session.get_id_proyecto(), global_session.get_id_version(), 'entrada')
             path_salida = obtener_path_por_proyecto_version(global_session.get_id_proyecto(), global_session.get_id_version(), 'salida')
         
+            print(f"que tiene path entrada?{path_entrada}")
             global_session.set_path_niveles_scorcads(path_entrada)
             global_session.set_path_niveles_scorcads_salida(path_salida)
             
             ##COPIO EL JSON DE LA CARPETA y lo fusion por si hay IN SAMPLE
-            copiar_json_si_existe(json_file_path, path_entrada)
+            json = copiar_json_si_existe(json_file_path, path_entrada)
+            print(f"movi json?, {json}")
             inputs_procesados = aplicar_transformaciones(input, transformaciones)
+            
+            origen_modelo_puntoZip =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+            destino_modelo_puntoZip = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+            ##MUEVO EL MODELO .ZIP QUE GENERO DESARROLO PARA QUE PUEDA SER USADO, ESTO DEBERIA SER USANDO EN TODAS LAS ISTANCIAS DE LOS MODELOS
+            movi = mover_file_reportes_puntoZip(origen_modelo_puntoZip,destino_modelo_puntoZip )
+            print (f"movi .zip a {movi}")
+            
             #insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_desarrollo())
             ##PATH DONDE SE EJECUTA EL SCRIPT Y LAS CARPETAS QUE CORRESPONDEN AL USARIO, PROYECT, VERSION ACTUAL O EN
             mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), global_session.get_path_guardar_dataSet_en_proyectos(), name_suffix, path_entrada)
-            modelo_in_sample.script_path = f"./Validar_Desa.sh {global_session.get_path_niveles_scorcads()} {global_session.get_path_niveles_scorcads_salida()}"
+            
+            modelo_in_sample.script_path = f"./Validar_Desa.sh  --input-dir {global_session.get_path_niveles_scorcads()} --output-dir {global_session.get_path_niveles_scorcads_salida()}"
+            
             ejecutar_in_sample_ascyn(click_count_value, mensaje_value, proceso) #-->EJECUTO EL PROCESO ACA
             if proceso:
                     estado = insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), datetime.now().strftime("%Y-%m-%d %H:%M"), modelo_in_sample.nombre, global_names_reactivos.get_name_file_db(), global_session.get_id_version(), 'in_sample', 'completado')

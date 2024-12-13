@@ -208,10 +208,9 @@ def server_desarollo(input, output, session, name_suffix):
                 #CREO EL PATH DONDE SE VA A EJECUTAR DESARROLLO DEPENDIENDO DEL PROYECYO Y LA VERSION QUE ESTE EN USO
                 ##necesito tener el nombre del dataset seleccionado asi le cambio el nombre y lo
                 mover = mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), global_session.get_path_guardar_dataSet_en_proyectos(), name_suffix, path_datos_entrada)
-                #print(f"resultados sobre mover {mover}")
-                #insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), datetime.now().strftime("%Y-%m-%d %H:%M"), global_desarollo.nombre, global_names_reactivos.get_name_file_db(), global_session.get_id_version(), 'desarrollo')
                 
-                global_desarollo.script_path = f'./Modelar.sh "{path_datos_entrada}" {path_datos_salida}'
+                global_desarollo.script_path = f'./Modelar.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida}'
+                #./Modelar.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida} 
                 ejectutar_desarrollo_asnyc(click_count_value, mensaje_value, proceso)
                 print(proceso, "estoy en procesos")
                 if proceso:

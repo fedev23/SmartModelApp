@@ -124,7 +124,8 @@ screenInSample = ui.page_fluid(
                         input_label="Submuestras para bootstrap",
                         action_link_id="times_sub",
                         icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
-                        min_value=0,
+                        default_value=25,
+                        min_value=25,
                         max_value=2,
                         step=0.01
                         ),
@@ -134,7 +135,8 @@ screenInSample = ui.page_fluid(
                         input_label="Cantidad de reportes",
                         action_link_id="cant_reportes",
                         icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
-                        min_value=0,
+                        default_value=100,
+                        min_value=100,
                         max_value=2,
                         step=0.01
                         ),

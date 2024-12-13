@@ -23,8 +23,9 @@ def create_screen(name_suffix):
                 input_label="",
                 action_link_id="help_discret",
                 icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
-                min_value=0,
-                max_value=2,
+                default_value=1,
+                min_value=1,
+                max_value=1000,
                 step=0.01
             ),
              crear_card_con_input_numeric_2(
@@ -32,8 +33,9 @@ def create_screen(name_suffix):
                 input_label="",
                 action_link_id="help_nbins1",
                 icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
-                min_value=0,
-                max_value=2,
+                default_value=100,
+                min_value=100,
+                max_value=1000,
                 step=0.01
             ),
             crear_card_con_input_numeric_2(
@@ -41,8 +43,9 @@ def create_screen(name_suffix):
                 input_label="",
                 action_link_id="help_nbins2",
                 icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
-                min_value=0,
-                max_value=2,
+                default_value=20,
+                min_value=20,
+                max_value=1000,
                 step=0.01
             )
         ),
@@ -53,26 +56,29 @@ def create_screen(name_suffix):
                 input_label="",
                 action_link_id="help_maxlevels",
                 icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
-                min_value=0,
-                max_value=2,
+                default_value=50,
+                min_value=50,
+                max_value=1000,
                 step=0.01
             ),
             crear_card_con_input_numeric_2(
-                input_id="par_limit_by_minbinq",
-                input_label="",
+                input_id="par_conf_level",
+                input_label="Límite para descartar variables por test de Chi-Sq en Forward",
                 action_link_id="help_minbinq",
                 icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
+                default_value=0.1,
                 min_value=0,
-                max_value=2,
+                max_value=1000,
                 step=0.01
             ),
             crear_card_con_input_numeric_2(
-                input_id="par_limit_by_minbinw",
-                input_label="",
+                input_id="par_minpts_nulos", ##--> FUERON QUITADOS RMPLAZAR POR LOS OTROS nuevos par_conf_level
+                input_label="Nro. de casos mínimos para asignar WoE a nulos",
                 action_link_id="help_minbinw",
                 icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
+                default_value=200,
                 min_value=0,
-                max_value=2,
+                max_value=1000,
                 step=0.01
             ),
             crear_card_con_input_numeric_2(
@@ -80,8 +86,9 @@ def create_screen(name_suffix):
                 input_label="Nro. de casos mínimos de cada bin de segunda etapa",
                 action_link_id="help_par_minpts2",
                 icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
-                min_value=0,
-                max_value=2,
+                default_value=400,
+                min_value=400,
+                max_value=1000,
                 step=0.01
             ),
             crear_card_con_input_seleccionador(
@@ -98,8 +105,9 @@ def create_screen(name_suffix):
                 input_label="",
                 action_link_id="help_iv_cuantiles",
                 icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
-                min_value=0,
-                max_value=2,
+                default_value=100,
+                min_value=100,
+                max_value=10000,
                 step=0.01
             ),
             crear_card_con_input_numeric_2(
@@ -107,8 +115,9 @@ def create_screen(name_suffix):
                 input_label="",
                 action_link_id="help_iv_tot",
                 icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
-                min_value=0,
-                max_value=2,
+                default_value=500,
+                min_value=500,
+                max_value=2000,
                 step=0.01
             ),
             crear_card_con_input_numeric_2(
@@ -116,8 +125,9 @@ def create_screen(name_suffix):
                 input_label="",
                 action_link_id="help_iv_tot_gb",
                 icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
-                min_value=0,
-                max_value=2,
+                default_value=200,
+                min_value=200,
+                max_value=1200,
                 step=0.01
             ),
             crear_card_con_input_numeric_2(
@@ -125,8 +135,9 @@ def create_screen(name_suffix):
                 input_label="Nro. de casos mínimos de cada bin de la discretización de categorícas",
                 action_link_id="help_par_minpts_cat",
                 icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
-                min_value=0,
-                max_value=2,
+                default_value=150,
+                min_value=150,
+                max_value=1500,
                 step=0.01
             ),
             crear_card_con_input_numeric_2(
@@ -134,8 +145,9 @@ def create_screen(name_suffix):
                 input_label="Nro. de casos mínimos de cada bin de la discretización de categorícas",
                 action_link_id="help_par_perf_bins",
                 icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
-                min_value=0,
-                max_value=2,
+                default_value=20,
+                min_value=20,
+                max_value=200,
                 step=0.01
             ),
             ui.column(

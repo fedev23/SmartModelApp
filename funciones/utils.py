@@ -113,10 +113,9 @@ def retornar_card(get_file_name, modelo):  # get_fecha
     return modelo.render_card(file_name)
 
 def transformar_reportes(df):
+    if df.empty:
+        return {}
     # Verificar la existencia de la columna
-    if 'Variables de corte' not in df.columns:
-        raise KeyError("La columna 'Variables de corte' no existe en el DataFrame.")
-
     # Lista para almacenar los valores procesados
     value_list = []
 
@@ -279,7 +278,7 @@ def crear_card_con_input_seleccionador_V3(input_id, input_label, action_link_id,
                              )
                          )
                      ),
-                         class_="custom-card-desa"
+                       
                      )
 
 
@@ -319,7 +318,6 @@ def crear_card_con_input_numeric(input_id, input_label, action_link_id, icon, va
     # descripcion = descripciones.get(input_id, "")
     return ui.column(4,
                      ui.row(
-                         ui.card(
                              ui.card_header(
                                  ui.row(
                                      ui.column(10, ui.input_numeric(
@@ -330,8 +328,8 @@ def crear_card_con_input_numeric(input_id, input_label, action_link_id, icon, va
                                                )
                                  )
                              ),
-                             class_="custom-card-desa"
-                         )
+                             
+                         
                      ),
                       
                      )
@@ -369,7 +367,7 @@ def crear_card_con_input_2(input_id, input_label, action_link_id, icon, paramete
                      )
                      )
 
-def crear_card_con_input_numeric_2(input_id, input_label, action_link_id, icon, min_value=None, max_value=None, step=None):
+def crear_card_con_input_numeric_2(input_id, input_label, action_link_id, icon, default_value,min_value=None, max_value=None, step=None):
     """
     Crea una tarjeta con un input numérico y un botón de acción.
 
@@ -395,7 +393,7 @@ def crear_card_con_input_numeric_2(input_id, input_label, action_link_id, icon, 
                     ui.input_numeric(
                         input_id,
                         input_label,
-                        value=None,  # El valor se actualizará externamente
+                        value=default_value,  # El valor se actualizará externamente
                         min=min_value,
                         max=max_value,
                         step=step
@@ -409,7 +407,7 @@ def crear_card_con_input_numeric_2(input_id, input_label, action_link_id, icon, 
                 )
             )
         ),
-         class_="custom-card-desa"
+         
     )
 
 descripciones = {
