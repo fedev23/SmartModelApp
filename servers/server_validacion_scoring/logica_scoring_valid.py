@@ -41,7 +41,6 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
             print(f"Nombre del archivo recibido: {input_name}")
 
             # Guardar el archivo
-            name_suffix = "_validation"  # Ejemplo de sufijo, ajusta según sea necesario
             ruta_guardado = await guardar_archivo(input.file_validation, name_suffix)
             print(f"El archivo fue guardado en {ruta_guardado}")
 
@@ -49,11 +48,13 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
             fecha_de_carga = datetime.now().strftime("%Y-%m-%d %H:%M")
 
             # Insertar datos en la tabla
-            id = insert_into_table(
-                "validation_scoring",
-                ['nombre_archivo_validation_sc', 'fecha_de_carga', 'project_id', 'version_id'],
-                [input_name, fecha_de_carga, global_session.get_id_proyecto(), global_session.get_id_version()]
+            id = insert_record(
+                database_path="Modeling_App.db",
+                table="validation_scoring",
+                columns=['nombre_archivo_validation_sc', 'fecha_de_carga', 'version_id'],
+                values=[input_name, fecha_de_carga, global_session.get_id_version()]
             )
+            
             print("Datos insertados en la tabla validation_scoring.")
             global_session_V2.set_id_Data_validacion_sc(id)
             # Extraer datos
@@ -99,11 +100,16 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
         global_session_V2.set_nombre_dataset_validacion_sc(nombre_file)
         
         ##obengo los valores de la tabla
-        lista.set(get_records(table='validation_scoring',
-                columns=['id_validacion_sc', 'nombre_archivo_validation_sc', 'fecha_de_carga'],
-                where_clause='project_id = ?',
-                where_params=(global_session.get_id_proyecto(),)))
-        
+        lista.set(get_records(
+            table='validation_scoring',
+            columns=['validation_scoring.id_validacion_sc', 
+                    'validation_scoring.nombre_archivo_validation_sc', 
+                    'validation_scoring.fecha_de_carga'],
+            join_clause='INNER JOIN version ON validation_scoring.version_id = version.version_id',
+            where_clause='version.project_id = ?',
+            where_params=(global_session.get_id_proyecto(),)
+        ))
+                
         if global_session_V2.get_nombre_dataset_validacion_sc() is None:
             dataSet_predeterminado_parms.set(obtener_ultimo_nombre_archivo(lista.get()))
         else:
@@ -118,9 +124,13 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
     @output
     @render.ui
     def remove_dataset_data_alidacionSC():
-        lista_2_borrar = (get_records(table='validation_scoring',
-            columns=['id_validacion_sc', 'nombre_archivo_validation_sc', 'fecha_de_carga'],
-            where_clause='project_id = ?',
+        lista_2_borrar = (get_records(
+            table='validation_scoring',
+            columns=['id_validacion_sc', 
+                    'nombre_archivo_validation_sc', 
+                    'fecha_de_carga'],
+            join_clause='INNER JOIN version ON validation_scoring.version_id = version.version_id',
+            where_clause='version.project_id = ?',
             where_params=(global_session.get_id_proyecto(),)))
         #name.set(global_names_reactivos.get_name_file_db())
         #print(lista_2_borrar, "estoy en lista dos de borrar")
@@ -201,10 +211,13 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
             if validadacion_retornar_card.get() == "1":
                 # Actualiza la lista de registros
                 lista.set(get_records(
-                    table='validation_scoring',
-                    columns=['id_validacion_sc', 'nombre_archivo_validation_sc', 'fecha_de_carga'],
-                    where_clause='project_id = ?',
-                    where_params=(global_session.get_id_proyecto(),)
+                table='validation_scoring',
+                columns=['validation_scoring.id_validacion_sc', 
+                        'validation_scoring.nombre_archivo_validation_sc', 
+                        'validation_scoring.fecha_de_carga'],
+                join_clause='INNER JOIN version ON validation_scoring.version_id = version.version_id',
+                where_clause='version.project_id = ?',
+                where_params=(global_session.get_id_proyecto(),)
                 ))
 
                 # Determina el dataset predeterminado o usa uno existente

@@ -121,7 +121,7 @@ def  obtener_nombre_proyecto_por_id(proyecto_id):
             return None  # Si no se encontró, retornar None
 
     except sqlite3.Error as e:
-        print(f"Error al acceder a la base de datos: {e}")
+        print(f"Error al acceder a la base de datos: {e}  en obtener_nombre_proyecto_por_id")
         return None
     
     finally:
@@ -239,7 +239,7 @@ def get_project_versions(project_id):
         return files_list  # Retornar la lista de versiones
     
     except sqlite3.Error as e:
-        print(f"Error al acceder a la base de datos: {e}")
+        print(f"Error al acceder a la base de datos: {e} en get_project_versions")
         return []
     
     finally:
@@ -269,7 +269,7 @@ def obtener_nombre_version_por_id(version_id):
             return None  # Si no se encontró, retornar None
 
     except sqlite3.Error as e:
-        print(f"Error al acceder a la base de datos: {e}")
+        print(f"Error al acceder a la base de datos: {e} en obtener_nombre_version_por_id")
         return None
     
     finally:
@@ -303,7 +303,7 @@ def obtener_versiones_por_proyecto(project_id, columnas , tabla, donde):
         return datos_list
 
     except sqlite3.Error as e:
-        print(f"Error al acceder a la base de datos: {e}")
+        print(f"Error al acceder a la base de datos: {e}, obtener_versiones_por_proyecto")
         return []
     
     finally:
@@ -329,6 +329,7 @@ def insert_into_table(table_name, columns, values):
         
         cur.execute(query, values)
         conn.commit()
+        
         last_row_id = cur.lastrowid
         print(f"Registro insertado correctamente en '{table_name}' con ID: {last_row_id}")
         return last_row_id
@@ -338,12 +339,13 @@ def insert_into_table(table_name, columns, values):
     finally:
         conn.close()
 
-def get_records(table, columns, where_clause=None, where_params=()):
+def get_records(table, columns, join_clause=None, where_clause=None, where_params=()):
     """
     Recupera registros de una tabla específica en la base de datos fija.
 
     :param table: Nombre de la tabla de la que se desean recuperar los registros.
     :param columns: Lista de columnas a recuperar.
+    :param join_clause: (Opcional) Cláusula JOIN para combinar tablas.
     :param where_clause: (Opcional) Condición WHERE para filtrar los registros.
     :param where_params: (Opcional) Parámetros para la cláusula WHERE.
     :return: Lista de diccionarios con los registros obtenidos.
@@ -356,6 +358,9 @@ def get_records(table, columns, where_clause=None, where_params=()):
         # Construir la consulta dinámica
         columns_str = ', '.join(columns)
         query = f"SELECT {columns_str} FROM {table}"
+        
+        if join_clause:
+            query += f" {join_clause}"
         
         if where_clause:
             query += f" WHERE {where_clause}"
@@ -375,7 +380,6 @@ def get_records(table, columns, where_clause=None, where_params=()):
     finally:
         # Asegurar el cierre de la conexión
         conn.close()
-     
 
 
 def delete_record(table_name, condition, condition_value):
@@ -425,7 +429,7 @@ def obtener_valor_por_id(base_datos, tabla, columna_objetivo, columna_filtro, va
             return None  # Si no se encontró, retornar None
 
     except sqlite3.Error as e:
-        print(f"Error al acceder a la base de datos: {e}")
+        print(f"Error al acceder a la base de datos: {e} obtener_valor_por_id")
         return None
 
     finally:
@@ -481,8 +485,13 @@ def add_param_versions(project_id, version_id, name):
     return version_param_id
 
 
+def get_project_versions_param(project_id):
+    """
+    Obtiene las versiones de un proyecto específico.
 
-def   get_project_versions_param(project_id, version_id):
+    :param project_id: ID del proyecto asociado.
+    :return: Lista de diccionarios con las versiones y sus nombres.
+    """
     conn = sqlite3.connect('Modeling_App.db')
     cur = conn.cursor()
     
@@ -492,8 +501,8 @@ def   get_project_versions_param(project_id, version_id):
             SELECT j.id_jsons, j.nombre_version
             FROM json_versions j
             JOIN version v ON j.version_id = v.version_id
-            WHERE v.project_id = ? AND j.version_id = ?
-        ''', (project_id, version_id))
+            WHERE v.project_id = ?
+        ''', (project_id,))
         
         # Recuperar los resultados
         versiones = cur.fetchall()
@@ -510,13 +519,12 @@ def   get_project_versions_param(project_id, version_id):
         return files_list  # Retornar la lista de resultados
     
     except sqlite3.Error as e:
-        print(f"Error al acceder a la base de datos: {e}")
+        print(f"Error al acceder a la base de datos: {e} en get_project_versions_param")
         return []
     
     finally:
         # Cerrar la conexión
-        conn.close()    
-        
+        conn.close()        
    
 def obtener_valor_por_id_versiones(id_files , base_datos='Modeling_App.db'):
     
@@ -543,46 +551,94 @@ def obtener_valor_por_id_versiones(id_files , base_datos='Modeling_App.db'):
                 return None  # Si no se encontró, retornar None
 
         except sqlite3.Error as e:
-            print(f"Error al acceder a la base de datos: {e}")
+            print(f"Error al acceder a la base de datos: {e}, en obtener_valor_por_id_versiones")
             return None
 
         finally:
             # Cerrar la conexión
             conn.close()
 
+def obtener_path_por_proyecto_version(version_id, tipo_path):
+    """
+    Obtiene el path asociado a una versión específica y un tipo de path.
 
-def obtener_path_por_proyecto_version(project_id, version_id, tipo_path):
+    :param version_id: ID de la versión.
+    :param tipo_path: Tipo de path (e.g., 'entrada', 'salida').
+    :return: Path asociado o None si no se encuentra.
+    """
     conn = sqlite3.connect('Modeling_App.db')
     cur = conn.cursor()
     try:
+        # Consulta para obtener el path basado en version_id y tipo_path
         consulta = '''
             SELECT path
             FROM paths_de_ejecucion
-            WHERE project_id = ? AND version_id = ? AND tipo_path = ?
+            WHERE version_id = ? AND tipo_path = ?
         '''
-        cur.execute(consulta, (project_id, version_id, tipo_path))
+        cur.execute(consulta, (version_id, tipo_path))
         datos = cur.fetchone()
 
         return datos[0] if datos else None
 
     except sqlite3.Error as e:
-        print(f"Error al acceder a la base de datos: {e}")
+        print(f"Error al acceder a la base de datos: {e} error en obtener_path_por_version")
         return None
 
     finally:
         conn.close()
+        
+                
+def insertar_path(path, version_id, tipo_path):
+    """
+    Inserta un registro en la tabla paths_de_ejecucion.
 
-def insertar_path(path, project_id, version_id, tipo_path):
+    :param path: Ruta a insertar.
+    :param version_id: ID de la versión asociada.
+    :param tipo_path: Tipo de path (entrada, salida, etc.).
+    """
     conn = sqlite3.connect('Modeling_App.db')
     cur = conn.cursor()
     try:
         cur.execute('''
-            INSERT INTO paths_de_ejecucion (path, project_id, version_id, tipo_path)
-            VALUES (?, ?, ?, ?)
-        ''', (path, project_id, version_id, tipo_path))
+            INSERT INTO paths_de_ejecucion (path, version_id, tipo_path)
+            VALUES (?, ?, ?)
+        ''', (path, version_id, tipo_path))
         conn.commit()
         print("Path insertado correctamente con tipo_path:", tipo_path)
     except sqlite3.IntegrityError as e:
         print(f"Error al insertar el path: {e}")
+    finally:
+        conn.close()
+
+
+def insert_record(database_path, table, columns, values):
+    """
+    Inserta un registro en una tabla específica de una base de datos SQLite.
+
+    :param database_path: Ruta al archivo de la base de datos SQLite.
+    :param table: Nombre de la tabla donde se insertará el registro.
+    :param columns: Lista de nombres de las columnas en las que se insertarán los valores.
+    :param values: Lista de valores a insertar. El orden debe coincidir con las columnas.
+    :return: None
+    """
+    try:
+        # Conexión a la base de datos
+        conn = sqlite3.connect(database_path)
+        cur = conn.cursor()
+        
+        # Construir la consulta de inserción
+        columns_str = ', '.join(columns)
+        placeholders = ', '.join(['?' for _ in values])
+        query = f"INSERT INTO {table} ({columns_str}) VALUES ({placeholders})"
+        
+        # Ejecutar la consulta
+        cur.execute(query, values)
+        
+        # Confirmar los cambios
+        conn.commit()
+        print(f"Registro insertado correctamente en la tabla '{table}'.")
+
+    except sqlite3.Error as e:
+        print(f"Error al insertar registro en la tabla '{table}': {e}")
     finally:
         conn.close()

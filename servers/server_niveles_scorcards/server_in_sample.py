@@ -20,6 +20,7 @@ from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
 from funciones.utils_cargar_json import update_dataframe_from_json
 from clases.global_sessionV2 import *
 from clases.global_reactives import *
+from api.db.sqlite_utils import *
 from servers.utils import help_params
 
 ejemplo_niveles_riesgo = pd.DataFrame({
@@ -196,17 +197,21 @@ def server_in_sample(input, output, session, name_suffix):
             json_file_path = load_handler.loop_json()
             print(f"Inputs guardados en {json_file_path}")
             
+            
             ##ESTO NO PUEDE SER UNA CONSTANTE POR QUE NECESITO SEGUIR EL FLUJO DE EJUCION, ES DECIR AL SER REACTIVO TIENEN QUE ESTAR DENTRO DE UN EFECTO REACTIVO, SI PONGO LA FUNCION PARA QUE SE EJECUTE CUANDO EMPIEZA LA APP, HAY VALORES QUE NO VAN A ESTAR
-            path_entrada = obtener_path_por_proyecto_version(global_session.get_id_proyecto(), global_session.get_id_version(), 'entrada')
-            path_salida = obtener_path_por_proyecto_version(global_session.get_id_proyecto(), global_session.get_id_version(), 'salida')
-        
-            print(f"que tiene path entrada?{path_entrada}")
+            path_entrada = obtener_path_por_proyecto_version(global_session.get_id_version(), 'entrada')
+            path_salida = obtener_path_por_proyecto_version(global_session.get_id_version(), 'salida')
+
+            path = obtener_path_por_id_json("Modeling_App.db", global_session.get_version_parametros_id())
+            global_session.get_version_parametros_id()
+            #C:\Users\fvillanueva\Desktop\SmartModel_new_version\new_version_new\Automat\datos_entrada_auth0_670fc1b2ead82aaae5c1e9ba\proyecto_57_Proyecto_prueba_De_Datos\version_59_c\version_parametros_42_version_c
+            #path_si_existe_version = path_entrada.join()
             global_session.set_path_niveles_scorcads(path_entrada)
             global_session.set_path_niveles_scorcads_salida(path_salida)
             
             ##COPIO EL JSON DE LA CARPETA y lo fusion por si hay IN SAMPLE
-            json = copiar_json_si_existe(json_file_path, path_entrada)
-            print(f"movi json?, {json}")
+            json = copiar_json_si_existe(path_entrada, path)
+            print(f"{json}, que tiene jsno??")
             inputs_procesados = aplicar_transformaciones(input, transformaciones)
             
             origen_modelo_puntoZip =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'

@@ -35,8 +35,9 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
         actualizar_ultimo_seleccionado(base_datos, 'name_files', 'id_files', data_id)
         ##OBTENGO LOS VALORES ASOCIADOS A LA TABALA
         list = get_records(table='name_files',
-            columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
-            where_clause='project_id = ?',
+            columns=['name_files.id_files', 'name_files.nombre_archivo', 'name_files.fecha_de_carga'],
+            join_clause='INNER JOIN version ON name_files.version_id = version.version_id',
+            where_clause='version.project_id = ?',
             where_params=(global_session.get_id_proyecto(),))
         global_names_reactivos.set_name_file_db(nombre_file)
         
@@ -54,7 +55,8 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     def remove_dataset():
         list.set(get_records(table='name_files',
             columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
-            where_clause='project_id = ?',
+            join_clause='INNER JOIN version ON name_files.version_id = version.version_id',
+            where_clause='version.project_id = ?',
             where_params=(global_session.get_id_proyecto(),)))
         #name.set(global_names_reactivos.get_name_file_db())
         return button_remove(list.get(), global_session.get_id_dataSet(), "id_files", name)
