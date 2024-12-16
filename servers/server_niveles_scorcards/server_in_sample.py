@@ -15,9 +15,9 @@ from api.db import *
 from clases.class_validacion import Validator
 from clases.global_modelo import modelo_in_sample
 from clases.global_modelo import global_desarollo
-from logica_users.utils.help_versios import copiar_json_si_existe
+import os
 from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
-from funciones.utils_cargar_json import update_dataframe_from_json
+from funciones.utils_cargar_json import update_dataframe_from_json, actualizar_json
 from clases.global_sessionV2 import *
 from clases.global_reactives import *
 from api.db.sqlite_utils import *
@@ -186,23 +186,32 @@ def server_in_sample(input, output, session, name_suffix):
             df_editado = par_rango_niveles.data_view()
             niveles_mapeados = transform_data(df_editado)
             # Guardar los datos procesados
-            load_handler = LoadJson(input)
-            load_handler.inputs.update(inputs_procesados)
-            load_handler.inputs['delimiter_desarollo'] = global_estados.get_delimitador()
-            load_handler.inputs['proyecto_nombre'] = global_session.get_name_proyecto()
+            json_loader = LoadJson(input)
+
+# Imprimir los inputs cargados
+            print("Inputs cargados:", json_loader.inputs)
+            json_loader.inputs['delimiter_desarollo'] = global_estados.get_delimitador()
+            json_loader.inputs['proyecto_nombre'] = global_session.get_name_proyecto()
                 
-            load_handler.inputs['par_rango_niveles'] = niveles_mapeados
+            json_loader.inputs['par_rango_niveles'] = niveles_mapeados
             #load_handler.inputs['par_rango_segmentos'] = segmentosMap
-            load_handler.inputs['par_rango_reportes'] = reportesMap
-            json_file_path = load_handler.loop_json()
-            print(f"Inputs guardados en {json_file_path}")
-            
-            
-            ##ESTO NO PUEDE SER UNA CONSTANTE POR QUE NECESITO SEGUIR EL FLUJO DE EJUCION, ES DECIR AL SER REACTIVO TIENEN QUE ESTAR DENTRO DE UN EFECTO REACTIVO, SI PONGO LA FUNCION PARA QUE SE EJECUTE CUANDO EMPIEZA LA APP, HAY VALORES QUE NO VAN A ESTAR
+            json_loader.inputs['par_rango_reportes'] = reportesMap
+            #json_file_path = json_loader.load_json()
+            nuevos_valores = {
+                "delimiter_desarollo": global_estados.get_delimitador(),
+                "proyecto_nombre": global_session.get_name_proyecto(),
+                "par_rango_niveles": niveles_mapeados,
+                "par_rango_reportes": reportesMap,
+            }
+
+            # Actualizar el JSON con los nuevos valores
+            json_loader.update_values(nuevos_valores)
+            json_loader.save_json()
             path_entrada = obtener_path_por_proyecto_version(global_session.get_id_version(), 'entrada')
             path_salida = obtener_path_por_proyecto_version(global_session.get_id_version(), 'salida')
 
-            path = obtener_path_por_id_json("Modeling_App.db", global_session.get_version_parametros_id())
+            #path = obtener_path_por_id_json("Modeling_App.db", global_session.get_version_parametros_id())
+            path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
             global_session.get_version_parametros_id()
             #C:\Users\fvillanueva\Desktop\SmartModel_new_version\new_version_new\Automat\datos_entrada_auth0_670fc1b2ead82aaae5c1e9ba\proyecto_57_Proyecto_prueba_De_Datos\version_59_c\version_parametros_42_version_c
             #path_si_existe_version = path_entrada.join()
@@ -210,8 +219,8 @@ def server_in_sample(input, output, session, name_suffix):
             global_session.set_path_niveles_scorcads_salida(path_salida)
             
             ##COPIO EL JSON DE LA CARPETA y lo fusion por si hay IN SAMPLE
-            json = copiar_json_si_existe(path_entrada, path)
-            print(f"{json}, que tiene jsno??")
+            #json = copiar_json_si_existe(path_entrada, path_datos_entrada)
+            #print(f"{json}, que tiene jsno??")
             inputs_procesados = aplicar_transformaciones(input, transformaciones)
             
             origen_modelo_puntoZip =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
@@ -227,7 +236,7 @@ def server_in_sample(input, output, session, name_suffix):
             modelo_in_sample.script_path = f"./Validar_Desa.sh  --input-dir {global_session.get_path_niveles_scorcads()} --output-dir {global_session.get_path_niveles_scorcads_salida()}"
             
             ejecutar_in_sample_ascyn(click_count_value, mensaje_value, proceso) #-->EJECUTO EL PROCESO ACA
-            if proceso:
+            if modelo_in_sample.proceso.get():
                     estado = insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), datetime.now().strftime("%Y-%m-%d %H:%M"), modelo_in_sample.nombre, global_names_reactivos.get_name_file_db(), global_session.get_id_version(), 'in_sample', 'completado')
                     print(f'estado de la ejecucion {estado}')
             else:

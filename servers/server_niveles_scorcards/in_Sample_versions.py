@@ -73,7 +73,6 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
             if opciones_param.get() is  None:
                 nombre_version = versiones[0]['nombre_version']
                 nombre_de_la_version_in_sample.set(nombre_version)
-                print(nombre_version)
                 global_session.set_versiones_parametros_nombre(obtener_valor_por_id_versiones(global_session.get_version_parametros_id()))
             
               
@@ -94,7 +93,6 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
         @reactive.Effect
         @reactive.event(input[eliminar_btn_id])
         def eliminar_param_boton():
-            print("pase")
             create_modal_v2("Eliminar versión de parametros", "Confirmar", "Cancelar", "confirmar_remove", "cancelar_remove")
         
         

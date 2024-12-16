@@ -11,6 +11,7 @@ class LoadJson:
         self.input = input
         self.inputs = {}
         self.json = {}
+        self.in_sample = reactive.value(False)
         #self.user_id = user_id
 
     def loop_json(self):
@@ -313,10 +314,11 @@ class LoadJson:
         except Exception as e:
             print(f"Ocurrió un error inesperado: {str(e)}")
             traceback.print_exc()
-
         # Crear la lista de diccionarios en el formato deseado
         #get_user_directory(self.user_id)
         directorio_guardado = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+        #ruta_json = os.path.join(directorio_guardado, 'Control_de_SmartModelStudio.json')
+
         #C:\Users\fvillanueva\Desktop\SmartModel_new_version\new_version_new\Automat\datos_entrada_auth0_670fc1b2ead82aaae5c1e9ba\proyecto_62_test now\version__Version ver
         ruta_json = os.path.join(
             directorio_guardado, 'Control de SmartModelStudio.json')
@@ -326,19 +328,51 @@ class LoadJson:
         return ruta_json
 
     def load_json(self):
-        directorio_guardado = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada'
+        directorio_guardado = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
         ruta_json = os.path.join(directorio_guardado, 'Control de SmartModelStudio.json')
         if os.path.exists(ruta_json):
             with open(ruta_json, 'r', encoding='utf-8') as file:
                 self.inputs = json.load(file)
                 # print("Valores cargados:", self.inputs)
                 return self.inputs
+            
 
-    def get_json_value(self, parameter, default_value=None):
-        for item in self.inputs:  # Assuming self.inputs is the loaded JSON data
-            if isinstance(item, dict) and item.get('parameter') == parameter:
-                return item.get('value', default_value)
-        return default_value
+    def update_values(self, updates):
+        """
+        Actualiza el JSON cargado con los valores proporcionados en un diccionario.
+        :param updates: Diccionario donde las claves son los nombres de los parámetros ('parameter')
+                        y los valores son los nuevos valores ('value').
+        :return: Lista de diccionarios actualizada.
+        """
+        # Cargar los valores actuales del JSON
+        valores = self.load_json()
+        if not valores:
+            print("No se encontraron valores para actualizar. JSON vacío o no cargado.")
+            return []
+
+        # Recorrer las actualizaciones y aplicar los cambios
+        for update_key, update_value in updates.items():
+            actualizado = False
+            for item in valores:
+                # Si el parámetro existe, actualizamos su valor
+                if item.get('parameter') == update_key:
+                    print(f"Actualizando {update_key}: {item['value']} -> {update_value}")
+                    item['value'] = update_value
+                    break
+
+        # Guardar los cambios en self.inputs y devolver los valores actualizados
+        self.inputs = valores
+        return valores
+                
+
+    def save_json(self):
+        directorio_guardado = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
+        ruta_json = os.path.join(directorio_guardado, 'Control de SmartModelStudio.json')
+
+        os.makedirs(directorio_guardado, exist_ok=True)  # Asegurarse de que exista el directorio
+        with open(ruta_json, 'w', encoding='utf-8') as file:
+            json.dump(self.inputs, file, ensure_ascii=False, indent=4)
+
 
 
 #global_json = LoadJson()

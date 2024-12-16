@@ -210,10 +210,11 @@ def server_desarollo(input, output, session, name_suffix):
                 json_loader.inputs['file_desarollo'] = global_names_reactivos.get_name_file_db()
                 json_file_path = json_loader.loop_json()
                 print(f"Inputs guardados en {json_file_path}")
-                
-                ##Y NO LO PUEDO PONER CON ESPACIO O CON OS.JION POR QUE ME GENERA / DONDE NO VAN
+                print("Inputs cargados:", json_loader.inputs)
+            ##Y NO LO PUEDO PONER CON ESPACIO O CON OS.JION POR QUE ME GENERA / DONDE NO VAN
                 path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
                 path_datos_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+                
                 
                 ##CARGO EL PATH VINCULADO AL PROYECTO
                 insertar_path(path_datos_entrada, global_session.get_id_version(), 'entrada')

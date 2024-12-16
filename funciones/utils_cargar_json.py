@@ -337,3 +337,27 @@ def parametros_sin_version(name_suffix):
         ),
         ui.output_text_verbatim(f"param_validation_3_{name_suffix}")
     )
+    
+    
+def actualizar_json(file1, file2, output_file):
+    """
+    Combina dos archivos JSON en uno, llenando claves faltantes, 
+    y guarda el resultado en un nuevo archivo.
+
+    :param file1: Ruta al primer archivo JSON.
+    :param file2: Ruta al segundo archivo JSON.
+    :param output_file: Ruta donde se guardará el archivo combinado.
+    """
+    # Leer los archivos JSON
+    with open(file1, 'r') as f1, open(file2, 'r') as f2:
+        data1 = json.load(f1)
+        data2 = json.load(f2)
+
+    # Combinar las claves
+    combined = {key: data1.get(key, data2.get(key)) for key in set(data1) | set(data2)}
+
+    # Guardar el JSON combinado
+    with open(output_file, 'w') as outfile:
+        json.dump(combined, outfile, indent=4)
+
+    print(f"Archivo combinado creado: {output_file}")
