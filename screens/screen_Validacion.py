@@ -5,24 +5,17 @@ from clases.global_sessionV2 import *
 
 #projects = global_session_V2.get_opciones_name_dataset_Validation_sc()
 screenValid = ui.page_fluid(
+    ui.column(
+        8,
         ui.div(
-        ui.row(
-            ui.column(
-                12, 
-                ui.div(
-                    ui.div(class_="mt-5"),
-                    ui.div(
-                    ui.input_select(
+            ui.input_select(
                         "files_select_validation_scoring",
                         "",
                         [],
-                        width="100%"
+                        width="50%"
                     ),
-                    style="padding: 20px; height: 100px;"  # Ajusta el padding y la altura en el contenedor
-                ),
-                    #ui.HTML("<div style='width: 15px;'></div>"),
-                    ui.div(
-            ui.input_file(
+            ui.div(
+                 ui.input_file(
                 "file_validation",
                 "",
                 placeholder="Seleccione un archivo",
@@ -30,18 +23,12 @@ screenValid = ui.page_fluid(
                 accept=[".csv", ".txt"],
                 width="100%"
             ),
-            style="padding: 12px; height: 60px;"  # Ajusta el padding y la altura en el contenedor
+            ),
+            ui.output_ui("remove_dataset_data_alidacionSC"),
+            class_="d-flex align-items-stretch gap-3 mb-3"
         ),
-                    ui.div(
-                        ui.output_ui("remove_dataset_data_alidacionSC"),
-                        style="padding: 12px; height: 60px;"  
-                    ),
-                    ui.HTML("<div style='width: 10px;'></div>"),
-                    class_="d-flex justify-content-end:",
-                    style="gap: 10px; margin-top: -5px;"
-                )
-            )
-        ), 
+    ),
+        ui.div( 
          ui.div(class_="mt-2"),
         # Tarjeta para mostrar datos de validación
         ui.card(

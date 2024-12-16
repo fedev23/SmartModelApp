@@ -1,6 +1,6 @@
 from shiny import App, ui, reactive
 from clases.loadJson import LoadJson
-from funciones.utils import crear_card_con_input_seleccionador, crear_card_con_input_numeric_2
+from funciones.utils import crear_card_con_input_seleccionador, crear_card_con_input_numeric_2, crear_card_con_input_seleccionador_V3
 from faicons import icon_svg
 from global_var import global_data_loader_manager
 from clases.global_session import global_session
@@ -170,7 +170,13 @@ def create_screen(name_suffix):
                         class_="custom-card"
                     )
                 )
-            )
+            ),
+                                crear_card_con_input_seleccionador_V3(
+                            "par_vars_segmento", "Variables para reportes por Segmento", "vars_segmento",
+                            ui.tags.i(
+                                class_="fa fa-question-circle-o", style="font-size:24px")
+                        ),
+            
         ),
         class_="hidden-inputs"
     ),

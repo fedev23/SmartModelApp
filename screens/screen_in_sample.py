@@ -109,11 +109,16 @@ screenInSample = ui.page_fluid(
                                           ui.column(2,
                                                     ui.input_action_link("help_rangos", ui.tags.i(
                                                         class_="fa fa-question-circle-o", style="font-size:24px")),
-                                                    )
+                                                    ),
                                       ),
+                                       ui.column(
+                                              5,
+                                              ui.input_action_link("add_fila", "Agregar una nueva fila")
+                                          )
                                   ),
                                   ui.output_data_frame("par_rango_reportes"),
-                                  class_="custom-card"
+                                  
+                                  #class_="custom-card"
                               )
                           )
                           ),
@@ -140,11 +145,7 @@ screenInSample = ui.page_fluid(
                         max_value=2,
                         step=0.01
                         ),
-                                            crear_card_con_input_seleccionador_V3(
-                            "par_vars_segmento", "Variables para reportes por Segmento", "vars_segmento",
-                            ui.tags.i(
-                                class_="fa fa-question-circle-o", style="font-size:24px")
-                        ),
+                        
 
                         # style="display: flex; justify-content: space-around; align-items: center;"  # Estilo para mantener todo alineado
                     ),

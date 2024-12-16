@@ -40,7 +40,7 @@ ejemplo_segmentos = pd.DataFrame({
 })
 
 ejemplos_rangos = pd.DataFrame({
-    "Variables de corte": ["Segmento", "TipoOpe, TipoCmr"]
+    "Variables de corte": ["Variable1", "Variable_otro_Seg, Variable_otro_Seg2"]
 })
 
 
@@ -52,7 +52,8 @@ def server_in_sample(input, output, session, name_suffix):
     count = reactive.value(0)
     no_error = reactive.Value(True)
     global_names_reactivos.name_validacion_in_sample_set(name_suffix)
-    primer_valor = None
+    # Inicializamos el estado reactivo del dataset
+    data_set = reactive.Value(pd.DataFrame({"Variables de corte": []}))
     list_transformada = reactive.Value([])
 
 
@@ -75,7 +76,18 @@ def server_in_sample(input, output, session, name_suffix):
     def nombre_proyecto_in_sample():
         return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo(global_session.proyecto_seleccionado())}'
     
+    
+    @reactive.Effect
+    @reactive.event(input.add_fila)
+    def evento_agregar_nueva_fila():
+        print("pase??")
+        data = par_rango_reportes.data_view()
+        new_row = pd.DataFrame({"Variables de corte": ["Insertar Valores"]})
+        data = pd.concat([data, new_row], ignore_index=True)
+        data_set.set(data)
+        print(data)
 
+   
   
     @output
     @render.data_frame
@@ -115,23 +127,16 @@ def server_in_sample(input, output, session, name_suffix):
     @output
     @render.data_frame
     def par_rango_reportes():
-        if list_transformada.get(): 
-            valor_anolne, valor_multi = help_params.split_list(list_transformada.get())
-            print(valor_anolne) 
-            print(valor_multi)
-            
-            ejemplos_rangos_edit = pd.DataFrame({
-                "Variables de corte": [valor_anolne, [", ".join(valor_multi)]]
-            })
-            print(ejemplos_rangos_edit)
-            df = ejemplos_rangos_edit
-            print("Columnas del DataFrame:", df.columns.tolist())
-            print(df['Variables de corte'])
-
-            return render.DataGrid(ejemplos_rangos_edit, editable=True,  width='500px')
-        else:
-          data_view =  pd.DataFrame()
-          return render.DataGrid(data_view, editable=True,  width='500px')
+        # Obtén los datos del estado reactivo
+        data = data_set.get()
+        
+        # Si el DataFrame está vacío, usa el DataFrame de ejemplo
+        if data.empty:
+            return render.DataGrid(ejemplos_rangos, editable=True, width="500px")
+        
+        # De lo contrario, renderiza los datos actuales
+        return render.DataGrid(data, editable=True, width="500px")
+       
 
        
 
