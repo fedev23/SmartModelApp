@@ -9,6 +9,7 @@ from funciones.utils_2 import crear_carpeta_proyecto, crear_carpeta_version_por_
 from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version, eliminar_carpeta, mapear_valor_a_clave
 from funciones.utils_cargar_json import leer_control_json
 import asyncio
+from logica_users.utils.help_versios  import obtener_ultimo_nombre_archivo_validacion_c
 from auth.utils import help_api 
 from api.db.sqlite_utils import *
 
@@ -70,7 +71,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         ultimo_proyecto_seleccionado.set(obtener_ultimo_seleccionado(base_datos, 'project', 'name'))
        
         key_proyecto_mach = mapear_valor_a_clave(ultimo_proyecto_seleccionado.get(), proyectos_choise)
-        print("estoy en key",  key_proyecto_mach)
+        
         versiones_de_proyecto = get_project_versions(global_session.get_id_proyecto())
         opciones_de_versiones_por_proyecto.set(obtener_opciones_versiones(versiones_de_proyecto, "version_id", "nombre_version"))
         
@@ -122,8 +123,9 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             where_params=(global_session.get_id_proyecto(),)
         )
         
+        print(nombre_files_validacion_sc, "nombre_files_validacion_sc")
         global_session_V2.set_opciones_name_dataset_Validation_sc(obtener_opciones_versiones(nombre_files_validacion_sc, "id_validacion_sc", "nombre_archivo_validation_sc"))
-        data_predeterminado.set(obtener_ultimo_id_version(nombre_files_validacion_sc, "id_validacion_sc"))
+        data_predeterminado.set(obtener_ultimo_id_version(nombre_files_validacion_sc, 'id_validacion_sc'))
 
         #LEEO ELDATA SET SI EXISTE
         # Actualiza los selectores en la UI

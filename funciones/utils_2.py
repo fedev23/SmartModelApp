@@ -235,11 +235,6 @@ def leer_dataset(user_id, proyecto_id, name_proyect, dataset_name):
     try:
         # Detectar el delimitador del archivo
         delimitador = detectar_delimitador(dataset_path)
-        #load_handler = LoadJson(input)
-       #load_handler.inputs['delimiter_desarollo'] = delimitador
-        #json_file_path = load_handler.loop_json()
-        #print(f"delimitador guardado en {json_file_path}")
-        # Leer el archivo con el delimitador detectado
         dataset = pd.read_csv(dataset_path, delimiter=delimitador)
         print(f"Dataset {dataset_name} leyendo data_Set")
         

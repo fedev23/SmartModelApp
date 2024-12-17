@@ -39,6 +39,8 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
             join_clause='INNER JOIN version ON name_files.version_id = version.version_id',
             where_clause='version.project_id = ?',
             where_params=(global_session.get_id_proyecto(),))
+        
+        
         global_names_reactivos.set_name_file_db(nombre_file)
         
         if global_names_reactivos.get_name_file_db() is None:

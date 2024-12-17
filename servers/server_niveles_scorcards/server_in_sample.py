@@ -136,16 +136,7 @@ def server_in_sample(input, output, session, name_suffix):
         
         # De lo contrario, renderiza los datos actuales
         return render.DataGrid(data, editable=True, width="500px")
-       
-
-       
-
-    #@output
-    #@render.data_frame
-    #def par_rango_reportes():
-        #return render.DataGrid(ejemplos_rangos, editable=True,  width='500px')
-        # ejemplo_niveles_riesgo
-        
+   
         
     transformaciones = {
         'par_vars_segmento': cambiarAstring,
@@ -212,6 +203,7 @@ def server_in_sample(input, output, session, name_suffix):
             # Actualizar el JSON con los nuevos valores
             json_loader.update_values(nuevos_valores)
             json_loader.save_json()
+            
             path_entrada = obtener_path_por_proyecto_version(global_session.get_id_version(), 'entrada')
             path_salida = obtener_path_por_proyecto_version(global_session.get_id_version(), 'salida')
 
@@ -220,18 +212,17 @@ def server_in_sample(input, output, session, name_suffix):
             global_session.get_version_parametros_id()
             #C:\Users\fvillanueva\Desktop\SmartModel_new_version\new_version_new\Automat\datos_entrada_auth0_670fc1b2ead82aaae5c1e9ba\proyecto_57_Proyecto_prueba_De_Datos\version_59_c\version_parametros_42_version_c
             #path_si_existe_version = path_entrada.join()
-            global_session.set_path_niveles_scorcads(path_entrada)
+            global_session.set_path_niveles_scorcads(path_datos_entrada)
             global_session.set_path_niveles_scorcads_salida(path_salida)
             
             ##COPIO EL JSON DE LA CARPETA y lo fusion por si hay IN SAMPLE
             #json = copiar_json_si_existe(path_entrada, path_datos_entrada)
-            #print(f"{json}, que tiene jsno??")
+
             inputs_procesados = aplicar_transformaciones(input, transformaciones)
             
             origen_modelo_puntoZip =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
-            destino_modelo_puntoZip = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
             ##MUEVO EL MODELO .ZIP QUE GENERO DESARROLO PARA QUE PUEDA SER USADO, ESTO DEBERIA SER USANDO EN TODAS LAS ISTANCIAS DE LOS MODELOS
-            movi = mover_file_reportes_puntoZip(origen_modelo_puntoZip,destino_modelo_puntoZip )
+            movi = mover_file_reportes_puntoZip(origen_modelo_puntoZip,path_datos_entrada )
             print (f"movi .zip a {movi}")
             
             #insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_desarrollo())

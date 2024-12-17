@@ -46,21 +46,21 @@ def server_resul(input, output, session, name_suffix):
             },
             {
                 "resultado_id": "Detalle_agrupacion",
-                "resultado_path": f"mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id}/Reportes/Detalle agrupación x WoE Categoricas.html",
+                "resultado_path": f"Detalle agrupación x WoE Categoricas.html",
                 "salida": "Detalle_agrupación_salida",
                 "descarga_unic": "download_btn_Detalle_agrupacion",
                 "salida_unic": "salida_prueba_Detalle_agrupación",
             },
             {
                 "resultado_id": "Detalle_agrupación_continuas",
-                "resultado_path": f"Detalle agrupación_x_WoE_Continuas.html",
+                "resultado_path": f"WoE PWL discretization on Continuous.html",
                 "salida": "download_btn_Detalle_agrupacionContinuas",
                 "descarga_unic": "download_btn_Detalle_agrupacion_continuas",
                 "salida_unic": "salida_prueba_Detalle_agrupación_continuas",
             },
             {
                 "resultado_id": "detalle_monotonia",
-                "resultado_path": f"Detalle agrupación x WoE Continuas  Monotonia.html",
+                "resultado_path": f"WoE Discretization on Categorical.html",
                 "salida": "detalle_monotonia_salida",
                 "descarga_unic": "download_btn_detalle_monotonia",
                 "salida_unic": "salida_detalle_monotonia",
@@ -94,7 +94,7 @@ def server_resul(input, output, session, name_suffix):
     resultados_out_to_sample = [
         {
             "resultado_id": "Resultados_Oss",
-            "resultado_path": "Validation_OoS.html",
+            "resultado_path": "Validation_OoS_quick.html",
             "salida": "output_modelling_out",
             "descarga_unic": "download_btn1",
             "salida_unic": "salida_prueba_out_to",

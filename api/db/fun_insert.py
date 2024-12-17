@@ -279,17 +279,29 @@ def obtener_nombre_version_por_id(version_id):
 
 
 
-def obtener_versiones_por_proyecto(project_id, columnas , tabla, donde):
+def obtener_versiones_por_proyecto(columnas, tabla, condiciones=None, parametros=()):
+    """
+    Recupera datos de una tabla específica basada en columnas y condiciones opcionales.
+
+    :param columnas: Lista de columnas a recuperar.
+    :param tabla: Nombre de la tabla.
+    :param condiciones: (Opcional) Cláusula WHERE para filtrar los datos.
+    :param parametros: (Opcional) Parámetros para la cláusula WHERE.
+    :return: Lista de diccionarios con los datos recuperados.
+    """
     conn = sqlite3.connect('Modeling_App.db')
     cur = conn.cursor()
 
     try:
         # Crear la consulta de forma dinámica
         columnas_str = ", ".join(columnas)
-        consulta = f"SELECT {columnas_str} FROM {tabla} WHERE {donde} = ?"
+        consulta = f"SELECT {columnas_str} FROM {tabla}"
+        
+        if condiciones:
+            consulta += f" WHERE {condiciones}"
         
         # Ejecutar la consulta
-        cur.execute(consulta, (project_id,))
+        cur.execute(consulta, parametros)
         
         # Recuperar los datos
         datos = cur.fetchall()
@@ -303,12 +315,12 @@ def obtener_versiones_por_proyecto(project_id, columnas , tabla, donde):
         return datos_list
 
     except sqlite3.Error as e:
-        print(f"Error al acceder a la base de datos: {e}, obtener_versiones_por_proyecto")
+        print(f"Error al acceder a la base de datos: {e}")
         return []
     
     finally:
         # Cerrar la conexión
-        conn.close()    
+        conn.close()
         
 def insert_into_table(table_name, columns, values):
     """

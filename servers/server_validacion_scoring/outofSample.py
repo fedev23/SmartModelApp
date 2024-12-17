@@ -13,6 +13,9 @@ from clases.global_sessionV2 import *
 from funciones.validacionY_Scoring.create_card import crate_file_input_y_seleccionador
 from clases.global_modelo import modelo_of_sample
 from datetime import datetime
+from funciones.utils import mover_file_reportes_puntoZip
+from logica_users.utils  import help_versios 
+from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
 
 
 def server_out_of_sample(input, output, session, name_suffix):
@@ -111,19 +114,27 @@ def server_out_of_sample(input, output, session, name_suffix):
         proceso = modelo_of_sample.proceso.get()
         
         try:
-            path_entrada = obtener_path_por_proyecto_version(global_session.get_id_proyecto(), global_session.get_id_version(), 'entrada')
-            path_salida = obtener_path_por_proyecto_version(global_session.get_id_proyecto(), global_session.get_id_version(), 'salida')
+            path_entrada = obtener_path_por_proyecto_version(global_session.get_id_version(), 'entrada')
+            path_salida = obtener_path_por_proyecto_version(global_session.get_id_version(), 'salida')
             
             if not path_entrada or not path_salida:
                 raise ValueError("No se pudieron obtener las rutas de entrada y/o salida")
-                
-            print(path_entrada, "estoy en entrada")
-            print(path_salida, "estoy en salida")
+
             
+            print(f"path entrada en out of sample {path_entrada}")
+            path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+            origen_modelo_puntoZip =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+            ##MUEVO EL MODELO .ZIP QUE GENERO DESARROLO PARA QUE PUEDA SER USADO, ESTO DEBERIA SER USANDO EN TODAS LAS ISTANCIAS DE LOS MODELOS
+            mover_file_reportes_puntoZip(origen_modelo_puntoZip,path_datos_entrada )
+            mover_y_renombrar_archivo(global_session_V2.get_nombre_dataset_validacion_sc(), global_session.get_path_guardar_dataSet_en_proyectos(), name_suffix, path_datos_entrada)
+                
+            path_niveles_sc = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
+            
+            help_versios.copiar_json_si_existe(path_niveles_sc, path_datos_entrada)
             modelo_of_sample.script_path = f'./Validar_Nueva.sh --input-dir {path_entrada} --output-dir {path_salida}'
             #./Validar_Nueva.sh --input-dir <dir_in> [--output-dir <dir_out>] [--quick <true/false>] [--help]
             ejecutar_of_to_sample(click_count_value, mensaje_value, proceso)
-            insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_validacion())
+            #insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_validacion())
             if proceso:
                     estado = insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), datetime.now().strftime("%Y-%m-%d %H:%M"), modelo_of_sample.nombre, global_names_reactivos.get_name_file_db(), global_session.get_id_version(), 'out_to_sample', 'completado')
                     print(f'estado de la ejecucion {estado}')

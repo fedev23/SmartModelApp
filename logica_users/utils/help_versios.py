@@ -19,7 +19,7 @@ def obtener_opciones_versiones(versiones, id, name):
     else:
         return {"": "No hay versiones"}
 
-def obtener_ultimo_id_version(versiones, id):
+def obtener_ultimo_id_version(versiones, id_key):
     """
     Función que devuelve el ID de la última versión.
 
@@ -31,7 +31,7 @@ def obtener_ultimo_id_version(versiones, id):
     - str: El ID de la última versión como valor predeterminado.
     """
     if versiones:
-        return str(versiones[-1][id])
+        return str(versiones[-1][id_key])
     else:
         return ""
 
@@ -52,7 +52,21 @@ def obtener_ultimo_nombre_archivo(versiones):
     else:
         return ""
     
-    
+def obtener_ultimo_nombre_archivo_validacion_c(versiones):
+    """
+    Devuelve el nombre del archivo del último valor en la lista de versiones.
+
+    Args:
+    - versiones (list): Lista de diccionarios con la información de los archivos.
+
+    Returns:
+    - str: El nombre del último archivo, si existe; si la lista está vacía, retorna una cadena vacía.
+    """
+    if versiones:
+        # Accede al último diccionario y obtiene el valor de la clave esperada
+        return str(versiones[-1].get('nombre_archivo_validation_sc', ''))
+    else:
+        return ""    
 
 def copiar_json_si_existe(origen: str, destino: str, nombre_archivo: str = "Control de SmartModelStudio.json"):
     """

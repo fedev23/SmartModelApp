@@ -115,7 +115,11 @@ def server_desarollo(input, output, session, name_suffix):
             
             #print(files_name, "que tiene file name??")
             opciones_data.set(obtener_opciones_versiones(files_name, "id_files", "nombre_archivo"))
+            
+            print(opciones_data.get(), "opciones_data.get()")
             dataSet_predeterminado_parms.set(obtener_ultimo_id_version(files_name, "id_files"))
+            
+            print(dataSet_predeterminado_parms.get(), "dataSet_predeterminado_parms.get()")
             print(f"El archivo fue guardado en: {ruta_guardado}")
             ui.update_select("files_select", choices=opciones_data.get(), selected=dataSet_predeterminado_parms.get())
             # Después de guardar el archivo, puedes cargar los datos utilizando screen_instance

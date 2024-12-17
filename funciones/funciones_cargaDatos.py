@@ -9,7 +9,6 @@ from clases.class_screens import ScreenClass
 async def guardar_archivo(file_func, name):
     # Obtén el directorio en el que se debe guardar el archivo
     directorio = global_session.get_path_guardar_dataSet_en_proyectos()
-    print(directorio, "direcotrio")
     file_info = file_func()
     
     # Construye el path del dataset donde se guardará el archivo
