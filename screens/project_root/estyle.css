@@ -702,3 +702,10 @@ background: #0a0a0a;
     flex-direction: column;
     justify-content: space-between; /* Asegura que los elementos dentro de la tarjeta estén distribuidos */
 }
+
+
+.equal-width-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+}

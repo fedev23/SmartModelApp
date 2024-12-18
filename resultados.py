@@ -81,7 +81,7 @@ def server_resul(input, output, session, name_suffix):
         resultados_in_sample = [
             {
                 "resultado_id": "Validation_InS",
-                "resultado_path": f"Validation_InS.html",
+                "resultado_path": f"Validation_InS_quick.html",
                 "salida": "result_in_sample_salida",
                 "descarga_unic": "download_btn1_insample",
                 "salida_unic": "salida_prueba_in_sample",
@@ -124,7 +124,7 @@ def server_resul(input, output, session, name_suffix):
         def dynamic_salida_unic():
             salida_in_sample_unic = resultado_in_sample.boton_para_descagar_unico(
                 resultado_id)
-            return salida_in_sample_unic
+            #return salida_in_sample_unic
 
     def create_dynamic_output(resultado_id, salida):
         # print("salidas", salida)
@@ -148,7 +148,7 @@ def server_resul(input, output, session, name_suffix):
             salida_produccion = resultado_class_instance_produccion.descargar_unico_html(resultado_id)
             return salida_in_sample, salida_ot_sample, salida_produccion, salida_desarrollo
 
-        return download_btn1_
+        #return download_btn1_
 
     def register_outputs(resultados):
         for r in resultados:

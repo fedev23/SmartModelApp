@@ -35,6 +35,9 @@ class FilesLoad:
         self.dataSet_predeterminado_parms = reactive.Value()
         self.existe_file = reactive.Value(False)
         self.select_overwrite = reactive.Value(False)
+        self.files_name = reactive.value()
+        self.data_predeterminado = reactive.Value()
+        
         
     
     
@@ -45,9 +48,8 @@ class FilesLoad:
             global_names_reactivos.set_name_data_Set(input_name)
             
             existe = verificar_archivo(global_session.get_path_guardar_dataSet_en_proyectos(), input_name)
-            print(f"estoy en existe {existe}")
             if existe and self.select_overwrite.get() is False:
-              ui.modal_show(create_modal_warning_exist_file(input_name))
+              ui.modal_show(create_modal_warning_exist_file(input_name, self.name_suffix))
               self.set_existe_file(True)
               return
               
@@ -93,3 +95,66 @@ class FilesLoad:
     
     def set_existe_file(self, boolean):
         self.existe_file.set(boolean)
+        
+        
+    
+    async def cargar_datos_validacion_scroing(self):
+        try:
+            file: list[FileInfo] | None = input.file_validation()
+            if not file:
+                raise ValueError("No se recibió ningún archivo para validar.")
+
+            validar_file = verificar_archivo(global_session.get_path_guardar_dataSet_en_proyectos(), input_name)
+            if validar_file:
+                return create_modal_warning_exist_file(input_name, self.name_suffix)
+            
+            input_name = file[0]['name']
+            print(f"Nombre del archivo recibido: {input_name}")
+
+            # Guardar el archivo
+            ruta_guardado = await guardar_archivo(input.file_validation, self.name_suffix)
+            print(f"El archivo fue guardado en {ruta_guardado}")
+
+            # Obtener fecha actual
+            fecha_de_carga = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+            # Insertar datos en la tabla
+            id = insert_record(
+                database_path="Modeling_App.db",
+                table="validation_scoring",
+                columns=['nombre_archivo_validation_sc', 'fecha_de_carga', 'version_id'],
+                values=[input_name, fecha_de_carga, global_session.get_id_version()]
+            )
+            
+            print("Datos insertados en la tabla validation_scoring.")
+            global_session_V2.set_id_Data_validacion_sc(id)
+            # Extraer datos
+            self.files_name.set(get_records(
+            table='validation_scoring',
+            columns=['id_validacion_sc', 
+                    'nombre_archivo_validation_sc', 
+                    'fecha_de_carga'],
+            join_clause='INNER JOIN version ON validation_scoring.version_id = version.version_id',
+            where_clause='version.project_id = ?',
+            where_params=(global_session.get_id_proyecto(),)
+        ))
+            # Actualizar opciones y seleccionar predeterminados
+            global_session_V2.set_opciones_name_dataset_Validation_sc(obtener_opciones_versiones(self.files_name.get(), "id_validacion_sc", "nombre_archivo_validation_sc"))
+            
+            self.data_predeterminado.set(obtener_ultimo_id_version(self.files_name.get(), 'id_validacion_sc'))
+            
+            #opciones_actualizadas = [d["nombre_archivo_validation_sc"].rsplit('.', 1)[0] for d in files_name.get()]
+            ui.update_select(
+                "files_select_validation_scoring",
+                choices=global_session_V2.get_opciones_name_dataset_Validation_sc(),
+                selected=self.data_predeterminado.get()
+            )
+            print("Opciones y selección actualizadas correctamente.")
+
+        except Exception as e:
+            # Manejar errores y notificar al usuario
+            error_message = f"Error en loadOutSample: {e}"
+            #ui.update_text("error_message", error_message)  # Asume que hay un output de texto para mostrar errores
+            print(error_message)
+    
+     

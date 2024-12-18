@@ -16,16 +16,22 @@ from screens.screen_desarollo import screenDesarollo
 
 
 screen_User = ui.page_fluid(
-    ui.tags.button("SmartModeling", class_="logo-button"),
+    ui.div(
+        ui.tags.button("SmartModeling", class_="logo-button"),
+        ui.input_action_link(
+            f"configuracion",
+            ui.tags.i(class_="fa fa-gear fa-lg"),  # Ícono de tuerca dentro del botón
+            style="float: right;"  # Asegura que el ícono esté alineado correctamente dentro del botón
+        ),
+        style="display: flex; justify-content: space-between; align-items: center; width: 100%;"
+    ),
     ui.output_ui("create_user_menu"),
-    ui.input_dark_mode(mode="light", class_="dark-mode-toggle"),
     ui.output_ui("create_sidebar"),
     ui.output_ui("despligue_menu"),
-    ui.navset_card_tab(  # Usa un contenedor de navegación adecuado
+    ui.navset_card_tab(
         ui.nav_panel(f"{global_name_desarrollo}", screenDesarollo, value="screen_desarrolo"),
         ui.nav_panel(f"{global_name_in_Sample}", screenInSample, value="screen_niveles_scorcads"),
         ui.nav_panel(f"{global_name_out_of_Sample}", screenValid, value="screen_validacion_scoring"),
-        
         id="navset",
     ),
 )

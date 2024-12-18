@@ -14,11 +14,13 @@ from clases.global_sessionV2 import *
 from funciones.utils_2 import leer_dataset
 import pandas as pd
 from funciones.funciones_user import button_remove, create_modal_v2
+from funciones.clase_estitca.cargar_files import FilesLoad
 from clases.global_modelo import modelo_of_sample, modelo_produccion
 
 
 
 def logica_server_Validacion_scroing(input, output, session, name_suffix):
+    cargar_datos_validacion_sc = FilesLoad(name_suffix)
     
     dataSet_predeterminado_parms = reactive.Value(None)
     global_names_reactivos.name_validacion_of_to_sample_set(name_suffix)

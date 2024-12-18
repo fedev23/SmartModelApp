@@ -29,10 +29,7 @@ def server_desarollo(input, output, session, name_suffix):
     screen_instance = reactive.value(None)  # Mantener screen_instance como valor reactivo
     user_id_send = reactive.Value("")
     global_names_reactivos.name_desarrollo_set(name_suffix)
-    opciones_data = reactive.Value(None)
-    dataSet_predeterminado_parms = reactive.Value(None)
     mensaje = reactive.Value("")
-    nombre_file =  reactive.Value("")
     
     
     # Diccionario de transformaciones
@@ -90,11 +87,9 @@ def server_desarollo(input, output, session, name_suffix):
         await clase_cargar_files.cargar_Datos_desarrollo(input.file_desarollo)
     
     @reactive.Effect
-    @reactive.event(input.confirm_overwrite)
+    @reactive.event(input.cancel_overwrite)
     async def overwrite_file():
-        if clase_cargar_files.get_existe_file():
-            await clase_cargar_files.cargar_Datos_desarrollo(input.file_desarollo)
-            clase_cargar_files.select_overwrite.set(True)
+        return  ui.modal_remove()
             
         
         

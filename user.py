@@ -383,20 +383,9 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                 global_user_proyecto.click_en_continuar.set(False)
 
     
-            
-    @reactive.effect
-    @reactive.event(input[f'settings_{name_suffix}'])
-    async def log_out():
-        create_navigation_handler('settings_user', 'Screen_Login')
-        await session.close()
+        
 
     @reactive.effect
     @reactive.event(input.close)
     async def _():
         await session.close()
-
-    def create_navigation_handler(input_id, screen_name):
-        @reactive.Effect
-        @reactive.event(input[input_id])
-        async def navigate():
-            await session.send_custom_message('navigate', screen_name)

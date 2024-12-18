@@ -109,21 +109,29 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
             ui.tags.div(
                 ui.row(
                     ui.column(
-                        12  ,  # Ajusta el ancho de la columna para que los elementos queden alineados
+                        12,  # La columna ocupa toda la fila para que el contenido esté alineado correctamente
+                        ui.tags.div(
+                            ui.input_dark_mode(mode="light", class_="dark-mode-toggle"),
+                            style="display: flex; justify-content: flex-start;"  # Alinea el contenido a la izquierda
+                        )
+                    ),
+                    ui.column(
+                        12,
                         ui.input_select(
                             "number_choice",
                             "Selecciona un número de columnas de dataset",
                             choices=[str(i) for i in range(5, 26)],
-                            width="100%"  # Usa 100% de la columna asignada
+                            width="100%"
                         )
-                    ),
+                    )
                 )
             ),
             title="Configuración",
             easy_close=True,
-             size='l',
+            size='l',
             footer=ui.input_action_button("close_modal", "Cerrar")
         )
+
 
         
     @reactive.Effect

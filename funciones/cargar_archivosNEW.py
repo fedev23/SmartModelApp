@@ -112,23 +112,20 @@ def verificar_archivo(path, nombre_archivo):
     
 
 
-def create_modal_warning_exist_file(file_name):
+def create_modal_warning_exist_file(file_name, name):
         return ui.modal(
             ui.tags.div(
             ui.row(
                 ui.column(
                     12,
                     ui.tags.p(
-                        f"El archivo '{file_name}' ya existe en la ruta  ¿Deseas sobrescribirlo?"
+                        f"El archivo '{file_name}' ya existe en el sistema."
                     )
                 ),
             )
         ),
             title="Advertencia",
             easy_close=True,
-            size='S',
-            footer=ui.div(
-            ui.input_action_button("confirm_overwrite", "Sobrescribir"),
-            ui.input_action_button("cancel_overwrite", "Cancelar", style="margin-left: 10px;")
-        )
+            size='xs',
+            footer=ui.input_action_button(f"cancel_overwrite_{name}", "Cancelar", style="margin-left: 10px;")
         )
