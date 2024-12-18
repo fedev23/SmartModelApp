@@ -39,17 +39,85 @@ def obtener_estructura_tabla(database_path, tabla):
     finally:
         conn.close()
         
+ 
+    
+
+
+def verificar_datos():
+    """
+    Verifica los datos entre las tablas json_versions y version.
+    """
+    try:
+        # Conectarse a la base de datos SQLite
+        conn = sqlite3.connect('Modeling_App.db')
+        cur = conn.cursor()
         
-database_path = "Modeling_App.db"
-tabla = "json_versions"
+        # Consulta SQL para verificar la relación entre las tablas
+        query = '''
+            SELECT j.id_jsons, j.nombre_version, j.version_id, v.project_id
+            FROM json_versions j
+            JOIN version v ON j.version_id = v.version_id;
+        '''
+        
+        # Ejecutar la consulta
+        cur.execute(query)
+        
+        # Obtener los resultados
+        resultados = cur.fetchall()
+        
+        # Mostrar los resultados en formato tabular
+        print("Resultados de la consulta:")
+        print(f"{'id_jsons':<10} {'nombre_version':<20} {'version_id':<10} {'project_id':<10}")
+        print("-" * 60)
+        for row in resultados:
+            print(f"{row[0]:<10} {row[1]:<20} {row[2]:<10} {row[3]:<10}")
+    
+    except sqlite3.Error as e:
+        print(f"Error al ejecutar la consulta: {e}")
+    
+    finally:
+        # Cerrar la conexión a la base de datos
+        conn.close()
 
-estructura = obtener_estructura_tabla(database_path, tabla)
+# Ejecutar la función
+verificar_datos()
 
-estructura = obtener_estructura_tabla(database_path, tabla)
 
-if estructura:
-    print(f"Estructura de la tabla '{tabla}':")
-    for col in estructura:
-        print(col)
-else:
-    print(f"No se pudo obtener la estructura de la tabla '{tabla}'.")
+import sqlite3
+
+def verificar_sql_manual():
+    """
+    Ejecuta manualmente la consulta SQL para verificar los filtros.
+    """
+    conn = sqlite3.connect('Modeling_App.db')
+    cur = conn.cursor()
+
+    project_id = 57  # ID del proyecto
+    version_id = 30  # ID de la versión específica
+
+    try:
+        query = '''
+            SELECT j.id_jsons, j.nombre_version, j.version_id
+            FROM json_versions j
+            INNER JOIN version v ON j.version_id = v.version_id
+            WHERE v.project_id = ? AND j.version_id = ?
+        '''
+        print("Consulta SQL:", query)
+        print("Parámetros:", (project_id, version_id))
+        
+        cur.execute(query, (project_id, version_id))
+        resultados = cur.fetchall()
+
+        print("\nResultados filtrados:")
+        print(f"{'id_jsons':<10} {'nombre_version':<20} {'version_id':<10}")
+        print("-" * 50)
+        for row in resultados:
+            print(f"{row[0]:<10} {row[1]:<20} {row[2]:<10}")
+
+    except sqlite3.Error as e:
+        print(f"Error en la consulta SQL: {e}")
+    finally:
+        conn.close()
+
+# Ejecutar la verificación
+verificar_sql_manual()

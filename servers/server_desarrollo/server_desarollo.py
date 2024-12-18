@@ -4,7 +4,6 @@ from clases.global_modelo import global_desarollo
 from clases.class_screens import ScreenClass
 from funciones.utils import retornar_card
 from clases.class_user_proyectName import global_user_proyecto
-from funciones.utils import create_modal_parametros, id_buttons_desa
 from funciones.utils_2 import get_user_directory, render_data_summary, aplicar_transformaciones, mostrar_error, cambiarAstring, trans_nulos_adic, get_datasets_directory, detectar_delimitador
 from api.db import *
 from clases.global_session import *
@@ -18,12 +17,14 @@ from clases.class_validacion import Validator
 from clases.loadJson import LoadJson
 from datetime import datetime
 from clases.global_reactives import global_estados
-from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
-import os 
+from funciones.cargar_archivosNEW import mover_y_renombrar_archivo, verificar_archivo, create_modal_warning_exist_file
+from funciones.clase_estitca.cargar_files import FilesLoad
 from clases.reactives_name import global_names_reactivos
 
 
 def server_desarollo(input, output, session, name_suffix):
+    clase_cargar_files = FilesLoad(name_suffix)
+    
     directorio_desarollo = reactive.value("")
     screen_instance = reactive.value(None)  # Mantener screen_instance como valor reactivo
     user_id_send = reactive.Value("")
@@ -85,49 +86,21 @@ def server_desarollo(input, output, session, name_suffix):
 
     @reactive.Effect
     @reactive.event(input.file_desarollo)
-    async def cargar_Datos_desarrollo():
-        try:
-            file: list[FileInfo] | None = input.file_desarollo()
-            input_name = file[0]['name']
-            print(input_name)
-            global_names_reactivos.set_name_data_Set(input_name)
-            ruta_guardado = await guardar_archivo(input.file_desarollo, name_suffix)
-            fecha_de_carga = datetime.now().strftime("%Y-%m-%d %H:%M")
-            ##GUARDO LEL DATO CARGADO EN LA TABLA
-            #insert_into_table("name_files", ['nombre_archivo', 'fecha_de_carga', 'project_id', 'version_id'], [input_name, fecha_de_carga, global_session.get_id_proyecto(), global_session.get_id_version()])
+    async def datos_desarrolo():
+        await clase_cargar_files.cargar_Datos_desarrollo(input.file_desarollo)
+    
+    @reactive.Effect
+    @reactive.event(input.confirm_overwrite)
+    async def overwrite_file():
+        if clase_cargar_files.get_existe_file():
+            await clase_cargar_files.cargar_Datos_desarrollo(input.file_desarollo)
+            clase_cargar_files.select_overwrite.set(True)
             
-            insert_record(
-                database_path="Modeling_App.db",
-                table="name_files",
-                columns=['nombre_archivo', 'fecha_de_carga', 'version_id'],
-                values=[input_name, fecha_de_carga, global_session.get_id_version()]
-            ) 
-            
-            global_names_reactivos.set_proceso_leer_dataset(True)
-            
-            files_name = get_records(
-            table='name_files',
-            columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
-            join_clause='INNER JOIN version ON name_files.version_id = version.version_id',
-            where_clause='version.project_id = ?',
-            where_params=(global_session.get_id_proyecto(),))
-            
-            
-            #print(files_name, "que tiene file name??")
-            opciones_data.set(obtener_opciones_versiones(files_name, "id_files", "nombre_archivo"))
-            
-            print(opciones_data.get(), "opciones_data.get()")
-            dataSet_predeterminado_parms.set(obtener_ultimo_id_version(files_name, "id_files"))
-            
-            print(dataSet_predeterminado_parms.get(), "dataSet_predeterminado_parms.get()")
-            print(f"El archivo fue guardado en: {ruta_guardado}")
-            ui.update_select("files_select", choices=opciones_data.get(), selected=dataSet_predeterminado_parms.get())
-            # Después de guardar el archivo, puedes cargar los datos utilizando screen_instance
-            #await screen_instance.get().load_data(input.file_desarollo, name_suffix)
-            
-        except Exception as e:
-            print(f"Error en la carga de datos: {e}")
-
+        
+        
+    
+        
+        
     @output
     @render.ui
     def error_in_desarollo():
@@ -228,7 +201,7 @@ def server_desarollo(input, output, session, name_suffix):
                 mover = mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), global_session.get_path_guardar_dataSet_en_proyectos(), name_suffix, path_datos_entrada)
                 
                 global_desarollo.script_path = f'./Modelar.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida}'
-                #./Modelar.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida} 
+                
                 ejectutar_desarrollo_asnyc(click_count_value, mensaje_value, proceso)
                 print(proceso, "estoy en procesos")
                 if proceso:

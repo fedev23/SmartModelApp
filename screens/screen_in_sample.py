@@ -112,7 +112,7 @@ screenInSample = ui.page_fluid(
                                                     ),
                                       ),
                                        ui.column(
-                                              5,
+                                              6,
                                               ui.input_action_link("add_fila", "Agregar una nueva fila")
                                           )
                                   ),

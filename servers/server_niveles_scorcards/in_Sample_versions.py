@@ -68,7 +68,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
         versiones_id = input.version_selector()
         id_versiones_params.set(versiones_id)
         global_session.set_version_parametros_id(id_versiones_params.get())
-        versiones = get_project_versions_param(global_session.get_id_proyecto())
+        versiones = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
         if versiones:
             if opciones_param.get() is  None:
                 nombre_version = versiones[0]['nombre_version']
@@ -80,8 +80,9 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
     @output
     @render.ui
     def button_remove_versions_param():
-        versions_list = get_project_versions_param(global_session.get_id_proyecto())
-        name = global_session.get_versiones_name
+        versions_list = get_project_versions_param(global_session.get_id_proyecto(), global_session.get_id_version())
+        
+        name = global_session.get_versiones_name()
         return button_remove(versions_list, id_versiones_params.get(), "id_jsons", name_para_button)
     
     
@@ -99,16 +100,13 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
     @reactive.Effect
     @reactive.event(input.confirmar_remove)
     def remove_versiones_de_parametros():
+        print("pase??????????????????")
         eliminar_version("json_versions", "id_jsons", id_versiones_params.get())
-        columnas = ['id_jsons', 'nombre_version']
-        donde = "version_id"
+        columnas = ['id_jsons', 'nombre_version', 'fecha_de_carga']
         tabla = "json_versions"
-        lista_de_versiones_new = obtener_versiones_por_proyecto(
-            global_session.get_id_version(),
-            columnas,
-            tabla,
-            donde
-        )
+        condiciones = "version_id = ?"
+        parametros = (global_session.get_id_version(),)  
+        lista_de_versiones_new = obtener_versiones_por_proyecto(columnas,tabla, condiciones,parametros)
         print(lista_de_versiones_new, "que tiene la lista?")
         list.set(lista_de_versiones_new)
         ui.update_select(

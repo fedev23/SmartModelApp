@@ -11,8 +11,11 @@ from clases.class_user_proyectName import global_user_proyecto
 from funciones.utils_2 import errores, validar_proyecto
 from clases.global_session import global_session
 from funciones.utils_2 import get_user_directory, leer_dataset
-from logica_users.utils.help_versios import obtener_ultimo_nombre_archivo
+from logica_users.utils.help_versios import copiar_json_si_existe
 from clases.reactives_name import global_names_reactivos
+from funciones.utils import mover_file_reportes_puntoZip
+from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
+
 
 def server_produccion(input, output, session, name_suffix):
     proceso_a_completado = reactive.Value(False)
@@ -82,14 +85,23 @@ def server_produccion(input, output, session, name_suffix):
         mensaje_value = modelo_produccion.mensaje.get()  # Obtener mensaje actual
         proceso = modelo_produccion.proceso.get()
         try:
-            path_entrada = obtener_path_por_proyecto_version(global_session.get_id_proyecto(), global_session.get_id_version(), 'entrada')
-            path_salida = obtener_path_por_proyecto_version(global_session.get_id_proyecto(), global_session.get_id_version(), 'salida')
+            path_entrada = obtener_path_por_proyecto_version( global_session.get_id_version(), 'entrada')
+            path_salida = obtener_path_por_proyecto_version( global_session.get_id_version(), 'salida')
             
             if not path_entrada or not path_salida:
                 raise ValueError("No se pudieron obtener las rutas de entrada y/o salida")
                 
-    
-            modelo_produccion.script_path = f"./Scoring.sh {path_entrada} {path_salida}"
+            #path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+            #origen_modelo_puntoZip =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+            
+            path_niveles_sc = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
+            
+            copiar_json_si_existe(path_niveles_sc, path_entrada)
+            mover_file_reportes_puntoZip(path_salida,path_entrada)
+            mover_y_renombrar_archivo(global_session_V2.get_nombre_dataset_validacion_sc(), global_session.get_path_guardar_dataSet_en_proyectos(), name_suffix, path_entrada)
+            
+            modelo_produccion.script_path = f'./Scoring.sh --input-dir {path_entrada} --output-dir {path_salida}'
+            
             ejectutar_produccion(click_count_value, mensaje_value, proceso)
             
         except Exception as e:

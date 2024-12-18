@@ -89,9 +89,12 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     @reactive.Effect
     @reactive.event(input.confirmar_id_borrar_dataset)
     def remove_versiones_de_parametros():
+        print("estoy?")
         eliminar_version("name_files", "id_files", global_session.get_id_dataSet())
         columnas = ['id_files', 'nombre_archivo']
-        lista_de_versiones_new = obtener_versiones_por_proyecto(global_session.get_id_proyecto(), columnas, "name_files", "project_id")
+        tabla = "name_files"
+        lista_de_versiones_new = obtener_versiones_por_proyecto(columnas,tabla)
+
         list.set(lista_de_versiones_new)
         ui.update_select(
             "files_select",

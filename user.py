@@ -96,14 +96,18 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         where_params=(global_session.get_id_proyecto(),)
     )
         
-        print(files_name, "que pasa?????")
+    
         nombre_file.set({
             str(file['id_files']): file['nombre_archivo']
             for file in files_name
         } if files_name else {"": "No hay archivos"})
 
         # Obtiene y configura las versiones de parámetros
-        versiones_parametros = get_project_versions_param(global_session.get_id_proyecto())
+        versiones_parametros  = get_project_versions_param(global_session.get_id_proyecto(), global_session.get_id_version())
+            # 
+        #versiones_parametros = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
+        print(versiones_parametros, "versiones_parametros")
+        
         opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version"))
         valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
 
@@ -123,7 +127,6 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             where_params=(global_session.get_id_proyecto(),)
         )
         
-        print(nombre_files_validacion_sc, "nombre_files_validacion_sc")
         global_session_V2.set_opciones_name_dataset_Validation_sc(obtener_opciones_versiones(nombre_files_validacion_sc, "id_validacion_sc", "nombre_archivo_validation_sc"))
         data_predeterminado.set(obtener_ultimo_id_version(nombre_files_validacion_sc, 'id_validacion_sc'))
 
@@ -170,7 +173,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         
         
         ##ACTUALIZO LAS VERSIONES DE NIELES Y SCORCARDS ACA Y EN LA SCREEN CORRESPONDIENTE DE NIVELES Y SC
-        versiones_parametros = get_project_versions_param(global_session.get_id_proyecto())
+        versiones_parametros = get_project_versions_param(global_session.get_id_proyecto(), global_session.get_id_version())
         opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version")) 
         valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
         
@@ -397,4 +400,3 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         @reactive.event(input[input_id])
         async def navigate():
             await session.send_custom_message('navigate', screen_name)
-

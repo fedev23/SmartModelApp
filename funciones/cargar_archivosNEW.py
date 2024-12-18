@@ -1,5 +1,6 @@
 from clases.class_cargar_datos import CargarDatos
 import os
+from shiny import ui
 from clases.global_session import *
 from clases.global_name import global_name_manager
 from api.db import *
@@ -86,3 +87,48 @@ def mover_y_renombrar_archivo(nombre_archivo, directorio_base, name_suffix, dest
     except Exception as e:
         print(f"Error inesperado: {e}")
         raise
+    
+    
+
+def verificar_archivo(path, nombre_archivo):
+    """
+    Verifica si un archivo existe en un directorio específico.
+    
+    Args:
+        path (str): El directorio donde buscar.
+        nombre_archivo (str): El nombre del archivo a buscar.
+    
+    Returns:
+        dict: Un mensaje de error si el archivo existe, de lo contrario, un mensaje de éxito.
+    """
+    # Construir el path completo del archivo
+    ruta_completa = os.path.join(path, nombre_archivo)
+    
+    # Verificar si el archivo existe
+    if os.path.isfile(ruta_completa):
+        return True
+    else:
+        return False
+    
+
+
+def create_modal_warning_exist_file(file_name):
+        return ui.modal(
+            ui.tags.div(
+            ui.row(
+                ui.column(
+                    12,
+                    ui.tags.p(
+                        f"El archivo '{file_name}' ya existe en la ruta  ¿Deseas sobrescribirlo?"
+                    )
+                ),
+            )
+        ),
+            title="Advertencia",
+            easy_close=True,
+            size='S',
+            footer=ui.div(
+            ui.input_action_button("confirm_overwrite", "Sobrescribir"),
+            ui.input_action_button("cancel_overwrite", "Cancelar", style="margin-left: 10px;")
+        )
+        )
