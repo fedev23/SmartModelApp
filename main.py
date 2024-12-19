@@ -46,7 +46,6 @@ def create_server(input, output, session):
 # Create the Shiny app
 app_shiny = App(app_ui, create_server)
 
-
 class ProcessUserIDEndpoint(HTTPEndpoint):
     async def post(self, request):
         # Parsear el cuerpo JSON de la solicitud
@@ -56,18 +55,29 @@ class ProcessUserIDEndpoint(HTTPEndpoint):
         id_proyecto = data.get("id_proyecto")
         id_version = data.get("id_version")
         nombre_version = data.get("nombre_version")
+        id_version_insample = data.get("id_version_insample")
+        nombre_version_insample = data.get("nombre_version_insample")
 
         # Validar si todos los parámetros están presentes
-        if user_id and nombre_proyecto and id_proyecto and id_version and nombre_version:
+        if user_id and nombre_proyecto and id_proyecto and id_version and nombre_version and id_version_insample and nombre_version_insample:
+            return JSONResponse({
+                "message": f"User ID {user_id} with Project '{nombre_proyecto}' (ID {id_proyecto}) "
+                           f"and Version '{nombre_version}' (ID {id_version}) and Insample Version '{nombre_version_insample}' (ID {id_version_insample}) processed successfully"
+            })
+
+        elif user_id and nombre_proyecto and id_proyecto and id_version and nombre_version:
             return JSONResponse({
                 "message": f"User ID {user_id} with Project '{nombre_proyecto}' (ID {id_proyecto}) "
                            f"and Version '{nombre_version}' (ID {id_version}) processed successfully"
             })
+
         else:
             return JSONResponse({
-                "error": "Missing required parameters"
-            }, status_code=400)        
+                "error": "Missing required parameters: 'user_id', 'nombre_proyecto', 'id_proyecto', 'id_version', or 'nombre_version'"
+            }, status_code=400)
         
+
+            
 
 class DynamicStaticFileEndpoint(HTTPEndpoint):
     async def get(self, request):
@@ -77,23 +87,33 @@ class DynamicStaticFileEndpoint(HTTPEndpoint):
         id_version = request.query_params.get("id_version")
         nombre_version = request.query_params.get("nombre_version")
         file_name = request.query_params.get("file_name")
+        id_version_insample = request.query_params.get("id_version_insample")
+        nombre_version_insample = request.query_params.get("nombre_version_insample")
 
-        
+        # Validar parámetros obligatorios
+        if not all([user_id, nombre_proyecto, id_proyecto, id_version, nombre_version, file_name]):
+            return JSONResponse({"error": "Missing required parameters for path construction"}, status_code=400)
+
         file_name = unquote(file_name)
 
-        if user_id and nombre_proyecto and id_proyecto and id_version and nombre_version and file_name:
-            user_directory = (
-                f"/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id}/proyecto_{id_proyecto}_{nombre_proyecto}/version_{id_version}_{nombre_version}/Reportes/{file_name}"
-            )
-            #full_path = os.path.join(user_directory, file_name)
-            #print(full_path, "ESTOY VIENDO EL FULL PATH")
-            if os.path.isfile(user_directory):
-                return FileResponse(user_directory)
-            else:
-                return JSONResponse({"error": "File not found"}, status_code=404)
-        else:
-            return JSONResponse({"error": "Missing required parameters"}, status_code=400)
+        # Ruta base común
+        base_directory = f"/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{user_id}/proyecto_{id_proyecto}_{nombre_proyecto}"
 
+        # Construir el path según los parámetros presentes
+        if id_version_insample and nombre_version_insample:
+            user_directory = (
+                f"{base_directory}/version_{id_version}_{nombre_version}/version_parametros_{id_version_insample}_{nombre_version_insample}/Reportes/{file_name}"
+            )
+        else:
+            user_directory = (
+                f"{base_directory}/version_{id_version}_{nombre_version}/Reportes/{file_name}"
+            )
+
+        # Verificar si el archivo existe
+        if os.path.isfile(user_directory):
+            return FileResponse(user_directory)
+        else:
+            return JSONResponse({"error": f"File not found: {user_directory}"}, status_code=404)
 # Define the routes for Starlette
 routes = [
     Route('/api/user_files', DynamicStaticFileEndpoint, methods=["GET"]),

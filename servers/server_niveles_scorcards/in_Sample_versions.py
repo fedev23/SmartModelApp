@@ -11,7 +11,7 @@ from api.db import *
 from funciones.utils_2 import crear_carpeta_version_parametros
 from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version
 from datetime import datetime
-
+from auth.utils import help_api 
 
 def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_para_button):
     
@@ -70,6 +70,13 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
         global_session.set_version_parametros_id(id_versiones_params.get())
         versiones = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
         if versiones:
+            if (global_session.get_id_user() and
+            global_session.get_name_proyecto() and
+            global_session.get_id_proyecto() and
+            global_session.get_id_version() and
+            global_session.get_versiones_name()):   
+                help_api.procesar_starlette_api_insample(global_session.get_id_user(), global_session.get_name_proyecto(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_versiones_name(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre())
+        
             if opciones_param.get() is  None:
                 nombre_version = versiones[0]['nombre_version']
                 nombre_de_la_version_in_sample.set(nombre_version)
@@ -81,7 +88,6 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
     @render.ui
     def button_remove_versions_param():
         versions_list = get_project_versions_param(global_session.get_id_proyecto(), global_session.get_id_version())
-        
         name = global_session.get_versiones_name()
         return button_remove(versions_list, id_versiones_params.get(), "id_jsons", name_para_button)
     

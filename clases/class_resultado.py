@@ -98,7 +98,22 @@ class ResultadoClassPrueba:
                         ui.tags.iframe(src=iframe_src, width='350%', height='500px'))
                 else:
                     return ui.HTML("<p>Archivo no encontrado</p>")
-        
+      
+    def html_output_in_sample(self, resultado_id):
+        # Obtener el estado del acordeón específico para este resultado_id
+        if resultado_id in self.accordion_open:
+            #print(f"resultado esperado", resultado_id)
+            resultado_path = next((r['resultado_path'] for r in self.resultados if r['resultado_id'] == resultado_id), None)
+            if self.proceso_user.get():
+                if resultado_path and self.accordion_open[resultado_id].get():
+                    print("Resultado Path:", resultado_path)
+                    iframe_src = f"/api/user_files?{urlencode({'user_id': self.user.get(), 'nombre_proyecto': global_session.get_name_proyecto(), 'id_proyecto': global_session.get_id_proyecto(), 'id_version': global_session.get_id_version(), 'nombre_version': global_session.get_versiones_name(), 'id_version_insample': global_session.get_version_parametros_id(), 'nombre_version_insample': global_session.get_versiones_parametros_nombre(), 'file_name': os.path.basename(resultado_path)})}"
+                    print("Iframe SRC:", iframe_src)
+                    return ui.div(
+                        ui.tags.iframe(src=iframe_src, width='350%', height='500px'))
+                else:
+                    return ui.HTML("<p>Archivo no encontrado</p>")
+      
 
     def descargar_resultados(self, directory_path):
         temp_zip_path = tempfile.NamedTemporaryFile(delete=False).name + '.zip'

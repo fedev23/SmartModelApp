@@ -134,7 +134,7 @@ def server_resul(input, output, session, name_suffix):
             html_desarrollo = resultado_desarrollo.html_output_prueba(resultado_id)
             html_prueba = resultado_class_instance.html_output_prueba(resultado_id)
             html_produccion = resultado_class_instance_produccion.html_output_prueba(resultado_id)
-            html_in_sample = resultado_in_sample.html_output_prueba(resultado_id)
+            html_in_sample = resultado_in_sample.html_output_in_sample(resultado_id)
             return html_prueba, html_produccion, html_in_sample, html_desarrollo
 
 

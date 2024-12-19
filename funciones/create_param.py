@@ -176,6 +176,35 @@ def create_screen(name_suffix):
                             ui.tags.i(
                                 class_="fa fa-question-circle-o", style="font-size:24px")
                         ),
+                                
+                      ui.div( ui.row(
+                        crear_card_con_input_numeric_2(
+                        input_id="par_times",
+                        input_label="Submuestras para bootstrap",
+                        action_link_id="times_sub",
+                        icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
+                        default_value=25,
+                        min_value=25,
+                        max_value=2,
+                        step=0.01
+                        ),
+
+                        crear_card_con_input_numeric_2(
+                        input_id="par_cant_reportes",
+                        input_label="Cantidad de reportes",
+                        action_link_id="cant_reportes",
+                        icon=ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
+                        default_value=100,
+                        min_value=100,
+                        max_value=2,
+                        step=0.01
+                        ),
+                        
+
+                        # style="display: flex; justify-content: space-around; align-items: center;"  # Estilo para mantener todo alineado
+                    ),
+ 
+    ),
             
         ),
         class_="hidden-inputs"
