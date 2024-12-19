@@ -58,30 +58,7 @@ def server_out_of_sample(input, output, session, name_suffix):
     def nombre_proyecto_validacion():
         return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo(global_session.proyecto_seleccionado())}'
 
-  
-
    
-
-    
-    @reactive.Effect
-    @reactive.event(input[f'load_param_{name_suffix}'])
-    def desarollo_out_to_and_valid():
-        # 1. Validar si el dataset está cargado
-        df = data_loader.getDataset()
-        if df is None:
-            mensaje.set(f"No se seleccionó ningún archivo en {name}")
-            return  # Detener la ejecución si no hay dataset
-
-        # 2. Validar si el proyecto está asignado
-        proyecto_nombre = global_session.get_id_user()
-        if not validar_proyecto(proyecto_nombre):
-            mensaje.set(f"Es necesario tener un proyecto asignado o creado para continuar en {name}")
-            return  # Detener la ejecución si no hay proyecto asignado
-
-        # 3. Continuar si ambas validaciones anteriores pasan
-        if screen_instance.get().proceso_a_completado.get():
-            #create_navigation_handler(f'load_param_{name_suffix}', 'Screen_3')
-            ui.update_accordion("my_accordion", show=["out_to_sample"])
 
 
     @output
@@ -148,16 +125,6 @@ def server_out_of_sample(input, output, session, name_suffix):
             return
         
         
-        
-    @reactive.Effect
-    @reactive.event(input[f'open_html_{modelo_of_sample.nombre}'])
-    def enviar_result():
-        ui.update_navs("Resultados_nav", selected="out_to_sample",)
-        
-    ##ESTA PARTE VA ESAR DEDICADA A LA LOGICA DE SI EN LA SCREEN SELCCIONO  out_to_sample MANEJARLA ADECUADAMENTE
-    
-    
-    
     
     @output
     @render.text

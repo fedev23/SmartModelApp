@@ -81,7 +81,7 @@ cur.execute('''
                 FOREIGN KEY (version_id) REFERENCES version(version_id)
             );
     ''')
-
+    
 cur.execute('''
         CREATE TABLE IF NOT EXISTS  validation_scoring (
             id_validacion_sc INTEGER PRIMARY KEY AUTOINCREMENT,

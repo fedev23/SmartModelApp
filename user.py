@@ -207,7 +207,15 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         eliminar_carpeta(path_carpeta_versiones_borrar_salida)
         eliminar_carpeta(path_carpeta_versiones_borrar_entrada)
         columnas = ['version_id', 'nombre_version', 'execution_date']
-        lista_de_versiones_new = obtener_versiones_por_proyecto(global_session.get_id_proyecto(), columnas, "version", "project_id")
+        columnas = ["version_id", "project_id", "nombre_version", "execution_date", "is_last_selected"]
+        tabla = "version"
+        condiciones = "project_id = ?"
+        parametros = (global_session.get_id_proyecto(),)  # project_id = 101
+
+        # Llamar a la función con condiciones
+        lista_de_versiones_new = obtener_versiones_por_proyecto(columnas, tabla, condiciones, parametros)
+
+        #lista_de_versiones_new = obtener_versiones_por_proyecto(columnas, "version", global_session.get_id_proyecto(), "version", "project_id")
 
         versiones_por_proyecto.set(lista_de_versiones_new)
         ui.update_select(

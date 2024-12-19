@@ -26,11 +26,7 @@ def server_produccion(input, output, session, name_suffix):
     mensaje = reactive.Value("")
     directorio = reactive.Value("")
     
-    @output
-    @render.text
-    def nombre_proyecto_produccion():
-        return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo(global_session.proyecto_seleccionado())}'
-    
+   
     
     def see_session():
         @reactive.effect

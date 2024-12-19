@@ -26,7 +26,6 @@ class ModeloProceso:
         
         
         
-
     async def run_script_prueba(self):
         # Convertir la ruta de Windows a WSL
         wsl_directorio = self.directorio
@@ -53,52 +52,55 @@ class ModeloProceso:
                     print(f"{output_prefix}: {output_list[-1]}")
 
             await asyncio.gather(
-                read_stream(process.stdout, stdout, ""),
-                read_stream(process.stderr, stderr, "")
+                read_stream(process.stdout, stdout, "STDOUT"),
+                read_stream(process.stderr, stderr, "STDERR")
             )
 
             # Esperar a que el proceso termine
             return_code = await process.wait()
 
-            # Unir todas las lineas capturadas en un solo string
+            # Unir todas las líneas capturadas en un solo string
             stdout_output = '\n'.join(stdout)
             stderr_output = '\n'.join(stderr)
 
-            return stdout_output, stderr_output, return_code 
+            # Preparar el mensaje de error si hay un código de retorno diferente de 0
+            error_message = f"Error durante la ejecución: {stderr_output}" if return_code != 0 else None
+
+            return stdout_output, stderr_output, return_code, error_message
 
         except Exception as e:
+            # Capturar cualquier excepción y devolver el mensaje de error
+            error_message = f"Excepción durante la ejecución: {str(e)}"
             print("Stacktrace:")
             traceback.print_exc()
-            return None, str(e), 1
-        
+            return None, None, 1, error_message
+
     async def ejecutar_proceso_prueba(self, click_count, mensaje, proceso):
         try:
+            # Mostrar mensaje inicial
             self.mensaje.set("En ejecución...")
             self.proceso.set(False)
+
             # Indicador de proceso en ejecución
             with ui.busy_indicators.use(spinners=True):
                 # Ejecutar el script de manera asíncrona
-                stdout, stderr, returncode = await self.run_script_prueba()
+                stdout, stderr, returncode, error_message = await self.run_script_prueba()
 
-                # Verificar si hubo errores durante la ejecución
+                # Verificar el resultado y actualizar los valores reactivos
                 if returncode != 0:
-                    self.mensaje.set(f"Hubo un error en la ejecución.")
-                    print(f"Salida del comando: {stdout}")
+                    self.mensaje.set(error_message)
                     self.proceso.set(False)
                 else:
-                    self.mensaje.set(f"Ejecución completada con éxito.")
+                    self.mensaje.set("Ejecución completada con éxito.")
                     self.proceso.set(True)
-                    
-                    
-                    
-
-                return stdout, stderr 
 
         except Exception as e:
-            print(f"Error en la ejecución: {e}")
-            self.mensaje.set(f"Error en la ejecución: {str(e)}")
-            return None, str(e), 1
-        
+            # Capturar cualquier excepción y actualizar el mensaje
+            self.mensaje.set(f"Error inesperado: {str(e)}")
+            print("Stacktrace:")
+            traceback.print_exc()
+
+    
 
 
     def mostrar_mensaje(self):
@@ -136,4 +138,3 @@ class ModeloProceso:
             )
         else:
             return ui.div("El archivo aún no se ha cargado. Por favor, cargue el archivo.")
-

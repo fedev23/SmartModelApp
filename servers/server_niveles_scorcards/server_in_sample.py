@@ -6,7 +6,7 @@ from clases.loadJson import LoadJson
 from funciones.param_in_sample import param_in_sample
 from funciones.utils import transformar_segmentos, transform_data, transformar_reportes, create_modal_parametros, id_buttons
 import pandas as pd
-from funciones.utils import mover_file_reportes_puntoZip
+from funciones.utils import mover_file_reportes_puntoZip, retornar_card
 from funciones.utils_2 import cambiarAstring, aplicar_transformaciones
 from clases.global_session import global_session
 from api.db import *
@@ -152,6 +152,17 @@ def server_in_sample(input, output, session, name_suffix):
         trans_formara_lista = list(valor1)
         list_transformada.set(trans_formara_lista)
         #print(trans_formara_lista)
+    
+    
+     ##FUNCION PARA RETORNAR LA TARJETA
+    @output
+    @render.ui
+    def card_in_sample():
+        return   retornar_card(
+        get_file_name=global_names_reactivos.get_name_file_db(),
+        #get_fecha=global_fecha.get_fecha_in_sample,
+        modelo=modelo_in_sample
+    )
         
 
     ##USO ESTE DECORADOR PARA CORRER EL PROCESO ANSYC Y NO HAYA INTERRUCIONES EN EL CODIGO LEER DOCUENTACION
@@ -212,12 +223,12 @@ def server_in_sample(input, output, session, name_suffix):
             global_session.get_version_parametros_id()
             #C:\Users\fvillanueva\Desktop\SmartModel_new_version\new_version_new\Automat\datos_entrada_auth0_670fc1b2ead82aaae5c1e9ba\proyecto_57_Proyecto_prueba_De_Datos\version_59_c\version_parametros_42_version_c
             #path_si_existe_version = path_entrada.join()
-            global_session.set_path_niveles_scorcads(path_datos_entrada)
+            global_session.set_path_niveles_scorcads(path_entrada)
             global_session.set_path_niveles_scorcads_salida(path_salida)
             
             ##COPIO EL JSON DE LA CARPETA y lo fusion por si hay IN SAMPLE
             #json = copiar_json_si_existe(path_entrada, path_datos_entrada)
-
+            
             inputs_procesados = aplicar_transformaciones(input, transformaciones)
             
             origen_modelo_puntoZip =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'

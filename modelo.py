@@ -59,15 +59,7 @@ def server_modelos(input, output, session, name_suffix):
     
     
     ##FUNCION PARA RETORNAR LA TARJETA
-    @output
-    @render.ui
-    def card_in_sample():
-        return   retornar_card(
-        get_file_name=global_name_manager.get_file_name_desarrollo,
-        #get_fecha=global_fecha.get_fecha_in_sample,
-        modelo=modelo_in_sample
-    )
-    
+   
     @output
     @render.text
     def mensaje_id_in_sample():

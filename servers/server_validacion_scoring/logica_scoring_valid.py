@@ -20,7 +20,7 @@ from clases.global_modelo import modelo_of_sample, modelo_produccion
 
 
 def logica_server_Validacion_scroing(input, output, session, name_suffix):
-    cargar_datos_validacion_sc = FilesLoad(name_suffix)
+    cargar_datos_class = FilesLoad(name_suffix)
     
     dataSet_predeterminado_parms = reactive.Value(None)
     global_names_reactivos.name_validacion_of_to_sample_set(name_suffix)
@@ -33,60 +33,7 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
     @reactive.Effect
     @reactive.event(input.file_validation)
     async def loadOutSample():
-        try:
-            file: list[FileInfo] | None = input.file_validation()
-            if not file:
-                raise ValueError("No se recibió ningún archivo para validar.")
-
-            print(file, "estoy en fila")
-            input_name = file[0]['name']
-            print(f"Nombre del archivo recibido: {input_name}")
-
-            # Guardar el archivo
-            ruta_guardado = await guardar_archivo(input.file_validation, name_suffix)
-            print(f"El archivo fue guardado en {ruta_guardado}")
-
-            # Obtener fecha actual
-            fecha_de_carga = datetime.now().strftime("%Y-%m-%d %H:%M")
-
-            # Insertar datos en la tabla
-            id = insert_record(
-                database_path="Modeling_App.db",
-                table="validation_scoring",
-                columns=['nombre_archivo_validation_sc', 'fecha_de_carga', 'version_id'],
-                values=[input_name, fecha_de_carga, global_session.get_id_version()]
-            )
-            
-            print("Datos insertados en la tabla validation_scoring.")
-            global_session_V2.set_id_Data_validacion_sc(id)
-            # Extraer datos
-            files_name.set(get_records(
-            table='validation_scoring',
-            columns=['id_validacion_sc', 
-                    'nombre_archivo_validation_sc', 
-                    'fecha_de_carga'],
-            join_clause='INNER JOIN version ON validation_scoring.version_id = version.version_id',
-            where_clause='version.project_id = ?',
-            where_params=(global_session.get_id_proyecto(),)
-        ))
-            # Actualizar opciones y seleccionar predeterminados
-            global_session_V2.set_opciones_name_dataset_Validation_sc(obtener_opciones_versiones(files_name.get(), "id_validacion_sc", "nombre_archivo_validation_sc"))
-            
-            data_predeterminado.set(obtener_ultimo_id_version(files_name.get(), 'id_validacion_sc'))
-            
-            #opciones_actualizadas = [d["nombre_archivo_validation_sc"].rsplit('.', 1)[0] for d in files_name.get()]
-            ui.update_select(
-                "files_select_validation_scoring",
-                choices=global_session_V2.get_opciones_name_dataset_Validation_sc(),
-                selected=data_predeterminado.get()
-            )
-            print("Opciones y selección actualizadas correctamente.")
-
-        except Exception as e:
-            # Manejar errores y notificar al usuario
-            error_message = f"Error en loadOutSample: {e}"
-            #ui.update_text("error_message", error_message)  # Asume que hay un output de texto para mostrar errores
-            print(error_message)
+        cargar_datos_class.cargar_datos_validacion_scroing()
     
     
       
@@ -207,7 +154,7 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
             data = global_session_V2.get_data_reactivo_validacion_sc()
             if data is not None and not data.empty:
                 return  retornar_card(
-                    #prin(get_data_reactivo_validacion_sc)
+                   
                 get_file_name=global_session_V2.get_nombre_dataset_validacion_sc(),
                 #get_fecha=global_fecha.get_fecha_of_to_Sample,
                 modelo=modelo_of_sample)
