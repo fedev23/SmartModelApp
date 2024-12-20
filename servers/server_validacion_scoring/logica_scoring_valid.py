@@ -1,19 +1,17 @@
 from shiny import reactive, render, ui
-from global_var import global_data_loader_manager
 from funciones.utils_2 import render_data_summary
 from clases.global_modelo import modelo_of_sample
 from clases.global_session import global_session
 from api.db import *
 from clases.reactives_name import global_names_reactivos
 from funciones.utils import retornar_card
-from shiny.types import FileInfo
-from datetime import datetime
-from funciones.funciones_cargaDatos import guardar_archivo
-from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version, obtener_ultimo_nombre_archivo, obtener_ultimo_nombre_archivo_validacion_c
+from logica_users.utils.help_versios import obtener_ultimo_nombre_archivo_validacion_c
 from clases.global_sessionV2 import *
 from funciones.utils_2 import leer_dataset
 import pandas as pd
+from funciones_modelo.help_models import *
 from funciones.funciones_user import button_remove, create_modal_v2
+from funciones_modelo.global_estados_model import global_session_modelos
 from funciones.clase_estitca.cargar_files import FilesLoad
 from clases.global_modelo import modelo_of_sample, modelo_produccion
 
@@ -25,8 +23,6 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
     dataSet_predeterminado_parms = reactive.Value(None)
     global_names_reactivos.name_validacion_of_to_sample_set(name_suffix)
     validadacion_retornar_card = reactive.Value("")
-    data_predeterminado = reactive.Value("")
-    files_name  = reactive.Value("")
     lista = reactive.Value("")
     reactivo_dinamico =  reactive.Value("")
     
@@ -70,6 +66,17 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
         print(dataSet_predeterminado_parms.get(), "tengo el nombre")
         data = leer_dataset(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), dataSet_predeterminado_parms.get())
         global_session_V2.set_data_set_reactivo_validacion_sc(data)
+        
+        ult_model = obtener_ultimo_modelo_por_version(base_datos, global_session.get_id_version())
+        print(ult_model, "ult_model")
+        estado_out_sample , hora_of_sample = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="of_sample")
+        global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
+        global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
+        
+        estado_produccion , hora_produccion = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="produccion")
+        global_session_modelos.modelo_produccion_estado.set(estado_produccion)
+        global_session_modelos.modelo_produccion_hora.set(hora_produccion)
+        
         ##actualizo el selector de columna target
     
     
@@ -154,10 +161,11 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
             data = global_session_V2.get_data_reactivo_validacion_sc()
             if data is not None and not data.empty:
                 return  retornar_card(
-                   
                 get_file_name=global_session_V2.get_nombre_dataset_validacion_sc(),
-                #get_fecha=global_fecha.get_fecha_of_to_Sample,
-                modelo=modelo_of_sample)
+                modelo=modelo_of_sample,
+                fecha=global_session_modelos.modelo_of_sample_hora.get(),
+                estado=global_session_modelos.modelo_of_sample_estado.get(),)
+                
             else:
                return ui.div()
         else:
@@ -213,6 +221,8 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
                 return retornar_card(
                     get_file_name=global_session_V2.get_nombre_dataset_validacion_sc(),
                     #get_fecha=global_fecha.get_fecha_produccion,
-                    modelo=modelo_produccion
+                    modelo=modelo_produccion,
+                    fecha=global_session_modelos.modelo_produccion_hora.get(),
+                    estado=global_session_modelos.modelo_produccion_estado.get(),
                 )
     

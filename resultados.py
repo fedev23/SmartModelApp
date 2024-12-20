@@ -85,6 +85,7 @@ def server_resul(input, output, session, name_suffix):
                 "salida": "result_in_sample_salida",
                 "descarga_unic": "download_btn1_insample",
                 "salida_unic": "salida_prueba_in_sample",
+                
             },
         ]
         return resultados_in_sample

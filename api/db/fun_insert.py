@@ -321,10 +321,9 @@ def obtener_versiones_por_proyecto(columnas, tabla, condiciones=None, parametros
     finally:
         # Cerrar la conexión
         conn.close()
-        
 def insert_into_table(table_name, columns, values):
     """
-    Inserta un registro en la tabla especificada.
+    Inserta un registro en la tabla especificada y muestra el contenido actual de la tabla para depuración.
     
     :param table_name: Nombre de la tabla.
     :param columns: Lista de nombres de columnas.
@@ -335,22 +334,36 @@ def insert_into_table(table_name, columns, values):
     cur = conn.cursor()
     
     try:
+        # Construir la consulta de inserción
         placeholders = ', '.join(['?'] * len(values))
         columns_str = ', '.join(columns)
         query = f"INSERT INTO {table_name} ({columns_str}) VALUES ({placeholders})"
         
+        # Ejecutar la inserción
         cur.execute(query, values)
         conn.commit()
         
         last_row_id = cur.lastrowid
         print(f"Registro insertado correctamente en '{table_name}' con ID: {last_row_id}")
+        
+        # Depuración: Mostrar los registros actuales de la tabla
+        debug_query = f"SELECT * FROM {table_name}"
+        cur.execute(debug_query)
+        rows = cur.fetchall()
+        print(f"Contenido actual de '{table_name}':")
+        for row in rows:
+            print(row)
+        
         return last_row_id
     except sqlite3.IntegrityError as e:
         print(f"Error al insertar en '{table_name}': {e}")
         return None
+    except sqlite3.Error as e:
+        print(f"Error general al operar con '{table_name}': {e}")
+        return None
     finally:
         conn.close()
-
+        
 def get_records(table, columns, join_clause=None, where_clause=None, where_params=()):
     """
     Recupera registros de una tabla específica en la base de datos fija.

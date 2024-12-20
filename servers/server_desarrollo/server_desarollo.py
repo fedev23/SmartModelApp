@@ -9,17 +9,20 @@ from api.db import *
 from clases.global_session import *
 from clases.global_sessionV2 import *
 from clases.reactives_name import global_names_reactivos
-from funciones.funciones_cargaDatos import guardar_archivo
-from shiny.types import FileInfo
-from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version
 from clases.global_session import *
 from clases.class_validacion import Validator
 from clases.loadJson import LoadJson
 from datetime import datetime
 from clases.global_reactives import global_estados
-from funciones.cargar_archivosNEW import mover_y_renombrar_archivo, verificar_archivo, create_modal_warning_exist_file
+from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
 from funciones.clase_estitca.cargar_files import FilesLoad
 from clases.reactives_name import global_names_reactivos
+from funciones_modelo.global_estados_model import global_session_modelos
+from funciones_modelo import help_models
+from api.db.sqlite_utils import *
+from funciones_modelo.global_estados_model import global_session_modelos
+from funciones_modelo.global_estados_model import global_session_modelos
+from funciones_modelo.help_models import *
 
 
 def server_desarollo(input, output, session, name_suffix):
@@ -30,6 +33,7 @@ def server_desarollo(input, output, session, name_suffix):
     user_id_send = reactive.Value("")
     global_names_reactivos.name_desarrollo_set(name_suffix)
     mensaje = reactive.Value("")
+    
     
     
     # Diccionario de transformaciones
@@ -57,8 +61,6 @@ def server_desarollo(input, output, session, name_suffix):
                     user_id_cleaned = user_id.replace('|', '_')
                     user_id_send.set(user_id_cleaned)
                     directorio_desarollo.set(user)
-                    #global_desarollo.script_path = f"./Modelar.sh datos_entrada_{user_id_cleaned} datos_salida_{user_id_cleaned}"
-                    
                     ##voy a usar la clase como efecto reactivo, ya que si queda encapsulada dentro de la funcion no la podria usar
                     screen_instance.set(ScreenClass(directorio_desarollo.get(), name_suffix))
 
@@ -75,12 +77,6 @@ def server_desarollo(input, output, session, name_suffix):
     def nombre_proyecto_desarrollo():
         return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo(global_session.proyecto_seleccionado())}'
 
-   
-    #RETORNO LOS PARAMETROS DE DESARROLO
-  
-        #else:
-            #return parametros_sin_version(name_suffix)
-
     @reactive.Effect
     @reactive.event(input.file_desarollo)
     async def datos_desarrolo():
@@ -88,14 +84,11 @@ def server_desarollo(input, output, session, name_suffix):
     
     @reactive.Effect
     @reactive.event(input.cancel_overwrite)
-    async def overwrite_file():
+    def overwrite_file():
         return  ui.modal_remove()
             
         
-        
     
-        
-        
     @output
     @render.ui
     def error_in_desarollo():
@@ -124,7 +117,8 @@ def server_desarollo(input, output, session, name_suffix):
     def card_desarollo2():
         return retornar_card(
             get_file_name=global_names_reactivos.get_name_file_db(),
-            #get_fecha=global_fecha.get_fecha_desarrollo,
+            fecha=global_session_modelos.modelo_desarrollo_hora.get(),
+            estado=global_session_modelos.modelo_desarrollo_estado.get(),
             modelo=global_desarollo
         )
 
@@ -143,7 +137,7 @@ def server_desarollo(input, output, session, name_suffix):
     async def ejecutar_desarrollo():
         click_count_value = global_desarollo.click_counter.get()  # Obtener contador
         mensaje_value = global_desarollo.mensaje.get()  # Obtener mensaje actual
-        proceso = global_desarollo.proceso.get()
+        proceso = global_desarollo.get_proceso()
 
         # Crear instancia de la clase Validator
         validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
@@ -182,7 +176,6 @@ def server_desarollo(input, output, session, name_suffix):
                 json_loader.inputs['file_desarollo'] = global_names_reactivos.get_name_file_db()
                 json_file_path = json_loader.loop_json()
                 print(f"Inputs guardados en {json_file_path}")
-                print("Inputs cargados:", json_loader.inputs)
             ##Y NO LO PUEDO PONER CON ESPACIO O CON OS.JION POR QUE ME GENERA / DONDE NO VAN
                 path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
                 path_datos_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
@@ -196,18 +189,31 @@ def server_desarollo(input, output, session, name_suffix):
                 mover = mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), global_session.get_path_guardar_dataSet_en_proyectos(), name_suffix, path_datos_entrada)
                 
                 global_desarollo.script_path = f'./Modelar.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida}'
-                
                 ejectutar_desarrollo_asnyc(click_count_value, mensaje_value, proceso)
-                print(proceso, "estoy en procesos")
-                if proceso:
-                    estado = insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), datetime.now().strftime("%Y-%m-%d %H:%M"), global_desarollo.nombre, global_names_reactivos.get_name_file_db(), global_session.get_id_version(), 'desarrollo', 'completado')
-                    print(f'estado de la ejecucion {estado}')
-                else:
-                    estado = insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), datetime.now().strftime("%Y-%m-%d %H:%M"), global_desarollo.nombre, global_names_reactivos.get_name_file_db(), global_session.get_id_version(), 'desarrollo', 'error')
-                    print(f'estado de la ejecucion {estado}')
+                
+                
+    ##ESTA FUNCION LA HAGO PARA DETECTAR BIEN LOS VALORES REACTIVOS QUE ESTAN DENTRO DEL PROCESO        
+    def agregar_reactivo():  
+        @reactive.effect
+        def insert_data_depends_value():  
+            base_datos = "Modeling_App.db"
+            if global_desarollo.proceso_ok.get():
+                agregar_datos_model_execution(global_session.get_id_version(), global_desarollo.nombre, base_datos , "Exito")
+                estado_desarrollo , hora_desarrollo = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="desarollo")
+                global_session_modelos.modelo_desarrollo_estado.set(estado_desarrollo)
+                global_session_modelos.modelo_desarrollo_hora.set(hora_desarrollo)
+                
+            if global_desarollo.proceso_fallo.get():
+                agregar_datos_model_execution(global_session.get_id_version(), global_desarollo.nombre, base_datos , "Error")
+                estado_desarrollo , hora_desarrollo = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="desarollo")
+                global_session_modelos.modelo_desarrollo_estado.set(estado_desarrollo)
+                global_session_modelos.modelo_desarrollo_hora.set(hora_desarrollo)
+        
                     
+                
+    
 
-            
+    agregar_reactivo()        
         
     @output
     @render.text

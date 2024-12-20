@@ -106,7 +106,6 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
     @reactive.Effect
     @reactive.event(input.confirmar_remove)
     def remove_versiones_de_parametros():
-        print("pase??????????????????")
         eliminar_version("json_versions", "id_jsons", id_versiones_params.get())
         columnas = ['id_jsons', 'nombre_version', 'fecha_de_carga']
         tabla = "json_versions"

@@ -101,7 +101,7 @@ def create_zip_from_file_unico(file_path, zip_file_path):
             print(f"El archivo no existe: {file_path}")
 
 
-def retornar_card(get_file_name, modelo):  # get_fecha
+def retornar_card(get_file_name, modelo, fecha, estado):  # get_fecha
     # Llama a las funciones `get_file_name` y `get_fecha` proporcionadas
     file_name = get_file_name
     # fechaHora = get_fecha()
@@ -110,7 +110,7 @@ def retornar_card(get_file_name, modelo):  # get_fecha
     # fecha_actual_render = str(fechaHora) if fechaHora else ""
 
     # Renderiza y retorna la tarjeta usando el modelo proporcionado
-    return modelo.render_card(file_name)
+    return modelo.render_card(file_name, fecha, estado)
 
 def transformar_reportes(df):
     if df.empty:

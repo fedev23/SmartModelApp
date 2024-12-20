@@ -7,7 +7,8 @@ from funciones.utils_2 import errores, validar_proyecto, get_user_directory
 from clases.global_modelo import modelo_of_sample
 from clases.global_session import global_session
 from api.db import *
-from clases.global_name import global_name_manager
+from funciones_modelo.global_estados_model import global_session_modelos
+from funciones_modelo.help_models import *
 from clases.reactives_name import global_names_reactivos
 from clases.global_sessionV2 import *
 from funciones.validacionY_Scoring.create_card import crate_file_input_y_seleccionador
@@ -16,6 +17,9 @@ from datetime import datetime
 from funciones.utils import mover_file_reportes_puntoZip
 from logica_users.utils  import help_versios 
 from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
+from funciones_modelo.global_estados_model import global_session_modelos
+from funciones_modelo.help_models import *
+
 
 
 def server_out_of_sample(input, output, session, name_suffix):
@@ -124,6 +128,29 @@ def server_out_of_sample(input, output, session, name_suffix):
             mensaje_value.set(f"Primero ejecutar el proceso de Desarrollo para poder ejecutar el proceso  full {str(e)}")
             return
         
+        
+    
+    def agregar_reactivo():  
+        @reactive.effect
+        def insert_data_depends_value():
+            base_datos = "Modeling_App.db"
+            if modelo_of_sample.proceso_ok.get():
+                agregar_datos_model_execution(global_session.get_id_version(), modelo_of_sample.nombre, base_datos , "Exito")
+                estado_out_sample , hora_of_sample = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="of_sample")
+                global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
+                global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
+                
+            
+                
+            if modelo_of_sample.proceso_fallo.get():
+                agregar_datos_model_execution(global_session.get_id_version(), modelo_of_sample.nombre, "Modeling_App.db", "Error")
+                estado_out_sample , hora_of_sample = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="of_sample")
+                global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
+                global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
+                
+            
+               
+
         
     
     @output

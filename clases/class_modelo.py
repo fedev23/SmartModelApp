@@ -1,20 +1,24 @@
 
 from shiny import reactive, render, ui
-from funciones.utils import  mover_file_reportes_puntoZip
 from clases.global_session import *
-import datetime
+from datetime import datetime
 import asyncio
 import traceback
 from clases.reactives_name import global_names_reactivos
 from api.db import *
+from funciones_modelo.global_estados_model import global_session_modelos
+from clases.global_sessionV2 import *
+
 
 
 class ModeloProceso:
-    def __init__(self, nombre, directorio, script_name, script_path, name_file, mensaje_id):
+    def __init__(self, nombre, directorio, script_name, script_path, name_file, mensaje_id, hora, estado):
         self.nombre = nombre
         self.name_file = name_file
         self.mensaje_id = mensaje_id
         self.directorio = directorio
+        self.hora = hora
+        self.estado = estado
         self.script_name = script_name
         self.script_path = script_path
         self.proceso = reactive.Value(False)
@@ -22,6 +26,8 @@ class ModeloProceso:
         self.click_counter = reactive.Value(0)  # Instancia de CargarDatos
         self.fecha_hora = reactive.Value("")
         self.extrat_hora = reactive.Value("")
+        self.proceso_ok = reactive.Value(False)
+        self.proceso_fallo = reactive.value(False)
         self.mensaje_error = reactive.Value("")
         
         
@@ -77,9 +83,11 @@ class ModeloProceso:
 
     async def ejecutar_proceso_prueba(self, click_count, mensaje, proceso):
         try:
+            # Obtener valores de fuentes reactivas antes de la tarea extendida
+            
             # Mostrar mensaje inicial
             self.mensaje.set("En ejecución...")
-            self.proceso.set(False)
+            #proceso(False)
 
             # Indicador de proceso en ejecución
             with ui.busy_indicators.use(spinners=True):
@@ -88,20 +96,29 @@ class ModeloProceso:
 
                 # Verificar el resultado y actualizar los valores reactivos
                 if returncode != 0:
-                    self.mensaje.set(error_message)
-                    self.proceso.set(False)
+                    self.mensaje.set("Ejecucion fallida")
+                    self.set_proceso(False)
+                    self.proceso_fallo.set(True)
                 else:
+                   
                     self.mensaje.set("Ejecución completada con éxito.")
-                    self.proceso.set(True)
+                    self.proceso_ok.set(True)
+                    self.set_proceso(True)
+                    
 
         except Exception as e:
             # Capturar cualquier excepción y actualizar el mensaje
             self.mensaje.set(f"Error inesperado: {str(e)}")
             print("Stacktrace:")
             traceback.print_exc()
-
     
 
+    def set_proceso(self, proceso):
+        self.proceso.set(proceso)
+        
+        
+    def get_proceso(self):
+        return self.proceso.get()
 
     def mostrar_mensaje(self):
         # if self.proceso.get():
@@ -116,8 +133,7 @@ class ModeloProceso:
         self.fecha_hora = formatted_now
         return formatted_now
 
-    def render_card(self, file_name, #fecha_hora
-                    ): ##----> AGREGAR FECHA MAS ADELANTE
+    def render_card(self, file_name, fecha, estado): 
         default_message = "Aún no se ha ejecutado el proceso."
         if self.mensaje_error:
             self.mensaje = self.mensaje_error
@@ -126,14 +142,16 @@ class ModeloProceso:
             return ui.card(
                 ui.card_header(
                     "",
-                    ui.p(f"Nombre del archivo: {global_names_reactivos.get_name_file_db()}"),
+                    ui.p(f"Nombre del archivo: {file_name}"),
                     #ui.p(f"Fecha de última ejecución: {str(fecha_hora)}"),
+                    ui.p(f"Estado de la ultima ejecución: Versión {global_session.get_versiones_name()}: {estado}"),
+                    ui.p(f"Horario de ejecución: {fecha}"),
                     ui.p(f"Estado: {self.mensaje.get() or default_message}"),
                     # ui.p(ui.output_text(self.mensaje_id)),
                     class_="d-flex justify-content-between align-items-center",
                 ),
                 ui.div(
-                    ui.input_task_button(f"execute_{self.nombre}", f"Ejecutar {self.nombre}"),
+                    ui.input_task_button(f"execute_{self.nombre}", f"Ejecutar"),
                 ),
             )
         else:

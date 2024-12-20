@@ -13,7 +13,7 @@ class GlobalSessionV2:
         self.active_screen = reactive.Value(False)
         self.json_read = reactive.Value(False)
         self.dataSet_seleccionado = reactive.Value("")
-        
+        self.id_modelo = reactive.Value("")
 
     def set_id_Data_validacion_sc(self, id):
         self.id_Data_validacion_sc.set(id)
@@ -90,6 +90,14 @@ class GlobalSessionV2:
       
     def get_dataSet_seleccionado(self):
         return self.dataSet_seleccionado.get()
+    
+    
+    def set_id_modelo(self, id):
+        self.id_modelo.set(id)
+        
+      
+    def get_id_modelo(self):
+        return self.id_modelo.get()
     
     
    

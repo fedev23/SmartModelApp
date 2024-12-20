@@ -8,10 +8,11 @@ from funciones.funciones_user import create_modal_versiones, show_selected_proje
 from funciones.utils_2 import crear_carpeta_proyecto, crear_carpeta_version_por_proyecto, get_datasets_directory
 from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version, eliminar_carpeta, mapear_valor_a_clave
 from funciones.utils_cargar_json import leer_control_json
-import asyncio
-from logica_users.utils.help_versios  import obtener_ultimo_nombre_archivo_validacion_c
+from api.db.sqlite_utils import *
 from auth.utils import help_api 
 from api.db.sqlite_utils import *
+from funciones_modelo.global_estados_model import global_session_modelos
+from funciones_modelo import help_models 
 
 def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     user_get = reactive.Value(None)
@@ -105,8 +106,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         # Obtiene y configura las versiones de parámetros
         versiones_parametros  = get_project_versions_param(global_session.get_id_proyecto(), global_session.get_id_version())
             # 
-        #versiones_parametros = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
-        print(versiones_parametros, "versiones_parametros")
+        #versiones_parametros = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version()
         
         opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version"))
         valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
@@ -148,6 +148,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         global_session_V2.set_dataSet_seleccionado(ultimo_archivo)
         selected_key = mapear_valor_a_clave(global_session_V2.get_dataSet_seleccionado(), nombre_file.get())
         
+        
         ui.update_select("project_select",choices=proyectos_choise, selected=key_proyecto_mach if key_proyecto_mach else next(iter(proyectos_choise), ""))
         ui.update_select("files_select_validation_scoring",choices=global_session_V2.get_opciones_name_dataset_Validation_sc(), selected=data_predeterminado.get())
         ui.update_select("files_select", choices=nombre_file.get(),  selected=selected_key if selected_key else next(iter(nombre_file.get()), ""))
@@ -165,6 +166,17 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     def project_card_container():
         global_session.set_id_version(input.other_select()) # Captura el ID seleccionado
         nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
+        print(global_session.get_id_version(), "QUE VERSION TENGO??")
+        ult_model = obtener_ultimo_modelo_por_version(base_datos, global_session.get_id_version())
+        print(ult_model, "ult_model")
+        estado_model_desarrollo = help_models.obtener_estado_por_modelo(ult_model, "desarollo")
+        print(estado_model_desarrollo, "estado_model_desarrollo")
+        global_session_modelos.modelo_desarrollo_estado.set(estado_model_desarrollo)
+        
+        fecha_model_desarrollo = help_models.obtener_fecha_por_modelo(ult_model, "desarollo")
+        print(fecha_model_desarrollo ,"fecha_model_desarrollo")
+        global_session_modelos.modelo_desarrollo_hora.set(fecha_model_desarrollo)
+        
         ##ACTUALIZO EL ULTIMO SELECCIONADO EN LA TABALA DE BD
         actualizar_ultimo_seleccionado(base_datos, 'version', 'version_id', global_session.get_id_version())
         global_session.set_versiones_name(nombre_version)
@@ -227,6 +239,16 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         
     @reactive.Effect
     @reactive.event(input["cancelar_id"])
+    def cancelar_eliminacion_version():
+        return ui.modal_remove()
+    
+    @reactive.Effect
+    @reactive.event(input["cancelar"])
+    def cancelar_eliminacion_version():
+        return ui.modal_remove()
+    
+    @reactive.Effect
+    @reactive.event(input["cancelar_version"])
     def cancelar_eliminacion_version():
         return ui.modal_remove()
         
