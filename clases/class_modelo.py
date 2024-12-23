@@ -142,17 +142,18 @@ class ModeloProceso:
             return ui.card(
                 ui.card_header(
                     "",
-                    ui.p(f"Nombre del archivo: {file_name}"),
+                    ui.p(f"Nombre del archivo: {file_name}", style="margin: 0; line-height: 1.5; vertical-align: middle;"), 
                     #ui.p(f"Fecha de última ejecución: {str(fecha_hora)}"),
-                    ui.p(f"Estado de la ultima ejecución: Versión {global_session.get_versiones_name()}: {estado}"),
-                    ui.p(f"Horario de ejecución: {fecha}"),
-                    ui.p(f"Estado: {self.mensaje.get() or default_message}"),
+                    ui.p(f"Estado de la ultima ejecución: Versión {global_session.get_versiones_name()}: {estado}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
+                    ui.p(f"Horario de ejecución: {fecha}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
+                    ui.p(f"Estado: {self.mensaje.get() or default_message}, ", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
                     # ui.p(ui.output_text(self.mensaje_id)),
-                    class_="d-flex justify-content-between align-items-center",
+                    class_="d-flex justify-content-between align-items-center w-100",
                 ),
                 ui.div(
                     ui.input_task_button(f"execute_{self.nombre}", f"Ejecutar"),
                 ),
+                
             )
         else:
             return ui.div("El archivo aún no se ha cargado. Por favor, cargue el archivo.")

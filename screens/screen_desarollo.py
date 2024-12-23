@@ -20,13 +20,28 @@ screenDesarollo = ui.page_fluid(
     # Selección de columnas de dataset
     
     ui.div(
-        ui.tags.div(
-            ui.card(
-                    ui.output_ui("devolver_acordeon"),
+       ui.column(
+        10,
+        ui.div(
+            ui.input_select(
+                "files_select",
+                "",
+                {'a': "Archivo A", 'b': "Archivo B"},
+                width="50%"
+            ),
+            ui.div(
+                ui.input_file(
+                    "file_desarollo",
+                    "",
+                    placeholder="Seleccione un archivo",
+                    button_label="+",
+                    accept=[".csv", ".txt"],
+                    width="100%"
                 ),
-            
-            
-        id="module_container",
+            ),
+            ui.output_ui("remove_dataset"),
+            class_="d-flex align-items-stretch gap-3 mb-3"
+        ),
     ),
         
         ui.output_text_verbatim("error"),

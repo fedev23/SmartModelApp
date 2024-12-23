@@ -80,10 +80,10 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
             global_session.get_versiones_name()):   
                 help_api.procesar_starlette_api_insample(global_session.get_id_user(), global_session.get_name_proyecto(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_versiones_name(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre())
 
-            base_datos = "Modeling_App.db"
+
             #ult_model = obtener_ultimo_modelo_por_version(base_datos,version_id=None, json_version_id=global_session.get_version_parametros_id())
             #print(ult_model, "viendo si duelve bien el diccionario")
-            estado_in_sample , hora_in_sample = procesar_etapa_in_sample(base_datos="Modeling_App.db", id_version=global_session.get_id_version(),json_version_id=global_session.get_version_parametros_id(),etapa_nombre="in_sample")
+            estado_in_sample , hora_in_sample = procesar_etapa_in_sample_2(base_datos="Modeling_App.db", json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")
             
             global_session_modelos.modelo_in_sample_estado.set(estado_in_sample)
             global_session_modelos.modelo_in_sample_hora.set(hora_in_sample)

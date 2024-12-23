@@ -194,7 +194,7 @@ def get_user_directory(user_id):
     
 def get_datasets_directory(user_id, proyecto_id, name_proyect):
     # Limpiar el user_id reemplazando cualquier '|' por '_'
-    user_id_cleaned = user_id.replace('|', '_')
+    user_id_cleaned = user_id
     base_directory = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat'
     
     # Construir la ruta de la carpeta de entrada del usuario

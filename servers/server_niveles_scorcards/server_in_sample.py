@@ -246,16 +246,28 @@ def server_in_sample(input, output, session, name_suffix):
         def insert_data_depends_value():  
             base_datos = "Modeling_App.db"
             if modelo_in_sample.proceso_ok.get():
-                agregar_datos_model_execution(global_session.get_id_version(),modelo_in_sample.nombre, global_names_reactivos.get_name_file_db(), "Exito", global_session.get_version_parametros_id())
-                estado_in_sample , hora_in_sample = procesar_etapa_in_sample(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")
+                registro_id = agregar_datos_model_execution_por_json_version(
+                    json_version_id=global_session.get_version_parametros_id(),
+                    name=modelo_in_sample.nombre,
+                    nombre_dataset=global_names_reactivos.get_name_file_db(),
+                    estado="Exito"
+                )
+                estado_in_sample , hora_in_sample = procesar_etapa_in_sample_2(base_datos="Modeling_App.db",  json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")
                 global_session_modelos.modelo_in_sample_estado.set(estado_in_sample)
                 global_session_modelos.modelo_in_sample_hora.set(hora_in_sample)
+                modelo_in_sample.proceso_ok.set(False)
                 
             if modelo_in_sample.proceso_fallo.get():
-                agregar_datos_model_execution(global_session.get_id_version(), global_session.get_version_parametros_id(),modelo_in_sample.nombre, global_names_reactivos.get_name_file_db(),"Error", global_session.get_version_parametros_id())
-                estado_in_sample , hora_in_sample = procesar_etapa_in_sample(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")
+                registro_id = agregar_datos_model_execution_por_json_version(
+                    json_version_id=global_session.get_version_parametros_id(),
+                    name=modelo_in_sample.nombre,
+                    nombre_dataset=global_names_reactivos.get_name_file_db(),
+                    estado="Error"
+                )
+                estado_in_sample , hora_in_sample = procesar_etapa_in_sample_2(base_datos="Modeling_App.db",  json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")
                 global_session_modelos.modelo_in_sample_estado.set(estado_in_sample)
                 global_session_modelos.modelo_in_sample_hora.set(hora_in_sample)
+                modelo_in_sample.proceso_fallo.set(False),
         
                     
                 

@@ -202,12 +202,13 @@ def server_desarollo(input, output, session, name_suffix):
                 estado_desarrollo , hora_desarrollo = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="desarollo")
                 global_session_modelos.modelo_desarrollo_estado.set(estado_desarrollo)
                 global_session_modelos.modelo_desarrollo_hora.set(hora_desarrollo)
-                
+                global_desarollo.proceso_ok.set(False)
             if global_desarollo.proceso_fallo.get():
                 agregar_datos_model_execution(global_session.get_id_version(), global_desarollo.nombre, base_datos , "Error")
                 estado_desarrollo , hora_desarrollo = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="desarollo")
                 global_session_modelos.modelo_desarrollo_estado.set(estado_desarrollo)
                 global_session_modelos.modelo_desarrollo_hora.set(hora_desarrollo)
+                global_desarollo.proceso_fallo.set(False)
         
                     
                 

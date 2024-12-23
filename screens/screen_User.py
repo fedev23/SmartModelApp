@@ -28,6 +28,14 @@ screen_User = ui.page_fluid(
     ui.output_ui("create_user_menu"),
     ui.output_ui("create_sidebar"),
     ui.output_ui("despligue_menu"),
+     ui.tags.div(
+            ui.card(
+                    ui.output_ui("devolver_acordeon"),
+                ),
+            
+            
+        id="module_container",
+    ),
     ui.navset_card_tab(
         ui.nav_panel(f"{global_name_desarrollo}", screenDesarollo, value="screen_desarrolo"),
         ui.nav_panel(f"{global_name_in_Sample}", screenInSample, value="screen_niveles_scorcads"),

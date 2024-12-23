@@ -3,7 +3,8 @@ from funciones.nav_panel_User import create_nav_menu_user
 from clases.class_user_proyectName import global_user_proyecto
 from api import *
 from clases.global_session import global_session
-from clases.global_reactives import global_estados
+
+from clases.reactives_name import global_names_reactivos
 
 
 def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
@@ -11,82 +12,87 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
     @output
     @render.ui
     def devolver_acordeon():
-        projects = global_session.get_proyectos_usuarios()  # Obtiene la lista actual de proyectos
-        
+        # Obtiene la lista actual de proyectos
+        projects = global_session.get_proyectos_usuarios()
+
         if projects:
             project_options = {
                 str(project['id']): project['name'] for project in projects
             }
 
             return ui.page_fluid(
-    # Primera columna
-    ui.column(
-        10,
-        ui.div(
-            ui.input_select(
-                "project_select",
-                "",
-                project_options,
-                width="50%"
-            ),
+    # Primera fila
+    ui.row(
+        # Primera columna
+        ui.column(
+            5,
             ui.div(
-                ui.input_action_button(
-                    f"start_{name_suffix}",
-                    "+ Crear Proyecto",
-                    class_="btn btn-dark ml-3"
-                ),
-                ui.output_ui("project_card_container"),
-                class_="d-flex align-items-stretch gap-3 mb-3"
-            ),
-            class_="d-flex align-items-stretch gap-3 mb-3",
-        ),
-    ),
-    
-    # Segunda columna
-    ui.column(
-        10,
-        ui.div(
-            ui.input_select(
-                "other_select",
-                "",
-                {"a": "a"},
-                width="50%"
-            ),
-            ui.div(
-                ui.input_action_button(
-                    f"version_{name_suffix}",
-                    "+ Crear Versión",
-                    class_="btn btn-dark ml-3"
-                ),
-                ui.output_ui("button_remove_versions"),
-                class_="d-flex align-items-stretch gap-3 mb-3"
-            ),
-            class_="d-flex align-items-stretch gap-3 mb-3",
-        ),
-    ),
-    
-    # Tercera columna
-    ui.column(
-        10,
-        ui.div(
-            ui.input_select(
-                "files_select",
-                "",
-                {'a': "Archivo A", 'b': "Archivo B"},
-                width="50%"
-            ),
-            ui.div(
-                ui.input_file(
-                    "file_desarollo",
+                ui.tags.span("Proyecto:", style="margin-right: 10px; font-weight: bold; width: 150px; display: inline-block;"),
+                ui.input_select(
+                    "project_select",
                     "",
-                    placeholder="Seleccione un archivo",
-                    button_label="+",
-                    accept=[".csv", ".txt"],
-                    width="100%"
+                    project_options,
+                    width="50%"
                 ),
+                ui.div(
+                    ui.input_action_link(
+                        f"start_{name_suffix}",
+                        ui.tags.i(class_="fa fa-plus-circle fa-2x", style="color: #007bff;")
+                    ),
+                    ui.output_ui("project_card_container"),
+                    class_="d-flex align-items-stretch gap-3 mb-3"
+                ),
+                class_="d-flex align-items-stretch gap-3 mb-3"
             ),
-            ui.output_ui("remove_dataset"),
-            class_="d-flex align-items-stretch gap-3 mb-3"
+        ),
+
+        # Segunda columna
+        ui.column(
+            5,
+            ui.div(
+                ui.tags.span("Versión:", style="margin-right: 10px; font-weight: bold; width: 150px; display: inline-block;"),
+                ui.input_select(
+                    "other_select",
+                    "",
+                    {"a": "a"},
+                    width="50%"
+                ),
+                ui.div(
+                    ui.input_action_link(
+                        f"version_{name_suffix}",
+                        ui.tags.i(class_="fa fa-plus-circle fa-2x", style="color: #007bff;")
+                    ),
+                    ui.output_ui("button_remove_versions"),
+                    class_="d-flex align-items-stretch gap-3 mb-3"
+                ),
+                class_="d-flex align-items-stretch gap-3 mb-3"
+            ),
         ),
     ),
+
+    # Segunda fila
+    ui.row(
+        # Tercera columna
+        ui.column(
+            5,
+            ui.div(
+                ui.tags.span("Niveles & ScoreCards:", style="margin-right: 10px; font-weight: bold; width: 150px; display: inline-block;"),
+                ui.input_select(
+                    "version_selector",
+                    "",
+                    {"a": "a"},
+                    width="50%"
+                ),
+                ui.div(
+                    ui.input_action_link(
+                        f"version_{name_suffix}",
+                        ui.tags.i(class_="fa fa-plus-circle fa-2x", style="color: #007bff;")
+                    ),
+                    ui.output_ui("button_remove_versions_param"),
+                    class_="d-flex align-items-stretch gap-3 mb-3"
+                ),
+                class_="d-flex align-items-stretch gap-3 mb-3"
+            ),
+        ),
+    )
 )

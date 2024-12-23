@@ -139,7 +139,7 @@ def server_out_of_sample(input, output, session, name_suffix):
                 estado_out_sample , hora_of_sample = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre=modelo_of_sample.nombre)
                 global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
                 global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
-                
+                modelo_of_sample.proceso_ok.set(False)
             
                 
             if modelo_of_sample.proceso_fallo.get():
@@ -147,7 +147,7 @@ def server_out_of_sample(input, output, session, name_suffix):
                 estado_out_sample , hora_of_sample = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre=modelo_of_sample.nombre)
                 global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
                 global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
-                
+                modelo_of_sample.proceso_fallo.set(False)
             
     agregar_reactivo()
         
