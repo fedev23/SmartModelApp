@@ -17,6 +17,7 @@ from clases.global_modelo import modelo_of_sample, modelo_produccion
 
 
 
+
 def logica_server_Validacion_scroing(input, output, session, name_suffix):
     cargar_datos_class = FilesLoad(name_suffix)
     
@@ -63,19 +64,9 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
         else:
             dataSet_predeterminado_parms.set(global_session_V2.get_nombre_dataset_validacion_sc())
         
-        print(dataSet_predeterminado_parms.get(), "tengo el nombre")
+        
         data = leer_dataset(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), dataSet_predeterminado_parms.get())
         global_session_V2.set_data_set_reactivo_validacion_sc(data)
-        
-        ult_model = obtener_ultimo_modelo_por_version(base_datos, global_session.get_id_version())
-        print(ult_model, "ult_model")
-        estado_out_sample , hora_of_sample = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="of_sample")
-        global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
-        global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
-        
-        estado_produccion , hora_produccion = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="produccion")
-        global_session_modelos.modelo_produccion_estado.set(estado_produccion)
-        global_session_modelos.modelo_produccion_hora.set(hora_produccion)
         
         ##actualizo el selector de columna target
     
@@ -158,6 +149,12 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
     @render.ui
     def card_out_to_sample():
         if validadacion_retornar_card.get()== "1":
+            print(global_session.id_version_v2.get(), "id version antes de procesar con V2")
+            estado_out_sample , hora_of_sample = procesar_etapa("Modeling_App.db", global_session.get_id_version(), modelo_of_sample.nombre)
+            print(f'estado od sample {estado_out_sample}, hora {hora_of_sample}')
+            global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
+            global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
+            
             data = global_session_V2.get_data_reactivo_validacion_sc()
             if data is not None and not data.empty:
                 return  retornar_card(
@@ -217,6 +214,10 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
     def card_produccion1():
         if  reactivo_dinamico.get() == "2":
             data = global_session_V2.get_data_reactivo_validacion_sc()
+            estado_produccion , hora_produccion = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="produccion")
+            global_session_modelos.modelo_produccion_estado.set(estado_produccion)
+            global_session_modelos.modelo_produccion_hora.set(hora_produccion)
+            
             if data is not None and not data.empty:
                 return retornar_card(
                     get_file_name=global_session_V2.get_nombre_dataset_validacion_sc(),

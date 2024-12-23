@@ -165,16 +165,18 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     @reactive.event(input.other_select)  # Escuchar cambios en el selector
     def project_card_container():
         global_session.set_id_version(input.other_select()) # Captura el ID seleccionado
+        global_session.id_version_v2.set(input.other_select())
         nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
-        print(global_session.get_id_version(), "QUE VERSION TENGO??")
-        ult_model = obtener_ultimo_modelo_por_version(base_datos, global_session.get_id_version())
-        print(ult_model, "ult_model")
+        
+        print(global_session.get_id_version(), "en version")
+        ult_model = obtener_ultimo_modelo_por_version_y_nombre(base_datos, global_session.get_id_version(), "desarollo")
+      
         estado_model_desarrollo = help_models.obtener_estado_por_modelo(ult_model, "desarollo")
-        print(estado_model_desarrollo, "estado_model_desarrollo")
+        
         global_session_modelos.modelo_desarrollo_estado.set(estado_model_desarrollo)
         
         fecha_model_desarrollo = help_models.obtener_fecha_por_modelo(ult_model, "desarollo")
-        print(fecha_model_desarrollo ,"fecha_model_desarrollo")
+       
         global_session_modelos.modelo_desarrollo_hora.set(fecha_model_desarrollo)
         
         ##ACTUALIZO EL ULTIMO SELECCIONADO EN LA TABALA DE BD
@@ -349,8 +351,9 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     def agregar_ver():
         name = input[f'name_version']()
         id_proyect = global_session.get_id_proyecto()
-        agregar_version(id_proyect, name)
-      
+        global_session.set_id_version(agregar_version(id_proyect, name))
+
+        
         versiones = get_project_versions(global_session.get_id_proyecto())
         # actualizo la version por proyecto id
         opciones_de_versiones_por_proyecto.set(obtener_opciones_versiones(versiones, "version_id", "nombre_version"))

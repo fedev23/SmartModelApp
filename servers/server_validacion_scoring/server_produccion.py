@@ -126,7 +126,7 @@ def server_produccion(input, output, session, name_suffix):
                 global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
                 global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
                 
-            
+    agregar_reactivo()      
     
         
   

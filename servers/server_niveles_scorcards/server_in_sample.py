@@ -21,7 +21,9 @@ from funciones.utils_cargar_json import update_dataframe_from_json, actualizar_j
 from clases.global_sessionV2 import *
 from clases.global_reactives import *
 from api.db.sqlite_utils import *
-from servers.utils import help_params
+from funciones_modelo.global_estados_model import global_session_modelos
+from funciones_modelo.help_models import *
+
 
 ejemplo_niveles_riesgo = pd.DataFrame({
     "Nombre Nivel": ["BajoBajo", "BajoMedio", "BajoAlto", "MedioBajo", "MedioMedio", "Alto"],
@@ -161,7 +163,9 @@ def server_in_sample(input, output, session, name_suffix):
         return   retornar_card(
         get_file_name=global_names_reactivos.get_name_file_db(),
         #get_fecha=global_fecha.get_fecha_in_sample,
-        modelo=modelo_in_sample
+        modelo=modelo_in_sample,
+        fecha=global_session_modelos.modelo_in_sample_hora.get(),
+        estado=global_session_modelos.modelo_in_sample_estado.get()
     )
         
 
@@ -183,26 +187,14 @@ def server_in_sample(input, output, session, name_suffix):
         validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
         # Verificar si hay errores, ver si agrego una validacion
         if validator.is_valid():
-            # Procesar los inputs
             inputs_procesados = {key: transformacion(input[key]()) for key, transformacion in transformaciones.items()}
-            #par_rango_reportes.data_view()
             rango_reportes = par_rango_reportes.data_view()
             reportesMap = transformar_reportes(rango_reportes)
-            #segmentos_editados = par_rango_segmentos.data_view()
-            #segmentosMap = transformar_segmentos(segmentos_editados)
+          
             df_editado = par_rango_niveles.data_view()
             niveles_mapeados = transform_data(df_editado)
             # Guardar los datos procesados
             json_loader = LoadJson(input)
-
-# Imprimir los inputs cargados
-            print("Inputs cargados:", json_loader.inputs)
-            json_loader.inputs['delimiter_desarollo'] = global_estados.get_delimitador()
-            json_loader.inputs['proyecto_nombre'] = global_session.get_name_proyecto()
-                
-            json_loader.inputs['par_rango_niveles'] = niveles_mapeados
-            #load_handler.inputs['par_rango_segmentos'] = segmentosMap
-            json_loader.inputs['par_rango_reportes'] = reportesMap
             #json_file_path = json_loader.load_json()
             nuevos_valores = {
                 "delimiter_desarollo": global_estados.get_delimitador(),
@@ -240,14 +232,7 @@ def server_in_sample(input, output, session, name_suffix):
             
             modelo_in_sample.script_path = f"./Validar_Desa.sh  --input-dir {global_session.get_path_niveles_scorcads()} --output-dir {path_datos_salida}"
             
-            ejecutar_in_sample_ascyn(click_count_value, mensaje_value, proceso) #-->EJECUTO EL PROCESO ACA
-            if modelo_in_sample.proceso.get():
-                    estado = insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), datetime.now().strftime("%Y-%m-%d %H:%M"), modelo_in_sample.nombre, global_names_reactivos.get_name_file_db(), global_session.get_id_version(), 'in_sample', 'completado')
-                    print(f'estado de la ejecucion {estado}')
-            else:
-                    estado = insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), datetime.now().strftime("%Y-%m-%d %H:%M"), modelo_in_sample.nombre, global_names_reactivos.get_name_file_db(), global_session.get_id_version(), 'in_sample', 'error')
-                    print(f'estado de la ejecucion {estado}')
-                 
+            ejecutar_in_sample_ascyn(click_count_value, mensaje_value, proceso) #-->EJECUTO EL PROCESO ACA   
      
         else:
             # Mostrar errores
@@ -255,6 +240,29 @@ def server_in_sample(input, output, session, name_suffix):
             no_error.set(False)
             mensaje.set("")
         
+        
+    def agregar_reactivo():  
+        @reactive.effect
+        def insert_data_depends_value():  
+            base_datos = "Modeling_App.db"
+            if modelo_in_sample.proceso_ok.get():
+                agregar_datos_model_execution(global_session.get_id_version(),modelo_in_sample.nombre, global_names_reactivos.get_name_file_db(), "Exito", global_session.get_version_parametros_id())
+                estado_in_sample , hora_in_sample = procesar_etapa_in_sample(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")
+                global_session_modelos.modelo_in_sample_estado.set(estado_in_sample)
+                global_session_modelos.modelo_in_sample_hora.set(hora_in_sample)
+                
+            if modelo_in_sample.proceso_fallo.get():
+                agregar_datos_model_execution(global_session.get_id_version(), global_session.get_version_parametros_id(),modelo_in_sample.nombre, global_names_reactivos.get_name_file_db(),"Error", global_session.get_version_parametros_id())
+                estado_in_sample , hora_in_sample = procesar_etapa_in_sample(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")
+                global_session_modelos.modelo_in_sample_estado.set(estado_in_sample)
+                global_session_modelos.modelo_in_sample_hora.set(hora_in_sample)
+        
+                    
+                
+    
+
+    agregar_reactivo()        
+    
     
     @output
     @render.ui

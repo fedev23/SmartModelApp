@@ -136,7 +136,7 @@ def server_out_of_sample(input, output, session, name_suffix):
             base_datos = "Modeling_App.db"
             if modelo_of_sample.proceso_ok.get():
                 agregar_datos_model_execution(global_session.get_id_version(), modelo_of_sample.nombre, base_datos , "Exito")
-                estado_out_sample , hora_of_sample = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="of_sample")
+                estado_out_sample , hora_of_sample = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre=modelo_of_sample.nombre)
                 global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
                 global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
                 
@@ -144,13 +144,12 @@ def server_out_of_sample(input, output, session, name_suffix):
                 
             if modelo_of_sample.proceso_fallo.get():
                 agregar_datos_model_execution(global_session.get_id_version(), modelo_of_sample.nombre, "Modeling_App.db", "Error")
-                estado_out_sample , hora_of_sample = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="of_sample")
+                estado_out_sample , hora_of_sample = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre=modelo_of_sample.nombre)
                 global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
                 global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
                 
             
-               
-
+    agregar_reactivo()
         
     
     @output

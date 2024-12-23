@@ -12,6 +12,8 @@ class GlobalSessionModelo:
         self.modelo_produccion_hora = reactive.value("")
         
 
-
+        self.modelo_in_sample_estado = reactive.value("")
+        self.modelo_in_sample_hora = reactive.value("")
+        
 
 global_session_modelos = GlobalSessionModelo()
