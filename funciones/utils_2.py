@@ -206,6 +206,9 @@ def get_datasets_directory(user_id, proyecto_id, name_proyect):
     # Construir la ruta de la carpeta 'datasets' dentro del proyecto
     datasets_folder = os.path.join(proyecto_folder, 'datasets')
     
+    
+    print(f'dataser: {datasets_folder}')
+    
     # Verificar si la carpeta 'datasets' existe antes de devolverla
     if os.path.exists(datasets_folder):
         return datasets_folder

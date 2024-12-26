@@ -21,6 +21,7 @@ from funciones.utils_cargar_json import update_dataframe_from_json, actualizar_j
 from clases.global_sessionV2 import *
 from clases.global_reactives import *
 from api.db.sqlite_utils import *
+from funciones.utils import crear_card_con_input_seleccionador
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.help_models import *
 
@@ -52,6 +53,7 @@ def server_in_sample(input, output, session, name_suffix):
     mensaje_de_error = reactive.Value("")
     mensaje = reactive.Value("")
     count = reactive.value(0)
+    count_add_files = reactive.Value(0)
     no_error = reactive.Value(True)
     global_names_reactivos.name_validacion_in_sample_set(name_suffix)
     # Inicializamos el estado reactivo del dataset
@@ -82,15 +84,58 @@ def server_in_sample(input, output, session, name_suffix):
     @reactive.Effect
     @reactive.event(input.add_fila)
     def evento_agregar_nueva_fila():
-        print("pase??")
-        data = par_rango_reportes.data_view()
-        new_row = pd.DataFrame({"Variables de corte": ["Insertar Valores"]})
-        data = pd.concat([data, new_row], ignore_index=True)
-        data_set.set(data)
-        print(data)
-
+        count_add_files.set(count() + 1)
+        print(count_add_files.get())
+        df = global_session.get_data_set_reactivo()
+        column_names = df.columns.tolist()
+        ui.update_selectize("agregar_filas", choices=column_names)
+        nuevos_inputs = input.agregar_filas()
+        print(nuevos_inputs, "nuevos")
+        
+    
+    
+    @output
+    @render.ui
+    def selector():
+        if count_add_files.get() >= 1:
+            print("pase??")
+            return  ui.input_selectize("agregar_filas","Insertar valores",choices=[],  # Initially empty; will be updated reactively
+                                     multiple=True,
+                                     options={
+                                    "placeholder": "seleccionar columnas..."}
+                                 )
+        count_add_files.set(0)
+        
+    @output
+    @render.ui
+    def insert():
+      if count_add_files.get() >= 1:
+            return ui.input_action_link("insert_Values", "Insertar")
+          
+    @reactive.Effect
+    @reactive.event(input.insert_Values)
+    def insertar_values():
+        valores_seleccionados = input.agregar_filas()
+        print(f"Valores seleccionados: {valores_seleccionados}")
+        
+        if valores_seleccionados:
+            # Obtener el DataFrame actual
+            data = par_rango_reportes.data_view()
+            
+            # Crear una nueva fila con los valores seleccionados como un array
+            new_row = pd.DataFrame({
+                "Variables de corte": [valores_seleccionados]  # Se almacenan como array o lista
+            })
+            
+            # Combinar el DataFrame existente con la nueva fila
+            data = pd.concat([data, new_row], ignore_index=True)
+            
+            # Actualizar el DataFrame reactivo
+            data_set.set(data)
+            print(f"Nuevo DataFrame:\n{data}")  
+            count_add_files.set(0)
    
-  
+    
     @output
     @render.data_frame
     def par_rango_niveles():

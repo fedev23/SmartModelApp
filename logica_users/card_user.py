@@ -85,7 +85,7 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                 ),
                 ui.div(
                     ui.input_action_link(
-                        f"version_{name_suffix}",
+                        f"create_parameters",
                         ui.tags.i(class_="fa fa-plus-circle fa-2x", style="color: #007bff;")
                     ),
                     ui.output_ui("button_remove_versions_param"),

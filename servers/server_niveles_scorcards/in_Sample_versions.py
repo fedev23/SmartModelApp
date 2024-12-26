@@ -9,7 +9,7 @@ from api.db.sqlite_utils import *
 from funciones.funciones_user import create_modal_v2, create_modal_versiones_param, button_remove
 from api.db import *
 from funciones.utils_2 import crear_carpeta_version_parametros
-from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version
+from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version, eliminar_carpeta
 from datetime import datetime
 from auth.utils import help_api 
 from funciones_modelo.global_estados_model import global_session_modelos
@@ -50,7 +50,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
         crear_carpeta_version_parametros(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_version_parametros_id(), name, global_session.get_name_proyecto(), global_session.get_versiones_name())
 
         ##ACTUALIZO ACA TAMBIEN EL SELECTOR YA QUE SI LO HAGO ACA CUANDO PONEN CONTINUAR LE DA LA ULT VERSION
-        versiones_parametros = get_project_versions_param(global_session.get_id_proyecto())
+        versiones_parametros = get_project_versions_param(global_session.get_id_proyecto(), global_session.get_id_version())
         opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version")) 
         valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
         
@@ -119,6 +119,12 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
     @reactive.event(input.confirmar_remove)
     def remove_versiones_de_parametros():
         eliminar_version("json_versions", "id_jsons", id_versiones_params.get())
+        path_carpeta_versiones_borrar_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
+        path_carpeta_versiones_borrar_salida = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
+            
+        eliminar_carpeta(path_carpeta_versiones_borrar_salida)
+        eliminar_carpeta(path_carpeta_versiones_borrar_entrada)
+        
         columnas = ['id_jsons', 'nombre_version', 'fecha_de_carga']
         tabla = "json_versions"
         condiciones = "version_id = ?"

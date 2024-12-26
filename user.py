@@ -77,6 +77,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         opciones_de_versiones_por_proyecto.set(obtener_opciones_versiones(versiones_de_proyecto, "version_id", "nombre_version"))
         
         ultimo_id_versiones_proyecto.set(obtener_ultimo_seleccionado(base_datos, 'version', 'nombre_version'))
+
         key_versiones_mach = mapear_valor_a_clave(ultimo_id_versiones_proyecto.get(), opciones_de_versiones_por_proyecto.get())
         # Si hay versiones, establece el nombre de la primera versión como predeterminado
         if boolean_check():
@@ -142,17 +143,16 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             global_session.get_versiones_name()):   
             help_api.procesar_starlette_api(global_session.get_id_user(), global_session.get_name_proyecto(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_versiones_name())
         
-        global_session_V2.set_active_screen(True)
         
         ultimo_archivo = obtener_ultimo_seleccionado(base_datos, 'name_files', 'nombre_archivo')
         global_session_V2.set_dataSet_seleccionado(ultimo_archivo)
         selected_key = mapear_valor_a_clave(global_session_V2.get_dataSet_seleccionado(), nombre_file.get())
         
         
-        ui.update_select("project_select",choices=proyectos_choise, selected=key_proyecto_mach if key_proyecto_mach else next(iter(proyectos_choise), ""))
+        ui.update_select("project_select",choices=proyectos_choise, selected=key_proyecto_mach if key_proyecto_mach else next(iter(ultimo_proyecto_seleccionado.get()), ""))
         ui.update_select("files_select_validation_scoring",choices=global_session_V2.get_opciones_name_dataset_Validation_sc(), selected=data_predeterminado.get())
         ui.update_select("files_select", choices=nombre_file.get(),  selected=selected_key if selected_key else next(iter(nombre_file.get()), ""))
-        ui.update_select("other_select", choices=opciones_de_versiones_por_proyecto.get(), selected=key_versiones_mach if selected_key else next(iter(opciones_de_versiones_por_proyecto.get()), ""))
+        ui.update_select("other_select", choices=opciones_de_versiones_por_proyecto.get(), selected=key_versiones_mach if key_versiones_mach else next(iter(opciones_de_versiones_por_proyecto.get()), ""))
         ui.update_select("version_selector", choices=opciones_param.get(), selected=valor_predeterminado_parms.get())
 
     @output
@@ -214,6 +214,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     @reactive.Effect
     @reactive.event(input["confirmar_eliminar_version"])
     def eliminar_version_proyecto():
+        
         eliminar_version("version", "version_id", global_session.get_id_version())
         path_carpeta_versiones_borrar_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
         path_carpeta_versiones_borrar_entrada  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
