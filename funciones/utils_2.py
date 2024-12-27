@@ -203,6 +203,7 @@ def get_datasets_directory(user_id, proyecto_id, name_proyect):
     # Construir la ruta de la carpeta del proyecto dentro de la carpeta de entrada
     proyecto_folder = os.path.join(entrada_folder, f"proyecto_{proyecto_id}_{name_proyect}")
     
+    
     # Construir la ruta de la carpeta 'datasets' dentro del proyecto
     datasets_folder = os.path.join(proyecto_folder, 'datasets')
     
@@ -266,3 +267,81 @@ def aplicar_transformaciones(input, transformaciones):
         # Aplica la transformación a cada input
         inputs_procesados[key] = transformacion(input[key]())
     return inputs_procesados
+
+
+def crear_carpeta_dataset_versiones(path):
+    """
+    Crea un folder llamado 'datasets' dentro del path especificado.
+
+    Args:
+        path (str): Ruta del folder donde se creará el subfolder 'datasets'.
+
+    Returns:
+        str: Ruta completa del folder 'datasets' creado.
+
+    Raises:
+        FileNotFoundError: Si el folder especificado en 'path' no existe.
+        Exception: Si ocurre un error al crear el folder 'datasets'.
+    """
+    try:
+        # Verificar si el path existe
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"El folder especificado no existe: {path}")
+
+        # Crear el folder 'datasets'
+        dataset_folder = os.path.join(path, "datasets")
+        os.makedirs(dataset_folder, exist_ok=True)
+
+        print(f"Folder 'datasets' creado en: {dataset_folder}")
+        return dataset_folder
+
+    except Exception as e:
+        print(f"Error al crear el folder 'datasets': {e}")
+        raise
+
+
+    
+def get_datasets_directory_data_set_versiones(user_id, proyecto_id, name_proyect, version_name, version_id):
+    # Limpiar el user_id reemplazando cualquier '|' por '_'
+    user_id_cleaned = user_id
+    base_directory = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat'
+    
+    # Construir la ruta de la carpeta de entrada del usuario
+    entrada_folder = os.path.join(base_directory, f'datos_entrada_{user_id_cleaned}')
+    
+    # Construir la ruta de la carpeta del proyecto dentro de la carpeta de entrada
+    proyecto_folder = os.path.join(entrada_folder, f"proyecto_{proyecto_id}_{name_proyect}")
+    
+    version_folder = os.path.join(proyecto_folder, f"version_{version_id}_{version_name}")
+    # Construir la ruta de la carpeta 'datasets' dentro del proyecto
+    datasets_folder = os.path.join(version_folder, 'datasets')
+    
+    
+    print(f'dataser: {datasets_folder}')
+    
+    # Verificar si la carpeta 'datasets' existe antes de devolverla
+    if os.path.exists(datasets_folder):
+        return datasets_folder
+    else:
+        print(f"La carpeta {datasets_folder} no existe.")
+        return None
+
+
+def eliminar_archivo(nombre_archivo):
+    """
+    Elimina un archivo dado su nombre.
+    
+    Args:
+        nombre_archivo (str): Ruta completa o nombre del archivo a eliminar.
+        
+    Returns:
+        str: Mensaje indicando si el archivo fue eliminado o no.
+    """
+    try:
+        if os.path.exists(nombre_archivo):
+            os.remove(nombre_archivo)
+            return f"El archivo '{nombre_archivo}' ha sido eliminado con éxito."
+        else:
+            return f"El archivo '{nombre_archivo}' no existe."
+    except Exception as e:
+        return f"Error al intentar eliminar el archivo '{nombre_archivo}': {e}"

@@ -151,6 +151,8 @@ def server_in_sample(input, output, session, name_suffix):
             else:
                 print("Error: 'niveles_riesgo' no es un DataFrame válido o está ausente.")
                 return render.DataGrid(ejemplo_niveles_riesgo, editable=True, width='500px')
+        else:
+            return render.DataGrid(ejemplo_niveles_riesgo, editable=True, width='500px')
 
             # Renderizar el DataFrame específico
             #return render.DataGrid(df_niveles_riesgo, editable=True, width='500px')

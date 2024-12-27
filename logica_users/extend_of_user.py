@@ -5,7 +5,7 @@ from api import *
 from clases.global_session import global_session
 from clases.reactives_name import global_names_reactivos
 from funciones.funciones_user import button_remove, create_modal_v2
-from funciones.utils_2 import leer_dataset
+from funciones.utils_2 import eliminar_archivo
 from logica_users.utils.help_versios import obtener_ultimo_nombre_archivo
 from funciones.clase_estitca.leer_datos import DatasetHandler
 from clases.global_sessionV2 import *
@@ -55,11 +55,12 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     @output
     @render.ui
     def remove_dataset():
-        list.set(get_records(table='name_files',
-            columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
-            join_clause='INNER JOIN version ON name_files.version_id = version.version_id',
-            where_clause='version.project_id = ?',
-            where_params=(global_session.get_id_proyecto(),)))
+        list.set(get_records(
+        table='name_files',
+        columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
+        join_clause='INNER JOIN version ON name_files.version_id = version.version_id',
+        where_clause='version.version_id = ?',
+        where_params=(global_session.get_id_version(),)))
         #name.set(global_names_reactivos.get_name_file_db())
         return button_remove(list.get(), global_session.get_id_dataSet(), "id_files", name)
         
@@ -89,12 +90,13 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     @reactive.Effect
     @reactive.event(input.confirmar_id_borrar_dataset)
     def remove_versiones_de_parametros():
-        print("estoy?")
         eliminar_version("name_files", "id_files", global_session.get_id_dataSet())
+        eliminar_archivo(global_names_reactivos.get_name_file_db())
         columnas = ['id_files', 'nombre_archivo']
         tabla = "name_files"
         lista_de_versiones_new = obtener_versiones_por_proyecto(columnas,tabla)
 
+        print(lista_de_versiones_new, "lista_de_versiones_new")
         list.set(lista_de_versiones_new)
         ui.update_select(
             "files_select",

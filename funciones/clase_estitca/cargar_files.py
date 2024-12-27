@@ -9,15 +9,12 @@ from api.db import *
 from clases.global_session import *
 from clases.global_sessionV2 import *
 from clases.reactives_name import global_names_reactivos
-from funciones.funciones_cargaDatos import guardar_archivo
+from funciones.funciones_cargaDatos import guardar_archivo, verificar_archivo, verificar_archivo_sc
 from shiny.types import FileInfo
 from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version
 from clases.global_session import *
-from clases.class_validacion import Validator
-from clases.loadJson import LoadJson
 from datetime import datetime
-from clases.global_reactives import global_estados
-from funciones.cargar_archivosNEW import mover_y_renombrar_archivo, verificar_archivo, create_modal_warning_exist_file
+from funciones.cargar_archivosNEW import create_modal_warning_exist_file, create_modal_warning_exist_file_for_full_or_sc
 import os 
 from clases.reactives_name import global_names_reactivos
 
@@ -47,17 +44,20 @@ class FilesLoad:
             input_name = file[0]['name']
             global_names_reactivos.set_name_data_Set(input_name)
             
-            existe = verificar_archivo(global_session.get_path_guardar_dataSet_en_proyectos(), input_name)
+
+            existe = verificar_archivo()
+            print(existe, "que valor me da?")
             if existe and self.select_overwrite.get() is False:
-              ui.modal_show(create_modal_warning_exist_file(input_name, self.name_suffix))
-              self.set_existe_file(True)
-              return
-              
+                print("pase el if?")
+                ui.modal_show(create_modal_warning_exist_file(input_name, self.name_suffix, global_session.get_versiones_name()))
+                self.set_existe_file(True)
+                return
+                
             ruta_guardado = await guardar_archivo(input_file, self.name_suffix)
             fecha_de_carga = datetime.now().strftime("%Y-%m-%d %H:%M")
             ##GUARDO LEL DATO CARGADO EN LA TABLA
             #insert_into_table("name_files", ['nombre_archivo', 'fecha_de_carga', 'project_id', 'version_id'], [input_name, fecha_de_carga, global_session.get_id_proyecto(), global_session.get_id_version()])
-            
+            print("pase antes de insertar??")
             insert_record(
                 database_path="Modeling_App.db",
                 table="name_files",
@@ -71,8 +71,9 @@ class FilesLoad:
             table='name_files',
             columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
             join_clause='INNER JOIN version ON name_files.version_id = version.version_id',
-            where_clause='version.project_id = ?',
-            where_params=(global_session.get_id_proyecto(),))
+            where_clause='version.version_id = ?',
+            where_params=(global_session.get_id_version(),)
+        )
             
          
             #print(files_name, "que tiene file name??")
@@ -104,7 +105,7 @@ class FilesLoad:
             if not file:
                 raise ValueError("No se recibió ningún archivo para validar.")
 
-            validar_file = verificar_archivo(global_session.get_path_guardar_dataSet_en_proyectos(), input_name)
+            validar_file = verificar_archivo_sc(global_session.get_path_guardar_dataSet_en_proyectos(), input_name)
             if validar_file:
                 return create_modal_warning_exist_file(input_name, self.name_suffix)
             

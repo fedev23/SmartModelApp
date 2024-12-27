@@ -14,6 +14,7 @@ class GlobalSessionV2:
         self.json_read = reactive.Value(False)
         self.dataSet_seleccionado = reactive.Value("")
         self.id_modelo = reactive.Value("")
+        self.lista_nombre_archivos_por_version = reactive.Value("")
 
     def set_id_Data_validacion_sc(self, id):
         self.id_Data_validacion_sc.set(id)

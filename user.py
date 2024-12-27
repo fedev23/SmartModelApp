@@ -5,7 +5,7 @@ from api import *
 from clases.global_session import global_session
 from clases.global_sessionV2 import *
 from funciones.funciones_user import create_modal_versiones, show_selected_project_card, create_modal_eliminar_bd, create_modal_v2, button_remove_version
-from funciones.utils_2 import crear_carpeta_proyecto, crear_carpeta_version_por_proyecto, get_datasets_directory
+from funciones.utils_2 import *
 from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version, eliminar_carpeta, mapear_valor_a_clave
 from funciones.utils_cargar_json import leer_control_json
 from api.db.sqlite_utils import *
@@ -85,24 +85,6 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             global_session.set_versiones_name(nombre_version)
             
 
-        # Obtiene los archivos relacionados con el proyecto
-        files_name = get_records(
-        table='name_files',
-        columns=[
-            'id_files', 
-            'nombre_archivo', 
-            'fecha_de_carga'
-        ],
-        join_clause='INNER JOIN version ON name_files.version_id = version.version_id',
-        where_clause='version.project_id = ?',
-        where_params=(global_session.get_id_proyecto(),)
-    )
-        
-    
-        nombre_file.set({
-            str(file['id_files']): file['nombre_archivo']
-            for file in files_name
-        } if files_name else {"": "No hay archivos"})
 
         # Obtiene y configura las versiones de parámetros
         versiones_parametros  = get_project_versions_param(global_session.get_id_proyecto(), global_session.get_id_version())
@@ -141,17 +123,17 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             global_session.get_id_proyecto() and
             global_session.get_id_version() and
             global_session.get_versiones_name()):   
-            help_api.procesar_starlette_api(global_session.get_id_user(), global_session.get_name_proyecto(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_versiones_name())
-        
+            api_code = help_api.procesar_starlette_api(global_session.get_id_user(), global_session.get_name_proyecto(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_versiones_name())
+            print(F"CODE API {api_code}")
         
         ultimo_archivo = obtener_ultimo_seleccionado(base_datos, 'name_files', 'nombre_archivo')
         global_session_V2.set_dataSet_seleccionado(ultimo_archivo)
-        selected_key = mapear_valor_a_clave(global_session_V2.get_dataSet_seleccionado(), nombre_file.get())
+        #selected_key = mapear_valor_a_clave(global_session_V2.get_dataSet_seleccionado(), nombre_file.get())
         
         
         ui.update_select("project_select",choices=proyectos_choise, selected=key_proyecto_mach if key_proyecto_mach else next(iter(ultimo_proyecto_seleccionado.get()), ""))
         ui.update_select("files_select_validation_scoring",choices=global_session_V2.get_opciones_name_dataset_Validation_sc(), selected=data_predeterminado.get())
-        ui.update_select("files_select", choices=nombre_file.get(),  selected=selected_key if selected_key else next(iter(nombre_file.get()), ""))
+        #ui.update_select("files_select", choices=nombre_file.get(),  selected=selected_key if selected_key else next(iter(nombre_file.get()), ""))
         ui.update_select("other_select", choices=opciones_de_versiones_por_proyecto.get(), selected=key_versiones_mach if key_versiones_mach else next(iter(opciones_de_versiones_por_proyecto.get()), ""))
         ui.update_select("version_selector", choices=opciones_param.get(), selected=valor_predeterminado_parms.get())
 
@@ -168,7 +150,23 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         global_session.id_version_v2.set(input.other_select())
         nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
         
-        print(global_session.get_id_version(), "en version")
+       
+        files_name = get_records(
+        table='name_files',
+        columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
+        join_clause='INNER JOIN version ON name_files.version_id = version.version_id',
+        where_clause='version.version_id = ?',
+        where_params=(global_session.get_id_version(),)
+    )
+        
+        print(files_name, "files_name, en seleccionador de versiones")
+        global_session_V2.lista_nombre_archivos_por_version.set({
+            str(file['id_files']): file['nombre_archivo']
+            for file in files_name
+        } if files_name else {"": "No hay archivos"})
+
+       
+        
         ult_model = obtener_ultimo_modelo_por_version_y_nombre(base_datos, global_session.get_id_version(), "desarollo")
       
         estado_model_desarrollo = help_models.obtener_estado_por_modelo(ult_model, "desarollo")
@@ -191,6 +189,9 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version")) 
         valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
         
+        selected_key = mapear_valor_a_clave(global_session_V2.get_dataSet_seleccionado(), global_session_V2.lista_nombre_archivos_por_version.get())
+        
+        ui.update_select("files_select", choices=global_session_V2.lista_nombre_archivos_por_version.get(),  selected=selected_key if selected_key else next(iter(global_session_V2.lista_nombre_archivos_por_version.get()), ""))
         ui.update_select("version_selector",choices=opciones_param.get(), selected=valor_predeterminado_parms.get())
    
     @output
@@ -363,8 +364,9 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
 
         ui.update_select("other_select", choices=opciones_de_versiones_por_proyecto.get(), selected=ultimo_id_versiones_proyecto.get())
         global_session.set_proyecto_seleccionado_id(id_proyecto_Recien_Creado.get())
-        print(global_session.get_id_version(), "ANTES DE CREAR UNA VERSION")
-        crear_carpeta_version_por_proyecto(user_get.get(), global_session.get_id_proyecto(), ultimo_id_versiones_proyecto.get(), name, global_session.get_name_proyecto())
+        entrada, salida = crear_carpeta_version_por_proyecto(user_get.get(), global_session.get_id_proyecto(), ultimo_id_versiones_proyecto.get(), name, global_session.get_name_proyecto())
+        folder = crear_carpeta_dataset_versiones(entrada)
+        global_session.set_path_guardar_dataSet_en_proyectos(folder)
         ui.modal_remove()
 
 
@@ -411,7 +413,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                 global_session.set_id_user(user_get())
                 crear_carpeta_proyecto(user_get.get(), global_session.get_id_proyecto(), name)
                 data_Set = get_datasets_directory(user_get.get(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
-                global_session.set_path_guardar_dataSet_en_proyectos(data_Set)
+                #global_session.set_path_guardar_dataSet_en_proyectos(data_Set)
 
                 # Reinicia el estado de click en continuar
                 global_user_proyecto.click_en_continuar.set(False)

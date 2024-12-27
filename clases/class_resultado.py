@@ -1,11 +1,12 @@
 import os
 import tempfile
 from shiny import ui, reactive, render
-from starlette.applications import Starlette
-from starlette.routing import Mount
-from starlette.staticfiles import StaticFiles
+import requests
+from urllib.parse import urlencode
 from funciones.utils import create_zip_from_directory, create_zip_from_file_unico
 import re
+import requests
+from auth.utils import help_api 
 from urllib.parse import urlencode
 from clases.global_session import global_session
 
@@ -84,21 +85,34 @@ class ResultadoClassPrueba:
                 self.boton_para_descagar_unico(id)
                 self.proceso_ok.set(True)
 
+ 
+
     def html_output_prueba(self, resultado_id):
         # Obtener el estado del acordeón específico para este resultado_id
         if resultado_id in self.accordion_open:
-            #print(f"resultado esperado", resultado_id)
             resultado_path = next((r['resultado_path'] for r in self.resultados if r['resultado_id'] == resultado_id), None)
             if self.proceso_user.get():
                 if resultado_path and self.accordion_open[resultado_id].get():
                     print("Resultado Path:", resultado_path)
-                    iframe_src = f"/api/user_files?{urlencode({'user_id': self.user.get(), 'nombre_proyecto': global_session.get_name_proyecto(), 'id_proyecto': global_session.get_id_proyecto(), 'id_version': global_session.get_id_version(), 'nombre_version': global_session.get_versiones_name(), 'file_name': os.path.basename(resultado_path)})}"
-                    print("Iframe SRC:", iframe_src)
-                    return ui.div(
-                        ui.tags.iframe(src=iframe_src, width='350%', height='500px'))
+                    try:
+                        iframe_src = f"/api/user_files?{urlencode({'user_id': self.user.get(), 'nombre_proyecto': global_session.get_name_proyecto(), 'id_proyecto': global_session.get_id_proyecto(), 'id_version': global_session.get_id_version(), 'nombre_version': global_session.get_versiones_name(), 'file_name': os.path.basename(resultado_path)})}"
+                        
+                        # Verificar si el archivo existe en el sistema de archivos
+                        file_path = f"/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{self.user.get()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/Reportes/{os.path.basename(resultado_path)}"
+                        
+                        if os.path.exists(file_path):
+                            return ui.div(
+                                ui.tags.iframe(src=iframe_src, width='350%', height='500px')
+                            )
+                        else:
+                            print(f"El archivo no existe: {file_path}")
+                            return ui.div()
+                            
+                    except Exception as e:
+                        print(f"Error: {e}")
+                        return ui.div()
                 else:
-                    return ui.HTML("<p>Archivo no encontrado</p>")
-      
+                    return ui.HTML("<p>Archivo no encontrado</p>")  
     def html_output_in_sample(self, resultado_id):
         # Obtener el estado del acordeón específico para este resultado_id
         if resultado_id in self.accordion_open:
