@@ -90,7 +90,6 @@ def server_in_sample(input, output, session, name_suffix):
         column_names = df.columns.tolist()
         ui.update_selectize("agregar_filas", choices=column_names)
         nuevos_inputs = input.agregar_filas()
-        print(nuevos_inputs, "nuevos")
         
     
     
@@ -120,9 +119,16 @@ def server_in_sample(input, output, session, name_suffix):
         
         if valores_seleccionados:
             # Obtener el DataFrame actual
+            valores_seleccionados = cambiarAstring(valores_seleccionados)
+            print("valores_seleccionados",valores_seleccionados)
             data = par_rango_reportes.data_view()
-            
-            # Crear una nueva fila con los valores seleccionados como un array
+
+            # Validar si los valores ya existen
+            if valores_seleccionados in data["Variables de corte"].values:
+                print("El valor ya existe en el DataFrame. No se agregó.")
+                return  # Salir sin realizar cambios
+
+            # Crear una nueva fila con los valores seleccionados
             new_row = pd.DataFrame({
                 "Variables de corte": [valores_seleccionados]  # Se almacenan como array o lista
             })
@@ -132,8 +138,10 @@ def server_in_sample(input, output, session, name_suffix):
             
             # Actualizar el DataFrame reactivo
             data_set.set(data)
-            print(f"Nuevo DataFrame:\n{data}")  
             count_add_files.set(0)
+        else:
+            print("No se seleccionaron valores. Operación abortada.")
+
    
     
     @output
@@ -178,6 +186,8 @@ def server_in_sample(input, output, session, name_suffix):
     def par_rango_reportes():
         # Obtén los datos del estado reactivo
         data = data_set.get()
+        data_edited = cambiarAstring(data)
+        print(data, "estoy en data")
         
         # Si el DataFrame está vacío, usa el DataFrame de ejemplo
         if data.empty:
@@ -195,8 +205,6 @@ def server_in_sample(input, output, session, name_suffix):
     @reactive.effect
     @reactive.event(input.par_vars_segmento)
     def ver_input():
-        print("hola??")
-        print(f"{input.par_vars_segmento()} estoy haciendo elprint??")
         valor1 = input.par_vars_segmento()
         trans_formara_lista = list(valor1)
         list_transformada.set(trans_formara_lista)
@@ -239,6 +247,7 @@ def server_in_sample(input, output, session, name_suffix):
         if validator.is_valid():
             inputs_procesados = {key: transformacion(input[key]()) for key, transformacion in transformaciones.items()}
             rango_reportes = par_rango_reportes.data_view()
+            print(rango_reportes, "rango_reportes")
             reportesMap = transformar_reportes(rango_reportes)
           
             df_editado = par_rango_niveles.data_view()

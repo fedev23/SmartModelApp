@@ -50,15 +50,13 @@ def procesar_etapa(base_datos, id_version, etapa_nombre):
     """
     # Obtener el último modelo
     ult_model = obtener_ultimo_modelo_por_version_y_nombre(base_datos, id_version, etapa_nombre)
-    print(ult_model, f"ult_model para etapa '{etapa_nombre}'")
 
     # Obtener el estado del modelo para la etapa
     estado_model = obtener_estado_por_modelo(ult_model, etapa_nombre)
-    print(estado_model, f"estado_model para etapa '{etapa_nombre}'")
-
+   
     # Obtener la fecha del modelo para la etapa
     fecha_model = obtener_fecha_por_modelo(ult_model, etapa_nombre)
-    print(fecha_model, f"fecha_model para etapa '{etapa_nombre}'")
+    
 
     # Retornar el estado y la fecha como una tupla
     return estado_model, fecha_model
@@ -141,16 +139,13 @@ def procesar_etapa_in_sample_2(base_datos, json_version_id, etapa_nombre):
     """
     # Obtener el último modelo
     ult_model = obtener_ultimo_modelo_por_version_json(base_datos, json_version_id)
-    print(ult_model, f"ult_model para etapa '{etapa_nombre}'")
-
+    
     # Obtener el estado del modelo para la etapa
     estado_model = obtener_estado_por_modelo(ult_model, etapa_nombre)
-    print(estado_model, f"estado_model para etapa '{etapa_nombre}'")
-
+    
     # Obtener la fecha del modelo para la etapa
     fecha_model = obtener_fecha_por_modelo(ult_model, etapa_nombre)
-    print(fecha_model, f"fecha_model para etapa '{etapa_nombre}'")
-
+    
     # Retornar el estado y la fecha como una tupla
     return estado_model, fecha_model
 
@@ -181,7 +176,7 @@ def procesar_etapa_in_sample(base_datos, json_version_id, etapa_nombre):
 
         if result:
             model_name, estado_model, fecha_model = result
-            print(f"Modelo encontrado: {model_name}, Estado: {estado_model}, Fecha: {fecha_model}")
+            #print(f"Modelo encontrado: {model_name}, Estado: {estado_model}, Fecha: {fecha_model}")
             return estado_model, fecha_model
         else:
             print(f"No se encontró ningún modelo para json_version_id={json_version_id} en etapa '{etapa_nombre}'.")
@@ -227,7 +222,7 @@ def agregar_datos_model_execution_in_sample(base_datos, version_id, json_version
 
         conn.commit()
         add = cur.lastrowid
-        print(f"Registro agregado exitosamente con ID: {add}")
+        #print(f"Registro agregado exitosamente con ID: {add}")
         return add
 
     except sqlite3.Error as e:

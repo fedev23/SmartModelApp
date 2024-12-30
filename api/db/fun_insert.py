@@ -347,12 +347,6 @@ def insert_into_table(table_name, columns, values):
         print(f"Registro insertado correctamente en '{table_name}' con ID: {last_row_id}")
         
         # Depuración: Mostrar los registros actuales de la tabla
-        debug_query = f"SELECT * FROM {table_name}"
-        cur.execute(debug_query)
-        rows = cur.fetchall()
-        print(f"Contenido actual de '{table_name}':")
-        for row in rows:
-            print(row)
         
         return last_row_id
     except sqlite3.IntegrityError as e:
