@@ -1,16 +1,12 @@
 from shiny import reactive, render, ui
-import pandas as pd
 from api.db import *
-from global_var import global_data_loader_manager  # Importar el gestor global
 from clases.global_sessionV2 import global_session_V2
-from clases.global_name import global_name_manager
 from clases.global_modelo import modelo_produccion
 from clases.class_screens import ScreenClass
-from funciones.utils import retornar_card
-from clases.class_user_proyectName import global_user_proyecto
-from funciones.utils_2 import errores, validar_proyecto
+from funciones_modelo.warning_model import *
+from funciones.utils_2 import errores
 from clases.global_session import global_session
-from funciones.utils_2 import get_user_directory, leer_dataset
+from funciones.utils_2 import get_user_directory, get_datasets_directory_data_set_versiones
 from logica_users.utils.help_versios import copiar_json_si_existe
 from clases.reactives_name import global_names_reactivos
 from funciones.utils import mover_file_reportes_puntoZip
@@ -82,28 +78,30 @@ def server_produccion(input, output, session, name_suffix):
         click_count_value = modelo_produccion.click_counter.get()  # Obtener contador
         mensaje_value = modelo_produccion.mensaje.get()  # Obtener mensaje actual
         proceso = modelo_produccion.proceso.get()
+        
+        
         try:
-            path_entrada = obtener_path_por_proyecto_version( global_session.get_id_version(), 'entrada')
-            path_salida = obtener_path_por_proyecto_version( global_session.get_id_version(), 'salida')
             
-            if not path_entrada or not path_salida:
-                raise ValueError("No se pudieron obtener las rutas de entrada y/o salida")
-                
-            #path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
-            #origen_modelo_puntoZip =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+            path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+            origen_modelo_puntoZip =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
             
             path_niveles_sc = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
             
-            copiar_json_si_existe(path_niveles_sc, path_entrada)
-            mover_file_reportes_puntoZip(path_salida,path_entrada)
-            mover_y_renombrar_archivo(global_session_V2.get_nombre_dataset_validacion_sc(), global_session.get_path_guardar_dataSet_en_proyectos(), name_suffix, path_entrada)
+            copiar_json_si_existe(path_niveles_sc, path_datos_entrada)
+            mover_file_reportes_puntoZip(origen_modelo_puntoZip,path_datos_entrada)
             
-            modelo_produccion.script_path = f'./Scoring.sh --input-dir {path_entrada} --output-dir {path_salida}'
+            path_folder_dataset  = get_datasets_directory_data_set_versiones(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version())
+       
+            mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), path_folder_dataset, name_suffix, path_datos_entrada)
+            
+            #mover_y_renombrar_archivo(global_session_V2.get_nombre_dataset_validacion_sc(), global_session.get_path_guardar_dataSet_en_proyectos(), name_suffix, path_entrada)
+            
+            modelo_produccion.script_path = f'./Scoring.sh --input-dir {path_datos_entrada} --output-dir {origen_modelo_puntoZip}'
             
             ejectutar_produccion(click_count_value, mensaje_value, proceso)
             
         except Exception as e:
-            mensaje_value.set(f"Primero ejecutar el proceso de Desarrollo para poder ejecutar el proceso  full {str(e)}")
+            mensaje.set(f"Primero ejecutar el proceso de Desarrollo para poder ejecutar el proceso  full {str(e)}")
             return
         
     
@@ -115,19 +113,23 @@ def server_produccion(input, output, session, name_suffix):
             if modelo_produccion.proceso_ok.get():
                 agregar_datos_model_execution(global_session.get_id_version(), modelo_produccion.nombre, base_datos , "Exito")
                 estado_out_sample , hora_of_sample = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="of_sample")
-                global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
-                global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
+                global_session_modelos.modelo_produccion_estado.set(estado_out_sample)
+                global_session_modelos.modelo_produccion_hora.set(hora_of_sample)
                 modelo_produccion.proceso_ok.set(False)
             
                 
             if modelo_produccion.proceso_fallo.get():
                 agregar_datos_model_execution(global_session.get_id_version(), modelo_produccion.nombre, "Modeling_App.db", "Error")
                 estado_out_sample , hora_of_sample = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="of_sample")
-                global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
-                global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
+                global_session_modelos.modelo_produccion_estado.set(estado_out_sample)
+                global_session_modelos.modelo_produccion_hora.set(hora_of_sample)
                 modelo_produccion.proceso_fallo.set(False),
                 
     agregar_reactivo()      
     
         
-  
+    
+    @reactive.Effect
+    @reactive.event(input.cancel_overwrite_produccion)
+    def modal_():
+         return  ui.modal_remove()

@@ -4,10 +4,10 @@ from clases.class_screens import ScreenClass
 from datetime import datetime
 from clases.loadJson import LoadJson
 from funciones.param_in_sample import param_in_sample
-from funciones.utils import transformar_segmentos, transform_data, transformar_reportes, create_modal_parametros, id_buttons
+from funciones.utils import transform_data, transformar_reportes, create_modal_parametros, id_buttons
 import pandas as pd
 from funciones.utils import mover_file_reportes_puntoZip, retornar_card
-from funciones.utils_2 import cambiarAstring, aplicar_transformaciones
+from funciones.utils_2 import cambiarAstring, aplicar_transformaciones, get_datasets_directory_data_set_versiones
 from clases.global_session import global_session
 from api.db import *
 from clases.reactives_name import global_names_reactivos
@@ -17,11 +17,11 @@ from clases.global_modelo import modelo_in_sample
 from clases.global_modelo import global_desarollo
 import os
 from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
-from funciones.utils_cargar_json import update_dataframe_from_json, actualizar_json
+from funciones.utils_cargar_json import update_dataframe_from_json
 from clases.global_sessionV2 import *
 from clases.global_reactives import *
 from api.db.sqlite_utils import *
-from funciones.utils import crear_card_con_input_seleccionador
+from funciones_modelo.warning_model import *
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.help_models import *
 
@@ -231,6 +231,9 @@ def server_in_sample(input, output, session, name_suffix):
         click_count_value = global_desarollo.click_counter.get()  # Obtener contador
         mensaje_value = global_desarollo.mensaje.get()  # Obtener mensaje actual
         proceso = global_desarollo.proceso.get()
+        
+        if not validar_existencia_modelo("Modeling_App.db", global_session.get_id_version(), modelo_in_sample.nombre, global_session.get_versiones_name()):
+            return
         validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
         # Verificar si hay errores, ver si agrego una validacion
         if validator.is_valid():
@@ -254,17 +257,15 @@ def server_in_sample(input, output, session, name_suffix):
             json_loader.update_values(nuevos_valores)
             json_loader.save_json()
             
-            path_entrada = obtener_path_por_proyecto_version(global_session.get_id_version(), 'entrada')
-            path_salida = obtener_path_por_proyecto_version(global_session.get_id_version(), 'salida')
-
+            
             #path = obtener_path_por_id_json("Modeling_App.db", global_session.get_version_parametros_id())
             path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
             path_datos_salida = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
             
             global_session.get_version_parametros_id()
            
-            global_session.set_path_niveles_scorcads(path_entrada)
-            global_session.set_path_niveles_scorcads_salida(path_salida)
+            global_session.set_path_niveles_scorcads(path_datos_entrada)
+            global_session.set_path_niveles_scorcads_salida(path_datos_salida)
         
             inputs_procesados = aplicar_transformaciones(input, transformaciones)
             
@@ -275,9 +276,11 @@ def server_in_sample(input, output, session, name_suffix):
             
             #insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_desarrollo())
             ##PATH DONDE SE EJECUTA EL SCRIPT Y LAS CARPETAS QUE CORRESPONDEN AL USARIO, PROYECT, VERSION ACTUAL O EN
-            mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), global_session.get_path_guardar_dataSet_en_proyectos(), name_suffix, path_entrada)
+            data_Set  = get_datasets_directory_data_set_versiones(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version())
+       
+            mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), data_Set, name_suffix, path_datos_entrada)
             
-            modelo_in_sample.script_path = f"./Validar_Desa.sh  --input-dir {global_session.get_path_niveles_scorcads()} --output-dir {path_datos_salida}"
+            modelo_in_sample.script_path = f"./Validar_Desa.sh  --input-dir {path_datos_entrada} --output-dir {path_datos_salida}"
             
             ejecutar_in_sample_ascyn(click_count_value, mensaje_value, proceso) #-->EJECUTO EL PROCESO ACA   
      
@@ -316,12 +319,15 @@ def server_in_sample(input, output, session, name_suffix):
                 global_session_modelos.modelo_in_sample_hora.set(hora_in_sample)
                 modelo_in_sample.proceso_fallo.set(False),
         
-                    
-                
-    
-
     agregar_reactivo()        
     
+    
+    
+    
+    @reactive.Effect
+    @reactive.event(input.cancel_overwrite_in_sample)
+    def modal_():
+         return  ui.modal_remove()
     
     @output
     @render.ui

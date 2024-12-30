@@ -3,8 +3,8 @@ from funciones.create_param import create_screen
 from clases.global_modelo import global_desarollo
 from clases.class_screens import ScreenClass
 from funciones.utils import retornar_card
-from clases.class_user_proyectName import global_user_proyecto
-from funciones.utils_2 import get_user_directory, render_data_summary, aplicar_transformaciones, mostrar_error, cambiarAstring, trans_nulos_adic, get_datasets_directory, detectar_delimitador
+from funciones_modelo.warning_model import *
+from funciones.utils_2 import *
 from api.db import *
 from clases.global_session import *
 from clases.global_sessionV2 import *
@@ -65,16 +65,7 @@ def server_desarollo(input, output, session, name_suffix):
    ##llamo funcion
     see_session()
 
-    name = "desarrollo"
-    count = reactive.value(0)
     
-    
-   
-    @output
-    @render.text
-    def nombre_proyecto_desarrollo():
-        return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo(global_session.proyecto_seleccionado())}'
-
     @reactive.Effect
     @reactive.event(input.file_desarollo)
     async def datos_desarrolo():
@@ -85,7 +76,11 @@ def server_desarollo(input, output, session, name_suffix):
     def overwrite_file():
         return  ui.modal_remove()
             
-        
+    
+    @reactive.Effect
+    @reactive.event(input.cancel_overwrite_desarollo)
+    def overwrite_file():
+        return  ui.modal_remove()    
     
     @output
     @render.ui
@@ -136,7 +131,10 @@ def server_desarollo(input, output, session, name_suffix):
         click_count_value = global_desarollo.click_counter.get()  # Obtener contador
         mensaje_value = global_desarollo.mensaje.get()  # Obtener mensaje actual
         proceso = global_desarollo.get_proceso()
-
+        base_datos = 'Modeling_App.db'
+        
+        if not validar_existencia_modelo(base_datos, global_session.get_id_version(), global_desarollo.nombre, global_session.get_versiones_name()):
+            return
         # Crear instancia de la clase Validator
         validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
 
@@ -178,13 +176,11 @@ def server_desarollo(input, output, session, name_suffix):
                 path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
                 path_datos_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
                 
-                
-                ##CARGO EL PATH VINCULADO AL PROYECTO
-                insertar_path(path_datos_entrada, global_session.get_id_version(), 'entrada')
-                insertar_path(path_datos_salida, global_session.get_id_version(), 'salida')
                 #CREO EL PATH DONDE SE VA A EJECUTAR DESARROLLO DEPENDIENDO DEL PROYECYO Y LA VERSION QUE ESTE EN USO
                 ##necesito tener el nombre del dataset seleccionado asi le cambio el nombre y lo
-                mover = mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), global_session.get_path_guardar_dataSet_en_proyectos(), name_suffix, path_datos_entrada)
+                data_Set  = get_datasets_directory_data_set_versiones(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version())
+       
+                mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), data_Set, name_suffix, path_datos_entrada)
                 
                 global_desarollo.script_path = f'./Modelar.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida}'
                 ejectutar_desarrollo_asnyc(click_count_value, mensaje_value, proceso)
@@ -201,6 +197,7 @@ def server_desarollo(input, output, session, name_suffix):
                 global_session_modelos.modelo_desarrollo_estado.set(estado_desarrollo)
                 global_session_modelos.modelo_desarrollo_hora.set(hora_desarrollo)
                 global_desarollo.proceso_ok.set(False)
+                
             if global_desarollo.proceso_fallo.get():
                 agregar_datos_model_execution(global_session.get_id_version(), global_desarollo.nombre, base_datos , "Error")
                 estado_desarrollo , hora_desarrollo = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="desarollo")

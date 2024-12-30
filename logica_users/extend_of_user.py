@@ -1,11 +1,11 @@
 from shiny import App, Inputs, Outputs, Session, reactive, ui, render, module
 from funciones.nav_panel_User import create_nav_menu_user
-from clases.class_user_proyectName import global_user_proyecto
+from funciones.utils_2 import *
 from api import * 
 from clases.global_session import global_session
 from clases.reactives_name import global_names_reactivos
 from funciones.funciones_user import button_remove, create_modal_v2
-from funciones.utils_2 import eliminar_archivo
+from funciones.utils_2 import eliminar_archivo, leer_dataset
 from logica_users.utils.help_versios import obtener_ultimo_nombre_archivo
 from funciones.clase_estitca.leer_datos import DatasetHandler
 from clases.global_sessionV2 import *
@@ -41,6 +41,7 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
             where_params=(global_session.get_id_proyecto(),))
         
         
+       
         global_names_reactivos.set_name_file_db(nombre_file)
         
         if global_names_reactivos.get_name_file_db() is None:
@@ -48,7 +49,8 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
         else:
             global_session_V2.set_dataSet_seleccionado(global_names_reactivos.get_name_file_db())
         #if global_names_reactivos.get_proceso_leer_dataset():
-        data = DatasetHandler.leer_dataset(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(),  global_session_V2.get_dataSet_seleccionado())
+        
+        data = leer_dataset(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_names_reactivos.get_name_file_db(), global_session.get_versiones_name(), global_session.get_id_version())
         global_session.set_data_set_reactivo(data)
 
  
@@ -91,7 +93,9 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     @reactive.event(input.confirmar_id_borrar_dataset)
     def remove_versiones_de_parametros():
         eliminar_version("name_files", "id_files", global_session.get_id_dataSet())
-        eliminar_archivo(global_names_reactivos.get_name_file_db())
+        datasets_directory = get_datasets_directory_data_set_versiones(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version())
+        dataset_path = os.path.join(datasets_directory, global_names_reactivos.get_name_file_db())
+        eliminar_archivo(dataset_path)
         columnas = ['id_files', 'nombre_archivo']
         tabla = "name_files"
         lista_de_versiones_new = obtener_versiones_por_proyecto(columnas,tabla)

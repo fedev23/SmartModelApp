@@ -4,12 +4,12 @@ from clases.global_modelo import global_desarollo
 from clases.class_screens import ScreenClass
 from funciones.utils import retornar_card
 from clases.class_user_proyectName import global_user_proyecto
-from funciones.utils_2 import get_user_directory, render_data_summary, aplicar_transformaciones, mostrar_error, cambiarAstring, trans_nulos_adic, get_datasets_directory, detectar_delimitador
+from funciones.utils_2 import get_datasets_directory_data_set_versiones, render_data_summary, aplicar_transformaciones, mostrar_error, cambiarAstring, trans_nulos_adic, get_datasets_directory, detectar_delimitador
 from api.db import *
 from clases.global_session import *
 from clases.global_sessionV2 import *
 from clases.reactives_name import global_names_reactivos
-from funciones.funciones_cargaDatos import guardar_archivo, verificar_archivo, verificar_archivo_sc
+from funciones.funciones_cargaDatos import guardar_archivo, verificar_archivo, verificar_archivo_sc, guardar_archivo_sc
 from shiny.types import FileInfo
 from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version
 from clases.global_session import *
@@ -99,21 +99,25 @@ class FilesLoad:
         
         
     
-    async def cargar_datos_validacion_scroing(self):
+    async def cargar_datos_validacion_scroing(self, input_file):
         try:
-            file: list[FileInfo] | None = input.file_validation()
+            file: list[FileInfo] | None = input_file()
+            input_name = file[0]['name']
             if not file:
                 raise ValueError("No se recibió ningún archivo para validar.")
 
-            validar_file = verificar_archivo_sc(global_session.get_path_guardar_dataSet_en_proyectos(), input_name)
-            if validar_file:
-                return create_modal_warning_exist_file(input_name, self.name_suffix)
+            data_Set  = get_datasets_directory_data_set_versiones(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version())
+        
+            validar_file = verificar_archivo_sc(data_Set, input_name)
+            if validar_file and self.select_overwrite.get() is False:
+                ui.modal_show(create_modal_warning_exist_file(input_name, self.name_suffix, global_session.get_versiones_name()))
+                self.set_existe_file(True)
+                return
             
-            input_name = file[0]['name']
             print(f"Nombre del archivo recibido: {input_name}")
 
             # Guardar el archivo
-            ruta_guardado = await guardar_archivo(input.file_validation, self.name_suffix)
+            ruta_guardado = await guardar_archivo_sc(input_file, self.name_suffix)
             print(f"El archivo fue guardado en {ruta_guardado}")
 
             # Obtener fecha actual
@@ -151,7 +155,7 @@ class FilesLoad:
                 selected=self.data_predeterminado.get()
             )
             print("Opciones y selección actualizadas correctamente.")
-
+            self.select_overwrite.set(False)
         except Exception as e:
             # Manejar errores y notificar al usuario
             error_message = f"Error en loadOutSample: {e}"

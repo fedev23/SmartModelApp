@@ -1,5 +1,5 @@
 from shiny import reactive, render, ui
-from funciones.utils_2 import render_data_summary
+from funciones.utils_2 import render_data_summary, eliminar_archivo, leer_dataset_sc, get_datasets_directory
 from clases.global_modelo import modelo_of_sample
 from clases.global_session import global_session
 from api.db import *
@@ -7,12 +7,13 @@ from clases.reactives_name import global_names_reactivos
 from funciones.utils import retornar_card
 from logica_users.utils.help_versios import obtener_ultimo_nombre_archivo_validacion_c
 from clases.global_sessionV2 import *
-from funciones.utils_2 import leer_dataset
+from funciones.clase_estitca.leer_datos import DatasetHandler
 import pandas as pd
 from funciones_modelo.help_models import *
 from funciones.funciones_user import button_remove, create_modal_v2
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones.clase_estitca.cargar_files import FilesLoad
+import os
 from clases.global_modelo import modelo_of_sample, modelo_produccion
 
 
@@ -27,10 +28,11 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
     lista = reactive.Value("")
     reactivo_dinamico =  reactive.Value("")
     
+    
     @reactive.Effect
     @reactive.event(input.file_validation)
     async def loadOutSample():
-        cargar_datos_class.cargar_datos_validacion_scroing()
+        await cargar_datos_class.cargar_datos_validacion_scroing(input.file_validation)
     
     
       
@@ -65,7 +67,9 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
             dataSet_predeterminado_parms.set(global_session_V2.get_nombre_dataset_validacion_sc())
         
         
-        data = leer_dataset(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), dataSet_predeterminado_parms.get())
+        print(dataSet_predeterminado_parms.get(), "en logica scoring")
+        data = leer_dataset_sc(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session_V2.get_nombre_dataset_validacion_sc())
+        print(f"toy en data SC, {data}")
         global_session_V2.set_data_set_reactivo_validacion_sc(data)
         
         ##actualizo el selector de columna target
@@ -113,6 +117,14 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
     @reactive.event(input.confirmar_id_borrar_dataset_validacion_Sc)
     def remove_versiones_de_parametros():
         eliminar_version("validation_scoring", "id_validacion_sc", global_session_V2.get_id_Data_validacion_sc())
+        directorio = get_datasets_directory(
+        global_session.get_id_user(), 
+        global_session.get_id_proyecto(), 
+        global_session.get_name_proyecto()
+        )
+        dataset_path = os.path.join(directorio, global_names_reactivos.get_name_file_db())
+        eliminar_archivo(dataset_path)
+        
         columnas = ['id_validacion_sc', 'nombre_archivo_validation_sc']
         tabla = "validation_scoring"
         lista_de_versiones_new = obtener_versiones_por_proyecto(columnas,tabla)

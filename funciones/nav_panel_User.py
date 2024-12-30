@@ -15,7 +15,7 @@ def create_nav_menu_user(name_suffix):
         ui.nav_control(ui.p(
             f"Archivo: {global_names_reactivos.get_name_file_db() or 'No hay un DataSet seleccionado'}", class_="styled-text")),
         ui.nav_control(ui.p(
-            f"Version Niveles & Scorcards: {global_session.get_versiones_parametros_nombre() or 'No hay un DataSet seleccionado'}", class_="styled-text")),
+            f"Version Niveles & Scorcards: {global_session.get_versiones_parametros_nombre() or 'Versión por defecto'}", class_="styled-text")),
         ui.nav_spacer(),
         id=f"tab_{name_suffix}",
         title="",

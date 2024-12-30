@@ -217,8 +217,62 @@ def get_datasets_directory(user_id, proyecto_id, name_proyect):
         print(f"La carpeta {datasets_folder} no existe.")
         return None
     
+def leer_dataset(user_id, proyecto_id, name_proyect, dataset_name, nombre_version, version_Id):
+    """
+    Lee un dataset basado en el usuario, proyecto y nombre del dataset.
 
-def leer_dataset(user_id, proyecto_id, name_proyect, dataset_name):
+    Args:
+        user_id (str): ID del usuario.
+        proyecto_id (str): ID del proyecto.
+        name_proyect (str): Nombre del proyecto.
+        dataset_name (str): Nombre del archivo del dataset.
+
+    Returns:
+        pd.DataFrame: Las primeras 10 filas del dataset si se encuentra, o un DataFrame vacío.
+    """
+    try:
+        # Obtener la ruta de la carpeta de datasets
+        print(user_id, proyecto_id, name_proyect, nombre_version, version_Id)
+        print(dataset_name)
+        datasets_directory = get_datasets_directory_data_set_versiones(user_id, proyecto_id, name_proyect, nombre_version, version_Id)
+        
+        # Verificar que la carpeta de datasets no sea None
+        if datasets_directory is None:
+            print(f"No se encontró la carpeta de datasets. {datasets_directory}")
+            return pd.DataFrame()  # Retornar un DataFrame vacío
+        
+        # Construir la ruta completa del archivo del dataset
+        dataset_path = os.path.join(datasets_directory, dataset_name)
+        
+        # Verificar que el archivo existe
+        if not os.path.exists(dataset_path):
+            print(f"El archivo {dataset_path} no existe.")
+            return pd.DataFrame()  # Retornar un DataFrame vacío
+            
+        # Leer el archivo de datos usando pandas
+        try:
+            # Detectar el delimitador del archivo
+            delimitador = detectar_delimitador(dataset_path)
+            global_estados.set_delimitador(delimitador)
+            
+            # Leer el archivo con el delimitador detectado
+            dataset = pd.read_csv(dataset_path, delimiter=delimitador)
+            print(f"Dataset {dataset_name} leído correctamente.")
+            
+            # Retornar las primeras 10 filas del dataset
+            return dataset
+
+        except Exception as e:
+            print(f"Error al leer el dataset: {e}")
+            return pd.DataFrame()
+
+    except Exception as e:
+        # Manejo global de errores
+        print(f"Error inesperado en leer_dataset: {e}")
+        return pd.DataFrame()
+
+
+def leer_dataset_sc(user_id, proyecto_id, name_proyect, dataset_name):
     # Obtener la ruta de la carpeta de datasets
     datasets_directory = get_datasets_directory(user_id, proyecto_id, name_proyect)
     
@@ -248,7 +302,6 @@ def leer_dataset(user_id, proyecto_id, name_proyect, dataset_name):
     except Exception as e:
         print(f"Error al leer el dataset: {e}")
         return pd.DataFrame()
-
 
 
 def render_data_summary(data):

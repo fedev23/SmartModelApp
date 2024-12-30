@@ -3,10 +3,11 @@ from funciones.create_param import create_screen
 from clases.class_screens import ScreenClass
 from clases.class_user_proyectName import global_user_proyecto
 from global_var import global_data_loader_manager
-from funciones.utils_2 import errores, validar_proyecto, get_user_directory
+from funciones.utils_2 import errores, get_user_directory, get_datasets_directory_data_set_versiones
 from clases.global_modelo import modelo_of_sample
 from clases.global_session import global_session
 from api.db import *
+
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.help_models import *
 from clases.reactives_name import global_names_reactivos
@@ -14,6 +15,7 @@ from clases.global_sessionV2 import *
 from funciones.validacionY_Scoring.create_card import crate_file_input_y_seleccionador
 from clases.global_modelo import modelo_of_sample
 from datetime import datetime
+from funciones_modelo.warning_model import *
 from funciones.utils import mover_file_reportes_puntoZip
 from logica_users.utils  import help_versios 
 from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
@@ -93,26 +95,25 @@ def server_out_of_sample(input, output, session, name_suffix):
         click_count_value = modelo_of_sample.click_counter.get()  # Obtener contador
         mensaje_value = modelo_of_sample.mensaje.get()  # Obtener mensaje actual
         proceso = modelo_of_sample.proceso.get()
+        if not validar_existencia_modelo("Modeling_App.db", global_session.get_id_version(), modelo_of_sample.nombre, global_session.get_versiones_name()):
+            return
         
         try:
-            path_entrada = obtener_path_por_proyecto_version(global_session.get_id_version(), 'entrada')
-            path_salida = obtener_path_por_proyecto_version(global_session.get_id_version(), 'salida')
-            
-            if not path_entrada or not path_salida:
-                raise ValueError("No se pudieron obtener las rutas de entrada y/o salida")
-
-            
-            print(f"path entrada en out of sample {path_entrada}")
             path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
             origen_modelo_puntoZip =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
             ##MUEVO EL MODELO .ZIP QUE GENERO DESARROLO PARA QUE PUEDA SER USADO, ESTO DEBERIA SER USANDO EN TODAS LAS ISTANCIAS DE LOS MODELOS
             mover_file_reportes_puntoZip(origen_modelo_puntoZip,path_datos_entrada )
-            mover_y_renombrar_archivo(global_session_V2.get_nombre_dataset_validacion_sc(), global_session.get_path_guardar_dataSet_en_proyectos(), name_suffix, path_datos_entrada)
+            
+            data_Set  = get_datasets_directory_data_set_versiones(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version())
+       
+            mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), data_Set, name_suffix, path_datos_entrada)
+                    
+            #mover_y_renombrar_archivo(global_session_V2.get_nombre_dataset_validacion_sc(), global_session.get_path_guardar_dataSet_en_proyectos(), name_suffix, path_datos_entrada)
                 
             path_niveles_sc = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
             
             help_versios.copiar_json_si_existe(path_niveles_sc, path_datos_entrada)
-            modelo_of_sample.script_path = f'./Validar_Nueva.sh --input-dir {path_entrada} --output-dir {path_salida}'
+            modelo_of_sample.script_path = f'./Validar_Nueva.sh --input-dir {path_datos_entrada} --output-dir {origen_modelo_puntoZip}'
             #./Validar_Nueva.sh --input-dir <dir_in> [--output-dir <dir_out>] [--quick <true/false>] [--help]
             ejecutar_of_to_sample(click_count_value, mensaje_value, proceso)
             #insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_validacion())
@@ -125,7 +126,7 @@ def server_out_of_sample(input, output, session, name_suffix):
                 
             
         except Exception as e:
-            mensaje_value.set(f"Primero ejecutar el proceso de Desarrollo para poder ejecutar el proceso  full {str(e)}")
+            mensaje.set(f"Primero ejecutar el proceso de Desarrollo para poder ejecutar el proceso  full {str(e)}")
             return
         
         
@@ -156,3 +157,12 @@ def server_out_of_sample(input, output, session, name_suffix):
     @render.text
     def mensaje_of_sample():
         return modelo_of_sample.mostrar_mensaje()
+    
+    
+    
+    @reactive.Effect
+    @reactive.event(input.cancel_overwrite_of_Sample)
+    def validacion_out_to_Sample_model_run():
+         return  ui.modal_remove()
+        
+    

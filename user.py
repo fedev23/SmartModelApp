@@ -95,8 +95,11 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
 
         # Crea el path para guardar datasets
-        data_Set = crear_carpeta_proyecto(user_get.get(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
+        data_Set  = get_datasets_directory_data_set_versiones(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version())
+        
+        print(data_Set, "antes_path_nombre")
         global_session.set_path_guardar_dataSet_en_proyectos(data_Set)
+        print(global_session.get_path_guardar_dataSet_en_proyectos(), "nombre_pathhhh")
         
         
         ##Actualizo tambien los dataSet de Validacion y scroing
@@ -124,7 +127,6 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             global_session.get_id_version() and
             global_session.get_versiones_name()):   
             api_code = help_api.procesar_starlette_api(global_session.get_id_user(), global_session.get_name_proyecto(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_versiones_name())
-            print(F"CODE API {api_code}")
         
         ultimo_archivo = obtener_ultimo_seleccionado(base_datos, 'name_files', 'nombre_archivo')
         global_session_V2.set_dataSet_seleccionado(ultimo_archivo)
@@ -148,6 +150,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     def project_card_container():
         global_session.set_id_version(input.other_select()) # Captura el ID seleccionado
         global_session.id_version_v2.set(input.other_select())
+        print("cuando entro a version???")
         nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
         
        
@@ -159,13 +162,14 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         where_params=(global_session.get_id_version(),)
     )
         
-        print(files_name, "files_name, en seleccionador de versiones")
         global_session_V2.lista_nombre_archivos_por_version.set({
             str(file['id_files']): file['nombre_archivo']
             for file in files_name
         } if files_name else {"": "No hay archivos"})
 
        
+        #data = leer_dataset(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session_V2.lista_nombre_archivos_por_version.get(), global_session.get_versiones_name(), global_session.get_id_version())
+        #global_session.set_data_set_reactivo(data)
         
         ult_model = obtener_ultimo_modelo_por_version_y_nombre(base_datos, global_session.get_id_version(), "desarollo")
       

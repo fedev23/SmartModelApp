@@ -65,7 +65,7 @@ def mover_y_renombrar_archivo(nombre_archivo, directorio_base, name_suffix, dest
         elif name_suffix == 'desarrollo':
             nuevo_nombre = "Muestra_Desarrollo.txt"
         elif name_suffix == 'in_sample':
-            nuevo_nombre = "Muestra_InSample.txt"
+            nuevo_nombre = "Muestra_Desarrollo.txt"
         else:
             raise ValueError(f"Sufijo desconocido: {name_suffix}")
 

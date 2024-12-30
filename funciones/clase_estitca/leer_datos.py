@@ -1,12 +1,12 @@
 import pandas as pd
 import os
 import csv
-from funciones.utils_2 import detectar_delimitador, get_datasets_directory
+from funciones.utils_2 import detectar_delimitador, get_datasets_directory_data_set_versiones
 from clases.global_reactives import global_estados
 
 class DatasetHandler:
     @staticmethod
-    def leer_dataset(user_id, proyecto_id, name_proyect, dataset_name):
+    def leer_dataset(user_id, proyecto_id, name_proyect, dataset_name, nombre_version, version_Id):
         """
         Lee un dataset basado en el usuario, proyecto y nombre del dataset.
 
@@ -20,7 +20,7 @@ class DatasetHandler:
             pd.DataFrame: Las primeras 10 filas del dataset si se encuentra, o un DataFrame vacío.
         """
         # Obtener la ruta de la carpeta de datasets
-        datasets_directory = get_datasets_directory(user_id, proyecto_id, name_proyect)
+        datasets_directory = get_datasets_directory_data_set_versiones(user_id, proyecto_id, name_proyect, nombre_version, version_Id)
         
         # Verificar que la carpeta de datasets no sea None
         if datasets_directory is None:
