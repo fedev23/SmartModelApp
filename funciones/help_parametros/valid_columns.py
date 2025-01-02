@@ -28,3 +28,20 @@ def get_categorical_columns_with_unique_values_range(dataset, min_unique=3, max_
     ]    
 
     return columns_in_range
+
+
+def get_binary_columns(df):
+    """
+    Devuelve una lista de columnas que contienen exclusivamente los valores 0 y 1.
+
+    :param df: DataFrame que contiene los datos.
+    :return: Lista de nombres de las columnas que tienen solo valores 0 y 1.
+    """
+    binary_columns = []
+
+    for col in df.columns:
+        # Verifica si la columna contiene únicamente los valores 0 y 1
+        if df[col].dropna().isin([0, 1]).all():
+            binary_columns.append(col)
+
+    return binary_columns

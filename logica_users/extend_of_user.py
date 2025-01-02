@@ -15,10 +15,12 @@ from api.db.sqlite_utils import *
 
 def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     
-    dataSet_predeterminado_parms = reactive.Value(None)
+   
     list = reactive.Value(None)
-    id = reactive.Value(None)
-    select_number_data_set =  reactive.Value(5)
+   
+    #EN ESTE ARCHIVO SE MANEJA LA LOGICA DE SELECCIONES SOBRE FILES EN DESARROLLO
+    #TAMBIEN SE CREA EL MODAL DE CONFIGURACION
+    
     
     @reactive.effect
     @reactive.event(input.files_select)  # Escuchar cambios en el selector

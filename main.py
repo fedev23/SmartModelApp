@@ -15,6 +15,7 @@ from resultados import server_resul
 from user import user_server    
 from servers.server_niveles_scorcards.server_in_sample import server_in_sample
 from auth.auth import server_login
+from logica_users.config_versiones import versiones_config_server
 from logica_users.extend_of_user import extend_user_server
 from  logica_users.card_user import user_ui
 from servers.server_niveles_scorcards.in_Sample_versions import in_sample_verions
@@ -30,6 +31,7 @@ def create_server(input, output, session):
     server_login(input, output, session),
     logica_server_Validacion_scroing(input, output, session, 'Scroring_out_of_sample')
     user_ui(input, output, session, 'user'),
+    versiones_config_server(input, output, session)
     in_sample_verions(input, output, session,"versiones_json")
     extend_user_server(input, output, session, "extend_user_server")
     server_desarollo(input, output, session, 'desarrollo')

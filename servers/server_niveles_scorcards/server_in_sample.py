@@ -22,7 +22,7 @@ from funciones.utils_cargar_json import update_dataframe_from_json
 from clases.global_sessionV2 import *
 from clases.global_reactives import *
 from api.db.sqlite_utils import *
-from funciones_modelo.warning_model import *
+from funciones_modelo.warning_model import validar_existencia_modelo
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.help_models import *
 
@@ -44,7 +44,7 @@ ejemplo_segmentos = pd.DataFrame({
 })
 
 ejemplos_rangos = pd.DataFrame({
-    "Variables de corte": ["Variable1", "Variable_otro_Seg, Variable_otro_Seg2"]
+    "Variables de corte": []
 })
 
 
@@ -57,7 +57,7 @@ def server_in_sample(input, output, session, name_suffix):
     count_add_files = reactive.Value(0)
     no_error = reactive.Value(True)
     fila_insert = reactive.Value(False)
-    
+    boolean_reactive = reactive.Value(False)
     global_names_reactivos.name_validacion_in_sample_set(name_suffix)
     # Inicializamos el estado reactivo del dataset
     data_set = reactive.Value(pd.DataFrame({"Variables de corte": []}))
@@ -78,10 +78,6 @@ def server_in_sample(input, output, session, name_suffix):
     def mostrar_parametros_in_sample():
         return param_in_sample(name_suffix)
 
-    @output
-    @render.text
-    def nombre_proyecto_in_sample():
-        return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo(global_session.proyecto_seleccionado())}'
     
     
     @reactive.Effect
@@ -89,7 +85,6 @@ def server_in_sample(input, output, session, name_suffix):
     def evento_agregar_nueva_fila():
         count_add_files.set(count() + 1)
         column_names = get_categorical_columns_with_unique_values_range(global_session.get_data_set_reactivo(), min_unique=global_session.value_min_for_seg.get(), max_unique=global_session.value_max_for_seg.get())
-        print(column_names, "lista vacia???")
         #column_names = df.columns.tolist()
         ui.update_selectize("agregar_filas", choices=column_names)
        
@@ -127,6 +122,17 @@ def server_in_sample(input, output, session, name_suffix):
                                  )
         count_add_files.set(0)
         
+    
+    @reactive.Effect
+    @reactive.event(input.add_fila)
+    def evento_agregar_nueva_fila():
+        count_add_files.set(count() + 1)
+        column_names = get_categorical_columns_with_unique_values_range(global_session.get_data_set_reactivo(), min_unique=global_session.value_min_for_seg.get(), max_unique=global_session.value_max_for_seg.get())
+        #column_names = df.columns.tolist()
+        ui.update_selectize("agregar_filas", choices=column_names)
+    
+   
+        
     @output
     @render.ui
     def insert():
@@ -137,12 +143,11 @@ def server_in_sample(input, output, session, name_suffix):
     @reactive.event(input.insert_Values)
     def insertar_values():
         valores_seleccionados = input.agregar_filas()
-         
+        
         if valores_seleccionados:
             # Obtener el DataFrame actual
             fila_insert.set(True)
             valores_seleccionados = cambiarAstring(valores_seleccionados)
-            print("valores_seleccionados",valores_seleccionados)
             data = par_rango_reportes.data_view()
 
             # Validar si los valores ya existen
@@ -226,12 +231,21 @@ def server_in_sample(input, output, session, name_suffix):
     def par_rango_reportes():
         # Obtén los datos del estado reactivo
         data = data_set.get()
+        
+        ejemplos_rangos = pd.DataFrame({
+            "Variables de corte": []
+        })
+
         # Si el DataFrame está vacío, usa el DataFrame de ejemplo
-        if data.empty:
-            return render.DataGrid(ejemplos_rangos, editable=True, width="500px")
+        if data is not None and not data.empty:
+            print(data, "estoy end ata")
+        # Renderiza el DataFrame si no está vacío
+            return render.DataGrid(data, editable=True, width="500px")
+        
+        return render.DataGrid(ejemplos_rangos, editable=True, width="500px")
         
         # De lo contrario, renderiza los datos actuales
-        return render.DataGrid(data, editable=True, width="500px")
+        
    
         
     transformaciones = {
@@ -277,7 +291,7 @@ def server_in_sample(input, output, session, name_suffix):
         mensaje_value = global_desarollo.mensaje.get()  # Obtener mensaje actual
         proceso = global_desarollo.proceso.get()
         
-        if not validar_existencia_modelo("Modeling_App.db", global_session.get_id_version(), modelo_in_sample.nombre, global_session.get_versiones_name()):
+        if not validar_existencia_modelo(base_datos="Modeling_App.db", json_id=global_session.get_version_parametros_id(), nombre_modelo=modelo_in_sample.nombre, nombre_version=global_session.get_versiones_parametros_nombre()):
             return
         validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
         # Verificar si hay errores, ver si agrego una validacion

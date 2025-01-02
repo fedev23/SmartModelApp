@@ -133,7 +133,7 @@ def server_desarollo(input, output, session, name_suffix):
         proceso = global_desarollo.get_proceso()
         base_datos = 'Modeling_App.db'
         
-        if not validar_existencia_modelo(base_datos, global_session.get_id_version(), global_desarollo.nombre, global_session.get_versiones_name()):
+        if not validar_existencia_modelo(base_datos=base_datos, version_id=global_session.get_id_version(), nombre_modelo=global_desarollo.nombre, nombre_version=global_session.get_versiones_name()):
             return
         # Crear instancia de la clase Validator
         validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
@@ -206,9 +206,6 @@ def server_desarollo(input, output, session, name_suffix):
                 global_desarollo.proceso_fallo.set(False)
         
                     
-                
-    
-
     agregar_reactivo()        
         
     @output

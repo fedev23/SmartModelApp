@@ -1,5 +1,5 @@
 from shiny import reactive, render, ui
-from funciones.utils import validar_columnas, validate_par_iv, process_target_col1, validate_null
+from funciones.utils import validar_columnas, validate_par_iv, process_target_col1, validate_null, validate_binary_values
 
 class Validator:
     def __init__(self, input, df, name_suffix):
@@ -29,6 +29,11 @@ class Validator:
         tiene_nulls = validate_null(target_col_value, self.df)
         if tiene_nulls:
             self.error_messages.append(f"La columna target no puede contener valores nulos en la muestrea {self.name_suffix}")
+            
+        valores_distintos_univocos =  validate_binary_values()
+        if valores_distintos_univocos:
+            self.error_messages.append(f"La columna target no puede contener valores distintos de 0 y 1 {self.name_suffix}")
+            
 
         
         

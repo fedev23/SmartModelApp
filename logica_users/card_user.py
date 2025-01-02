@@ -1,11 +1,7 @@
 from shiny import App, Inputs, Outputs, Session, reactive, ui, render, module
-from funciones.nav_panel_User import create_nav_menu_user
-from clases.class_user_proyectName import global_user_proyecto
+
 from api import *
 from clases.global_session import global_session
-
-from clases.reactives_name import global_names_reactivos
-
 
 def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
 

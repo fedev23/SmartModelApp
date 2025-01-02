@@ -46,7 +46,7 @@ def server_resul(input, output, session, name_suffix):
             },
             {
                 "resultado_id": "Detalle_agrupacion",
-                "resultado_path": f"Detalle agrupación x WoE Categoricas.html",
+                "resultado_path": f"WoE Discretization on Categorical.html",
                 "salida": "Detalle_agrupación_salida",
                 "descarga_unic": "download_btn_Detalle_agrupacion",
                 "salida_unic": "salida_prueba_Detalle_agrupación",

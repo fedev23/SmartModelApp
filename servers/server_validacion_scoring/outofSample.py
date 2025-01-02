@@ -1,13 +1,11 @@
 from shiny import reactive, render, ui
 from funciones.create_param import create_screen
 from clases.class_screens import ScreenClass
-from clases.class_user_proyectName import global_user_proyecto
 from global_var import global_data_loader_manager
 from funciones.utils_2 import errores, get_user_directory, get_datasets_directory_data_set_versiones
 from clases.global_modelo import modelo_of_sample
 from clases.global_session import global_session
 from api.db import *
-
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.help_models import *
 from clases.reactives_name import global_names_reactivos
@@ -59,11 +57,7 @@ def server_out_of_sample(input, output, session, name_suffix):
         if global_session.get_id_user():
             return crate_file_input_y_seleccionador()
    
-    @output
-    @render.text
-    def nombre_proyecto_validacion():
-        return f'Proyecto: {global_user_proyecto.mostrar_nombre_proyecto_como_titulo(global_session.proyecto_seleccionado())}'
-
+    
    
 
 

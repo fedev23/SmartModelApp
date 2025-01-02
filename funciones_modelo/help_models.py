@@ -232,3 +232,51 @@ def agregar_datos_model_execution_in_sample(base_datos, version_id, json_version
     finally:
         if conn:
             conn.close()
+
+
+
+def check_execution_status(db_path, version_id=None, json_id=None):
+    """
+    Verifica si existe un registro en la tabla model_execution con un estado de ejecución
+    asociado a un version_id o json_id.
+
+    :param db_path: Ruta a la base de datos SQLite.
+    :param version_id: Identificador de la versión (opcional).
+    :param json_id: Identificador del JSON (opcional).
+    :return: Estado de ejecución o None si no hay registros.
+    """
+    try:
+        # Conexión a la base de datos
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+
+        # Verificar por version_id
+        if version_id is not None:
+            cursor.execute("""
+            SELECT execution_state 
+            FROM model_execution 
+            WHERE version_id = ?;
+            """, (version_id,))
+        elif json_id is not None:
+            cursor.execute("""
+            SELECT execution_state 
+            FROM model_execution 
+            WHERE execution_id = ?;
+            """, (json_id,))
+        else:
+            print("Debe proporcionar un version_id o un json_id.")
+            return None
+
+        # Obtener el resultado
+        result = cursor.fetchone()
+        if result:
+            print(f"Estado de ejecución encontrado: {result[0]}")
+            return result[0]
+        else:
+            print("No se encontró un registro asociado.")
+            return None
+    except sqlite3.Error as e:
+        print(f"Error al consultar la base de datos: {e}")
+        return None
+    finally:
+        conn.close()

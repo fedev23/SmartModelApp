@@ -85,6 +85,21 @@ def validate_null(target_col, df):
         return True
 
 
+def validate_binary_values(target_col, df):
+    """
+    Verifica si una columna contiene valores distintos de 0 o 1.
+
+    :param target_col: Nombre de la columna a validar.
+    :param df: DataFrame que contiene los datos.
+    :return: True si tiene valores distintos de 0 o 1, False en caso contrario.
+    """
+    
+    invalid_values = df[~df[target_col].isin([0, 1])]
+    
+    if not invalid_values.empty:
+        print(f"La columna '{target_col}' contiene valores distintos de 0 o 1.")
+        print(f"Valores encontrados: {invalid_values[target_col].unique()}")
+        return True
 
 def validate_par_iv(value):
     if value > 10 or value < 0.5:
@@ -339,7 +354,7 @@ def crear_card_con_input_numeric(input_id, input_label, action_link_id, icon, va
 
 
 def crear_card_con_input_2(input_id, input_label, action_link_id, icon, parameters, default_value=""):
-    id_buttons_desa.append(action_link_id)
+    #id_buttons_desa.append(action_link_id)
 
     # Encontrar el parámetro que corresponde al input_id
     input_value = default_value
@@ -383,8 +398,9 @@ def crear_card_con_input_numeric_2(input_id, input_label, action_link_id, icon, 
         max_value (int/float, optional): Valor máximo para el input numérico.
         step (int/float, optional): Paso para el input numérico.
     """
-    # Añade el ID del botón de acción a la lista global (si es necesario)
+    # Añade el ID del botón de acción a la lista global (si es necesario
     id_buttons_desa.append(action_link_id)
+    #id_buttons_desa = list(dict.fromkeys(id_buttons_desa))
 
     # Retorna el diseño de la tarjeta con el input numérico y el botón
     return ui.column(
