@@ -1,15 +1,11 @@
-import subprocess
 import os
-import pandas as pd
-from clases.loadJson import LoadJson
 from shiny import App, ui, reactive
-from zipfile import ZipFile, ZIP_DEFLATED
+
 import zipfile
-import webbrowser
+
 import os
 import shutil
-import platform
-import asyncio
+
 
 # configurar_event_loop(): Esta función verifica si el sistema operativo es Windows y, en ese caso,
 # cambia el bucle de eventos a ProactorEventLoop, que es necesario para manejar subprocesos asíncronos en Windows.
@@ -81,6 +77,13 @@ def process_target_col1(target_col):
         return False
     # Aquí puedes agregar más lógica de validación si es necesario
     return True  #
+
+
+def validate_null(target_col, df):
+    if df[target_col].isnull().any():
+        print(f"La columna '{target_col}' tiene valores nulos.")
+        return True
+
 
 
 def validate_par_iv(value):

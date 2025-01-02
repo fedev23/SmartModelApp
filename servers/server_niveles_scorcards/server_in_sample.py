@@ -12,10 +12,11 @@ from clases.global_session import global_session
 from api.db import *
 from clases.reactives_name import global_names_reactivos
 from api.db import *
+from api.db.help_config_db import insert_or_replace
 from clases.class_validacion import Validator
 from clases.global_modelo import modelo_in_sample
 from clases.global_modelo import global_desarollo
-import os
+from funciones.help_parametros.valid_columns import *
 from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
 from funciones.utils_cargar_json import update_dataframe_from_json
 from clases.global_sessionV2 import *
@@ -55,6 +56,8 @@ def server_in_sample(input, output, session, name_suffix):
     count = reactive.value(0)
     count_add_files = reactive.Value(0)
     no_error = reactive.Value(True)
+    fila_insert = reactive.Value(False)
+    
     global_names_reactivos.name_validacion_in_sample_set(name_suffix)
     # Inicializamos el estado reactivo del dataset
     data_set = reactive.Value(pd.DataFrame({"Variables de corte": []}))
@@ -85,12 +88,31 @@ def server_in_sample(input, output, session, name_suffix):
     @reactive.event(input.add_fila)
     def evento_agregar_nueva_fila():
         count_add_files.set(count() + 1)
-        print(count_add_files.get())
-        df = global_session.get_data_set_reactivo()
-        column_names = df.columns.tolist()
+        column_names = get_categorical_columns_with_unique_values_range(global_session.get_data_set_reactivo(), min_unique=global_session.value_min_for_seg.get(), max_unique=global_session.value_max_for_seg.get())
+        print(column_names, "lista vacia???")
+        #column_names = df.columns.tolist()
         ui.update_selectize("agregar_filas", choices=column_names)
-        nuevos_inputs = input.agregar_filas()
+       
         
+    @reactive.Effect
+    @reactive.event(input.save_modal)
+    def valor_min_and_max_ingresado_para_seg():
+        min = input.min_value()
+        global_session.value_min_for_seg.set(min)
+        max = input.max_value()
+        global_session.value_max_for_seg.set(max)
+        dark_or_light = input.dark_mode_switch()
+        print(global_session.get_id_user())
+        data = {
+            "user_id": global_session.get_id_user(),
+            "valor_min_seg": global_session.value_min_for_seg.get(),
+            "valor_max_seg": global_session.value_max_for_seg.get(),
+            "num_select_filas": global_estados.get_numero_dataset(),
+            "value_dark_or_light": dark_or_light
+        }
+        
+        insert_or_replace("Modeling_App.db", "user_configurations", data)
+        count_add_files.set(0)
     
     
     @output
@@ -115,10 +137,10 @@ def server_in_sample(input, output, session, name_suffix):
     @reactive.event(input.insert_Values)
     def insertar_values():
         valores_seleccionados = input.agregar_filas()
-        print(f"Valores seleccionados: {valores_seleccionados}")
-        
+         
         if valores_seleccionados:
             # Obtener el DataFrame actual
+            fila_insert.set(True)
             valores_seleccionados = cambiarAstring(valores_seleccionados)
             print("valores_seleccionados",valores_seleccionados)
             data = par_rango_reportes.data_view()
@@ -142,6 +164,24 @@ def server_in_sample(input, output, session, name_suffix):
         else:
             print("No se seleccionaron valores. Operación abortada.")
 
+
+
+    @output
+    @render.ui
+    def delete():
+      if fila_insert.get():
+            return ui.input_action_link("delete_values", "Eliminar ultima fila ingresada")
+        
+    
+    
+    @reactive.Effect
+    @reactive.event(input.delete_values)
+    def delete_values():
+        data = data_set.get()
+        data = data.iloc[:-1]
+        data_set.set(data)
+        
+    
    
     
     @output
@@ -186,9 +226,6 @@ def server_in_sample(input, output, session, name_suffix):
     def par_rango_reportes():
         # Obtén los datos del estado reactivo
         data = data_set.get()
-        data_edited = cambiarAstring(data)
-        print(data, "estoy en data")
-        
         # Si el DataFrame está vacío, usa el DataFrame de ejemplo
         if data.empty:
             return render.DataGrid(ejemplos_rangos, editable=True, width="500px")
@@ -281,7 +318,6 @@ def server_in_sample(input, output, session, name_suffix):
             origen_modelo_puntoZip =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
             ##MUEVO EL MODELO .ZIP QUE GENERO DESARROLO PARA QUE PUEDA SER USADO, ESTO DEBERIA SER USANDO EN TODAS LAS ISTANCIAS DE LOS MODELOS
             movi = mover_file_reportes_puntoZip(origen_modelo_puntoZip,path_datos_entrada )
-            print (f"movi .zip a {movi}")
             
             #insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_desarrollo())
             ##PATH DONDE SE EJECUTA EL SCRIPT Y LAS CARPETAS QUE CORRESPONDEN AL USARIO, PROYECT, VERSION ACTUAL O EN
@@ -303,7 +339,6 @@ def server_in_sample(input, output, session, name_suffix):
     def agregar_reactivo():  
         @reactive.effect
         def insert_data_depends_value():  
-            base_datos = "Modeling_App.db"
             if modelo_in_sample.proceso_ok.get():
                 registro_id = agregar_datos_model_execution_por_json_version(
                     json_version_id=global_session.get_version_parametros_id(),

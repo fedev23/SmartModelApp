@@ -16,6 +16,7 @@ from screens.screen_desarollo import screenDesarollo
 
 
 screen_User = ui.page_fluid(
+    
     ui.div(
         ui.tags.button("SmartModeling", class_="logo-button"),
         ui.input_action_link(

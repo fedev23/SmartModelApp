@@ -17,6 +17,9 @@ def create_nav_menu_user(name_suffix):
         ui.nav_control(ui.p(
             f"Version Niveles & Scorcards: {global_session.get_versiones_parametros_nombre() or 'Versión por defecto'}", class_="styled-text")),
         ui.nav_spacer(),
+        
+        ui.nav_control(ui.input_dark_mode(id="dark_mode_switch",mode="light",class_="dark-mode-toggle")),
+        
         id=f"tab_{name_suffix}",
         title="",
         selected=None,

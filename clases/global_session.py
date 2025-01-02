@@ -22,6 +22,8 @@ class GlobalSession:
         self.path_datos_entrada = reactive.Value(None)
         self.path_datos_salida = reactive.Value(None)
         self.id_version_v2 = reactive.Value(None)
+        self.value_min_for_seg = reactive.Value(3)
+        self.value_max_for_seg = reactive.Value(8)
         
         
     def actualizar_directorio(self, nuevo_directorio):

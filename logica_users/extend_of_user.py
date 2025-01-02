@@ -111,31 +111,53 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
             
             
     def create_modal():
-        return ui.modal(
+        return ui.modal( 
             ui.tags.div(
                 ui.row(
-                    ui.column(
-                        12,  # La columna ocupa toda la fila para que el contenido esté alineado correctamente
-                        ui.tags.div(
-                            ui.input_dark_mode(mode="light", class_="dark-mode-toggle"),
-                            style="display: flex; justify-content: flex-start;"  # Alinea el contenido a la izquierda
+                    ui.card(
+                        ui.column(
+                            12,
+                            ui.input_select(
+                                "number_choice",
+                                "Selecciona un número de columnas de dataset",
+                                    choices=[str(i) for i in range(5, 26)],
+                                width="100%"
+                            )
+                        ),
+                    ),
+                    ui.tags.hr(),
+                    ui.card(
+                        ui.column(
+                            12,
+                            ui.input_numeric(
+                                "min_value",
+                                "Ingrese el valor minimo para la configuracion de segmentacion",
+                                value=3
+                            ),
+                            ui.input_numeric(
+                                "max_value",
+                                "Ingrese el valor maximo para la configuracion de segmentacion",
+                                value=8
+                            )
                         )
                     ),
-                    ui.column(
-                        12,
-                        ui.input_select(
-                            "number_choice",
-                            "Selecciona un número de columnas de dataset",
-                            choices=[str(i) for i in range(5, 26)],
-                            width="100%"
-                        )
-                    )
+                    # Agregar el modo oscuro dentro de una fila o columna
+                   
                 )
             ),
-            title="Configuración",
+            title="Configuración de parametros",
             easy_close=True,
             size='l',
-            footer=ui.input_action_button("close_modal", "Cerrar")
+            footer=ui.row(
+                ui.column(
+                    6,
+                    ui.input_action_button("save_modal", "Guardar", class_="btn-primary")
+                ),
+                ui.column(
+                    6,
+                    ui.input_action_button("close_modal", "Cerrar", class_="btn-secondary")
+                )
+            )
         )
 
 

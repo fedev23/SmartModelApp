@@ -1,5 +1,5 @@
 from shiny import reactive, render, ui
-from funciones.utils import validar_columnas, validate_par_iv, process_target_col1, create_modal_parametros, id_buttons
+from funciones.utils import validar_columnas, validate_par_iv, process_target_col1, validate_null
 
 class Validator:
     def __init__(self, input, df, name_suffix):
@@ -17,6 +17,8 @@ class Validator:
         resultado_iv = validate_par_iv(self.input[f'par_iv']())
         if resultado_iv is False:
             self.error_messages.append(f"Error al descartar variables por bajo IV: {resultado_iv}")
+        
+    
 
     def validate_target_column(self):
         target_col_value = self.input[f'par_target']()
@@ -24,6 +26,12 @@ class Validator:
         if resultado_target is False:
             self.error_messages.append(f"La columna target es obligatoria para la generación del muestra {self.name_suffix}")
 
+        tiene_nulls = validate_null(target_col_value, self.df)
+        if tiene_nulls:
+            self.error_messages.append(f"La columna target no puede contener valores nulos en la muestrea {self.name_suffix}")
+
+        
+        
     def validate_training_split(self):
         training = self.input[f'par_split']()
         if training is None:

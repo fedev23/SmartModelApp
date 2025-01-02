@@ -47,3 +47,15 @@ def server_niveles_Scorcards(input, output, session, name_suffix):
         }
 
         update_numeric_from_parameters(numeric_params, json_params, default_values)
+
+    
+    @reactive.Effect
+    @reactive.event(input.save_modal)
+    def valor_min_and_max_ingresado_para_seg():
+        min = input.min_value()
+        global_session.value_min_for_seg.set(min)
+        max = input.max_value()
+        global_session.value_max_for_seg.set(max)
+        return ui.modal_remove()
+        
+        

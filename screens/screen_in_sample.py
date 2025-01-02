@@ -77,11 +77,12 @@ screenInSample = ui.page_fluid(
                                        ui.column(
                                               6,
                                               ui.input_action_link("add_fila", "Agregar una nueva fila"),
-                                              ui.output_ui("selector"),
-                                               ui.output_ui("insert"),
+                                            ui.output_ui("selector"),
+                                            ui.output_ui("insert"),
                                           )
                                   ),
                                   ui.output_data_frame("par_rango_reportes"),
+                                   ui.output_ui("delete"),
                                   
                                   class_="custom-card"
                               )
