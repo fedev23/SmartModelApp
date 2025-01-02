@@ -348,6 +348,7 @@ def insert_into_table(table_name, columns, values):
         
         # Depuración: Mostrar los registros actuales de la tabla
         
+        
         return last_row_id
     except sqlite3.IntegrityError as e:
         print(f"Error al insertar en '{table_name}': {e}")

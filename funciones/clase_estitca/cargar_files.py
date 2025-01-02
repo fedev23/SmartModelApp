@@ -124,7 +124,7 @@ class FilesLoad:
             fecha_de_carga = datetime.now().strftime("%Y-%m-%d %H:%M")
 
             # Insertar datos en la tabla
-            id = insert_record(
+            id = insert_into_table(
                 database_path="Modeling_App.db",
                 table="validation_scoring",
                 columns=['nombre_archivo_validation_sc', 'fecha_de_carga', 'version_id'],

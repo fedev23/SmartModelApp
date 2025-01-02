@@ -300,6 +300,38 @@ def crear_card_con_input_seleccionador_V3(input_id, input_label, action_link_id,
                      )
 
 
+def crear_card_con_input_seleccionador_V3_sin_multiples_opciones(input_id, input_label, action_link_id, icon):
+    id_buttons_desa.append(action_link_id)
+    return ui.column(4,
+                     ui.card_header(
+                         ui.row(
+                             ui.column(
+                                 10,  # Width for the selectize input
+                                 ui.input_selectize(
+                                     input_id,
+                                     input_label,
+                                     choices=[],  # Initially empty; will be updated reactively
+                                     multiple=False,
+                                     options={
+                                         "placeholder": "seleccionar columnas..."}
+                                 )
+                             ),
+                             ui.column(
+                                 2,  # Width for the action link
+                                 ui.input_action_link(
+                                     action_link_id,
+                                     label="",  # Can be modified to add text if needed
+                                     icon=icon
+                                 )
+                             )
+                         )
+                     ),
+                       
+                     )
+
+
+
+
 def crear_card_con_input_seleccionador_V2(input_id, input_label, action_link_id, icon):
     # Create a card structure with a row and columns for selectize and action link
     id_buttons.append(action_link_id)

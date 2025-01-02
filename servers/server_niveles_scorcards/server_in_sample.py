@@ -12,7 +12,7 @@ from clases.global_session import global_session
 from api.db import *
 from clases.reactives_name import global_names_reactivos
 from api.db import *
-from api.db.help_config_db import insert_or_replace
+from api.db.help_config_db import *
 from clases.class_validacion import Validator
 from clases.global_modelo import modelo_in_sample
 from clases.global_modelo import global_desarollo
@@ -97,17 +97,18 @@ def server_in_sample(input, output, session, name_suffix):
         max = input.max_value()
         global_session.value_max_for_seg.set(max)
         dark_or_light = input.dark_mode_switch()
-        print(global_session.get_id_user())
-        data = {
-            "user_id": global_session.get_id_user(),
-            "valor_min_seg": global_session.value_min_for_seg.get(),
-            "valor_max_seg": global_session.value_max_for_seg.get(),
-            "num_select_filas": global_estados.get_numero_dataset(),
-            "value_dark_or_light": dark_or_light
-        }
         
-        insert_or_replace("Modeling_App.db", "user_configurations", data)
+        insertar_configuracion_usuario_con_replace(
+            db_path="Modeling_App.db",
+            hash_user_id= global_session.get_id_user(),
+            valor_min_seg=global_session.value_min_for_seg.get(),
+            valor_max_seg=global_session.value_max_for_seg.get(),
+            num_select_filas= global_estados.get_numero_dataset(),
+            value_dark_or_light=dark_or_light
+        )
+        
         count_add_files.set(0)
+        return ui.modal_remove()
     
     
     @output

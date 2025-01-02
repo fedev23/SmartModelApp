@@ -7,7 +7,7 @@ from clases.global_sessionV2 import *
 from funciones.funciones_user import create_modal_versiones, show_selected_project_card, create_modal_eliminar_bd, create_modal_v2, button_remove_version
 from funciones.utils_2 import *
 from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version, eliminar_carpeta, mapear_valor_a_clave
-from funciones.utils_cargar_json import leer_control_json
+from api.db.help_config_db import *
 from api.db.sqlite_utils import *
 from auth.utils import help_api 
 from api.db.sqlite_utils import *
@@ -87,9 +87,8 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
 
 
         # Obtiene y configura las versiones de parámetros
-        versiones_parametros  = get_project_versions_param(global_session.get_id_proyecto(), global_session.get_id_version())
+        versiones_parametros  = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
             # 
-        #versiones_parametros = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version()
         
         opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version"))
         valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
@@ -131,7 +130,8 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         global_session_V2.set_dataSet_seleccionado(ultimo_archivo)
         #selected_key = mapear_valor_a_clave(global_session_V2.get_dataSet_seleccionado(), nombre_file.get())
         
-        
+        config = obtener_configuracion_por_hash(base_datos, global_session.get_id_user())
+        print(config, "tengo config")
         ui.update_select("project_select",choices=proyectos_choise, selected=key_proyecto_mach if key_proyecto_mach else next(iter(ultimo_proyecto_seleccionado.get()), ""))
         ui.update_select("files_select_validation_scoring",choices=global_session_V2.get_opciones_name_dataset_Validation_sc(), selected=data_predeterminado.get())
         #ui.update_select("files_select", choices=nombre_file.get(),  selected=selected_key if selected_key else next(iter(nombre_file.get()), ""))

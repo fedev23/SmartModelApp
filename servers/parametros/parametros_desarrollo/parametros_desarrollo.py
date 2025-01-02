@@ -5,7 +5,7 @@ from funciones.help_parametros.valid_columns import *
 from clases.global_sessionV2 import *
 from funciones.utils import create_modal_parametros, id_buttons_desa
 from funciones.utils_cargar_json import get_parameter_value, update_selectize_from_columns_and_json, update_numeric_from_parameters, parametros_sin_version
-from funciones.utils import  crear_card_con_input_numeric_2, crear_card_con_input_seleccionador_V2, crear_card_con_input_seleccionador_V3
+from funciones.utils import  crear_card_con_input_numeric_2, crear_card_con_input_seleccionador_V2, crear_card_con_input_seleccionador_V3, crear_card_con_input_seleccionador_V3_sin_multiples_opciones
 
 
 def server_parametros_desarrollo(input, output, session, name_suffix):
@@ -107,7 +107,7 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
                         max_value=2,
                         step=1,
                         ),
-                        crear_card_con_input_seleccionador_V3("par_target", "Columna Target", "help_target_col", 
+                        crear_card_con_input_seleccionador_V3_sin_multiples_opciones("par_target", "Columna Target", "help_target_col", 
                                                         ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
                                                         ),
 
@@ -186,7 +186,7 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
         else:
             print("pase igual?") 
             global_session_V2.set_retornado(True),
-            return parametros_sin_version(name_suffix)
+            #return parametros_sin_version(name_suffix)
             
 
 
