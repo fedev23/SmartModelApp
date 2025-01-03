@@ -276,18 +276,3 @@ def server_resul(input, output, session, name_suffix):
     @render.download(filename="Resultados completos de Producción.zip")
     def descargar_resultados_produccion():
         return resultado_class_instance_produccion.descargar_resultados()
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-    

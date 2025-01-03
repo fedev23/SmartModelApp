@@ -17,8 +17,6 @@ data_loader = global_data_loader_manager.get_loader(name_suffix)
 
 # Página principal de desarrollo
 screenDesarollo = ui.page_fluid(
-    # Selección de columnas de dataset
-    
     ui.div(
        ui.column(
         10,

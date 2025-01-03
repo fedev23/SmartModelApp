@@ -19,8 +19,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     proyect_ok = reactive.Value(False)
     proyectos_usuario = reactive.Value(None)
     proceso_eliminar = reactive.Value(False)
-    versiones_por_proyecto = reactive.Value(None)
-    nombre_file = reactive.Value(None)
+    value_boolean = reactive.Value(False)
     id_proyecto_Recien_Creado = reactive.Value(None)
     name_proyecto = reactive.Value(None)
     opciones_param = reactive.Value("")
@@ -130,8 +129,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         global_session_V2.set_dataSet_seleccionado(ultimo_archivo)
         #selected_key = mapear_valor_a_clave(global_session_V2.get_dataSet_seleccionado(), nombre_file.get())
         
-        config = obtener_configuracion_por_hash(base_datos, global_session.get_id_user())
-        print(config, "tengo config")
+        value_boolean.set(True)
         ui.update_select("project_select",choices=proyectos_choise, selected=key_proyecto_mach if key_proyecto_mach else next(iter(ultimo_proyecto_seleccionado.get()), ""))
         ui.update_select("files_select_validation_scoring",choices=global_session_V2.get_opciones_name_dataset_Validation_sc(), selected=data_predeterminado.get())
         #ui.update_select("files_select", choices=nombre_file.get(),  selected=selected_key if selected_key else next(iter(nombre_file.get()), ""))
@@ -307,7 +305,22 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                 global_user_proyecto.click_en_continuar.set(False)
 
     
-        
+    
+    
+    @reactive.effect
+    def recargar_values_of_config():
+        if global_estados.value_boolean_for_values_in_config.get():
+            config = obtener_configuracion_por_hash(base_datos, global_session.get_id_user())
+            print(config, "que pasa con config?")
+            valor_min_seg, valor_max_seg, num_select_filas, value_dark_or_light = config.values()
+            print(valor_min_seg, "que tiene valor min??")
+            ui.update_numeric(
+                "min_value",
+                #label="Ingrese el valor minimo para la configuracion de segmentacion",
+                value=valor_min_seg,
+                #min=3,
+                #max=10,
+            ) 
 
     @reactive.effect
     @reactive.event(input.close)

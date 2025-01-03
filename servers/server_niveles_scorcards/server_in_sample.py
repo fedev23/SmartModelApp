@@ -65,6 +65,11 @@ def server_in_sample(input, output, session, name_suffix):
 
 
     
+    def create_navigation_handler(input_id, screen_name):
+        @reactive.Effect
+        @reactive.event(input[input_id])
+        async def navigate():
+            await session.send_custom_message('navigate', screen_name)
 
     # HAGO EL INPUT FILE DE FILE_DESAROLLO FUNCIONE ACA TAMBIEN, ASI ENVIA EL MISMO ARCHIO A VALIDACION IN SAMPLE
 
@@ -104,11 +109,13 @@ def server_in_sample(input, output, session, name_suffix):
             valor_min_seg=global_session.value_min_for_seg.get(),
             valor_max_seg=global_session.value_max_for_seg.get(),
             num_select_filas= global_estados.get_numero_dataset(),
-            value_dark_or_light=dark_or_light
+            #value_dark_or_light=dark_or_light
         )
         
         count_add_files.set(0)
-        return ui.modal_remove()
+        create_navigation_handler("save_modal","Screen_User")
+        
+        #return ui.modal_remove()
     
     
     @output

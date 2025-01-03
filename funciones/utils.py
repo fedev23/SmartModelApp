@@ -197,7 +197,7 @@ def transform_data(df):
     value_list = []
     df.columns = df.columns.str.strip()
 
-    print(df.columns)
+   
 
     # Iterar sobre cada fila del DataFrame
     for index, row in df.iterrows():

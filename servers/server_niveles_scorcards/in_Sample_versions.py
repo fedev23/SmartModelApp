@@ -50,7 +50,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
         crear_carpeta_version_parametros(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_version_parametros_id(), name, global_session.get_name_proyecto(), global_session.get_versiones_name())
 
         ##ACTUALIZO ACA TAMBIEN EL SELECTOR YA QUE SI LO HAGO ACA CUANDO PONEN CONTINUAR LE DA LA ULT VERSION
-        versiones_parametros = get_project_versions_param(global_session.get_id_proyecto(), global_session.get_id_version())
+        versiones_parametros = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
         opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version")) 
         valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
         
@@ -99,7 +99,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
     @output
     @render.ui
     def button_remove_versions_param():
-        versions_list = get_project_versions_param(global_session.get_id_proyecto(), global_session.get_id_version())
+        versions_list = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
         name = global_session.get_versiones_name()
         return button_remove(versions_list, id_versiones_params.get(), "id_jsons", name_para_button)
     
@@ -107,7 +107,6 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
     @reactive.Effect
     def handle_delete_buttons():
         id_verisones_param = global_session.get_version_parametros_id()
-        print(id_verisones_param, "estoy en versiones")
         eliminar_btn_id = f"eliminar_version_{global_session.get_version_parametros_id()}_{name_para_button}"
         @reactive.Effect
         @reactive.event(input[eliminar_btn_id])

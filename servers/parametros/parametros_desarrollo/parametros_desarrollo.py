@@ -178,13 +178,12 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
                 ),
                 
                 ui.output_text_verbatim(f"param_validation_3_{name_suffix}"),
-                print(id_buttons_desa,"que tiene el boton?"),
                 create_modals(id_buttons_desa),
                 global_session_V2.set_retornado(True),
                 
             )
         else:
-            print("pase igual?") 
+            
             global_session_V2.set_retornado(True),
             #return parametros_sin_version(name_suffix)
             

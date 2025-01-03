@@ -67,9 +67,9 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
             dataSet_predeterminado_parms.set(global_session_V2.get_nombre_dataset_validacion_sc())
         
         
-        print(dataSet_predeterminado_parms.get(), "en logica scoring")
+        
         data = leer_dataset_sc(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session_V2.get_nombre_dataset_validacion_sc())
-        print(f"toy en data SC, {data}")
+        
         global_session_V2.set_data_set_reactivo_validacion_sc(data)
         
         ##actualizo el selector de columna target

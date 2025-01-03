@@ -11,6 +11,7 @@ class Reactividad:
         self.numero_de_dataset =  reactive.Value("5")
         self._delimitador = None
         self.mensaje_por_defecto = reactive.Value()
+        self.value_boolean_for_values_in_config = reactive.value(False)
 
     def set_process_desarrollo(self, proceso):
         # Actualiza el valor de fechaHora usando el método set()

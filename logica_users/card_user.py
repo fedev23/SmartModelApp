@@ -17,6 +17,7 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
             }
 
             return ui.page_fluid(
+
     # Primera fila
     ui.row(
         # Primera columna

@@ -7,16 +7,20 @@ from clases.reactives_name import global_names_reactivos
 from funciones.funciones_user import button_remove, create_modal_v2
 from funciones.utils_2 import eliminar_archivo, leer_dataset
 from logica_users.utils.help_versios import obtener_ultimo_nombre_archivo
-from funciones.clase_estitca.leer_datos import DatasetHandler
+from api.db.help_config_db import *
 from clases.global_sessionV2 import *
 from clases.global_reactives import global_estados
 from api.db.sqlite_utils import *
+from global_names import base_datos
 
 
 def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     
    
     list = reactive.Value(None)
+    config_state = reactive.Value({})
+    with_values = reactive.Value(False)
+    
    
     #EN ESTE ARCHIVO SE MANEJA LA LOGICA DE SELECCIONES SOBRE FILES EN DESARROLLO
     #TAMBIEN SE CREA EL MODAL DE CONFIGURACION
@@ -111,64 +115,84 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
         )
         ui.modal_remove()
             
-            
+    
     def create_modal():
-        return ui.modal( 
-            ui.tags.div(
-                ui.row(
-                    ui.card(
-                        ui.column(
-                            12,
-                            ui.input_select(
-                                "number_choice",
-                                "Selecciona un número de columnas de dataset",
-                                    choices=[str(i) for i in range(5, 26)],
-                                width="100%"
+        current_config = config_state.get()
+        return ui.modal(
+                ui.tags.div(
+                    ui.row(
+                        ui.card(
+                            ui.column(
+                                12,
+                                ui.input_numeric(
+                                    "number_choice",
+                                    "Ingrese un número de columnas para ver en el dataset",
+                                    value=current_config["number_choice"],  # Usa el valor actual del estado
+                                )
+                            ),
+                        ),
+                        ui.tags.hr(),
+                        ui.card(
+                            ui.column(
+                                12,
+                                ui.input_numeric(
+                                    "min_value",
+                                    "Ingrese el valor minimo para la configuracion de segmentacion",
+                                    value=current_config["min_value"]  # Usa el valor actual del estado
+                                ),
+                                ui.input_numeric(
+                                    "max_value",
+                                    "Ingrese el valor maximo para la configuracion de segmentacion",
+                                    value=current_config["max_value"]  # Usa el valor actual del estado
+                                )
                             )
                         ),
-                    ),
-                    ui.tags.hr(),
-                    ui.card(
-                        ui.column(
-                            12,
-                            ui.input_numeric(
-                                "min_value",
-                                "Ingrese el valor minimo para la configuracion de segmentacion",
-                                value=3
-                            ),
-                            ui.input_numeric(
-                                "max_value",
-                                "Ingrese el valor maximo para la configuracion de segmentacion",
-                                value=8
-                            )
-                        )
-                    ),
-                    # Agregar el modo oscuro dentro de una fila o columna
-                   
-                )
-            ),
-            title="Configuración de parametros",
-            easy_close=True,
-            size='l',
-            footer=ui.row(
-                ui.column(
-                    6,
-                    ui.input_action_button("save_modal", "Guardar", class_="btn-primary")
+                    )
                 ),
-                ui.column(
-                    6,
-                    ui.input_action_button("close_modal", "Cerrar", class_="btn-secondary")
+                title="Configuración de parametros",
+                easy_close=True,
+                size='l',
+                footer=ui.row(
+                    ui.column(
+                        6,
+                        ui.input_action_button("save_modal", "Guardar", class_="btn-primary")
+                    ),
+                    ui.column(
+                        6,
+                        ui.input_action_button("close_modal", "Cerrar", class_="btn-secondary")
+                    )
                 )
             )
-        )
+        
+        
+    
+    def create_navigation_handler(input_id, screen_name):
+        @reactive.Effect
+        @reactive.event(input[input_id])
+        async def navigate():
+            await session.send_custom_message('navigate', screen_name)
+            
+    
 
+    @reactive.Effect
+    def cargar_configuracion_inicial():
+            config = obtener_configuracion_por_hash(base_datos, global_session.get_id_user())
+            if config:
+                valor_min_seg, valor_max_seg, num_select_filas, _ = config.values()
+                ui.update_numeric("number_choice",value=num_select_filas)
+                ui.update_numeric("min_value",value=valor_min_seg)
+                ui.update_numeric("max_value",value=valor_max_seg)
+                
 
         
     @reactive.Effect
     @reactive.event(input["configuracion"])
     def modal():
-        modal = create_modal()
-        ui.modal_show(modal)
+        #recargar_values_of_config()
+        global_estados.value_boolean_for_values_in_config.set(True)
+        create_navigation_handler("configuracion","screen_config")
+        #ui.modal_show(create_modal())
+        
         
     
     @reactive.effect
@@ -181,4 +205,21 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     @reactive.Effect
     @reactive.event(input["close_modal"])
     def cerrar_modal_config():
-      return ui.modal_remove()
+      create_navigation_handler("close_modal","Screen_User")
+        
+  
+    @reactive.effect
+    def up_load_input_dark():
+        dark_or_light = input.dark_mode_switch()
+        if dark_or_light:
+            insertar_configuracion_usuario_con_replace(base_datos, global_session.get_id_user(), value_dark_or_light=dark_or_light)
+          
+        config = obtener_configuracion_por_hash(base_datos, global_session.get_id_user())
+        dark_or_light = config['value_dark_or_light']
+        print(dark_or_light, "valor de dark?")
+        ui.update_dark_mode(dark_or_light)
+        
+  
+  
+    
+    

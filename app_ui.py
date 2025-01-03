@@ -1,14 +1,7 @@
 from shiny import App, ui, reactive
-from clases.loadJson import LoadJson
-from funciones.create_param import create_screen
 from screens.screen_User import screen_User
-from screens.screen3 import screen3
-from screens.screen_Resultados import screenResult
-from screens.screen_Validacion import screenValid
-from screens.screen_desarollo import screenDesarollo
-from screens.screen_produccion import screenProduccion
-from screens.screen_in_sample import screenInSample
 from screens.screen_login import screenLogin
+from screens.screen_config import screen_config
 
 
 app_ui = ui.page_fluid(
@@ -17,5 +10,6 @@ app_ui = ui.page_fluid(
     ui.navset_hidden(
         ui.nav_panel("Screen_Login", screenLogin),
         ui.nav_panel("Screen_User", screen_User),
+        ui.nav_panel("screen_config", screen_config),
     )
 )

@@ -58,7 +58,7 @@ class FilesLoad:
             ##GUARDO LEL DATO CARGADO EN LA TABLA
             #insert_into_table("name_files", ['nombre_archivo', 'fecha_de_carga', 'project_id', 'version_id'], [input_name, fecha_de_carga, global_session.get_id_proyecto(), global_session.get_id_version()])
             print("pase antes de insertar??")
-            insert_record(
+            insert_into_table(
                 database_path="Modeling_App.db",
                 table="name_files",
                 columns=['nombre_archivo', 'fecha_de_carga', 'version_id'],

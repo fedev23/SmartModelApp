@@ -73,7 +73,7 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
         
         
         ##ACTUALIZO LAS VERSIONES DE NIELES Y SCORCARDS ACA Y EN LA SCREEN CORRESPONDIENTE DE NIVELES Y SC
-        versiones_parametros = get_project_versions_param(global_session.get_id_proyecto(), global_session.get_id_version())
+        versiones_parametros = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
         opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version")) 
         valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
         
