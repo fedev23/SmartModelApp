@@ -11,6 +11,7 @@ from funciones.utils import  crear_card_con_input_numeric_2, crear_card_con_inpu
 def server_parametros_desarrollo(input, output, session, name_suffix):
     # Obtener el DataLoader correspondiente basado en name_suffix, ya que necesita un key la clase dataloader
     count = reactive.value(0)
+    no_version =  reactive.Value(False)
     
     def user_session():
         @reactive.Effect
@@ -86,6 +87,7 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
     def parametros_desarrolo():
         print("ESTOY ANTES DE RETORNAR")
         if global_session_V2.get_json_params_desarrollo():
+            no_version.set(False),
             value_par_id = get_parameter_value('par_ids', global_session_V2.get_json_params_desarrollo())
             value_par_id = [value_par_id]
             return ui.div(
@@ -185,11 +187,17 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
         else:
             
             global_session_V2.set_retornado(True),
-            #return parametros_sin_version(name_suffix)
+            no_version.set(True),
             
 
+    @output
+    @render.ui
+    def return_params_sin_version():
+        if no_version.get():
+            return parametros_sin_version(name_suffix)
+            
+     
 
-                    
     @reactive.Effect
     def up_date_inputs_numerics():
         numeric_params = {

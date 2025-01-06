@@ -29,6 +29,7 @@ class ModeloProceso:
         self.proceso_ok = reactive.Value(False)
         self.proceso_fallo = reactive.value(False)
         self.mensaje_error = reactive.Value("")
+        self.pisar_el_modelo_actual = reactive.Value(False)
         
         
         
@@ -96,7 +97,7 @@ class ModeloProceso:
 
                 # Verificar el resultado y actualizar los valores reactivos
                 if returncode != 0:
-                    self.mensaje.set("Ejecucion fallida")
+                    self.mensaje.set(error_message)
                     self.set_proceso(False)
                     self.proceso_fallo.set(True)
                 else:
@@ -157,3 +158,7 @@ class ModeloProceso:
             )
         else:
             return ui.div("El archivo aún no se ha cargado. Por favor, cargue el archivo.")
+
+    
+    
+   

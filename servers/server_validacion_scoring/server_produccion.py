@@ -6,9 +6,10 @@ from clases.class_screens import ScreenClass
 from funciones_modelo.warning_model import *
 from funciones.utils_2 import errores
 from clases.global_session import global_session
-from funciones.utils_2 import get_user_directory, get_datasets_directory_data_set_versiones
+from funciones.utils_2 import get_user_directory, get_datasets_directory
 from logica_users.utils.help_versios import copiar_json_si_existe
 from clases.reactives_name import global_names_reactivos
+from global_names import global_name_produccion
 from funciones.utils import mover_file_reportes_puntoZip
 from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
 from funciones_modelo.global_estados_model import global_session_modelos
@@ -78,32 +79,45 @@ def server_produccion(input, output, session, name_suffix):
         click_count_value = modelo_produccion.click_counter.get()  # Obtener contador
         mensaje_value = modelo_produccion.mensaje.get()  # Obtener mensaje actual
         proceso = modelo_produccion.proceso.get()
+        valid = validar_existencia_modelo(
+            modelo_produccion.pisar_el_modelo_actual.get(),
+            base_datos="Modeling_App.db",
+            version_id=global_session.get_id_version(),
+            nombre_modelo=modelo_produccion.nombre,
+            nombre_version=global_session.get_versiones_name()
+        )
+        if modelo_produccion.pisar_el_modelo_actual.get() or valid:
+            try:
+                path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+                origen_modelo_puntoZip =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+                
+                path_niveles_sc = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
+                
+                
+                zip_existe = mover_file_reportes_puntoZip(origen_modelo_puntoZip,path_datos_entrada)
+                if not zip_existe:
+                    raise ValueError(f"Es de carácter obligatorio que se ejecute posteriormente la muestra de Desarrollo, para continuar en {global_name_produccion}")
+                
+                json_yes = copiar_json_si_existe(path_niveles_sc, path_datos_entrada)
+                if not json_yes:
+                    raise ValueError("Hubo un error con los parámetros de ejecución.")
+                
+               
+                
+                path_folder_dataset  = get_datasets_directory(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
         
-        
-        try:
+                mover_y_renombrar_archivo(global_session_V2.get_nombre_dataset_validacion_sc(), path_folder_dataset, name_suffix, path_datos_entrada)
+                
+                #mover_y_renombrar_archivo(global_session_V2.get_nombre_dataset_validacion_sc(), global_session.get_path_guardar_dataSet_en_proyectos(), name_suffix, path_entrada)
+                
+                modelo_produccion.script_path = f'./Scoring.sh --input-dir {path_datos_entrada} --output-dir {origen_modelo_puntoZip}'
+                
+                ejectutar_produccion(click_count_value, mensaje_value, proceso)
+                modelo_produccion.pisar_el_modelo_actual.set(False)
+            except Exception as e:
+                mensaje.set(f"Error durante la ejecución: {str(e)}")
+                return
             
-            path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
-            origen_modelo_puntoZip =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
-            
-            path_niveles_sc = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
-            
-            copiar_json_si_existe(path_niveles_sc, path_datos_entrada)
-            mover_file_reportes_puntoZip(origen_modelo_puntoZip,path_datos_entrada)
-            
-            path_folder_dataset  = get_datasets_directory_data_set_versiones(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version())
-       
-            mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), path_folder_dataset, name_suffix, path_datos_entrada)
-            
-            #mover_y_renombrar_archivo(global_session_V2.get_nombre_dataset_validacion_sc(), global_session.get_path_guardar_dataSet_en_proyectos(), name_suffix, path_entrada)
-            
-            modelo_produccion.script_path = f'./Scoring.sh --input-dir {path_datos_entrada} --output-dir {origen_modelo_puntoZip}'
-            
-            ejectutar_produccion(click_count_value, mensaje_value, proceso)
-            
-        except Exception as e:
-            mensaje.set(f"Primero ejecutar el proceso de Desarrollo para poder ejecutar el proceso  full {str(e)}")
-            return
-        
     
     
     def agregar_reactivo():  

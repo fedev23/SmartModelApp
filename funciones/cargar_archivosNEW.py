@@ -70,6 +70,7 @@ def mover_y_renombrar_archivo(nombre_archivo, directorio_base, name_suffix, dest
             raise ValueError(f"Sufijo desconocido: {name_suffix}")
 
         # Ruta completa del archivo destino
+        print(destino_base, nuevo_nombre)
         ruta_destino = os.path.join(destino_base, nuevo_nombre)
 
         # Copiar el archivo al destino con el nuevo nombre
@@ -85,7 +86,7 @@ def mover_y_renombrar_archivo(nombre_archivo, directorio_base, name_suffix, dest
         print(f"Error de valor: {e}")
         raise
     except Exception as e:
-        print(f"Error inesperado: {e}")
+        print(f"Error inesperado en mover files: {e}")
         raise
     
     

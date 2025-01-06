@@ -1,6 +1,6 @@
 import os
 import json
-from funciones.utils import crear_card_con_input_seleccionador, crear_card_con_input_numeric_2, crear_card_con_input_seleccionador_V2, crear_card_con_input_seleccionador_V3
+from funciones.utils import crear_card_con_input_seleccionador, crear_card_con_input_numeric_2, crear_card_con_input_seleccionador_V2, crear_card_con_input_seleccionador_V3, crear_card_con_input_seleccionador_V3_sin_multiples_opciones
 from shiny import ui
 from clases.global_sessionV2 import  *
 import pandas as pd
@@ -250,12 +250,10 @@ def parametros_sin_version(name_suffix):
                     max_value=2,
                     step=0.01
                 ),
-                crear_card_con_input_seleccionador(
-                    "par_target",
-                    "Columna Target",
-                    "help_target_col",
-                    ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px")
-                ),
+                crear_card_con_input_seleccionador_V3_sin_multiples_opciones("par_target", "Columna Target", "help_target_col", 
+                                                        ui.tags.i(class_="fa fa-question-circle-o", style="font-size:24px"),
+                                                        ),
+
 
                 # Fila 2
                 crear_card_con_input_seleccionador(

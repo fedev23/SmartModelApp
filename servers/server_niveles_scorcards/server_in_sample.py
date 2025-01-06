@@ -1,6 +1,6 @@
 from shiny import reactive, render, ui
-from clases.class_user_proyectName import global_user_proyecto
 from clases.class_screens import ScreenClass
+from  global_names  import global_name_in_Sample
 from datetime import datetime
 from clases.loadJson import LoadJson
 from funciones.param_in_sample import param_in_sample
@@ -271,16 +271,6 @@ def server_in_sample(input, output, session, name_suffix):
     
     
      ##FUNCION PARA RETORNAR LA TARJETA
-    @output
-    @render.ui
-    def card_in_sample():
-        return   retornar_card(
-        get_file_name=global_names_reactivos.get_name_file_db(),
-        #get_fecha=global_fecha.get_fecha_in_sample,
-        modelo=modelo_in_sample,
-        fecha=global_session_modelos.modelo_in_sample_hora.get(),
-        estado=global_session_modelos.modelo_in_sample_estado.get()
-    )
         
 
     ##USO ESTE DECORADOR PARA CORRER EL PROCESO ANSYC Y NO HAYA INTERRUCIONES EN EL CODIGO LEER DOCUENTACION
@@ -295,68 +285,77 @@ def server_in_sample(input, output, session, name_suffix):
     @reactive.effect
     @reactive.event(input.execute_in_sample, ignore_none=True)
     def ejecutar_in_sample_button():
-        click_count_value = global_desarollo.click_counter.get()  # Obtener contador
-        mensaje_value = global_desarollo.mensaje.get()  # Obtener mensaje actual
-        proceso = global_desarollo.proceso.get()
-        
-        if not validar_existencia_modelo(base_datos="Modeling_App.db", json_id=global_session.get_version_parametros_id(), nombre_modelo=modelo_in_sample.nombre, nombre_version=global_session.get_versiones_parametros_nombre()):
-            return
-        validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
-        # Verificar si hay errores, ver si agrego una validacion
-        if validator.is_valid():
-            inputs_procesados = {key: transformacion(input[key]()) for key, transformacion in transformaciones.items()}
-            rango_reportes = par_rango_reportes.data_view()
-            print(rango_reportes, "rango_reportes")
-            reportesMap = transformar_reportes(rango_reportes)
-          
-            df_editado = par_rango_niveles.data_view()
-            niveles_mapeados = transform_data(df_editado)
-            # Guardar los datos procesados
-            json_loader = LoadJson(input)
-            #json_file_path = json_loader.load_json()
-            nuevos_valores = {
-                "delimiter_desarollo": global_estados.get_delimitador(),
-                "proyecto_nombre": global_session.get_name_proyecto(),
-                "par_rango_niveles": niveles_mapeados,
-                "par_rango_reportes": reportesMap,
-            }
+        try:
+            click_count_value = global_desarollo.click_counter.get()  # Obtener contador
+            mensaje_value = global_desarollo.mensaje.get()  # Obtener mensaje actual
+            proceso = global_desarollo.proceso.get()
+            versiones = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
+            
+            print(versiones, "viendo versiones")
+            
+            if versiones is None:
+                print("hola, en versiones none")
+            # Validar si hay versiones
+            validacion_existe_modelo = validar_existencia_modelo(
+                modelo_in_sample.pisar_el_modelo_actual.get(),
+                base_datos="Modeling_App.db",
+                version_id=None,
+                json_id=global_session.get_version_parametros_id(),
+                nombre_modelo=modelo_in_sample.nombre,
+                nombre_version=global_session.get_versiones_name()
+            )
+            
+            if modelo_in_sample.pisar_el_modelo_actual.get() or validacion_existe_modelo:
+                validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
+                
+                if validator.is_valid():
+                    inputs_procesados = {key: transformacion(input[key]()) for key, transformacion in transformaciones.items()}
+                    rango_reportes = par_rango_reportes.data_view()
+                    reportesMap = transformar_reportes(rango_reportes)
+                    df_editado = par_rango_niveles.data_view()
+                    niveles_mapeados = transform_data(df_editado)
 
-            # Actualizar el JSON con los nuevos valores
-            json_loader.update_values(nuevos_valores)
-            json_loader.save_json()
-            
-            
-            #path = obtener_path_por_id_json("Modeling_App.db", global_session.get_version_parametros_id())
-            path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
-            path_datos_salida = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
-            
-            global_session.get_version_parametros_id()
-           
-            global_session.set_path_niveles_scorcads(path_datos_entrada)
-            global_session.set_path_niveles_scorcads_salida(path_datos_salida)
-        
-            inputs_procesados = aplicar_transformaciones(input, transformaciones)
-            
-            origen_modelo_puntoZip =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
-            ##MUEVO EL MODELO .ZIP QUE GENERO DESARROLO PARA QUE PUEDA SER USADO, ESTO DEBERIA SER USANDO EN TODAS LAS ISTANCIAS DE LOS MODELOS
-            movi = mover_file_reportes_puntoZip(origen_modelo_puntoZip,path_datos_entrada )
-            
-            #insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_desarrollo())
-            ##PATH DONDE SE EJECUTA EL SCRIPT Y LAS CARPETAS QUE CORRESPONDEN AL USARIO, PROYECT, VERSION ACTUAL O EN
-            data_Set  = get_datasets_directory_data_set_versiones(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version())
-       
-            mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), data_Set, name_suffix, path_datos_entrada)
-            
-            modelo_in_sample.script_path = f"./Validar_Desa.sh  --input-dir {path_datos_entrada} --output-dir {path_datos_salida}"
-            
-            ejecutar_in_sample_ascyn(click_count_value, mensaje_value, proceso) #-->EJECUTO EL PROCESO ACA   
-     
-        else:
-            # Mostrar errores
-            mensaje_de_error.set("\n".join(validator.get_errors()))
-            no_error.set(False)
-            mensaje.set("")
-        
+                    # Guardar los datos procesados
+                    json_loader = LoadJson(input)
+                    nuevos_valores = {
+                        "delimiter_desarollo": global_estados.get_delimitador(),
+                        "proyecto_nombre": global_session.get_name_proyecto(),
+                        "par_rango_niveles": niveles_mapeados,
+                        "par_rango_reportes": reportesMap,
+                    }
+
+                    # Actualizar el JSON con los nuevos valores
+                    json_loader.update_values(nuevos_valores)
+                    json_loader.save_json()
+
+                    path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
+                    path_datos_salida = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
+                    
+                    global_session.set_path_niveles_scorcads(path_datos_entrada)
+                    global_session.set_path_niveles_scorcads_salida(path_datos_salida)
+
+                    inputs_procesados = aplicar_transformaciones(input, transformaciones)
+                    origen_modelo_puntoZip = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+                    
+                    movi = mover_file_reportes_puntoZip(origen_modelo_puntoZip, path_datos_entrada)
+                    data_Set = get_datasets_directory_data_set_versiones(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version())
+
+                    mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), data_Set, name_suffix, path_datos_entrada)
+
+                    modelo_in_sample.script_path = f"./Validar_Desa.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida}"
+                    
+                    ejecutar_in_sample_ascyn(click_count_value, mensaje_value, proceso)
+                    modelo_in_sample.pisar_el_modelo_actual.set(False)
+                else:
+                    mensaje_de_error.set("\n".join(validator.get_errors()))
+                    no_error.set(False)
+                    mensaje.set("")
+
+
+        except ValueError as e:
+            mensaje.set(f"Error en la ejecución: {str(e)}")
+        except Exception as e:
+            mensaje.set(f"Error inesperado: {str(e)}")        
         
     def agregar_reactivo():  
         @reactive.effect
@@ -425,3 +424,24 @@ def server_in_sample(input, output, session, name_suffix):
 
     # Llamar a la función con la lista de botones
     create_modals(id_buttons)
+
+    
+    
+    @reactive.Effect
+    @reactive.event(input["continuar_no_overwrite_in_sample"])
+    def valid_model_in_sample():
+        modelo_in_sample.pisar_el_modelo_actual.set(True)
+        return  ui.modal_remove()
+    
+    
+    
+    @output
+    @render.ui
+    def card_in_sample():
+        return   retornar_card(
+        get_file_name=global_names_reactivos.get_name_file_db(),
+        modelo=modelo_in_sample,
+        fecha=global_session_modelos.modelo_in_sample_hora.get(),
+        estado=global_session_modelos.modelo_in_sample_estado.get()
+    )
+    

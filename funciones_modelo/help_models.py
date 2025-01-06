@@ -139,6 +139,7 @@ def procesar_etapa_in_sample_2(base_datos, json_version_id, etapa_nombre):
     """
     # Obtener el último modelo
     ult_model = obtener_ultimo_modelo_por_version_json(base_datos, json_version_id)
+    print(ult_model, "viendo last model")
     
     # Obtener el estado del modelo para la etapa
     estado_model = obtener_estado_por_modelo(ult_model, etapa_nombre)

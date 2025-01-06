@@ -49,6 +49,8 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
         columna_filtro = 'id_validacion_sc'
         nombre_file = obtener_valor_por_id(base_datos, tabla, columna_objetivo, columna_filtro, global_session_V2.get_id_Data_validacion_sc())
         
+        print(nombre_file, "viendo el verdadero")
+        
         global_session_V2.set_nombre_dataset_validacion_sc(nombre_file)
         
         ##obengo los valores de la tabla
@@ -122,7 +124,7 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
         global_session.get_id_proyecto(), 
         global_session.get_name_proyecto()
         )
-        dataset_path = os.path.join(directorio, global_names_reactivos.get_name_file_db())
+        dataset_path = os.path.join(directorio, global_session_V2.get_nombre_dataset_validacion_sc())
         eliminar_archivo(dataset_path)
         
         columnas = ['id_validacion_sc', 'nombre_archivo_validation_sc']

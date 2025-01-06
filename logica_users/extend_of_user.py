@@ -31,12 +31,13 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     def project_card_container():
         data_id = input.files_select()  # Captura el ID seleccionado
         global_session.set_id_dataSet(data_id)
-        
+
         base_datos = 'Modeling_App.db'
         tabla = 'name_files'
         columna_objetivo = 'nombre_archivo'
         columna_filtro = 'id_files'
         nombre_file = obtener_valor_por_id(base_datos, tabla, columna_objetivo, columna_filtro, global_session.get_id_dataSet())
+        
         
         actualizar_ultimo_seleccionado(base_datos, 'name_files', 'id_files', data_id)
         ##OBTENGO LOS VALORES ASOCIADOS A LA TABALA
@@ -47,7 +48,6 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
             where_params=(global_session.get_id_proyecto(),))
         
         
-       
         global_names_reactivos.set_name_file_db(nombre_file)
         
         if global_names_reactivos.get_name_file_db() is None:
@@ -219,7 +219,16 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
         print(dark_or_light, "valor de dark?")
         ui.update_dark_mode(dark_or_light)
         
-  
+        
+    
+    
+    @render.text
+    def show_data_Set_in_card_user():
+        return global_names_reactivos.get_name_file_db() or 'No hay un DataSet seleccionado'
+    
+    
+    
+     
   
     
     

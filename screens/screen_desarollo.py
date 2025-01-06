@@ -65,6 +65,7 @@ screenDesarollo = ui.page_fluid(
     ui.div(class_="mt-5"),  # Espaciador
     
     ui.output_ui("parametros_desarrolo"),
+    ui.output_ui("return_params_sin_version"),
     
     # Navegación con pestañas
     ui.navset_card_underline(

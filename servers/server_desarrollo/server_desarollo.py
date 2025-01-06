@@ -37,7 +37,7 @@ def server_desarollo(input, output, session, name_suffix):
     # Diccionario de transformaciones
     transformaciones = {
         'par_ids': cambiarAstring,
-        'par_target': cambiarAstring,
+        #'par_target': cambiarAstring,
         'cols_forzadas_a_predictoras': cambiarAstring,
         'par_var_grupo': cambiarAstring,
         'par_weight': cambiarAstring,
@@ -133,58 +133,60 @@ def server_desarollo(input, output, session, name_suffix):
         proceso = global_desarollo.get_proceso()
         base_datos = 'Modeling_App.db'
         
-        if not validar_existencia_modelo(base_datos=base_datos, version_id=global_session.get_id_version(), nombre_modelo=global_desarollo.nombre, nombre_version=global_session.get_versiones_name()):
-            return
+        validacion_existencia_modelo = validar_existencia_modelo(modelo_boolean_value=global_desarollo.pisar_el_modelo_actual.get(),base_datos=base_datos, version_id=global_session.get_id_version(), nombre_modelo=global_desarollo.nombre, nombre_version=global_session.get_versiones_name())
+            
         # Crear instancia de la clase Validator
-        validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
+        if global_desarollo.pisar_el_modelo_actual.get() or validacion_existencia_modelo:
+            validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
 
-        # Realizar las validaciones
-        validator.validate_column_identifiers()
-        validator.validate_iv()
-        validator.validate_target_column()
-        validator.validate_training_split()
+            # Realizar las validaciones
+            validator.validate_column_identifiers()
+            validator.validate_iv()
+            validator.validate_target_column()
+            validator.validate_training_split()
 
-        # Obtener los errores de validación
-        error_messages = validator.get_errors()
+            # Obtener los errores de validación
+            error_messages = validator.get_errors()
 
-        # Si hay errores, mostrar el mensaje y detener el proceso
-        if error_messages:
-            mensaje.set("\n".join(error_messages))
-            return  # Detener ejecución si hay errores
+            # Si hay errores, mostrar el mensaje y detener el proceso
+            if error_messages:
+                mensaje.set("\n".join(error_messages))
+                return  # Detener ejecución si hay errores
 
-        # Si no hay errores, limpiar el mensaje y proceder
-        mensaje.set("")  # Limpia el mensaje de error
+            # Si no hay errores, limpiar el mensaje y proceder
+            mensaje.set("")  # Limpia el mensaje de error
 
-        # Procesar los inputs y aplicar las transformaciones
-        inputs_procesados = aplicar_transformaciones(input, transformaciones)
+            # Procesar los inputs y aplicar las transformaciones
+            inputs_procesados = aplicar_transformaciones(input, transformaciones)
+            
+            # Guardar los inputs procesados en un archivo JSON
+            if global_session.proceso.get():
+                state = global_session.session_state.get()
+                if state["is_logged_in"]:
+                    user_id = state["id"]
+                    user_id_cleaned = user_id.replace('|', '_')
+                    json_loader = LoadJson(input) 
+                    json_loader.inputs.update(inputs_procesados)
+                    #ACTUALIZO VARIOS INPUTS QUE SON DINAMICOS CON EL FIN DE QUE NO ESTEN NULOS EN LA LLAMADA AL JSON
+                    json_loader.inputs['delimiter_desarollo'] = global_estados.get_delimitador()
+                    json_loader.inputs['proyecto_nombre'] = global_session.get_name_proyecto() 
+                    json_loader.inputs['file_desarollo'] = global_names_reactivos.get_name_file_db()
+                    json_file_path = json_loader.loop_json()
+                    print(f"Inputs guardados en {json_file_path}")
+                    #CREO EL PATH DONDE SE VA A EJECUTAR DESARROLLO DEPENDIENDO DEL PROYECYO Y LA VERSION QUE ESTE EN USO
+                
+                    path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+                    path_datos_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+                    
+                    ##necesito tener el nombre del dataset seleccionado asi le cambio el nombre y lo
+                    data_Set  = get_datasets_directory_data_set_versiones(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version())
         
-        # Guardar los inputs procesados en un archivo JSON
-        if global_session.proceso.get():
-            state = global_session.session_state.get()
-            if state["is_logged_in"]:
-                user_id = state["id"]
-                user_id_cleaned = user_id.replace('|', '_')
-                json_loader = LoadJson(input) 
-                json_loader.inputs.update(inputs_procesados)
-                #ACTUALIZO VARIOS INPUTS QUE SON DINAMICOS CON EL FIN DE QUE NO ESTEN NULOS EN LA LLAMADA AL JSON
-                json_loader.inputs['delimiter_desarollo'] = global_estados.get_delimitador()
-                json_loader.inputs['proyecto_nombre'] = global_session.get_name_proyecto() 
-                json_loader.inputs['file_desarollo'] = global_names_reactivos.get_name_file_db()
-                json_file_path = json_loader.loop_json()
-                print(f"Inputs guardados en {json_file_path}")
-                #CREO EL PATH DONDE SE VA A EJECUTAR DESARROLLO DEPENDIENDO DEL PROYECYO Y LA VERSION QUE ESTE EN USO
-               
-                path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
-                path_datos_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
-                
-                ##necesito tener el nombre del dataset seleccionado asi le cambio el nombre y lo
-                data_Set  = get_datasets_directory_data_set_versiones(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version())
-       
-                mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), data_Set, name_suffix, path_datos_entrada)
-                
-                global_desarollo.script_path = f'./Modelar.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida}'
-                ejectutar_desarrollo_asnyc(click_count_value, mensaje_value, proceso)
-                
+                    mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), data_Set, name_suffix, path_datos_entrada)
+                    
+                    global_desarollo.script_path = f'./Modelar.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida}'
+                    ejectutar_desarrollo_asnyc(click_count_value, mensaje_value, proceso)
+                    global_desarollo.pisar_el_modelo_actual.set(False)
+                    
                 
     ##ESTA FUNCION LA HAGO PARA DETECTAR BIEN LOS VALORES REACTIVOS QUE ESTAN DENTRO DEL PROCESO        
     def agregar_reactivo():  
@@ -212,6 +214,14 @@ def server_desarollo(input, output, session, name_suffix):
     @render.text
     def error():
       return mostrar_error(mensaje.get())
+  
+  
+  
+    @reactive.Effect
+    @reactive.event(input["continuar_no_overwrite_desarollo"])
+    def valid_model_of_sample():
+        global_desarollo.pisar_el_modelo_actual.set(True)
+        return  ui.modal_remove()
                
         
 

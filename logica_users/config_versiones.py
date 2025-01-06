@@ -65,6 +65,17 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
        
         global_session_modelos.modelo_desarrollo_hora.set(fecha_model_desarrollo)
         
+        print(global_session.get_version_parametros_id(), "viendo el maldito ID")
+        estado_in_sample , hora_in_sample = help_models.procesar_etapa_in_sample_2(base_datos="Modeling_App.db", json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")
+        
+        
+        global_session_modelos.modelo_in_sample_estado.set(estado_in_sample)
+        print(estado_in_sample, "estado in")
+        global_session_modelos.modelo_in_sample_hora.set(hora_in_sample)
+        print(hora_in_sample, "hora_in")
+        
+       
+        
         ##ACTUALIZO EL ULTIMO SELECCIONADO EN LA TABALA DE BD
         actualizar_ultimo_seleccionado(base_datos, 'version', 'version_id', global_session.get_id_version())
         global_session.set_versiones_name(nombre_version)
@@ -126,7 +137,7 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
             choices={str(vers['version_id']): vers['nombre_version']
                      for vers in lista_de_versiones_new}
         )
-        ui.modal_remove()
+        return ui.modal_remove()
         
     @reactive.Effect
     @reactive.event(input["cancelar_id"])

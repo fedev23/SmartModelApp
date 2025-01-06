@@ -59,8 +59,7 @@ class FilesLoad:
             #insert_into_table("name_files", ['nombre_archivo', 'fecha_de_carga', 'project_id', 'version_id'], [input_name, fecha_de_carga, global_session.get_id_proyecto(), global_session.get_id_version()])
             print("pase antes de insertar??")
             insert_into_table(
-                database_path="Modeling_App.db",
-                table="name_files",
+                table_name="name_files",
                 columns=['nombre_archivo', 'fecha_de_carga', 'version_id'],
                 values=[input_name, fecha_de_carga, global_session.get_id_version()]
             ) 
@@ -106,8 +105,11 @@ class FilesLoad:
             if not file:
                 raise ValueError("No se recibió ningún archivo para validar.")
 
-            data_Set  = get_datasets_directory_data_set_versiones(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version())
-        
+            data_Set  = get_datasets_directory(
+                global_session.get_id_user(), 
+                global_session.get_id_proyecto(), 
+                global_session.get_name_proyecto()
+            )
             validar_file = verificar_archivo_sc(data_Set, input_name)
             if validar_file and self.select_overwrite.get() is False:
                 ui.modal_show(create_modal_warning_exist_file(input_name, self.name_suffix, global_session.get_versiones_name()))
@@ -125,8 +127,7 @@ class FilesLoad:
 
             # Insertar datos en la tabla
             id = insert_into_table(
-                database_path="Modeling_App.db",
-                table="validation_scoring",
+                table_name="validation_scoring",
                 columns=['nombre_archivo_validation_sc', 'fecha_de_carga', 'version_id'],
                 values=[input_name, fecha_de_carga, global_session.get_id_version()]
             )

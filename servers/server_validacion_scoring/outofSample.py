@@ -2,13 +2,14 @@ from shiny import reactive, render, ui
 from funciones.create_param import create_screen
 from clases.class_screens import ScreenClass
 from global_var import global_data_loader_manager
-from funciones.utils_2 import errores, get_user_directory, get_datasets_directory_data_set_versiones
+from funciones.utils_2 import errores, get_user_directory, get_datasets_directory
 from clases.global_modelo import modelo_of_sample
 from clases.global_session import global_session
 from api.db import *
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.help_models import *
 from clases.reactives_name import global_names_reactivos
+from global_names import global_name_out_of_Sample
 from clases.global_sessionV2 import *
 from funciones.validacionY_Scoring.create_card import crate_file_input_y_seleccionador
 from clases.global_modelo import modelo_of_sample
@@ -89,41 +90,50 @@ def server_out_of_sample(input, output, session, name_suffix):
         click_count_value = modelo_of_sample.click_counter.get()  # Obtener contador
         mensaje_value = modelo_of_sample.mensaje.get()  # Obtener mensaje actual
         proceso = modelo_of_sample.proceso.get()
-        if not validar_existencia_modelo("Modeling_App.db", global_session.get_id_version(), modelo_of_sample.nombre, global_session.get_versiones_name()):
-            return
+        valid = validar_existencia_modelo(
+            modelo_of_sample.pisar_el_modelo_actual.get(),
+            base_datos="Modeling_App.db",
+            version_id=global_session.get_id_version(),
+            nombre_modelo=modelo_of_sample.nombre,
+            nombre_version=global_session.get_versiones_name()
+        )
         
-        try:
-            path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
-            origen_modelo_puntoZip =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
-            ##MUEVO EL MODELO .ZIP QUE GENERO DESARROLO PARA QUE PUEDA SER USADO, ESTO DEBERIA SER USANDO EN TODAS LAS ISTANCIAS DE LOS MODELOS
-            mover_file_reportes_puntoZip(origen_modelo_puntoZip,path_datos_entrada )
-            
-            data_Set  = get_datasets_directory_data_set_versiones(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version())
-       
-            mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), data_Set, name_suffix, path_datos_entrada)
-                    
-            #mover_y_renombrar_archivo(global_session_V2.get_nombre_dataset_validacion_sc(), global_session.get_path_guardar_dataSet_en_proyectos(), name_suffix, path_datos_entrada)
+        if modelo_of_sample.pisar_el_modelo_actual.get() or valid:
+            try:
+                path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+                print(path_datos_entrada, "viendo path de entrada")
                 
-            path_niveles_sc = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
-            
-            help_versios.copiar_json_si_existe(path_niveles_sc, path_datos_entrada)
-            modelo_of_sample.script_path = f'./Validar_Nueva.sh --input-dir {path_datos_entrada} --output-dir {origen_modelo_puntoZip}'
-            #./Validar_Nueva.sh --input-dir <dir_in> [--output-dir <dir_out>] [--quick <true/false>] [--help]
-            ejecutar_of_to_sample(click_count_value, mensaje_value, proceso)
-            #insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), name_suffix, global_name_manager.get_file_name_validacion())
-            if proceso:
-                    estado = insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), datetime.now().strftime("%Y-%m-%d %H:%M"), modelo_of_sample.nombre, global_names_reactivos.get_name_file_db(), global_session.get_id_version(), 'out_to_sample', 'completado')
-                    print(f'estado de la ejecucion {estado}')
-            else:
-                    estado = insert_table_model(global_session.get_id_user(), global_session.get_id_proyecto(), datetime.now().strftime("%Y-%m-%d %H:%M"), modelo_of_sample.nombre, global_names_reactivos.get_name_file_db(), global_session.get_id_version(), 'out_to_sample', 'error')
-                    print(f'estado de la ejecucion {estado}')
+                origen_modelo_puntoZip = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
                 
+                # Mover archivo .zip y verificar si existe
+                zip_existe = mover_file_reportes_puntoZip(origen_modelo_puntoZip, path_datos_entrada)
+                if not zip_existe:
+                    raise ValueError(f"Es de carácter obligatorio que se ejecute posteriormente la muestra de Desarrollo, para continuar en {global_name_out_of_Sample}")
+                
+                # Validar si el JSON existe y detenerse si no existe
+                path_niveles_sc = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
+                json_existe = help_versios.copiar_json_si_existe(path_niveles_sc, path_datos_entrada)
+                if not json_existe:
+                    raise ValueError("Hubo un error con los parámetros de ejecución.")
+                
+                # Verificar si el JSON existe
+                path_niveles_sc = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
+                json_existe = help_versios.copiar_json_si_existe(path_niveles_sc, path_datos_entrada)
+                
+                # Validar existencia de .zip y JSON
+               
+                # Continuar con la ejecución
+                data_Set = get_datasets_directory(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
+                mover_y_renombrar_archivo(global_session_V2.get_nombre_dataset_validacion_sc(), data_Set, name_suffix, path_datos_entrada)
+                
+                modelo_of_sample.script_path = f'./Validar_Nueva.sh --input-dir {path_datos_entrada} --output-dir {origen_modelo_puntoZip}'
+                ejecutar_of_to_sample(click_count_value, mensaje_value, proceso)
+                modelo_of_sample.pisar_el_modelo_actual.set(False)
             
-        except Exception as e:
-            mensaje.set(f"Primero ejecutar el proceso de Desarrollo para poder ejecutar el proceso  full {str(e)}")
-            return
-        
-        
+            except Exception as e:
+                    mensaje.set(f"Error durante la ejecución: {str(e)}")
+                    return
+    
     
     def agregar_reactivo():  
         @reactive.effect
@@ -155,8 +165,16 @@ def server_out_of_sample(input, output, session, name_suffix):
     
     
     @reactive.Effect
-    @reactive.event(input.cancel_overwrite_of_Sample)
+    @reactive.event(input.cancel_overwrite_of_sample)
     def validacion_out_to_Sample_model_run():
          return  ui.modal_remove()
         
+    
+
+    
+    @reactive.Effect
+    @reactive.event(input["continuar_no_overwrite_of_sample"])
+    def valid_model_of_sample():
+        modelo_of_sample.pisar_el_modelo_actual.set(True)
+        return  ui.modal_remove()
     

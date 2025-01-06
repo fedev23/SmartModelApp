@@ -18,16 +18,39 @@ def create_modal_warning_exist_model(name, nombre_version):
         title="Advertencia",
         easy_close=True,
         size='xs',
-        footer=ui.tags.div(
-            #ui.input_action_button(f"continue_overwrite_{name}", "Continuar", style="margin-right: 10px;"),
-            ui.input_action_button(f"cancel_overwrite_{name}", "Cancelar"),
-            style="display: flex; justify-content: flex-end;"
-        )
+        footer = ui.row(
+    # Primera fila de botones
+    ui.column(
+        5,
+      ui.tags.div(
+        # Botón "Cancelar" para no sobrescribir
+        ui.input_action_button(
+            f"continuar_no_overwrite_{name}",
+            "Continuar"
+        ),
+        style="display: flex; justify-content: flex-end; margin-bottom: 10px;"
+    ),  
+    ),
+    
+    ui.column(
+        5,
+        ui.tags.div(
+        # Botón "Cancelar" para sobrescribir
+        ui.input_action_button(
+            f"cancel_overwrite_{name}",
+            "Cancelar"
+        ),
+        style="display: flex; justify-content: flex-end;"
     )
+    )
+    
+)
+)
 
 
 
-def validar_existencia_modelo(base_datos, version_id=None, json_id=None, nombre_modelo=None, nombre_version=None):
+
+def validar_existencia_modelo(modelo_boolean_value , base_datos, version_id=None, json_id=None, nombre_modelo=None, nombre_version=None):
     """
     Valida si existe un modelo con un estado de ejecución dado en la base de datos
     y muestra un modal de advertencia si es necesario.
@@ -40,13 +63,17 @@ def validar_existencia_modelo(base_datos, version_id=None, json_id=None, nombre_
     :return: True si el modelo no existe o no tiene estado, False si existe y se muestra el modal.
     """
     # Verificar el estado de ejecución utilizando la función check_execution_status
-    estado_ejecucion = check_execution_status(base_datos, version_id=version_id, json_id=json_id)
+    if not modelo_boolean_value:
+        
+        estado_ejecucion = check_execution_status(base_datos, version_id=version_id, json_id=json_id)
 
-    if estado_ejecucion is not None:
-        # Mostrar el modal de advertencia si el modelo ya tiene un estado de ejecución
-        ui.modal_show(create_modal_warning_exist_model(nombre_modelo, nombre_version))
-        print(f"Modelo '{nombre_modelo}' con versión '{nombre_version}' ya existe con estado: {estado_ejecucion}.")
-        return False  # El modelo ya existe con un estado asociado
+        if estado_ejecucion is not None:
+            # Mostrar el modal de advertencia si el modelo ya tiene un estado de ejecución
+            ui.modal_show(create_modal_warning_exist_model(nombre_modelo, nombre_version))
+            return False  # El modelo ya existe con un estado asociado
 
-    print(f"Modelo '{nombre_modelo}' con versión '{nombre_version}' no existe o no tiene estado asociado.")
-    return True  # El modelo no existe o no tiene estado
+        return True  # El modelo no existe o no tiene estado
+    
+    
+
+

@@ -321,6 +321,7 @@ def obtener_versiones_por_proyecto(columnas, tabla, condiciones=None, parametros
     finally:
         # Cerrar la conexión
         conn.close()
+        
 def insert_into_table(table_name, columns, values):
     """
     Inserta un registro en la tabla especificada y muestra el contenido actual de la tabla para depuración.
@@ -539,57 +540,40 @@ def   get_project_versions_param(project_id, version_id):
         # Cerrar la conexión
         conn.close()          
 
-def get_project_versions_param_mejorada(project_id, version_id=None):
-    """
-    Obtiene las versiones de parámetros asociadas a un proyecto específico.
-    Permite filtrar por una versión específica dentro del proyecto.
-
-    :param project_id: ID del proyecto asociado.
-    :param version_id: ID específico de la versión (opcional).
-    :return: Lista de diccionarios con las versiones de parámetros y sus nombres.
-    """
+def get_project_versions_param_mejorada(project_id, version_id):
     conn = sqlite3.connect('Modeling_App.db')
     cur = conn.cursor()
     
     try:
-        # Consulta base
-        query = '''
-            SELECT j.id_jsons, j.nombre_version, j.version_id
+        # Realizar la consulta para obtener las versiones específicas
+        cur.execute('''
+            SELECT j.id_jsons, j.nombre_version
             FROM json_versions j
-            INNER JOIN version v ON j.version_id = v.version_id
-            WHERE v.project_id = ?
-        '''
-        params = [project_id]
-        
-        # Filtro adicional por version_id
-        if version_id:
-            query += " AND j.version_id = ?"
-            params.append(version_id)
-        
-        # Ejecutar la consulta
-        cur.execute(query, params)
+            JOIN version v ON j.version_id = v.version_id
+            WHERE v.project_id = ? AND j.version_id = ?
+        ''', (project_id, version_id))
         
         # Recuperar los resultados
         versiones = cur.fetchall()
         
-        # Convertir resultados en lista de diccionarios
+        # Convertir los resultados en una lista de diccionarios
         files_list = [
             {
-                'id_jsons': row[0],
-                'nombre_version': row[1],
-                'version_id': row[2]
+                'id_jsons': file[0],
+                'nombre_version': file[1],
             }
-            for row in versiones
+            for file in versiones
         ]
         
-        return files_list
+        return files_list  # Retornar la lista de resultados
     
     except sqlite3.Error as e:
         print(f"Error al acceder a la base de datos: {e}")
         return []
     
     finally:
-        conn.close()
+        # Cerrar la conexión
+        conn.close()          
                
 def obtener_valor_por_id_versiones(id_files , base_datos='Modeling_App.db'):
     

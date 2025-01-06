@@ -20,7 +20,7 @@ class LoadJson:
                 "nombre_archivo": self.inputs.get("file_desarollo"),
                 "par_split": self.input["par_split"](),
                 "par_ids": self.inputs.get("par_ids"),
-                "par_target": self.inputs.get("par_target"),
+                "par_target": self.input["par_target"](),
                 "cols_forzadas_a_predictoras": self.inputs.get("cols_forzadas_a_predictoras"),
                 "par_var_grupo": self.inputs.get("par_var_grupo"),
                 "cols_forzadas_a_cat": self.inputs.get("cols_forzadas_a_cat"),

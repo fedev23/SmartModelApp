@@ -26,11 +26,11 @@ def mover_file_reportes_puntoZip(origen: str, destino: str, nombre_archivo: str 
         print(f"Archivo movido a: {nueva_ruta}")
 
         # Devolver la nueva ruta del archivo
-        return nueva_ruta, True
+        return True
     else:
         error_msg = f"El archivo {nombre_archivo} no se encontró en la carpeta {origen}."
         print(error_msg)
-        return error_msg
+        return False
 
 
 def validar_columnas(df, nombre_input):
