@@ -3,6 +3,7 @@ from funciones.utils import  create_modal_parametros, id_buttons
 from clases.global_session import global_session
 from funciones.help_parametros.valid_columns import *
 from clases.global_sessionV2 import *
+from funciones.help_parametros import *
 from funciones.utils import create_modal_parametros, id_buttons_desa
 from funciones.utils_cargar_json import get_parameter_value, update_selectize_from_columns_and_json, update_numeric_from_parameters, parametros_sin_version
 from funciones.utils import  crear_card_con_input_numeric_2, crear_card_con_input_seleccionador_V2, crear_card_con_input_seleccionador_V3, crear_card_con_input_seleccionador_V3_sin_multiples_opciones
@@ -59,6 +60,8 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
             selectize_params_only_target = {
                 "par_target": "par_target",  
             }
+            
+            
 
             json_params = global_session_V2.get_json_params_desarrollo()
 
@@ -85,7 +88,6 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
     @output
     @render.ui
     def parametros_desarrolo():
-        print("ESTOY ANTES DE RETORNAR")
         if global_session_V2.get_json_params_desarrollo():
             no_version.set(False),
             value_par_id = get_parameter_value('par_ids', global_session_V2.get_json_params_desarrollo())

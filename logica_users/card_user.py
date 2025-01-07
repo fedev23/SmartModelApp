@@ -94,7 +94,7 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                         style="color: #007bff;"
                     )
                 ),
-                ui.output_ui("button_remove_versions_param"),
+                ui.output_ui("button_remove_versions_params"),
                 class_="d-flex align-items-center gap-3 mb-3"
             ),
             class_="d-flex align-items-center gap-3 mb-3"

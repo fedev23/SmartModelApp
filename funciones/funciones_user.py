@@ -147,13 +147,12 @@ def button_remove_version(project_id, target_version_id):
         # Solo se imprime el mensaje si había versiones, pero la específica no se encontró
         print("La versión no pertenece al proyecto o no existe.")
         return None
-        
+    
 def button_remove(versions_list, target_version_id, id, name):
-
+   
     # Busca si la versión especificada pertenece al proyecto
-    version = next((version for version in versions_list if str(version[id]) == str(target_version_id)), None)
-    #print(version)  # Debug: Imprime la versión encontrada o None
-    print(version)
+    version = next((version for version in versions_list if str(version.get(id)) == str(target_version_id)), None)
+    
     if version:
         sanitized_name = version[id]  # Obtén el ID de la versión
         # Devuelve un enlace de acción para eliminar la versión
@@ -161,10 +160,11 @@ def button_remove(versions_list, target_version_id, id, name):
             f"eliminar_version_{sanitized_name}_{name}", 
             ui.tags.i(class_="fa fa-trash fa-2x text-danger"),  # Ícono de basura en rojo
             style="background: none; border: none;")
-        
+    else:
+        print(f"No se encontró una versión con {id} igual a {target_version_id} en la lista.")
+        return None        
          
 
-    
     
 
 

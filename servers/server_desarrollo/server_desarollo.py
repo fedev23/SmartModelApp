@@ -224,5 +224,9 @@ def server_desarollo(input, output, session, name_suffix):
         return  ui.modal_remove()
                
         
-
+    
+    @reactive.Effect
+    @reactive.event(input["cancel_overwrite_desarrollo"])
+    def cancelar():
+      return ui.modal_remove()
     

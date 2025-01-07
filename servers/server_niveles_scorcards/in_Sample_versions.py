@@ -4,6 +4,7 @@ from shiny import App, Inputs, Outputs, Session, reactive, ui, render, module
 from funciones.nav_panel_User import create_nav_menu_user
 from clases.class_user_proyectName import global_user_proyecto
 from api import *
+from global_names import global_name_in_Sample
 from clases.global_session import global_session
 from api.db.sqlite_utils import *
 from funciones.funciones_user import create_modal_v2, create_modal_versiones_param, button_remove
@@ -89,7 +90,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
                         nombre_de_la_version_in_sample.set(nombre_version)
                         global_session.set_versiones_parametros_nombre(obtener_valor_por_id_versiones(global_session.get_version_parametros_id()))
             
-                print(global_session.get_version_parametros_id(), "viendo el maldito ID")
+                
                 estado_in_sample , hora_in_sample = procesar_etapa_in_sample_2(base_datos="Modeling_App.db", json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")
                 
                 
@@ -103,26 +104,26 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
         
     @output
     @render.ui
-    def button_remove_versions_param():
+    def button_remove_versions_params():
         versions_list = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
         name = global_session.get_versiones_name()
-        return button_remove(versions_list, id_versiones_params.get(), "id_jsons", name_para_button)
+        return button_remove(versions_list, global_session.get_version_parametros_id(), "id_jsons", name)
     
     
     @reactive.Effect
     def handle_delete_buttons():
-        id_verisones_param = global_session.get_version_parametros_id()
-        eliminar_btn_id = f"eliminar_version_{global_session.get_version_parametros_id()}_{name_para_button}"
+        name = global_session.get_versiones_name()
+        eliminar_btn_id = f"eliminar_version_{global_session.get_version_parametros_id()}_{name}"
         @reactive.Effect
         @reactive.event(input[eliminar_btn_id])
         def eliminar_param_boton():
-            create_modal_v2("Eliminar versión de parametros", "Confirmar", "Cancelar", "confirmar_remove", "cancelar_remove")
+            create_modal_v2(f"Eliminar versión de {global_name_in_Sample}, {name}?", "Confirmar", "Cancelar", "confirmar_remove", "cancelar_remove_niveles_sc")
         
         
     @reactive.Effect
     @reactive.event(input.confirmar_remove)
     def remove_versiones_de_parametros():
-        eliminar_version("json_versions", "id_jsons", id_versiones_params.get())
+        eliminar_version("json_versions", "id_jsons", global_session.get_version_parametros_id())
         path_carpeta_versiones_borrar_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
         path_carpeta_versiones_borrar_salida = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
             
@@ -134,19 +135,20 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
         condiciones = "version_id = ?"
         parametros = (global_session.get_id_version(),)  
         lista_de_versiones_new = obtener_versiones_por_proyecto(columnas,tabla, condiciones,parametros)
-        print(lista_de_versiones_new, "que tiene la lista?")
         list.set(lista_de_versiones_new)
         ui.update_select(
             "version_selector",
             choices={str(vers['id_jsons']): vers['nombre_version']
                      for vers in lista_de_versiones_new}
         )
-        ui.modal_remove()
+        return ui.modal_remove()
     
     
     
-        
-    
+    @reactive.effect
+    @reactive.event(input.cancelar_remove_niveles_sc)    
+    def remove_Versiones_niveles_scord():
+        return ui.modal_remove()
         
      
         

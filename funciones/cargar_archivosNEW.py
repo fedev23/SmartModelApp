@@ -70,7 +70,6 @@ def mover_y_renombrar_archivo(nombre_archivo, directorio_base, name_suffix, dest
             raise ValueError(f"Sufijo desconocido: {name_suffix}")
 
         # Ruta completa del archivo destino
-        print(destino_base, nuevo_nombre)
         ruta_destino = os.path.join(destino_base, nuevo_nombre)
 
         # Copiar el archivo al destino con el nuevo nombre
@@ -98,12 +97,18 @@ def create_modal_warning_exist_file(file_name, name, nombre_version):
                 ui.column(
                     12,
                     ui.tags.p(
-                        f"El archivo '{file_name}' ya existe en la version {nombre_version}."
-                    )
+                        f"El archivo '{file_name}' ya existe en la version {nombre_version}.",
+                        style="color: #d9534f; font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 20px;"
+                    ),
+                     style="padding: 10px; border: 1px solid #d9534f; border-radius: 5px; background-color: #f2dede;"
+                    
                 ),
             )
         ),
-            title="Advertencia",
+            title=ui.tags.div(
+            "⚠️ Advertencia",
+            style="color: #f0ad4e; font-size: 20px; font-weight: bold; text-align: center;"
+        ),
             easy_close=True,
             size='xs',
             footer=ui.input_action_button(f"cancel_overwrite_{name}", "Cancelar", style="margin-left: 10px;")

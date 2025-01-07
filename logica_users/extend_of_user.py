@@ -173,17 +173,19 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
             await session.send_custom_message('navigate', screen_name)
             
     
-
-    @reactive.Effect
-    def cargar_configuracion_inicial():
-            config = obtener_configuracion_por_hash(base_datos, global_session.get_id_user())
-            if config:
-                valor_min_seg, valor_max_seg, num_select_filas, _ = config.values()
-                ui.update_numeric("number_choice",value=num_select_filas)
-                ui.update_numeric("min_value",value=valor_min_seg)
-                ui.update_numeric("max_value",value=valor_max_seg)
-                
-
+    def load_config():
+        @reactive.Effect
+        def cargar_configuracion_inicial():
+                config = obtener_configuracion_por_hash(base_datos, global_session.get_id_user())
+                if config:
+                    valor_min_seg, valor_max_seg, num_select_filas, value_dark_or_light = config.values()
+                    ui.update_numeric("number_choice",value=num_select_filas)
+                    ui.update_numeric("min_value",value=valor_min_seg)
+                    ui.update_numeric("max_value",value=valor_max_seg)
+                    print(value_dark_or_light, "value dark?")
+                    ui.update_dark_mode(value_dark_or_light)
+                    
+    load_config()
         
     @reactive.Effect
     @reactive.event(input["configuracion"])
@@ -212,12 +214,8 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     def up_load_input_dark():
         dark_or_light = input.dark_mode_switch()
         if dark_or_light:
+            print("entrando a dark or light")
             insertar_configuracion_usuario_con_replace(base_datos, global_session.get_id_user(), value_dark_or_light=dark_or_light)
-          
-        config = obtener_configuracion_por_hash(base_datos, global_session.get_id_user())
-        dark_or_light = config['value_dark_or_light']
-        print(dark_or_light, "valor de dark?")
-        ui.update_dark_mode(dark_or_light)
         
         
     

@@ -67,14 +67,6 @@ def server_niveles_Scorcards(input, output, session, name_suffix):
     
     
     
-    @reactive.Effect
-    @reactive.event(input.add_fila)
-    def evento_agregar_nueva_fila():
-        count_add_files.set(count() + 1)
-        column_names = get_categorical_columns_with_unique_values_range(global_session.get_data_set_reactivo(), min_unique=global_session.value_min_for_seg.get(), max_unique=global_session.value_max_for_seg.get())
-        #column_names = df.columns.tolist()
-        ui.update_selectize("agregar_filas", choices=column_names)
-    
    
     
     

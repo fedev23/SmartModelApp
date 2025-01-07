@@ -1,51 +1,56 @@
 from shiny import ui
 from api.db.sqlite_utils import *
 from funciones_modelo.help_models import *
-
 def create_modal_warning_exist_model(name, nombre_version):
     return ui.modal(
         ui.tags.div(
             ui.row(
                 ui.column(
                     12,
-                    ui.tags.p(
-                        f"El modelo en la etapa '{name}' ya existe en la versión {nombre_version}."
-                        "Si usted quiere continuar, se le recomienda generar una nueva versión ."
+                    ui.tags.div(
+                        # Estilo para el texto de advertencia
+                        ui.tags.p(
+                            f"El modelo en la etapa '{name}' ya existe en la versión '{nombre_version}'. "
+                            "Si usted quiere continuar, se le recomienda generar una nueva versión.",
+                            style="color: #d9534f; font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 20px;"
+                        ),
+                        style="padding: 10px; border: 1px solid #d9534f; border-radius: 5px; background-color: #f2dede;"
                     )
-                ),
+                )
             )
         ),
-        title="Advertencia",
+        title=ui.tags.div(
+            "⚠️ Advertencia",
+            style="color: #f0ad4e; font-size: 20px; font-weight: bold; text-align: center;"
+        ),
         easy_close=True,
         size='xs',
-        footer = ui.row(
-    # Primera fila de botones
-    ui.column(
-        5,
-      ui.tags.div(
-        # Botón "Cancelar" para no sobrescribir
-        ui.input_action_button(
-            f"continuar_no_overwrite_{name}",
-            "Continuar"
-        ),
-        style="display: flex; justify-content: flex-end; margin-bottom: 10px;"
-    ),  
-    ),
-    
-    ui.column(
-        5,
-        ui.tags.div(
-        # Botón "Cancelar" para sobrescribir
-        ui.input_action_button(
-            f"cancel_overwrite_{name}",
-            "Cancelar"
-        ),
-        style="display: flex; justify-content: flex-end;"
+        footer=ui.row(
+            # Primera fila de botones
+            ui.column(
+                5,
+                ui.tags.div(
+                    # Botón "Continuar sin sobrescribir"
+                    ui.input_action_button(
+                        f"continuar_no_overwrite_{name}",
+                        "Continuar"
+                    ),
+                    style="display: flex; justify-content: flex-end; margin-bottom: 10px;"
+                ),
+            ),
+            ui.column(
+                5,
+                ui.tags.div(
+                    # Botón "Cancelar"
+                    ui.input_action_button(
+                        f"cancel_overwrite_{name}",
+                        "Cancelar"
+                    ),
+                    style="display: flex; justify-content: flex-end;"
+                )
+            )
+        )
     )
-    )
-    
-)
-)
 
 
 
