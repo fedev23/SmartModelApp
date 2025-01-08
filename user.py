@@ -93,9 +93,9 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
 
         # Crea el path para guardar datasets
-        data_Set  = get_datasets_directory_data_set_versiones(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version())
+        #data_Set  = get_datasets_directory_data_set_versiones(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version())
         
-        global_session.set_path_guardar_dataSet_en_proyectos(data_Set)
+        #global_session.set_path_guardar_dataSet_en_proyectos(data_Set)
         
         
         
@@ -129,7 +129,6 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         global_session_V2.set_dataSet_seleccionado(ultimo_archivo)
         #selected_key = mapear_valor_a_clave(global_session_V2.get_dataSet_seleccionado(), nombre_file.get())
         
-        value_boolean.set(True)
         ui.update_select("project_select",choices=proyectos_choise, selected=key_proyecto_mach if key_proyecto_mach else next(iter(ultimo_proyecto_seleccionado.get()), ""))
         ui.update_select("files_select_validation_scoring",choices=global_session_V2.get_opciones_name_dataset_Validation_sc(), selected=data_predeterminado.get())
         #ui.update_select("files_select", choices=nombre_file.get(),  selected=selected_key if selected_key else next(iter(nombre_file.get()), ""))
@@ -249,8 +248,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         ui.update_select("other_select", choices=opciones_de_versiones_por_proyecto.get(), selected=ultimo_id_versiones_proyecto.get())
         global_session.set_proyecto_seleccionado_id(id_proyecto_Recien_Creado.get())
         entrada, salida = crear_carpeta_version_por_proyecto(user_get.get(), global_session.get_id_proyecto(), ultimo_id_versiones_proyecto.get(), name, global_session.get_name_proyecto())
-        folder = crear_carpeta_dataset_versiones(entrada)
-        global_session.set_path_guardar_dataSet_en_proyectos(folder)
+        global_session.set_path_guardar_dataSet_en_proyectos(entrada)
         ui.modal_remove()
 
 

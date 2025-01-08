@@ -108,11 +108,16 @@ def server_desarollo(input, output, session, name_suffix):
     @output
     @render.ui
     def card_desarollo2():
+        file_name = global_names_reactivos.get_name_file_db()
+        hora = global_session_modelos.modelo_desarrollo_hora.get()
+        estado = global_session_modelos.modelo_desarrollo_estado.get()
+        
+        # Llamar a retornar_card con valores validados
         return retornar_card(
-            get_file_name=global_names_reactivos.get_name_file_db(),
-            fecha=global_session_modelos.modelo_desarrollo_hora.get(),
-            estado=global_session_modelos.modelo_desarrollo_estado.get(),
-            modelo=global_desarollo
+            get_file_name=file_name,
+            modelo=global_desarollo,
+            fecha=hora,
+            estado=estado,
         )
 
     @output
@@ -179,7 +184,7 @@ def server_desarollo(input, output, session, name_suffix):
                     path_datos_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
                     
                     ##necesito tener el nombre del dataset seleccionado asi le cambio el nombre y lo
-                    data_Set  = get_datasets_directory_data_set_versiones(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version())
+                    data_Set  = get_datasets_directory(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
         
                     mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), data_Set, name_suffix, path_datos_entrada)
                     

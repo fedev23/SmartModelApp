@@ -67,9 +67,11 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
         table='name_files',
         columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
         join_clause='INNER JOIN version ON name_files.version_id = version.version_id',
-        where_clause='version.version_id = ?',
-        where_params=(global_session.get_id_version(),)))
+        where_clause='version.project_id = ?',
+        where_params=(global_session.get_id_proyecto(),)))
         #name.set(global_names_reactivos.get_name_file_db())
+        print(list.get(), "viendo lista")
+        print(global_session.get_id_dataSet(), "id data?")
         return button_remove(list.get(), global_session.get_id_dataSet(), "id_files", name)
         
     
@@ -99,12 +101,14 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     @reactive.event(input.confirmar_id_borrar_dataset)
     def remove_versiones_de_parametros():
         eliminar_version("name_files", "id_files", global_session.get_id_dataSet())
-        datasets_directory = get_datasets_directory_data_set_versiones(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version())
+        datasets_directory = get_datasets_directory(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
         dataset_path = os.path.join(datasets_directory, global_names_reactivos.get_name_file_db())
         eliminar_archivo(dataset_path)
         columnas = ['id_files', 'nombre_archivo']
         tabla = "name_files"
-        lista_de_versiones_new = obtener_versiones_por_proyecto(columnas,tabla)
+        condiciones = "id_files = ?"
+        parametros = (global_session.get_id_proyecto(),)
+        lista_de_versiones_new = obtener_versiones_por_proyecto(columnas,tabla, condiciones,parametros)
 
         print(lista_de_versiones_new, "lista_de_versiones_new")
         list.set(lista_de_versiones_new)

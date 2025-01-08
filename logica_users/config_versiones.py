@@ -34,7 +34,6 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
     def project_card_container():
         global_session.set_id_version(input.other_select()) # Captura el ID seleccionado
         global_session.id_version_v2.set(input.other_select())
-        print("cuando entro a version???")
         nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
         
        
@@ -42,16 +41,18 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
         table='name_files',
         columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
         join_clause='INNER JOIN version ON name_files.version_id = version.version_id',
-        where_clause='version.version_id = ?',
-        where_params=(global_session.get_id_version(),)
+        where_clause='version.project_id = ?',
+        where_params=(global_session.get_id_proyecto(),)
     )
         
+        print("files name", files_name)
         global_session_V2.lista_nombre_archivos_por_version.set({
             str(file['id_files']): file['nombre_archivo']
             for file in files_name
         } if files_name else {"": "No hay archivos"})
 
        
+    
         #data = leer_dataset(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session_V2.lista_nombre_archivos_por_version.get(), global_session.get_versiones_name(), global_session.get_id_version())
         #global_session.set_data_set_reactivo(data)
         
@@ -65,17 +66,13 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
        
         global_session_modelos.modelo_desarrollo_hora.set(fecha_model_desarrollo)
         
-        print(global_session.get_version_parametros_id(), "viendo el maldito ID")
         estado_in_sample , hora_in_sample = help_models.procesar_etapa_in_sample_2(base_datos="Modeling_App.db", json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")
         
         
         global_session_modelos.modelo_in_sample_estado.set(estado_in_sample)
-        print(estado_in_sample, "estado in")
         global_session_modelos.modelo_in_sample_hora.set(hora_in_sample)
-        print(hora_in_sample, "hora_in")
-        
-       
-        
+
+            
         ##ACTUALIZO EL ULTIMO SELECCIONADO EN LA TABALA DE BD
         actualizar_ultimo_seleccionado(base_datos, 'version', 'version_id', global_session.get_id_version())
         global_session.set_versiones_name(nombre_version)

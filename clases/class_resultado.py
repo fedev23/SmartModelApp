@@ -9,6 +9,7 @@ import requests
 from auth.utils import help_api 
 from urllib.parse import urlencode
 from clases.global_session import global_session
+from clases.global_sessionV2 import *
 
 
 #static_app = StaticFiles(directory='/mnt/c/Users/fvillanueva/flask_prueba/static', html=True)
@@ -138,6 +139,40 @@ class ResultadoClassPrueba:
                         return ui.div()
                 else:
                     return ui.HTML("<p>Archivo no encontrado</p>") 
+                
+                
+    def html_output_validacion_scoring(self, resultado_id):
+         # Obtener el estado del acordeón específico para este resultado_id
+        if resultado_id in self.accordion_open:
+            resultado_path = next((r['resultado_path'] for r in self.resultados if r['resultado_id'] == resultado_id), None)
+            if self.proceso_user.get():
+                if resultado_path and self.accordion_open[resultado_id].get():
+
+                    try:
+                        iframe_src = f"/api/user_files?{urlencode({'user_id': self.user.get(), 'nombre_proyecto': global_session.get_name_proyecto(), 'id_proyecto': global_session.get_id_proyecto(), 'id_version': global_session.get_id_version(), 'nombre_version': global_session.get_versiones_name(), 'id_version_insample': global_session.get_version_parametros_id(), 'nombre_version_insample': global_session.get_versiones_parametros_nombre(), 'nombre_folder_validacion_scoring': global_session_V2.nombre_file_sin_extension_validacion_scoring.get(),'file_name': os.path.basename(resultado_path)})}"
+                        #C:\Users\fvillanueva\Desktop\SmartModel_new_version\new_version_new\Automat\datos_salida_auth0_670d225413861ad9fa6849d3\proyecto_67_ProyectoA\version_69_version22\version_parametros_65_version_prueba_de_22\set_Cliente_Conocido
+                        salida =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}/{global_session_V2.nombre_file_sin_extension_validacion_scoring.get()}/Reportes/{os.path.basename(resultado_path)}'
+
+                        print(f"viendo salida: {salida}")
+                        if os.path.exists(salida):
+                            print(f"¿Existe la carpeta?: {os.path.isdir(os.path.dirname(salida))}")
+                            print(f"¿Existe el archivo?: {os.path.isfile(salida)}")
+
+                            return ui.div(
+                                ui.tags.iframe(src=iframe_src, width='350%', height='500px')
+                            )
+                        else:
+                            print(f"El archivo no existe en html_output_validacion_scoring: {salida}")
+                            return ui.div()
+                            
+                    except Exception as e:
+                        print(f"Error: {e}")
+                        return ui.div()
+                else:
+                    return ui.HTML("<p>Archivo no encontrado</p>") 
+                
+                
+    
        
 
     def descargar_resultados(self, directory_path):

@@ -2,7 +2,7 @@ from shiny import reactive, render, ui
 from funciones.create_param import create_screen
 from clases.class_screens import ScreenClass
 from global_var import global_data_loader_manager
-from funciones.utils_2 import errores, get_user_directory, get_datasets_directory
+from funciones.utils_2 import errores, get_user_directory, get_datasets_directory, get_folder_directory_data_validacion_scoring
 from clases.global_modelo import modelo_of_sample
 from clases.global_session import global_session
 from api.db import *
@@ -100,11 +100,13 @@ def server_out_of_sample(input, output, session, name_suffix):
         
         if modelo_of_sample.pisar_el_modelo_actual.get() or valid:
             try:
+                origen_modelo_puntoZip = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
                 path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
-                print(path_datos_entrada, "viendo path de entrada")
+                print(f"path_datos_entrada: {path_datos_entrada}")
                 
-                origen_modelo_puntoZip = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
-                
+                ##PUNTO ZIP QUE QUEDO DEPRECADO YA QUE SIEMPRE SE VA A OBLIGAR AL USER A EJECUTAR IN SAMPLE
+                #origen_modelo_puntoZip = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+                print(f"origen_modelo_puntoZip: {origen_modelo_puntoZip}")
                 # Mover archivo .zip y verificar si existe
                 zip_existe = mover_file_reportes_puntoZip(origen_modelo_puntoZip, path_datos_entrada)
                 if not zip_existe:
@@ -123,10 +125,13 @@ def server_out_of_sample(input, output, session, name_suffix):
                 # Validar existencia de .zip y JSON
                
                 # Continuar con la ejecución
+                ##MOVILIZAR EL DATASET DEPENDE DONDE SE GUARDA
                 data_Set = get_datasets_directory(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
                 mover_y_renombrar_archivo(global_session_V2.get_nombre_dataset_validacion_sc(), data_Set, name_suffix, path_datos_entrada)
                 
-                modelo_of_sample.script_path = f'./Validar_Nueva.sh --input-dir {path_datos_entrada} --output-dir {origen_modelo_puntoZip}'
+                path_datos_salida_path  = get_folder_directory_data_validacion_scoring(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
+        
+                modelo_of_sample.script_path = f'./Validar_Nueva.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida_path}'
                 ejecutar_of_to_sample(click_count_value, mensaje_value, proceso)
                 modelo_of_sample.pisar_el_modelo_actual.set(False)
             

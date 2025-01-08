@@ -3,7 +3,7 @@ from shiny import reactive, render, ui
 from clases.global_session import *
 from datetime import datetime
 import asyncio
-import traceback
+import traceback, re
 from clases.reactives_name import global_names_reactivos
 from api.db import *
 from funciones_modelo.global_estados_model import global_session_modelos
@@ -25,6 +25,7 @@ class ModeloProceso:
         self.mensaje = reactive.Value("")
         self.click_counter = reactive.Value(0)  # Instancia de CargarDatos
         self.fecha_hora = reactive.Value("")
+        self.porcentaje = reactive.Value()
         self.extrat_hora = reactive.Value("")
         self.proceso_ok = reactive.Value(False)
         self.proceso_fallo = reactive.value(False)
@@ -49,14 +50,27 @@ class ModeloProceso:
 
             # Capturar la salida y los errores en tiempo real
             stdout, stderr = [], []
+            progress_percentage = 0
 
             async def read_stream(stream, output_list, output_prefix):
+                nonlocal progress_percentage
+                total_steps = None
                 while True:
                     line = await stream.readline()
                     if not line:
                         break
-                    output_list.append(line.decode('utf-8').strip())
-                    print(f"{output_prefix}: {output_list[-1]}")
+                    decoded_line = line.decode('utf-8').strip()
+                    output_list.append(decoded_line)
+                    print(f"{output_prefix}: {decoded_line}")
+
+                    # Intentar calcular el porcentaje si hay un patrón
+                    match = re.search(r'(\d+)/(\d+)', decoded_line)
+                    if match:
+                        current_step = int(match.group(1))
+                        total_steps = int(match.group(2))
+                        progress_percentage = int((current_step / total_steps) * 100)
+                        print(f"Progreso: {progress_percentage}%")
+                        self.porcentaje.set(progress_percentage)
 
             await asyncio.gather(
                 read_stream(process.stdout, stdout, "STDOUT"),
@@ -73,15 +87,15 @@ class ModeloProceso:
             # Preparar el mensaje de error si hay un código de retorno diferente de 0
             error_message = f"Error durante la ejecución: {stderr_output}" if return_code != 0 else None
 
-            return stdout_output, stderr_output, return_code, error_message
+            return stdout_output, stderr_output, return_code, error_message, progress_percentage
 
         except Exception as e:
             # Capturar cualquier excepción y devolver el mensaje de error
             error_message = f"Excepción durante la ejecución: {str(e)}"
             print("Stacktrace:")
             traceback.print_exc()
-            return None, None, 1, error_message
-
+            return None, None, 1, error_message, 0
+        
     async def ejecutar_proceso_prueba(self, click_count, mensaje, proceso):
         try:
             # Obtener valores de fuentes reactivas antes de la tarea extendida
@@ -93,11 +107,12 @@ class ModeloProceso:
             # Indicador de proceso en ejecución
             with ui.busy_indicators.use(spinners=True):
                 # Ejecutar el script de manera asíncrona
-                stdout, stderr, returncode, error_message = await self.run_script_prueba()
-
+                stdout, stderr, returncode, error_message , progress_percentage = await self.run_script_prueba()
+                print(progress_percentage, "viendo progreso??")
+                self.porcentaje.set(progress_percentage)
                 # Verificar el resultado y actualizar los valores reactivos
                 if returncode != 0:
-                    self.mensaje.set("Ejecucion fallida")
+                    self.mensaje.set(error_message)
                     self.set_proceso(False)
                     self.proceso_fallo.set(True)
                 else:
@@ -136,22 +151,22 @@ class ModeloProceso:
 
     def render_card(self, file_name, fecha, estado): 
         default_message = "Aún no se ha ejecutado el proceso."
+        porcentaje = "N/A"
         if self.mensaje_error:
             self.mensaje = self.mensaje_error
+        elif self.porcentaje.get():
+            porcentaje = self.porcentaje.get()
         if file_name is not None:
-            if not fecha :
-                fecha = "Fecha no disponible."
-            if not estado:
-               estado = "Estado no disponible."
             #fecha = self.log_fecha_hora()
             return ui.card(
                 ui.card_header(
                     "",
                     ui.p(f"Nombre del archivo: {file_name}", style="margin: 0; line-height: 1.5; vertical-align: middle;"), 
                     #ui.p(f"Fecha de última ejecución: {str(fecha_hora)}"),
-                    ui.p(f"Estado de la ultima ejecución: Versión {global_session.get_versiones_name()}: {estado}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
+                    ui.p(f"Estado de la ultima ejecución:{global_session.get_versiones_name()}: {estado}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
                     ui.p(f"Horario de ejecución: {fecha}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
-                    ui.p(f"Estado: {self.mensaje.get() or default_message}, ", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
+                    #ui.p(f"Estado: {self.mensaje.get() or default_message} ", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
+                    ui.p(f"Avance del modelo {self.porcentaje.get()}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
                     # ui.p(ui.output_text(self.mensaje_id)),
                     class_="d-flex justify-content-between align-items-center w-100",
                 ),
@@ -162,3 +177,7 @@ class ModeloProceso:
             )
         else:
             return ui.div("El archivo aún no se ha cargado. Por favor, cargue el archivo.")
+
+    
+    
+   

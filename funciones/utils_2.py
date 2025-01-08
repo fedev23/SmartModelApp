@@ -179,6 +179,50 @@ def crear_carpeta_version_parametros(user_id, proyecto_id, version_id, id_param,
     return entrada_version_param_folder, salida_version_param_folder
 
 
+def crear_carpeta_validacion_scoring(user_id, proyecto_id, version_id, id_param, name_param, name_proyect, name_version, name_dataset):
+    # Limpiar el user_id reemplazando cualquier '|' por '_'
+    user_id_cleaned = user_id.replace('|', '_')
+
+    # Definir la ruta base para las carpetas de usuario
+    base_folder_path = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat'
+
+    # Rutas para las carpetas de entrada y salida del usuario
+    entrada_folder = os.path.join(base_folder_path, f"datos_entrada_{user_id_cleaned}")
+    salida_folder = os.path.join(base_folder_path, f"datos_salida_{user_id_cleaned}")
+
+    # Rutas para las subcarpetas del proyecto dentro de cada carpeta del usuario
+    entrada_proyecto_folder = os.path.join(entrada_folder, f"proyecto_{proyecto_id}_{name_proyect}")
+    salida_proyecto_folder = os.path.join(salida_folder, f"proyecto_{proyecto_id}_{name_proyect}")
+
+    # Rutas para las subcarpetas de la versión dentro del proyecto
+    entrada_version_folder = os.path.join(entrada_proyecto_folder, f"version_{version_id}_{name_version}")
+    salida_version_folder = os.path.join(salida_proyecto_folder, f"version_{version_id}_{name_version}")
+
+    # Ruta para la nueva carpeta de versión de parámetros
+    version_param_folder_name = f"version_parametros_{id_param}_{name_param}"
+    entrada_version_param_folder = os.path.join(entrada_version_folder, version_param_folder_name)
+    salida_version_param_folder = os.path.join(salida_version_folder, version_param_folder_name)
+    
+    
+    entrada_data_set_name_path = os.path.join(entrada_version_param_folder, name_dataset)
+    salida_data_set_name_path = os.path.join(salida_version_param_folder, name_dataset)
+
+
+    # Crear la carpeta de versión de parámetros en entrada si no existe
+    if not os.path.exists(entrada_data_set_name_path):
+        os.makedirs(entrada_data_set_name_path)
+        print(f"Carpeta creada {entrada_data_set_name_path}")
+
+    # Crear la carpeta de versión de parámetros en salida si no existe
+    if not os.path.exists(salida_data_set_name_path):
+        os.makedirs(salida_data_set_name_path)
+        print(f"Carpeta creada {salida_data_set_name_path}")
+
+    # Retornar la ruta de las carpetas de la versión de parámetros
+    return entrada_data_set_name_path, salida_data_set_name_path
+
+
+
 def get_user_directory(user_id):
     user_id_cleaned = user_id.replace('|', '_')
     base_directory = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat'
@@ -234,7 +278,7 @@ def leer_dataset(user_id, proyecto_id, name_proyect, dataset_name, nombre_versio
         # Obtener la ruta de la carpeta de datasets
         print(user_id, proyecto_id, name_proyect, nombre_version, version_Id)
         print(dataset_name)
-        datasets_directory = get_datasets_directory_data_set_versiones(user_id, proyecto_id, name_proyect, nombre_version, version_Id)
+        datasets_directory = get_datasets_directory(user_id, proyecto_id, name_proyect)
         
         # Verificar que la carpeta de datasets no sea None
         if datasets_directory is None:
@@ -281,6 +325,9 @@ def leer_dataset_sc(user_id, proyecto_id, name_proyect, dataset_name):
         print("No se encontró la carpeta de datasets.")
         return pd.DataFrame()  # Retornar un DataFrame vacío
     
+    if dataset_name is None:
+        print("No se encontro el dataSet")
+        return 
     # Construir la ruta completa del archivo del dataset
     dataset_path = os.path.join(datasets_directory, dataset_name)
     
@@ -322,7 +369,7 @@ def aplicar_transformaciones(input, transformaciones):
     return inputs_procesados
 
 
-def crear_carpeta_dataset_versiones(path):
+def crear_carpeta_dataset(path):
     """
     Crea un folder llamado 'datasets' dentro del path especificado.
 
@@ -354,7 +401,7 @@ def crear_carpeta_dataset_versiones(path):
 
 
     
-def get_datasets_directory_data_set_versiones(user_id, proyecto_id, name_proyect, version_name, version_id):
+def get_folder_directory_data_validacion_scoring(user_id, proyecto_id, name_proyect, version_name, version_id, id_niveles_y_scord, nombre_niveles_scord, nombre_data):
     # Limpiar el user_id reemplazando cualquier '|' por '_'
     user_id_cleaned = user_id
     base_directory = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat'
@@ -366,8 +413,10 @@ def get_datasets_directory_data_set_versiones(user_id, proyecto_id, name_proyect
     proyecto_folder = os.path.join(entrada_folder, f"proyecto_{proyecto_id}_{name_proyect}")
     
     version_folder = os.path.join(proyecto_folder, f"version_{version_id}_{version_name}")
+    
+    version_niveles_y_scord = os.path.join(version_folder, f"version_parametros_{id_niveles_y_scord}_{nombre_niveles_scord}")
     # Construir la ruta de la carpeta 'datasets' dentro del proyecto
-    datasets_folder = os.path.join(version_folder, 'datasets')
+    datasets_folder = os.path.join(version_niveles_y_scord, nombre_data)
     
     
     print(f'dataser: {datasets_folder}')

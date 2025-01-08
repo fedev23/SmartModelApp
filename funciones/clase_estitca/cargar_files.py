@@ -1,21 +1,16 @@
 from shiny import reactive, render, ui
-from funciones.create_param import create_screen
-from clases.global_modelo import global_desarollo
-from clases.class_screens import ScreenClass
-from funciones.utils import retornar_card
-from clases.class_user_proyectName import global_user_proyecto
-from funciones.utils_2 import get_datasets_directory_data_set_versiones, render_data_summary, aplicar_transformaciones, mostrar_error, cambiarAstring, trans_nulos_adic, get_datasets_directory, detectar_delimitador
+from funciones.utils_2 import  get_datasets_directory, crear_carpeta_validacion_scoring, crear_carpeta_dataset
 from api.db import *
 from clases.global_session import *
 from clases.global_sessionV2 import *
 from clases.reactives_name import global_names_reactivos
-from funciones.funciones_cargaDatos import guardar_archivo, verificar_archivo, verificar_archivo_sc, guardar_archivo_sc
+from funciones.funciones_cargaDatos import guardar_archivo, verificar_archivo_sc, guardar_archivo_sc
 from shiny.types import FileInfo
 from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version
 from clases.global_session import *
 from datetime import datetime
-from funciones.cargar_archivosNEW import create_modal_warning_exist_file, create_modal_warning_exist_file_for_full_or_sc
-import os 
+import os
+from funciones.cargar_archivosNEW import create_modal_warning_exist_file
 from clases.reactives_name import global_names_reactivos
 
 
@@ -43,10 +38,14 @@ class FilesLoad:
             file: list[FileInfo] | None = input_file()
             input_name = file[0]['name']
             global_names_reactivos.set_name_data_Set(input_name)
+            data_Set  = get_datasets_directory(
+                global_session.get_id_user(), 
+                global_session.get_id_proyecto(), 
+                global_session.get_name_proyecto()
+            )
             
 
-            existe = verificar_archivo()
-            print(existe, "que valor me da?")
+            existe = verificar_archivo_sc(data_Set, input_name)
             if existe and self.select_overwrite.get() is False:
                 print("pase el if?")
                 ui.modal_show(create_modal_warning_exist_file(input_name, self.name_suffix, global_session.get_versiones_name()))
@@ -70,8 +69,8 @@ class FilesLoad:
             table='name_files',
             columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
             join_clause='INNER JOIN version ON name_files.version_id = version.version_id',
-            where_clause='version.version_id = ?',
-            where_params=(global_session.get_id_version(),)
+            where_clause='version.project_id = ?',
+            where_params=(global_session.get_id_proyecto(),)
         )
             
          
@@ -110,12 +109,15 @@ class FilesLoad:
                 global_session.get_id_proyecto(), 
                 global_session.get_name_proyecto()
             )
+            
+            print(f"donde existe este en este path> {data_Set}")
             validar_file = verificar_archivo_sc(data_Set, input_name)
             if validar_file and self.select_overwrite.get() is False:
                 ui.modal_show(create_modal_warning_exist_file(input_name, self.name_suffix, global_session.get_versiones_name()))
                 self.set_existe_file(True)
                 return
             
+            file_name_without_extension = os.path.splitext(input_name)[0]
             print(f"Nombre del archivo recibido: {input_name}")
 
             # Guardar el archivo
@@ -150,6 +152,8 @@ class FilesLoad:
             self.data_predeterminado.set(obtener_ultimo_id_version(self.files_name.get(), 'id_validacion_sc'))
             
             #opciones_actualizadas = [d["nombre_archivo_validation_sc"].rsplit('.', 1)[0] for d in files_name.get()]
+            entrada, salida = crear_carpeta_validacion_scoring(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session.get_name_proyecto(), global_session.get_versiones_name(), file_name_without_extension)
+            crear_carpeta_dataset(entrada)
             ui.update_select(
                 "files_select_validation_scoring",
                 choices=global_session_V2.get_opciones_name_dataset_Validation_sc(),

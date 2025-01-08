@@ -133,8 +133,8 @@ def server_resul(input, output, session, name_suffix):
         @render.ui
         def dynamic_output():
             html_desarrollo = resultado_desarrollo.html_output_prueba(resultado_id)
-            html_prueba = resultado_class_instance.html_output_prueba(resultado_id)
-            html_produccion = resultado_class_instance_produccion.html_output_prueba(resultado_id)
+            html_prueba = resultado_class_instance.html_output_validacion_scoring(resultado_id)
+            html_produccion = resultado_class_instance_produccion.html_output_validacion_scoring(resultado_id)
             html_in_sample = resultado_in_sample.html_output_in_sample(resultado_id)
             return html_prueba, html_produccion, html_in_sample, html_desarrollo
 
@@ -170,6 +170,10 @@ def server_resul(input, output, session, name_suffix):
     # Invocar la función para registrar los outputs
     combined_results = resultados_produccion + resultados_out_to_sample + resultados_in_sample + resultados_desarrollo
     register_outputs(combined_results)
+    
+    
+    
+    
 
     # Definir el output principal
     @output

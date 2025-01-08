@@ -3,11 +3,11 @@ from funciones.utils_2 import render_data_summary, eliminar_archivo, leer_datase
 from clases.global_modelo import modelo_of_sample
 from clases.global_session import global_session
 from api.db import *
+from auth.utils import help_api
 from clases.reactives_name import global_names_reactivos
 from funciones.utils import retornar_card
 from logica_users.utils.help_versios import obtener_ultimo_nombre_archivo_validacion_c
 from clases.global_sessionV2 import *
-from funciones.clase_estitca.leer_datos import DatasetHandler
 import pandas as pd
 from funciones_modelo.help_models import *
 from funciones.funciones_user import button_remove, create_modal_v2
@@ -49,10 +49,9 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
         columna_filtro = 'id_validacion_sc'
         nombre_file = obtener_valor_por_id(base_datos, tabla, columna_objetivo, columna_filtro, global_session_V2.get_id_Data_validacion_sc())
         
-        print(nombre_file, "viendo el verdadero")
-        
         global_session_V2.set_nombre_dataset_validacion_sc(nombre_file)
-        
+        file_name_without_extension = os.path.splitext(nombre_file)[0]
+        global_session_V2.nombre_file_sin_extension_validacion_scoring.set(file_name_without_extension)
         ##obengo los valores de la tabla
         lista.set(get_records(
             table='validation_scoring',
@@ -69,6 +68,15 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
             dataSet_predeterminado_parms.set(global_session_V2.get_nombre_dataset_validacion_sc())
         
         
+        if (global_session.get_id_user() and
+                global_session.get_name_proyecto() and
+                global_session.get_id_proyecto() and
+                global_session.get_id_version() and
+                global_session.get_versiones_name() and 
+                global_session_V2.nombre_file_sin_extension_validacion_scoring.get()): 
+                    print("ESTOY PASANDO EN PROCES API??????")  
+                    help_api.procesar_starlette_api_validacion_scoring(global_session.get_id_user(), global_session.get_name_proyecto(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_versiones_name(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
+
         
         data = leer_dataset_sc(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session_V2.get_nombre_dataset_validacion_sc())
         
@@ -129,9 +137,11 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
         
         columnas = ['id_validacion_sc', 'nombre_archivo_validation_sc']
         tabla = "validation_scoring"
-        lista_de_versiones_new = obtener_versiones_por_proyecto(columnas,tabla)
+        condiciones = "version_id = ?"
+        parametros = (global_session.get_id_version(),) 
+        lista_de_versiones_new = obtener_versiones_por_proyecto(columnas,tabla,condiciones,parametros)
         lista.set(lista_de_versiones_new)
-        
+        print(f"nueva lista? {lista_de_versiones_new}")
         ui.update_select(
             "files_select_validation_scoring",
             choices={str(vers['id_validacion_sc']): vers['nombre_archivo_validation_sc']

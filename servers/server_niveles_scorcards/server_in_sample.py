@@ -1,13 +1,11 @@
 from shiny import reactive, render, ui
 from clases.class_screens import ScreenClass
-from  global_names  import global_name_in_Sample
-from datetime import datetime
 from clases.loadJson import LoadJson
 from funciones.param_in_sample import param_in_sample
 from funciones.utils import transform_data, transformar_reportes, create_modal_parametros, id_buttons
 import pandas as pd
 from funciones.utils import mover_file_reportes_puntoZip, retornar_card
-from funciones.utils_2 import cambiarAstring, aplicar_transformaciones, get_datasets_directory_data_set_versiones
+from funciones.utils_2 import cambiarAstring, aplicar_transformaciones, get_datasets_directory
 from clases.global_session import global_session
 from api.db import *
 from clases.reactives_name import global_names_reactivos
@@ -57,7 +55,6 @@ def server_in_sample(input, output, session, name_suffix):
     count_add_files = reactive.Value(0)
     no_error = reactive.Value(True)
     fila_insert = reactive.Value(False)
-    boolean_reactive = reactive.Value(False)
     global_names_reactivos.name_validacion_in_sample_set(name_suffix)
     # Inicializamos el estado reactivo del dataset
     data_set = reactive.Value(pd.DataFrame({"Variables de corte": []}))
@@ -338,7 +335,7 @@ def server_in_sample(input, output, session, name_suffix):
                     origen_modelo_puntoZip = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
                     
                     movi = mover_file_reportes_puntoZip(origen_modelo_puntoZip, path_datos_entrada)
-                    data_Set = get_datasets_directory_data_set_versiones(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version())
+                    data_Set = get_datasets_directory(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
 
                     mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), data_Set, name_suffix, path_datos_entrada)
 

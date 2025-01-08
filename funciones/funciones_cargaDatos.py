@@ -1,6 +1,6 @@
 
 from clases.global_session import global_session
-from funciones.utils_2 import get_datasets_directory_data_set_versiones, get_datasets_directory
+from funciones.utils_2 import get_datasets_directory
 import os
 from clases.class_cargar_datos import CargarDatos
 from clases.data_loader import DataLoader
@@ -8,17 +8,13 @@ from clases.class_screens import ScreenClass
 
 async def guardar_archivo(file_func, name):
     # Obtén el directorio en el que se debe guardar el archivo
-    directorio = global_session.get_path_guardar_dataSet_en_proyectos()
-    print(directorio)
     file_info = file_func()
     
     # Construye el path del dataset donde se guardará el archivo
-    directorio_version = get_datasets_directory_data_set_versiones(
+    directorio = get_datasets_directory(
         global_session.get_id_user(), 
         global_session.get_id_proyecto(), 
-        global_session.get_name_proyecto(),
-        global_session.get_versiones_name(),
-        global_session.get_id_version()
+        global_session.get_name_proyecto()
     )
     
     # Instancia el DataLoader con el nombre del archivo
@@ -29,7 +25,7 @@ async def guardar_archivo(file_func, name):
     
     try:
         # Llamamos al método asincrónico cargar_archivos de DataLoader
-        cargado = await data_loader.cargar_archivos(file_info, directorio_version)
+        cargado = await data_loader.cargar_archivos(file_info, directorio)
         
         # Intentamos cargar el nombre del archivo con el método de ScreenClass
         nombre_archivo = await screen.load_data(file_func, name)
@@ -107,7 +103,7 @@ async def guardar_archivo_sc(file_func, name):
 
 
 
-def verificar_archivo():
+def verificar_archivo(nombre_archivo):
     """
     Verifica si hay al menos un archivo en el directorio especificado.
 
@@ -117,23 +113,20 @@ def verificar_archivo():
     Returns:
         bool: True si hay al menos un archivo en el directorio, False en caso contrario.
     """
-    folder_path = get_datasets_directory_data_set_versiones(
+    folder_path = get_datasets_directory(
         global_session.get_id_user(), 
         global_session.get_id_proyecto(), 
         global_session.get_name_proyecto(),
-        global_session.get_versiones_name(),
-        global_session.get_id_version()
     )
     
     
-    if not os.path.isdir(folder_path):
-        raise ValueError(f"La ruta proporcionada '{folder_path}' no es un directorio válido.")
+    ruta_completa = os.path.join(folder_path, nombre_archivo)
     
-    # Lista de archivos en el directorio
-    archivos = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
-    
-    return len(archivos) > 0    
-
+    # Verificar si el archivo existe
+    if os.path.isfile(ruta_completa):
+        return True
+    else:
+        return False
 
 
 def verificar_archivo_sc(path, nombre_archivo):

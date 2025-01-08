@@ -94,11 +94,6 @@ screenDesarollo = ui.page_fluid(
                         "descargar_resultados_desarollo", "Descargar Todos los reportes desarrollo")),
                     ui.output_ui("render_resultado_card"),
                     ui.output_ui("funcion_volver"),
-                    #ui.output_ui("render_desarollo_resultado_dos"),
-                    #ui.output_ui("resultado_card_clean_trans"),
-                    #ui.output_ui("resultado_card_desarollo4"),
-                    #ui.output_ui("html_output_desarollo2"),
-                    #ui.output_ui("html_output_desarollo3"),
                     value="desarrollo"
                 )
             ),

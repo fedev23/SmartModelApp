@@ -15,6 +15,7 @@ class GlobalSessionV2:
         self.dataSet_seleccionado = reactive.Value("")
         self.id_modelo = reactive.Value("")
         self.lista_nombre_archivos_por_version = reactive.Value("")
+        self.nombre_file_sin_extension_validacion_scoring = reactive.value()
 
     def set_id_Data_validacion_sc(self, id):
         self.id_Data_validacion_sc.set(id)
@@ -68,14 +69,7 @@ class GlobalSessionV2:
     def get_retorne_niveles(self):
         return self.retorne_niveles.get()
     
-    
-    def set_active_screen(self, boolean):
-        self.active_screen.set(boolean)
-        
-      
-    def get_active_screen(self):
-        return self.active_screen.get()
-    
+
     
     def set_json_read(self, boolean):
         self.json_read.set(boolean)
@@ -100,6 +94,8 @@ class GlobalSessionV2:
     def get_id_modelo(self):
         return self.id_modelo.get()
     
+    
+   
     
    
     
