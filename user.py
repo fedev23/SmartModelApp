@@ -11,15 +11,15 @@ from api.db.help_config_db import *
 from api.db.sqlite_utils import *
 from auth.utils import help_api 
 from api.db.sqlite_utils import *
+from logica_users.utils.manejo_session import manejar_session_and_selector
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo import help_models 
 
 def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     user_get = reactive.Value(None)
-    proyect_ok = reactive.Value(False)
     proyectos_usuario = reactive.Value(None)
     proceso_eliminar = reactive.Value(False)
-    value_boolean = reactive.Value(False)
+    is_initializing = reactive.Value(True)
     id_proyecto_Recien_Creado = reactive.Value(None)
     name_proyecto = reactive.Value(None)
     opciones_param = reactive.Value("")
@@ -55,23 +55,38 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     @reactive.effect
     @reactive.event(input.project_select)  # Escuchar cambios en el selector
     def project_card_container():
-        # Captura el ID del proyecto seleccionado
         selected_project_id = input.project_select()
-        #print(selected_project_id, "proyecto")
-        global_session.set_id_proyect(selected_project_id)
+        
+        manejar_session_and_selector(
+            is_initializing=is_initializing,
+            input_select_value=input.project_select(),
+            ultimo_id_func=lambda: obtener_ultimo_id_seleccionado(base_datos, "project", "id"),
+            global_set_func=lambda x: global_session.set_id_proyect(x),
+            actualizar_ultimo_func=lambda table, column, value: actualizar_ultimo_seleccionado(base_datos, table, column, value),
+            obtener_ultimo_func=lambda table, column: obtener_ultimo_seleccionado(base_datos, table, column),
+            obtener_opciones_func=lambda: obtener_opciones_versiones(get_user_projects(global_session.get_id_user()), "id", "name"),
+            mapear_clave_func=mapear_valor_a_clave,
+            ui_update_func=lambda name, choices, selected: ui.update_select(name, choices=choices, selected=selected),
+            input_select_name="project_select",
+            db_table="project",
+            db_column_id="id",
+            db_column_name="name"
+        )
 
+        
+        
+        
         nombre_proyecto = obtener_nombre_proyecto_por_id(global_session.get_id_proyecto())
         global_session.set_name_proyecto(nombre_proyecto)
         
-        actualizar_ultimo_seleccionado(base_datos, 'project', 'id', global_session.get_id_proyecto())
         proyectos_usuario.set(get_user_projects(global_session.get_id_user()))
         
         proyectos_choise = obtener_opciones_versiones(proyectos_usuario.get(), "id", "name")
-       
+
         ultimo_proyecto_seleccionado.set(obtener_ultimo_seleccionado(base_datos, 'project', 'name'))
-       
-        key_proyecto_mach = mapear_valor_a_clave(ultimo_proyecto_seleccionado.get(), proyectos_choise)
         
+        key_proyecto_mach = mapear_valor_a_clave(ultimo_proyecto_seleccionado.get(), proyectos_choise)
+
         versiones_de_proyecto = get_project_versions(global_session.get_id_proyecto())
         opciones_de_versiones_por_proyecto.set(obtener_opciones_versiones(versiones_de_proyecto, "version_id", "nombre_version"))
         

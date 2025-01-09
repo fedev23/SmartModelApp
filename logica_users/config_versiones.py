@@ -12,7 +12,7 @@ from funciones_modelo.help_models import *
 from api.db.sqlite_utils import *
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo import help_models 
-
+from logica_users.utils.manejo_session import manejar_session_and_selector
 
 
 
@@ -22,6 +22,7 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
     opciones_param = reactive.Value()
     valor_predeterminado_parms =  reactive.Value()
     versiones_por_proyecto = reactive.Value(None)
+    init_session = reactive.Value(True)
     
     
     
@@ -31,11 +32,28 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
     @reactive.effect
     @reactive.event(input.other_select)  # Escuchar cambios en el selector
     def project_card_container():
-        global_session.set_id_version(input.other_select()) # Captura el ID seleccionado
-        global_session.id_version_v2.set(input.other_select())
+        id_version  = input.other_select() # Captura el ID seleccionado
+
+        manejar_session_and_selector(
+        is_initializing=init_session,
+        input_select_value=input.other_select(),
+        ultimo_id_func=lambda: obtener_ultimo_id_seleccionado(base_datos, "version", "version_id"),
+        global_set_func=lambda x: global_session.set_id_version(x),
+        actualizar_ultimo_func=lambda table, column, value: actualizar_ultimo_seleccionado(base_datos, table, column, value),
+        obtener_ultimo_func=lambda table, column: obtener_ultimo_seleccionado(base_datos, table, column),
+        obtener_opciones_func=lambda: obtener_opciones_versiones(get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version()), "id_jsons", "nombre_version"),
+        mapear_clave_func=mapear_valor_a_clave,
+        ui_update_func=lambda name, choices, selected: ui.update_select(name, choices=choices, selected=selected),
+        input_select_name="other_select",
+        db_table="version",
+        db_column_id="version_id",
+        db_column_name="nombre_version"
+    )
+
+        
+        
         nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
         
-       
         files_name = get_records(
         table='name_files',
         columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
@@ -44,17 +62,12 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
         where_params=(global_session.get_id_proyecto(),)
     )
         
-        print("files name", files_name)
+        
         global_session_V2.lista_nombre_archivos_por_version.set({
             str(file['id_files']): file['nombre_archivo']
             for file in files_name
         } if files_name else {"": "No hay archivos"})
 
-       
-    
-        #data = leer_dataset(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session_V2.lista_nombre_archivos_por_version.get(), global_session.get_versiones_name(), global_session.get_id_version())
-        #global_session.set_data_set_reactivo(data)
-        
         ult_model = obtener_ultimo_modelo_por_version_y_nombre(base_datos, global_session.get_id_version(), "desarollo")
       
         estado_model_desarrollo = help_models.obtener_estado_por_modelo(ult_model, "desarollo")

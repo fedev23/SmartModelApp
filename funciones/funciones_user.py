@@ -112,8 +112,9 @@ def create_version_ui(projects):
 def show_selected_project_card(user_id, project_id):
     # Buscar el proyecto por ID
     projects = get_user_projects(user_id)
+    print("projects", projects)
     project = next((proj for proj in projects if str(proj['id']) == project_id), None)
-    
+    print("projects", projects)  
     if project:
         sanitized_name =  project['id']
         return  ui.input_action_link(

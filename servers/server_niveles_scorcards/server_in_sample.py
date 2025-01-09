@@ -180,16 +180,34 @@ def server_in_sample(input, output, session, name_suffix):
     @render.ui
     def delete():
       if fila_insert.get():
-            return ui.input_action_link("delete_values", "Eliminar ultima fila ingresada")
+            return ui.input_action_link("delete_values", "Eliminar la  fila seleccionada")
         
     
     
     @reactive.Effect
     @reactive.event(input.delete_values)
-    def delete_values():
+    def delete_values(): 
         data = data_set.get()
-        data = data.iloc[:-1]
-        data_set.set(data)
+        rows = par_rango_reportes.cell_selection()["rows"]
+        
+        if rows:  # Verifica si hay filas seleccionadas
+            # Asegurarse de que `rows` sea una lista de índices enteros
+            selected_rows = sorted([int(row) for row in rows])
+            
+            print(f"Índices seleccionados para eliminar: {selected_rows}")
+            
+            # Eliminar las filas seleccionadas del DataFrame
+            try:
+                updated_data = data.drop(index=selected_rows).reset_index(drop=True)
+                
+                # Actualizar el dataset reactivo con las filas eliminadas
+                data_set.set(updated_data)
+                print("Filas eliminadas exitosamente.")
+            except KeyError as e:
+                print(f"Error al intentar eliminar filas: {e}")
+        else:
+            print("No se seleccionaron filas para eliminar.")
+    
         
     
    
@@ -245,9 +263,10 @@ def server_in_sample(input, output, session, name_suffix):
         if data is not None and not data.empty:
             print(data, "estoy end ata")
         # Renderiza el DataFrame si no está vacío
-            return render.DataGrid(data, editable=True, width="500px")
+
+            return render.DataGrid(data, selection_mode="rows",  width="500px")
         
-        return render.DataGrid(ejemplos_rangos, editable=True, width="500px")
+        return render.DataGrid(ejemplos_rangos, selection_mode="rows",  width="500px")
         
         # De lo contrario, renderiza los datos actuales
         
