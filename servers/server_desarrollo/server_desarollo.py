@@ -80,6 +80,7 @@ def server_desarollo(input, output, session, name_suffix):
     @reactive.Effect
     @reactive.event(input.cancel_overwrite_desarollo)
     def overwrite_file():
+        #global_session_V2.boolean_for_change_file.set(False)
         return  ui.modal_remove()    
     
     @output
@@ -233,5 +234,6 @@ def server_desarollo(input, output, session, name_suffix):
     @reactive.Effect
     @reactive.event(input["cancel_overwrite_desarrollo"])
     def cancelar():
-      return ui.modal_remove()
+        return ui.modal_remove()
+  
     

@@ -1,13 +1,16 @@
 from shiny import App, Inputs, Outputs, Session, reactive, ui, render, module
-from funciones.nav_panel_User import create_nav_menu_user
+from clases.global_modelo import global_desarollo
+from funciones_modelo.help_models import *
 from funciones.utils_2 import *
 from api import * 
+from logica_users.utils.help_versios import mapear_valor_a_clave
 from clases.global_session import global_session
 from clases.reactives_name import global_names_reactivos
 from funciones.funciones_user import button_remove, create_modal_v2
 from funciones.utils_2 import eliminar_archivo, leer_dataset
 from logica_users.utils.help_versios import obtener_ultimo_nombre_archivo
 from api.db.help_config_db import *
+from funciones_modelo.warning_model import create_modal_warning_exist_model, validar_existencia_modelo_por_dinamica_de_app
 from clases.global_sessionV2 import *
 from clases.global_reactives import global_estados
 from api.db.sqlite_utils import *
@@ -17,62 +20,113 @@ from global_names import base_datos
 def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     
    
-    list = reactive.Value(None)
+    lista_reactiva = reactive.Value(None)
     config_state = reactive.Value({})
-    with_values = reactive.Value(False)
+    click = reactive.Value(0)
+    pase_para_cambiar_file = reactive.Value(False)
+    initialized = reactive.Value(False)
     
    
     #EN ESTE ARCHIVO SE MANEJA LA LOGICA DE SELECCIONES SOBRE FILES EN DESARROLLO
     #TAMBIEN SE CREA EL MODAL DE CONFIGURACION
     
     
-    @reactive.effect
-    @reactive.event(input.files_select)  # Escuchar cambios en el selector
+    @reactive.Effect
+    @reactive.event(input.files_select)  # Escuchar cambios en el selector de archivos
     def project_card_container():
-        data_id = input.files_select()  # Captura el ID seleccionado
+        # Verificar inicialización para evitar ejecución al cargar la aplicación
+        if not initialized():
+            initialized.set(True)
+            return 
+
+        if global_session_V2.boolean_for_change_file.get():
+            data = leer_dataset(
+            global_session.get_id_user(),
+            global_session.get_id_proyecto(),
+            global_session.get_name_proyecto(),
+            global_names_reactivos.get_name_file_db(),
+            global_session.get_versiones_name(),
+            global_session.get_id_version()
+        )   
+            selected_key = mapear_valor_a_clave(global_session_V2.get_dataSet_seleccionado(), global_session_V2.lista_nombre_archivos_por_version.get())
+            ui.update_select("files_select", selected=selected_key if selected_key else next(iter(global_session_V2.lista_nombre_archivos_por_version.get()), ""))
+            global_session.set_data_set_reactivo(data)
+            pase_para_cambiar_file.set(True)
+            return 
+         
+        data_id = input.files_select()  # Captura el ID del archivo seleccionado
+        # Actualizar el ID del dataset en la sesión global
         global_session.set_id_dataSet(data_id)
 
-        base_datos = 'Modeling_App.db'
+        # Obtener el nombre del archivo desde la base de datos
         tabla = 'name_files'
         columna_objetivo = 'nombre_archivo'
         columna_filtro = 'id_files'
-        nombre_file = obtener_valor_por_id(base_datos, tabla, columna_objetivo, columna_filtro, global_session.get_id_dataSet())
-        
-        
-        actualizar_ultimo_seleccionado(base_datos, 'name_files', 'id_files', data_id)
-        ##OBTENGO LOS VALORES ASOCIADOS A LA TABALA
-        list = get_records(table='name_files',
-            columns=['name_files.id_files', 'name_files.nombre_archivo', 'name_files.fecha_de_carga'],
-            join_clause='INNER JOIN version ON name_files.version_id = version.version_id',
-            where_clause='version.project_id = ?',
-            where_params=(global_session.get_id_proyecto(),))
-        
-        
-        global_names_reactivos.set_name_file_db(nombre_file)
-        
-        if global_names_reactivos.get_name_file_db() is None:
-            global_session_V2.set_dataSet_seleccionado(obtener_ultimo_nombre_archivo(list))
-        else:
-            global_session_V2.set_dataSet_seleccionado(global_names_reactivos.get_name_file_db())
-        #if global_names_reactivos.get_proceso_leer_dataset():
-        
-        data = leer_dataset(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_names_reactivos.get_name_file_db(), global_session.get_versiones_name(), global_session.get_id_version())
-        global_session.set_data_set_reactivo(data)
+        nombre_file = obtener_valor_por_id(base_datos, tabla, columna_objetivo, columna_filtro, data_id)
 
- 
+        actualizar_ultimo_seleccionado(base_datos, 'name_files', 'id_files', data_id)
+
+        # Configurar el nombre del archivo en reactivos globales
+        if nombre_file:
+            global_names_reactivos.set_name_file_db(nombre_file)
+        else:
+            global_session_V2.set_dataSet_seleccionado(obtener_ultimo_nombre_archivo(lista_reactiva.get()))
+
+        # Leer el dataset
+        data = leer_dataset(
+            global_session.get_id_user(),
+            global_session.get_id_proyecto(),
+            global_session.get_name_proyecto(),
+            global_names_reactivos.get_name_file_db(),
+            global_session.get_versiones_name(),
+            global_session.get_id_version()
+        )
+        click.set(click() + 1)
+        global_session_V2.count_global.set(global_session_V2.count_global() + 1)
+        global_session.set_data_set_reactivo(data)
+        # Validar si el archivo puede cambiar
+
+
+    @reactive.effect
+    def monitoring_change_file():
+        base_datos = 'Modeling_App.db'
+        if global_session_V2.count_global.get() >= 1 or pase_para_cambiar_file.get():
+            global_session_V2.count_global.set(0)  # Reiniciar el contador para evitar ejecuciones repetidas
+
+            # Validar si existe un modelo generado
+            modelo_existente = validar_existencia_modelo_por_dinamica_de_app(
+                modelo_boolean_value=global_desarollo.pisar_el_modelo_actual.get(),
+                base_datos=base_datos,
+                version_id=global_session.get_id_version()
+            )
+
+            if modelo_existente:
+                # Mostrar el modal de advertencia si ya existe un modelo
+                ui.modal_show(
+                    create_modal_warning_exist_model(
+                        name=global_desarollo.nombre,
+                        nombre_version=global_session.get_versiones_name()
+                    )
+                )
+                # Bloquear cambios en el archivo
+                global_session_V2.boolean_for_change_file.set(True)
+            else:
+                # Permitir el cambio de archivo
+                global_session_V2.boolean_for_change_file.set(False)
+
     @output
     @render.ui
     def remove_dataset():
-        list.set(get_records(
+        lista_reactiva.set(get_records(
         table='name_files',
         columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
         join_clause='INNER JOIN version ON name_files.version_id = version.version_id',
         where_clause='version.project_id = ?',
         where_params=(global_session.get_id_proyecto(),)))
         #name.set(global_names_reactivos.get_name_file_db())
-        print(list.get(), "viendo lista")
+        print(lista_reactiva.get(), "viendo lista")
         print(global_session.get_id_dataSet(), "id data?")
-        return button_remove(list.get(), global_session.get_id_dataSet(), "id_files", name)
+        return button_remove(lista_reactiva.get(), global_session.get_id_dataSet(), "id_files", name)
         
     
     @reactive.Effect
@@ -108,10 +162,10 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
         tabla = "name_files"
         condiciones = "id_files = ?"
         parametros = (global_session.get_id_proyecto(),)
-        lista_de_versiones_new = obtener_versiones_por_proyecto(columnas,tabla, condiciones,parametros)
+        lista_de_versiones_new = obtener_versiones_por_proyecto(columnas,tabla, condiciones, parametros)
 
         print(lista_de_versiones_new, "lista_de_versiones_new")
-        list.set(lista_de_versiones_new)
+        lista_reactiva.set(lista_de_versiones_new)
         ui.update_select(
             "files_select",
             choices={str(vers['id_files']): vers['nombre_archivo']

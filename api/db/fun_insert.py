@@ -26,20 +26,27 @@ def add_project(user_id, name):
     conn.close()
     return project_id
 # Función para obtener proyectos de un usuario específico
+
 def eliminar_proyecto(project_id):
     conn = sqlite3.connect('Modeling_App.db')
     cur = conn.cursor()
     
     try:
-        # Primero, eliminar registros en la tabla `file_name` relacionados con el proyecto (si existen)
-        cur.execute('DELETE FROM name_files WHERE project_id = ?', (project_id,))
+        # 1. Obtener los IDs de las versiones asociadas al proyecto
+        cur.execute('SELECT version_id FROM version WHERE project_id = ?', (project_id,))
+        version_ids = [row[0] for row in cur.fetchall()]
 
-        # Eliminar las versiones asociadas al proyecto (si existen)
-        cur.execute('DELETE FROM version WHERE project_id = ?', (project_id,))
+        # 2. Si hay versiones, eliminar los registros relacionados en `name_files`
+        if version_ids:
+            cur.execute('DELETE FROM name_files WHERE version_id IN ({})'.format(
+                ','.join('?' for _ in version_ids)), version_ids)
+            
+            # 3. Eliminar las versiones asociadas al proyecto
+            cur.execute('DELETE FROM version WHERE project_id = ?', (project_id,))
 
-        # Finalmente, eliminar el proyecto
+        # 4. Eliminar el proyecto aunque no tenga versiones asociadas
         cur.execute('DELETE FROM project WHERE id = ?', (project_id,))
-        
+
         conn.commit()
         print(f"Proyecto con ID {project_id} eliminado exitosamente.")
     except Exception as e:

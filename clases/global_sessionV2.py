@@ -16,6 +16,8 @@ class GlobalSessionV2:
         self.id_modelo = reactive.Value("")
         self.lista_nombre_archivos_por_version = reactive.Value("")
         self.nombre_file_sin_extension_validacion_scoring = reactive.value()
+        self.boolean_for_change_file = reactive.Value(False)
+        self.count_global = reactive.Value(0)
 
     def set_id_Data_validacion_sc(self, id):
         self.id_Data_validacion_sc.set(id)

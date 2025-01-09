@@ -83,22 +83,11 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
             global_session.set_versiones_name(nombre_version)
             
-
-
         # Obtiene y configura las versiones de parámetros
         versiones_parametros  = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
             # 
-        
         opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version"))
         valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
-
-        # Crea el path para guardar datasets
-        #data_Set  = get_datasets_directory_data_set_versiones(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version())
-        
-        #global_session.set_path_guardar_dataSet_en_proyectos(data_Set)
-        
-        
-        
         ##Actualizo tambien los dataSet de Validacion y scroing
         nombre_files_validacion_sc = get_records(
             table='validation_scoring',
@@ -134,7 +123,9 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         #ui.update_select("files_select", choices=nombre_file.get(),  selected=selected_key if selected_key else next(iter(nombre_file.get()), ""))
         ui.update_select("other_select", choices=opciones_de_versiones_por_proyecto.get(), selected=key_versiones_mach if key_versiones_mach else next(iter(opciones_de_versiones_por_proyecto.get()), ""))
         ui.update_select("version_selector", choices=opciones_param.get(), selected=valor_predeterminado_parms.get())
-
+        global_session_V2.count_global.set(0) 
+        global_session_V2.boolean_for_change_file.set(False)
+        
     @output
     @render.ui
     def project_card_container():
@@ -167,6 +158,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     @reactive.Effect
     @reactive.event(input["eliminar_proyecto_modal"])
     def eliminar_proyeco_modal():
+        print("estoy pasando en eliminar_proyecto_modal?")
         eliminar_proyecto(global_session.get_id_proyecto())
         # Actualiza proyectos_usuario después de eliminar el proyecto
         #proyectos_actualizados = get_user_projects(user_get.get())
@@ -174,7 +166,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             table='project',  # Nombre de la tabla
             columns=['id', 'name'],  # Columnas que deseas recuperar
             where_clause='user_id = ?',  # Cláusula WHERE
-            where_params=(user_get.get(),)  # Parámetros para el filtro (reemplaza 123 por el user_id deseado)
+            where_params=(user_get.get(),)
         )
         # Refresca proyectos_usuario con la lista actualizada
         path_carpeta_versiones_borrar_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}'

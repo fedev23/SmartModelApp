@@ -50,8 +50,11 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
         nombre_file = obtener_valor_por_id(base_datos, tabla, columna_objetivo, columna_filtro, global_session_V2.get_id_Data_validacion_sc())
         
         global_session_V2.set_nombre_dataset_validacion_sc(nombre_file)
-        file_name_without_extension = os.path.splitext(nombre_file)[0]
-        global_session_V2.nombre_file_sin_extension_validacion_scoring.set(file_name_without_extension)
+        if nombre_file:
+            file_name_without_extension = os.path.splitext(nombre_file)[0]
+            global_session_V2.nombre_file_sin_extension_validacion_scoring.set(file_name_without_extension)
+        
+            pass
         ##obengo los valores de la tabla
         lista.set(get_records(
             table='validation_scoring',
