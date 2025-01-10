@@ -68,6 +68,30 @@ def validar_existencia_modelo(modelo_boolean_value , base_datos, version_id=None
 
         return True  # El modelo no existe o no tiene estado
     
+
+def validar_existencia_modelo_for_models(modelo_boolean_value , base_datos, version_id=None, json_id=None, nombre_modelo=None, nombre_version=None):
+    """
+    Valida si existe un modelo con un estado de ejecución dado en la base de datos
+    y muestra un modal de advertencia si es necesario.
+
+    :param base_datos: Ruta al archivo de la base de datos.
+    :param version_id: ID de la versión a validar (opcional).
+    :param json_id: ID del JSON a validar (opcional).
+    :param nombre_modelo: Nombre del modelo a buscar.
+    :param nombre_version: Versión a mostrar en el modal.
+    :return: True si el modelo no existe o no tiene estado, False si existe y se muestra el modal.
+    """
+    # Verificar el estado de ejecución utilizando la función check_execution_status
+    if not modelo_boolean_value:
+        
+        estado_ejecucion = check_execution_status(base_datos, version_id=version_id, json_id=json_id)
+        print(estado_ejecucion, "que estado hay aca?")
+        if estado_ejecucion is not None and estado_ejecucion == "Exito":
+            # Mostrar el modal de advertencia si el modelo ya tiene un estado de ejecución
+            ui.modal_show(create_modal_warning_exist_model(nombre_modelo, nombre_version))
+            return False  # El modelo ya existe con un estado asociado
+
+        return True  # El modelo no existe o no tiene estado
     
 
 def validar_existencia_modelo_por_dinamica_de_app(modelo_boolean_value , base_datos, version_id=None, json_id=None):
@@ -84,7 +108,7 @@ def validar_existencia_modelo_por_dinamica_de_app(modelo_boolean_value , base_da
     """
     # Verificar el estado de ejecución utilizando la función check_execution_status
     if not modelo_boolean_value:
-        
+        print(f"Llamando a check_execution_status con version_id={version_id}, json_id={json_id}")
         estado_ejecucion = check_execution_status(base_datos, version_id=version_id, json_id=json_id)
         if estado_ejecucion is not None and estado_ejecucion == "Exito":
             return True  # El modelo ya existe con un estado asociado

@@ -12,7 +12,7 @@ from funciones_modelo.help_models import *
 from api.db.sqlite_utils import *
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo import help_models 
-from logica_users.utils.manejo_session import manejar_session_and_selector
+from logica_users.utils.manejo_session import manejo_de_ultimo_seleccionado
 
 
 
@@ -34,14 +34,14 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
     def project_card_container():
         id_version  = input.other_select() # Captura el ID seleccionado
 
-        manejar_session_and_selector(
+        manejo_de_ultimo_seleccionado(
         is_initializing=init_session,
         input_select_value=input.other_select(),
         ultimo_id_func=lambda: obtener_ultimo_id_seleccionado(base_datos, "version", "version_id"),
         global_set_func=lambda x: global_session.set_id_version(x),
         actualizar_ultimo_func=lambda table, column, value: actualizar_ultimo_seleccionado(base_datos, table, column, value),
         obtener_ultimo_func=lambda table, column: obtener_ultimo_seleccionado(base_datos, table, column),
-        obtener_opciones_func=lambda: obtener_opciones_versiones(get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version()), "id_jsons", "nombre_version"),
+        obtener_opciones_func=lambda: obtener_opciones_versiones(get_project_versions(global_session.get_id_proyecto()), "version_id", "nombre_version"),
         mapear_clave_func=mapear_valor_a_clave,
         ui_update_func=lambda name, choices, selected: ui.update_select(name, choices=choices, selected=selected),
         input_select_name="other_select",
@@ -49,8 +49,7 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
         db_column_id="version_id",
         db_column_name="nombre_version"
     )
-
-        
+    
         
         nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
         
@@ -86,7 +85,7 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
 
             
         ##ACTUALIZO EL ULTIMO SELECCIONADO EN LA TABALA DE BD
-        actualizar_ultimo_seleccionado(base_datos, 'version', 'version_id', global_session.get_id_version())
+        #actualizar_ultimo_seleccionado(base_datos, 'version', 'version_id', global_session.get_id_version())
         global_session.set_versiones_name(nombre_version)
         param_json = leer_control_json(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_id_version(), global_session.get_versiones_name())
         global_session_V2.set_json_params_desarrollo(param_json)

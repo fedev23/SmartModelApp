@@ -4,7 +4,7 @@ from clases.global_session import *
 from datetime import datetime
 import asyncio
 import traceback
-from clases.reactives_name import global_names_reactivos
+from funciones_modelo.warning_model import *
 from api.db import *
 from funciones_modelo.global_estados_model import global_session_modelos
 from clases.global_sessionV2 import *
@@ -162,3 +162,32 @@ class ModeloProceso:
             )
         else:
             return ui.div("El archivo aún no se ha cargado. Por favor, cargue el archivo.")
+        
+        
+        
+        
+    def existencia_modelo(self, modelo_boolean_value , base_datos, version_id=None, json_id=None,  nombre_version=None):
+        """
+        Valida si existe un modelo con un estado de ejecución dado en la base de datos
+        y muestra un modal de advertencia si es necesario.
+
+        :param base_datos: Ruta al archivo de la base de datos.
+        :param version_id: ID de la versión a validar (opcional).
+        :param json_id: ID del JSON a validar (opcional).
+        :param nombre_modelo: Nombre del modelo a buscar.
+        :param nombre_version: Versión a mostrar en el modal.
+        :return: True si el modelo no existe o no tiene estado, False si existe y se muestra el modal.
+        """
+        # Verificar el estado de ejecución utilizando la función check_execution_status
+        print(f"estoy pasando en esta funcion???: {version_id}, {json_id}")
+        if not modelo_boolean_value:
+            print("pase el boolean>")
+            print(f"values now? {version_id}, {json_id}")
+            estado_ejecucion = check_execution_status(base_datos, version_id=version_id, json_id=json_id)
+            print(estado_ejecucion, "que estado hay aca?")
+            if estado_ejecucion is not None and estado_ejecucion == "Exito":
+                # Mostrar el modal de advertencia si el modelo ya tiene un estado de ejecución
+                ui.modal_show(create_modal_warning_exist_model(self.nombre , nombre_version))
+                return False  # El modelo ya existe con un estado asociado
+
+            return True  # El modelo no existe o no tiene estado

@@ -11,7 +11,7 @@ from api.db.help_config_db import *
 from api.db.sqlite_utils import *
 from auth.utils import help_api 
 from api.db.sqlite_utils import *
-from logica_users.utils.manejo_session import manejar_session_and_selector
+from logica_users.utils.manejo_session import manejo_de_ultimo_seleccionado
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo import help_models 
 
@@ -57,7 +57,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     def project_card_container():
         selected_project_id = input.project_select()
         
-        manejar_session_and_selector(
+        manejo_de_ultimo_seleccionado(
             is_initializing=is_initializing,
             input_select_value=input.project_select(),
             ultimo_id_func=lambda: obtener_ultimo_id_seleccionado(base_datos, "project", "id"),
@@ -74,19 +74,17 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         )
 
         
-        
-        
+    
         nombre_proyecto = obtener_nombre_proyecto_por_id(global_session.get_id_proyecto())
         global_session.set_name_proyecto(nombre_proyecto)
         
         proyectos_usuario.set(get_user_projects(global_session.get_id_user()))
         
         proyectos_choise = obtener_opciones_versiones(proyectos_usuario.get(), "id", "name")
-
         ultimo_proyecto_seleccionado.set(obtener_ultimo_seleccionado(base_datos, 'project', 'name'))
-        
         key_proyecto_mach = mapear_valor_a_clave(ultimo_proyecto_seleccionado.get(), proyectos_choise)
 
+        #EMPIEZA VERSIONES
         versiones_de_proyecto = get_project_versions(global_session.get_id_proyecto())
         opciones_de_versiones_por_proyecto.set(obtener_opciones_versiones(versiones_de_proyecto, "version_id", "nombre_version"))
         
@@ -158,21 +156,11 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         return ui.modal_remove()
         
    
-
-    # boton para eliminar proyecto
+       
     @reactive.Effect
-    def handle_delete_buttons():
-        project_id = global_session.get_id_proyecto()
-        eliminar_btn_id = f"eliminar_proyect_{project_id}"
-
-        @reactive.Effect
-        @reactive.event(input[eliminar_btn_id])
-        def eliminar_proyecto_boton():
-            create_modal_eliminar_bd()
-
-    @reactive.Effect
-    @reactive.event(input["eliminar_proyecto_modal"])
+    @reactive.event(input.eliminar_proyecto)
     def eliminar_proyeco_modal():
+        print("estoy pasando por aca?")
         print("estoy pasando en eliminar_proyecto_modal?")
         eliminar_proyecto(global_session.get_id_proyecto())
         # Actualiza proyectos_usuario después de eliminar el proyecto
@@ -209,7 +197,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     @reactive.Effect
     @reactive.event(input["cancelar_eliminar"])
     def canacelar_eliminacion():
-        ui.modal_remove()
+       return ui.modal_remove()
 
     @output
     @render.ui
@@ -232,7 +220,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     @reactive.effect
     @reactive.event(input.cancelar_eliminar)
     def cancel_version():
-        ui.modal_remove()
+        return ui.modal_remove()
         # agregar_version
 
 
@@ -298,9 +286,15 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
 
                  
                 # Actualiza el selector con los proyectos restantes
-                ui.update_select("project_select", choices={str(proj['id']): proj['name'] for proj in get_user_projects(user_get.get())}
+                proyectos = get_user_projects(user_get.get())
+                opciones = {str(proj['id']): proj['name'] for proj in proyectos}
+                ultimo_proyecto_id = str(proyectos[-1]['id'])
+                
+                ui.update_select(
+                    "project_select",
+                    choices=opciones,
+                    selected=ultimo_proyecto_id  # Preselecciona el último ID
                 )
-
                 global_session.set_id_user(user_get())
                 crear_carpeta_proyecto(user_get.get(), global_session.get_id_proyecto(), name)
                 data_Set = get_datasets_directory(user_get.get(), global_session.get_id_proyecto(), global_session.get_name_proyecto())

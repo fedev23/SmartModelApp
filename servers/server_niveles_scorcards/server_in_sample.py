@@ -20,7 +20,7 @@ from funciones.utils_cargar_json import update_dataframe_from_json
 from clases.global_sessionV2 import *
 from clases.global_reactives import *
 from api.db.sqlite_utils import *
-from funciones_modelo.warning_model import validar_existencia_modelo
+from funciones_modelo.warning_model import validar_existencia_modelo_for_models
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.help_models import *
 
@@ -307,20 +307,22 @@ def server_in_sample(input, output, session, name_suffix):
             proceso = global_desarollo.proceso.get()
             versiones = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
             
-            print(versiones, "viendo versiones")
             
-            if versiones is None:
-                print("hola, en versiones none")
+          
             # Validar si hay versiones
-            validacion_existe_modelo = validar_existencia_modelo(
+            print(global_session.get_version_parametros_id(), "id model")
+            print("antes de ejecutar: cuando??")
+        
+            validacion_existe_modelo = modelo_in_sample.existencia_modelo(
                 modelo_in_sample.pisar_el_modelo_actual.get(),
                 base_datos="Modeling_App.db",
                 version_id=None,
                 json_id=global_session.get_version_parametros_id(),
-                nombre_modelo=modelo_in_sample.nombre,
                 nombre_version=global_session.get_versiones_name()
             )
             
+            print(validacion_existe_modelo)
+            print(modelo_in_sample.pisar_el_modelo_actual.get())
             if modelo_in_sample.pisar_el_modelo_actual.get() or validacion_existe_modelo:
                 validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
                 
@@ -377,6 +379,7 @@ def server_in_sample(input, output, session, name_suffix):
         @reactive.effect
         def insert_data_depends_value():  
             if modelo_in_sample.proceso_ok.get():
+                print("ENTRO A PROCESO OK?")
                 registro_id = agregar_datos_model_execution_por_json_version(
                     json_version_id=global_session.get_version_parametros_id(),
                     name=modelo_in_sample.nombre,

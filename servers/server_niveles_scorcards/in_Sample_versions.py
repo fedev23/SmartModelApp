@@ -42,7 +42,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
         add = insert_into_table(table_name, columns, values)
         global_session.set_version_parametros_id(add)
         id_versiones_params.set(add)
-        
+        print(f"id aca en continue {add}")
         obtener_nombre_version_por_id(global_session.get_id_version())
         crear_carpeta_version_parametros(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_version_parametros_id(), name, global_session.get_name_proyecto(), global_session.get_versiones_name())
 
@@ -66,6 +66,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
     @reactive.event(input.version_selector)
     def seleccionador_versiones_param():
         versiones_id = input.version_selector()
+        print(f"id versiones selector: {versiones_id}")
         global_session.set_version_parametros_id(versiones_id)
         if global_session.get_version_parametros_id() != "a":
             versiones = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
@@ -74,7 +75,9 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
                 global_session.get_name_proyecto() and
                 global_session.get_id_proyecto() and
                 global_session.get_id_version() and
-                global_session.get_versiones_name()):   
+                global_session.get_versiones_name() and 
+                global_session.get_version_parametros_id() and
+                global_session.get_versiones_parametros_nombre()):   
                     help_api.procesar_starlette_api_insample(global_session.get_id_user(), global_session.get_name_proyecto(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_versiones_name(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre())
 
                     #ult_model = obtener_ultimo_modelo_por_version(base_datos="Modeling_App.db",version_id=None, json_version_id=global_session.get_version_parametros_id())

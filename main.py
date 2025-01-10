@@ -91,7 +91,6 @@ class ProcessUserIDEndpoint(HTTPEndpoint):
         return JSONResponse({"message": "Process completed successfully without insample parameters"})
         
 
-
 class DynamicStaticFileEndpoint(HTTPEndpoint):
     async def get(self, request):
         user_id = request.query_params.get("user_id")
@@ -112,25 +111,33 @@ class DynamicStaticFileEndpoint(HTTPEndpoint):
 
         # Ruta base común
         base_directory = build_base_directory(user_id, id_proyecto, nombre_proyecto)
+        user_directory = None  # Inicializamos como None para cubrir todos los casos
 
+        # Caso 1: in-sample
         if id_version_insample and nombre_version_insample:
-            # Ruta base para in-sample
-            base_insample_folder = build_insample_folder(base_directory, id_version, nombre_version, id_version_insample, nombre_version_insample)
-            print(f"Base in-sample folder: {base_insample_folder}")
+            base_insample_folder = build_insample_folder(
+                base_directory, id_version, nombre_version, id_version_insample, nombre_version_insample
+            )
+            print(f"base_insample_folder: {base_insample_folder}")
 
+            # Caso 1.1: scoring dentro de in-sample
             if nombre_folder_validacion_scoring:
                 scoring_folder_path = os.path.join(base_insample_folder, nombre_folder_validacion_scoring, "Reportes")
-                print(f"Scoring folder path (debug): {scoring_folder_path}")
-                
+                print(f"Scoring folder path: {scoring_folder_path}")
+
                 if os.path.isdir(scoring_folder_path):
                     user_directory = os.path.join(scoring_folder_path, file_name)
-                    print(f"File path (debug): {user_directory}")
+                    print(f"File path for in-sample scoring: {user_directory}")
                 else:
-                    print(f"Scoring folder not found: {scoring_folder_path}")
-                    return JSONResponse({"error": f"Folder for validation scoring not found: {scoring_folder_path}"}, status_code=404)
-        else:
-            # Ruta genérica
-            user_directory = f"{base_directory}/version_{id_version}_{nombre_version}/Reportes/{file_name}"
+                    return JSONResponse({"error": f"Scoring folder not found: {scoring_folder_path}"}, status_code=404)
+            else:
+                # Caso 1.2: in-sample sin scoring
+                user_directory = os.path.join(base_insample_folder, "Reportes", file_name)
+                print(f"File path for in-sample: {user_directory}")
+
+        # Caso 2: ruta genérica (si no se cumple in-sample)
+        if user_directory is None:
+            user_directory = os.path.join(base_directory, f"version_{id_version}_{nombre_version}", "Reportes", file_name)
             print(f"Generic user_directory: {user_directory}")
 
         # Verificar si el archivo existe

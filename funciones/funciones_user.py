@@ -108,20 +108,27 @@ def create_version_ui(projects):
 
     
 
-
 def show_selected_project_card(user_id, project_id):
-    # Buscar el proyecto por ID
+    # Obtener los proyectos del usuario
     projects = get_user_projects(user_id)
-    print("projects", projects)
-    project = next((proj for proj in projects if str(proj['id']) == project_id), None)
-    print("projects", projects)  
+    try:
+        # Convertir el project_id a entero
+        project_id_int = int(project_id)
+    except ValueError:
+        return ui.div("ID de proyecto no válido.")
+
+    # Buscar el proyecto con el ID correspondiente
+    project = next((proj for proj in projects if proj['id'] == project_id_int), None)
+
     if project:
-        sanitized_name =  project['id']
-        return  ui.input_action_link(
+        sanitized_name = project['id']
+        return ui.input_action_link(
             f"eliminar_proyect_{sanitized_name}", 
             ui.tags.i(class_="fa fa-trash fa-2x text-danger"),  # Ícono de basura en rojo
-            style="background: none; border: none;")
+            style="background: none; border: none;"
+        )
     else:
+        print("No se encontró el proyecto.")
         return ui.div("No hay proyectos.")
     
 def button_remove_version(project_id, target_version_id):
@@ -169,11 +176,11 @@ def button_remove(versions_list, target_version_id, id, name):
     
 
 
-def create_modal_eliminar_bd():
+def create_modal_eliminar_bd(name_proyecto):
     m = ui.modal(  
-            ui.input_action_button("eliminar_proyecto_modal", "Eliminar Proyecto", class_="btn btn-danger"),
+            ui.input_action_button("eliminar_proyecto", "Eliminar Proyecto", class_="btn btn-danger"),
             ui.input_action_button("cancelar_eliminar", "Cancel", class_="custom-cancel-button"),
-            title="¿Estás seguro de que quieres eliminar este proyecto?",  
+            title=f"¿Estás seguro de que quieres eliminar el proyecto '{name_proyecto}'?",  
             easy_close=True,  
             footer=None,  
         )  

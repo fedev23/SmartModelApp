@@ -1,5 +1,5 @@
 
-def manejar_session_and_selector(
+def manejo_de_ultimo_seleccionado(
     is_initializing,
     input_select_value,
     ultimo_id_func,

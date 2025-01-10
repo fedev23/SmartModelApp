@@ -124,7 +124,7 @@ class ResultadoClassPrueba:
 
                     try:
                         iframe_src = f"/api/user_files?{urlencode({'user_id': self.user.get(), 'nombre_proyecto': global_session.get_name_proyecto(), 'id_proyecto': global_session.get_id_proyecto(), 'id_version': global_session.get_id_version(), 'nombre_version': global_session.get_versiones_name(), 'id_version_insample': global_session.get_version_parametros_id(), 'nombre_version_insample': global_session.get_versiones_parametros_nombre(), 'file_name': os.path.basename(resultado_path)})}"
-                        salida =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/Reportes/{os.path.basename(resultado_path)}'
+                        salida =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}/Reportes/{os.path.basename(resultado_path)}'
                     
                         if os.path.exists(salida):
                             return ui.div(

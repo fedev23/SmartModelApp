@@ -15,7 +15,7 @@ from clases.global_sessionV2 import *
 from clases.global_reactives import global_estados
 from api.db.sqlite_utils import *
 from global_names import base_datos
-
+from logica_users.utils.manejo_session import manejo_de_ultimo_seleccionado
 
 def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     
@@ -38,6 +38,8 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
         if not initialized():
             initialized.set(True)
             return 
+        
+        
 
         if global_session_V2.boolean_for_change_file.get():
             data = leer_dataset(
@@ -89,30 +91,33 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
 
     @reactive.effect
     def monitoring_change_file():
-        base_datos = 'Modeling_App.db'
-        if global_session_V2.count_global.get() >= 1 or pase_para_cambiar_file.get():
-            global_session_V2.count_global.set(0)  # Reiniciar el contador para evitar ejecuciones repetidas
+            if global_session_V2.count_global.get() >= 1 or pase_para_cambiar_file.get():
+                base_datos = 'Modeling_App.db'
+                print("estoy aca, en monitoring")
 
-            # Validar si existe un modelo generado
-            modelo_existente = validar_existencia_modelo_por_dinamica_de_app(
-                modelo_boolean_value=global_desarollo.pisar_el_modelo_actual.get(),
-                base_datos=base_datos,
-                version_id=global_session.get_id_version()
-            )
-
-            if modelo_existente:
-                # Mostrar el modal de advertencia si ya existe un modelo
-                ui.modal_show(
-                    create_modal_warning_exist_model(
-                        name=global_desarollo.nombre,
-                        nombre_version=global_session.get_versiones_name()
-                    )
+                global_session_V2.count_global.set(0)  # Reiniciar el contador para evitar ejecuciones repetidas
+                
+                print("estoy aca, en monitoring, parte dos")
+                # Validar si existe un modelo generado
+                modelo_existente = validar_existencia_modelo_por_dinamica_de_app(
+                    modelo_boolean_value=global_desarollo.pisar_el_modelo_actual.get(),
+                    base_datos=base_datos,
+                    version_id=global_session.get_id_version()
                 )
-                # Bloquear cambios en el archivo
-                global_session_V2.boolean_for_change_file.set(True)
-            else:
-                # Permitir el cambio de archivo
-                global_session_V2.boolean_for_change_file.set(False)
+
+                if modelo_existente:
+                    # Mostrar el modal de advertencia si ya existe un modelo
+                    ui.modal_show(
+                        create_modal_warning_exist_model(
+                            name=global_desarollo.nombre,
+                            nombre_version=global_session.get_versiones_name()
+                        )
+                    )
+                    # Bloquear cambios en el archivo
+                    global_session_V2.boolean_for_change_file.set(True)
+                else:
+                    # Permitir el cambio de archivo
+                    global_session_V2.boolean_for_change_file.set(False)
 
     @output
     @render.ui
