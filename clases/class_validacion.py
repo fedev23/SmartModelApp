@@ -39,6 +39,20 @@ class Validator:
             self.error_messages.append(f"La columna target no puede contener valores distintos de 0 y 1 {self.name_suffix}")
             
 
+    def validate_target_column_of_sample(self, target_col_value):
+        resultado_target = process_target_col1(target_col_value)
+        #target_col_value = cambiarAstring(target_col_value)
+        if resultado_target is False:
+            self.error_messages.append(f"La columna target es obligatoria para la generación del muestra {self.name_suffix}")
+
+        tiene_nulls = validate_null(target_col_value, self.df)
+        if tiene_nulls:
+            self.error_messages.append(f"La columna target no puede contener valores nulos en la muestrea {self.name_suffix}")
+            
+        valores_distintos_univocos =  validate_binary_values(target_col_value, global_session.get_data_set_reactivo())
+        if valores_distintos_univocos:
+            self.error_messages.append(f"La columna target no puede contener valores distintos de 0 y 1 {self.name_suffix}")
+    
         
         
     def validate_training_split(self):

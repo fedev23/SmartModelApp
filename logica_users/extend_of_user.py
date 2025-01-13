@@ -39,8 +39,6 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
             initialized.set(True)
             return 
         
-        
-
         if global_session_V2.boolean_for_change_file.get():
             data = leer_dataset(
             global_session.get_id_user(),
@@ -123,11 +121,11 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     @render.ui
     def remove_dataset():
         lista_reactiva.set(get_records(
-        table='name_files',
-        columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
-        join_clause='INNER JOIN version ON name_files.version_id = version.version_id',
-        where_clause='version.project_id = ?',
-        where_params=(global_session.get_id_proyecto(),)))
+            table='name_files',
+            columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
+            where_clause='project_id = ?',  # Cambiar la cláusula a usar project_id directamente
+            where_params=(global_session.get_id_proyecto(),)
+        ))
         #name.set(global_names_reactivos.get_name_file_db())
         print(lista_reactiva.get(), "viendo lista")
         print(global_session.get_id_dataSet(), "id data?")

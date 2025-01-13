@@ -90,14 +90,14 @@ def mover_y_renombrar_archivo(nombre_archivo, directorio_base, name_suffix, dest
     
     
 
-def create_modal_warning_exist_file(file_name, name, nombre_version):
+def create_modal_warning_exist_file(file_name, name, nombre_proyecto):
         return ui.modal(
             ui.tags.div(
             ui.row(
                 ui.column(
                     12,
                     ui.tags.p(
-                        f"El archivo '{file_name}' ya existe en la version {nombre_version}.",
+                        f"El archivo '{file_name}' ya existe en el proyecto: {nombre_proyecto}.",
                         style="color: #d9534f; font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 20px;"
                     ),
                      style="padding: 10px; border: 1px solid #d9534f; border-radius: 5px; background-color: #f2dede;"

@@ -2,6 +2,8 @@ from shiny import App, Inputs, Outputs, Session, reactive, ui, render, module
 from funciones.nav_panel_User import create_nav_menu_user
 from clases.class_user_proyectName import global_user_proyecto
 from api import *
+from clases.reactives_name import global_names_reactivos
+from funciones.help_parametros.valid_columns import replace_spaces_with_underscores
 from clases.global_session import global_session
 from clases.global_sessionV2 import *
 from funciones.funciones_user import create_modal_versiones, show_selected_project_card, create_modal_eliminar_bd, create_modal_v2, button_remove_version
@@ -107,10 +109,10 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             columns=['id_validacion_sc', 
                     'nombre_archivo_validation_sc', 
                     'fecha_de_carga'],
-            join_clause='INNER JOIN version ON validation_scoring.version_id = version.version_id',
-            where_clause='version.project_id = ?',
+            where_clause='project_id = ?',  # Cambiado para usar project_id directamente
             where_params=(global_session.get_id_proyecto(),)
         )
+    
         
         global_session_V2.set_opciones_name_dataset_Validation_sc(obtener_opciones_versiones(nombre_files_validacion_sc, "id_validacion_sc", "nombre_archivo_validation_sc"))
         data_predeterminado.set(obtener_ultimo_id_version(nombre_files_validacion_sc, 'id_validacion_sc'))
@@ -154,14 +156,33 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     @reactive.event(input["cancelar_version"])
     def cancelar_eliminacion_version():
         return ui.modal_remove()
+    
+    delete_button_effects = {}  # Diccionario para rastrear los efectos ya definidos
+    @reactive.Effect
+    def handle_delete_buttons():
+        project_id = global_session.get_id_proyecto()
+        eliminar_btn_id_proyecto = f"eliminar_proyect_{project_id}"
         
+        print("eliminar_btn_id:", eliminar_btn_id_proyecto)
+
+        # Verificar si ya existe un manejador para este botón
+        if eliminar_btn_id_proyecto not in delete_button_effects:
+            print("Creando efecto para:", eliminar_btn_id_proyecto)
+
+            @reactive.Effect
+            @reactive.event(input[eliminar_btn_id_proyecto])
+            def eliminar_proyecto_boton():
+                create_modal_eliminar_bd(global_session.get_name_proyecto())
+
+            # Registrar el efecto en el diccionario
+            delete_button_effects[eliminar_btn_id_proyecto] = eliminar_proyecto_boton
+        else:
+            print("Efecto ya definido para:", eliminar_btn_id_proyecto)    
    
        
     @reactive.Effect
     @reactive.event(input.eliminar_proyecto)
     def eliminar_proyeco_modal():
-        print("estoy pasando por aca?")
-        print("estoy pasando en eliminar_proyecto_modal?")
         eliminar_proyecto(global_session.get_id_proyecto())
         # Actualiza proyectos_usuario después de eliminar el proyecto
         #proyectos_actualizados = get_user_projects(user_get.get())
@@ -172,6 +193,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             where_params=(user_get.get(),)
         )
         # Refresca proyectos_usuario con la lista actualizada
+        name_proyecto = replace_spaces_with_underscores(global_session.get_name_proyecto())
         path_carpeta_versiones_borrar_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}'
         path_carpeta_versiones_borrar_entrada  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}'
         
@@ -242,6 +264,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
 
         ui.update_select("other_select", choices=opciones_de_versiones_por_proyecto.get(), selected=ultimo_id_versiones_proyecto.get())
         global_session.set_proyecto_seleccionado_id(id_proyecto_Recien_Creado.get())
+        name_2 = replace_spaces_with_underscores(name)
         entrada, salida = crear_carpeta_version_por_proyecto(user_get.get(), global_session.get_id_proyecto(), ultimo_id_versiones_proyecto.get(), name, global_session.get_name_proyecto())
         global_session.set_path_guardar_dataSet_en_proyectos(entrada)
         ui.modal_remove()
@@ -269,9 +292,9 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             if global_user_proyecto.click_en_continuar.get():
                 user = user_get.get()
                 name = input[f'proyecto_nombre']()
-                
                 # Crear el proyecto y obtener su ID
                 global_session.set_name_proyecto(name)
+            
                 name_proyecto.set(name)
                 global_session.set_id_proyect(add_project(user, name))  # Esta función debería establecer el ID del proyecto recién creado en la sesión global
                 proyectos_usuario.set(get_user_projects(user))
@@ -296,9 +319,11 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                     selected=ultimo_proyecto_id  # Preselecciona el último ID
                 )
                 global_session.set_id_user(user_get())
+                #name = replace_spaces_with_underscores(name)
                 crear_carpeta_proyecto(user_get.get(), global_session.get_id_proyecto(), name)
                 data_Set = get_datasets_directory(user_get.get(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
                 #global_session.set_path_guardar_dataSet_en_proyectos(data_Set)
+                global_names_reactivos.set_name_file_db("")
 
                 # Reinicia el estado de click en continuar
                 global_user_proyecto.click_en_continuar.set(False)

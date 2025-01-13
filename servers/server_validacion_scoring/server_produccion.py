@@ -14,6 +14,7 @@ from funciones.utils import mover_file_reportes_puntoZip
 from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.help_models import *
+from global_names import global_name_out_of_Sample
 
 
 def server_produccion(input, output, session, name_suffix):
@@ -79,6 +80,11 @@ def server_produccion(input, output, session, name_suffix):
         click_count_value = modelo_produccion.click_counter.get()  # Obtener contador
         mensaje_value = modelo_produccion.mensaje.get()  # Obtener mensaje actual
         proceso = modelo_produccion.proceso.get()
+        validar_ids = check_if_exist_id_version_id_niveles_scord(global_session.get_id_version(), global_session.get_version_parametros_id())
+        if validar_ids:
+            ui.modal_show(create_modal_generic("boton_advertencia_ejecute_of", f"Es obligatorio generar una versión de {global_name_out_of_Sample} y una versión para continuar."))
+            return
+
         valid = validar_existencia_modelo(
             modelo_produccion.pisar_el_modelo_actual.get(),
             base_datos="Modeling_App.db",

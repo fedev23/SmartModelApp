@@ -1,6 +1,7 @@
 from shiny import App, Inputs, Outputs, Session, reactive, ui, render, module
 from clases.reactives_name import *
 from api import *
+from funciones.help_parametros.valid_columns import replace_spaces_with_underscores
 from clases.global_session import global_session
 from clases.global_sessionV2 import *
 from funciones.funciones_user import create_modal_v2, button_remove_version
@@ -56,12 +57,11 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
         files_name = get_records(
         table='name_files',
         columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
-        join_clause='INNER JOIN version ON name_files.version_id = version.version_id',
-        where_clause='version.project_id = ?',
+        where_clause='project_id = ?',  # Cambiar la cláusula a usar project_id directamente
         where_params=(global_session.get_id_proyecto(),)
     )
         
-        
+        print(f"files_name en update desde versiones {files_name}")
         global_session_V2.lista_nombre_archivos_por_version.set({
             str(file['id_files']): file['nombre_archivo']
             for file in files_name
@@ -108,21 +108,46 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
             return button_remove_version(global_session.get_id_proyecto(), global_session.get_id_version())
 
     
+    delete_button_effects = {}  # Diccionario para rastrear los efectos ya definidos
+
     @reactive.Effect
     def boton_para_eliminar_version():
         eliminar_version_id = f"eliminar_version_{global_session.get_id_version()}"
-        @reactive.Effect
-        @reactive.event(input[eliminar_version_id])
-        def eliminar_version_id():
-            nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
-            create_modal_v2(f"Seguro que quieres eliminar la version {nombre_version}?", "Confirmar", "Cancelar", "confirmar_eliminar_version", "cancelar_id")
-            
+
+        # Verificar si ya existe un manejador para este botón
+        if eliminar_version_id not in delete_button_effects:
+            print("Creando efecto para:", eliminar_version_id)
+
+            # Definir el efecto para el botón específico
+            def eliminar_version_boton():
+                nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
+                print(f"Botón {eliminar_version_id} activado para eliminar la versión {nombre_version}.")
+                create_modal_v2(
+                    f"¿Seguro que quieres eliminar la versión {nombre_version}?",
+                    "Confirmar",
+                    "Cancelar",
+                    "confirmar_eliminar_version",
+                    "cancelar_id"
+                )
+
+            # Asociar el evento al botón
+            @reactive.effect
+            @reactive.event(input[eliminar_version_id])
+            def manejar_eliminar_boton():
+                eliminar_version_boton()
+
+            # Registrar el efecto en el diccionario
+            delete_button_effects[eliminar_version_id] = manejar_eliminar_boton
+        else:
+            print("Efecto ya definido para:", eliminar_version_id)
 
     @reactive.Effect
     @reactive.event(input["confirmar_eliminar_version"])
     def eliminar_version_proyecto():
         
         eliminar_version("version", "version_id", global_session.get_id_version())
+        
+        nombre_version_sin_espacios = replace_spaces_with_underscores(global_session.get_versiones_name())
         path_carpeta_versiones_borrar_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
         path_carpeta_versiones_borrar_entrada  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
         

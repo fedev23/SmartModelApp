@@ -1,8 +1,7 @@
 # create_parameters
 
 from shiny import App, Inputs, Outputs, Session, reactive, ui, render, module
-from funciones.nav_panel_User import create_nav_menu_user
-from clases.class_user_proyectName import global_user_proyecto
+from funciones.help_parametros.valid_columns import replace_spaces_with_underscores
 from api import *
 from global_names import global_name_in_Sample
 from clases.global_session import global_session
@@ -44,6 +43,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
         id_versiones_params.set(add)
         print(f"id aca en continue {add}")
         obtener_nombre_version_por_id(global_session.get_id_version())
+        name_2 = replace_spaces_with_underscores(name)
         crear_carpeta_version_parametros(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_version_parametros_id(), name, global_session.get_name_proyecto(), global_session.get_versiones_name())
 
         ##ACTUALIZO ACA TAMBIEN EL SELECTOR YA QUE SI LO HAGO ACA CUANDO PONEN CONTINUAR LE DA LA ULT VERSION
@@ -94,9 +94,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
             
             
             global_session_modelos.modelo_in_sample_estado.set(estado_in_sample)
-            print(estado_in_sample, "estado in")
             global_session_modelos.modelo_in_sample_hora.set(hora_in_sample)
-            print(hora_in_sample, "hora_in")
             
             
               
@@ -109,20 +107,46 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
         return button_remove(versions_list, global_session.get_version_parametros_id(), "id_jsons", name)
     
     
+    delete_button_effects = {}  # Diccionario para rastrear los efectos ya definidos
+
     @reactive.Effect
     def handle_delete_buttons():
-        name = global_session.get_versiones_name()
+        # Obtener y preparar el identificador único para el botón
+        name = replace_spaces_with_underscores(global_session.get_versiones_name())
         eliminar_btn_id = f"eliminar_version_{global_session.get_version_parametros_id()}_{name}"
-        @reactive.Effect
-        @reactive.event(input[eliminar_btn_id])
-        def eliminar_param_boton():
-            create_modal_v2(f"Eliminar versión de {global_name_in_Sample}, {name}?", "Confirmar", "Cancelar", "confirmar_remove", "cancelar_remove_niveles_sc")
-        
+
+        # Verificar si el efecto ya está registrado
+        if eliminar_btn_id not in delete_button_effects:
+            print(f"Registrando efecto para botón: {eliminar_btn_id}")
+
+            # Lógica para manejar el evento del botón
+            def eliminar_param_boton():
+                print("Eliminando niveles y scoring para:", name)
+                create_modal_v2(
+                    f"Eliminar versión de {global_name_in_Sample}, {name}?",
+                    "Confirmar",
+                    "Cancelar",
+                    "confirmar_remove",
+                    "cancelar_remove_niveles_sc"
+                )
+
+            # Registrar el evento para el botón
+            @reactive.Effect
+            @reactive.event(input[eliminar_btn_id])
+            def manejar_eliminar_boton():
+                eliminar_param_boton()
+
+            # Guardar el efecto en el diccionario
+            delete_button_effects[eliminar_btn_id] = manejar_eliminar_boton
+        else:
+            print(f"Efecto ya registrado para botón: {eliminar_btn_id}")
+    
         
     @reactive.Effect
     @reactive.event(input.confirmar_remove)
     def remove_versiones_de_parametros():
         eliminar_version("json_versions", "id_jsons", global_session.get_version_parametros_id())
+        name_sin_espacios = replace_spaces_with_underscores(global_session.get_versiones_parametros_nombre())
         path_carpeta_versiones_borrar_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
         path_carpeta_versiones_borrar_salida = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
             

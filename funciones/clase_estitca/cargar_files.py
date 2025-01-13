@@ -6,6 +6,8 @@ from clases.global_sessionV2 import *
 from clases.reactives_name import global_names_reactivos
 from funciones.funciones_cargaDatos import guardar_archivo, verificar_archivo_sc, guardar_archivo_sc
 from shiny.types import FileInfo
+from global_names import global_name_out_of_Sample
+from funciones_modelo.warning_model import check_if_exist_id_version_id_niveles_scord, create_modal_generic
 from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version
 from clases.global_session import *
 from datetime import datetime
@@ -48,7 +50,7 @@ class FilesLoad:
             existe = verificar_archivo_sc(data_Set, input_name)
             if existe and self.select_overwrite.get() is False:
                 print("pase el if?")
-                ui.modal_show(create_modal_warning_exist_file(input_name, self.name_suffix, global_session.get_versiones_name()))
+                ui.modal_show(create_modal_warning_exist_file(input_name, self.name_suffix, global_session.get_name_proyecto()))
                 self.set_existe_file(True)
                 return
                 
@@ -59,27 +61,32 @@ class FilesLoad:
             print("pase antes de insertar??")
             insert_into_table(
                 table_name="name_files",
-                columns=['nombre_archivo', 'fecha_de_carga', 'version_id'],
-                values=[input_name, fecha_de_carga, global_session.get_id_version()]
+                columns=['nombre_archivo', 'fecha_de_carga', 'project_id'],
+                values=[input_name, fecha_de_carga, global_session.get_id_proyecto()]
             ) 
             
             global_names_reactivos.set_proceso_leer_dataset(True)
             
+            print(f"id proyecto: {global_session.get_id_proyecto()}")
+            
             files_name = get_records(
             table='name_files',
             columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
-            join_clause='INNER JOIN version ON name_files.version_id = version.version_id',
-            where_clause='version.project_id = ?',
+            where_clause='project_id = ?',  # Cambiar la cláusula a usar project_id directamente
             where_params=(global_session.get_id_proyecto(),)
         )
             
-         
-            #print(files_name, "que tiene file name??")
+            print(f"nombre files query: {files_name}")
+            
             self.opciones_data.set(obtener_opciones_versiones(files_name, "id_files", "nombre_archivo"))
             
             self.dataSet_predeterminado_parms.set(obtener_ultimo_id_version(files_name, "id_files"))
             
             print(f"El archivo fue guardado en: {ruta_guardado}")
+            
+            print(self.opciones_data.get())
+            print(self.dataSet_predeterminado_parms.get())
+            print(files_name)
             ui.update_select("files_select", choices=self.opciones_data.get(), selected=self.dataSet_predeterminado_parms.get())
             self.select_overwrite.set(False)
             
@@ -110,10 +117,16 @@ class FilesLoad:
                 global_session.get_name_proyecto()
             )
             
-            print(f"donde existe este en este path> {data_Set}")
+            print(global_session.get_id_version())
+            print(global_session.get_version_parametros_id())
+            validar_ids = check_if_exist_id_version_id_niveles_scord(global_session.get_id_version(), global_session.get_version_parametros_id())
+            print(validar_ids, "que valor hay acA?")
+            if validar_ids:
+                ui.modal_show(create_modal_generic("boton_advertencia_files", f"Es obligatorio generar una versión de {global_name_out_of_Sample} y una versión para continuar."))
+                return 
             validar_file = verificar_archivo_sc(data_Set, input_name)
             if validar_file and self.select_overwrite.get() is False:
-                ui.modal_show(create_modal_warning_exist_file(input_name, self.name_suffix, global_session.get_versiones_name()))
+                ui.modal_show(create_modal_warning_exist_file(input_name, self.name_suffix, global_session.get_name_proyecto()))
                 self.set_existe_file(True)
                 return
             
@@ -130,8 +143,8 @@ class FilesLoad:
             # Insertar datos en la tabla
             id = insert_into_table(
                 table_name="validation_scoring",
-                columns=['nombre_archivo_validation_sc', 'fecha_de_carga', 'version_id'],
-                values=[input_name, fecha_de_carga, global_session.get_id_version()]
+                columns=['nombre_archivo_validation_sc', 'fecha_de_carga', 'project_id'],
+                values=[input_name, fecha_de_carga, global_session.get_id_proyecto()]
             )
             
             print("Datos insertados en la tabla validation_scoring.")
@@ -142,10 +155,10 @@ class FilesLoad:
             columns=['id_validacion_sc', 
                     'nombre_archivo_validation_sc', 
                     'fecha_de_carga'],
-            join_clause='INNER JOIN version ON validation_scoring.version_id = version.version_id',
-            where_clause='version.project_id = ?',
+            where_clause='project_id = ?',  # Cambiado para usar project_id directamente
             where_params=(global_session.get_id_proyecto(),)
         ))
+
             # Actualizar opciones y seleccionar predeterminados
             global_session_V2.set_opciones_name_dataset_Validation_sc(obtener_opciones_versiones(self.files_name.get(), "id_validacion_sc", "nombre_archivo_validation_sc"))
             

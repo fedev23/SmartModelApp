@@ -83,3 +83,18 @@ def identificar_columnas_id(dataset: pd.DataFrame, umbral_unicidad: float = 0.9)
         "columnas_identificadoras": columnas_identificadoras,
         "columnas_posibles": columnas_posibles
     }
+
+
+
+def replace_spaces_with_underscores(name):
+    """
+    Reemplaza los espacios en una cadena por guiones bajos.
+
+    Args:
+        name (str): La cadena a procesar.
+
+    Returns:
+        str: La cadena procesada con guiones bajos en lugar de espacios.
+    """
+    if isinstance(name, str):
+        return name.replace(" ", "_")

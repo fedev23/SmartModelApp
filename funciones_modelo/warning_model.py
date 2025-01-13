@@ -114,5 +114,54 @@ def validar_existencia_modelo_por_dinamica_de_app(modelo_boolean_value , base_da
             return True  # El modelo ya existe con un estado asociado
 
         return False  # El modelo no existe o no tiene estado
+    
+def check_if_exist_id_version_id_niveles_scord(version_id, niveles_sc_id):
+    """
+    Verifica si alguno de los valores es None o está vacío.
+
+    :param version_id: ID de la versión.
+    :param niveles_sc_id: ID de los niveles de scoring.
+    :return: True si cualquiera de los valores es None o vacío, False en caso contrario.
+    """
+    return not version_id or not niveles_sc_id
 
 
+def create_modal_generic(id_button_close, descripcion):
+    """
+    Crea un modal genérico.
+
+    :param id_button_close: ID del botón de cierre.
+    :param descripcion: Descripción o contenido principal del modal.
+    :return: Modal Shiny UI.
+    """
+    # Convertir `descripcion` a string si no lo es
+    if not isinstance(descripcion, str):
+        descripcion = str(descripcion)
+
+    m = ui.modal(
+        ui.tags.div(
+            ui.row(
+                ui.column(
+                    12,
+                    ui.tags.div(
+                        # Estilo para el texto de advertencia
+                        ui.tags.p(
+                            descripcion,
+                            style="color: #d9534f; font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 20px;"
+                        ),
+                        style="padding: 10px; border: 1px solid #d9534f; border-radius: 5px; background-color: #f2dede;"
+                    )
+                )
+            )
+        ),
+        "",
+        
+        title="⚠️ Advertencia",  # El título debe ser directamente un string
+        easy_close=True,
+        footer=ui.input_action_link(
+            id_button_close,
+            "Cerrar",
+            class_="btn btn-warning"
+        ),
+    )
+    return m

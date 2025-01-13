@@ -2,7 +2,7 @@ from shiny import reactive, render, ui
 from funciones.create_param import create_screen
 from clases.class_screens import ScreenClass
 from global_var import global_data_loader_manager
-from funciones.utils_2 import errores, get_user_directory, get_datasets_directory, get_folder_directory_data_validacion_scoring
+from funciones.utils_2 import *
 from clases.global_modelo import modelo_of_sample
 from clases.global_session import global_session
 from api.db import *
@@ -14,12 +14,14 @@ from clases.global_sessionV2 import *
 from funciones.validacionY_Scoring.create_card import crate_file_input_y_seleccionador
 from clases.global_modelo import modelo_of_sample
 from datetime import datetime
+from clases.class_validacion import Validator
 from funciones_modelo.warning_model import *
 from funciones.utils import mover_file_reportes_puntoZip
 from logica_users.utils  import help_versios 
 from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.help_models import *
+
 
 
 
@@ -90,6 +92,11 @@ def server_out_of_sample(input, output, session, name_suffix):
         click_count_value = modelo_of_sample.click_counter.get()  # Obtener contador
         mensaje_value = modelo_of_sample.mensaje.get()  # Obtener mensaje actual
         proceso = modelo_of_sample.proceso.get()
+        validar_ids = check_if_exist_id_version_id_niveles_scord(global_session.get_id_version(), global_session.get_version_parametros_id())
+        if validar_ids:
+            ui.modal_show(create_modal_generic("boton_advertencia_ejecute_of", f"Es obligatorio generar una versión de {global_name_out_of_Sample} y una versión para continuar."))
+            return
+
         valid = validar_existencia_modelo(
             modelo_of_sample.pisar_el_modelo_actual.get(),
             base_datos="Modeling_App.db",
@@ -99,7 +106,19 @@ def server_out_of_sample(input, output, session, name_suffix):
         )
         
         if modelo_of_sample.pisar_el_modelo_actual.get() or valid:
+            validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
             try:
+                
+                input_target_of_sample = input['selectize_columnas_target']
+                input_target_of_sample = cambiarAstring(input_target_of_sample)
+                validator.validate_target_column_of_sample(input_target_of_sample)
+                
+                error_messages = validator.get_errors()
+                # Si hay errores, mostrar el mensaje y detener el proceso
+                if error_messages:
+                    mensaje.set("\n".join(error_messages))
+                    return  # Detener ejecución si hay errores
+                
                 origen_modelo_puntoZip = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
                 path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
                 print(f"path_datos_entrada: {path_datos_entrada}")

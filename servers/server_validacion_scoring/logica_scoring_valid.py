@@ -3,6 +3,7 @@ from funciones.utils_2 import render_data_summary, eliminar_archivo, leer_datase
 from clases.global_modelo import modelo_of_sample
 from clases.global_session import global_session
 from api.db import *
+from funciones.help_parametros.valid_columns import *
 from auth.utils import help_api
 from clases.reactives_name import global_names_reactivos
 from funciones.utils import retornar_card
@@ -61,8 +62,7 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
             columns=['id_validacion_sc', 
                     'nombre_archivo_validation_sc', 
                     'fecha_de_carga'],
-            join_clause='INNER JOIN version ON validation_scoring.version_id = version.version_id',
-            where_clause='version.project_id = ?',
+            where_clause='project_id = ?',  # Cambiado para usar project_id directamente
             where_params=(global_session.get_id_proyecto(),)
         ))
         if global_session_V2.get_nombre_dataset_validacion_sc() is None:
@@ -97,9 +97,9 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
             columns=['id_validacion_sc', 
                     'nombre_archivo_validation_sc', 
                     'fecha_de_carga'],
-            join_clause='INNER JOIN version ON validation_scoring.version_id = version.version_id',
-            where_clause='version.project_id = ?',
-            where_params=(global_session.get_id_proyecto(),)))
+            where_clause='project_id = ?',  # Cambiado para usar project_id directamente
+            where_params=(global_session.get_id_proyecto(),)
+        ))
         #name.set(global_names_reactivos.get_name_file_db())
         #print(lista_2_borrar, "estoy en lista dos de borrar")
         return button_remove(lista_2_borrar, global_session_V2.get_id_Data_validacion_sc(), "id_validacion_sc", name_suffix)
@@ -137,12 +137,14 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
         )
         dataset_path = os.path.join(directorio, global_session_V2.get_nombre_dataset_validacion_sc())
         eliminar_archivo(dataset_path)
-        
-        columnas = ['id_validacion_sc', 'nombre_archivo_validation_sc']
-        tabla = "validation_scoring"
-        condiciones = "version_id = ?"
-        parametros = (global_session.get_id_version(),) 
-        lista_de_versiones_new = obtener_versiones_por_proyecto(columnas,tabla,condiciones,parametros)
+        lista_de_versiones_new = get_records(
+            table='validation_scoring',
+            columns=['id_validacion_sc', 
+                    'nombre_archivo_validation_sc', 
+                    'fecha_de_carga'],
+            where_clause='project_id = ?',  # Cambiado para usar project_id directamente
+            where_params=(global_session.get_id_proyecto(),)
+        )
         lista.set(lista_de_versiones_new)
         print(f"nueva lista? {lista_de_versiones_new}")
         ui.update_select(
@@ -207,10 +209,11 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
                 data = global_session_V2.get_data_reactivo_validacion_sc()
                 if data is not None and not data.empty:
                     # Actualiza la lista de registros solo si es necesario
-                    column_names = data.columns.tolist()
+                    column_names = get_binary_columns(data)
+                    print(f"que columns hay?: {column_names}")
                     # Verificar si el dataset es válido y obtener nombres de columnas
                     if isinstance(data, pd.DataFrame) and not data.empty:
-                        column_names = data.columns.tolist()
+                        column_names = get_binary_columns(data)
                     else:
                         column_names = []
                     
@@ -235,6 +238,12 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
         input_radio = input.radio_models()
         reactivo_dinamico.set(input_radio)
             
+    
+    @reactive.Effect
+    @reactive.event(input.boton_advertencia_files)
+    def button_cancel(args):
+        return ui.modal_remove()
+    
 
     @output
     @render.ui

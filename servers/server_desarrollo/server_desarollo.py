@@ -144,7 +144,7 @@ def server_desarollo(input, output, session, name_suffix):
         # Crear instancia de la clase Validator
         if global_desarollo.pisar_el_modelo_actual.get() or validacion_existencia_modelo:
             validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
-
+            
             # Realizar las validaciones
             validator.validate_column_identifiers()
             validator.validate_iv()
