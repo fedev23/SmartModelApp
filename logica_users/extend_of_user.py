@@ -73,6 +73,9 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
             global_session_V2.set_dataSet_seleccionado(obtener_ultimo_nombre_archivo(lista_reactiva.get()))
 
         # Leer el dataset
+        name_dat = input[f'files_select']()
+        name_dat = cambiarAstring(name_dat)
+        global_names_reactivos.set_name_file_db(nombre_file)
         data = leer_dataset(
             global_session.get_id_user(),
             global_session.get_id_proyecto(),
@@ -161,12 +164,12 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
         datasets_directory = get_datasets_directory(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
         dataset_path = os.path.join(datasets_directory, global_names_reactivos.get_name_file_db())
         eliminar_archivo(dataset_path)
-        columnas = ['id_files', 'nombre_archivo']
-        tabla = "name_files"
-        condiciones = "id_files = ?"
-        parametros = (global_session.get_id_proyecto(),)
-        lista_de_versiones_new = obtener_versiones_por_proyecto(columnas,tabla, condiciones, parametros)
-
+        lista_de_versiones_new = get_records(
+            table='name_files',
+            columns=['id_files', 'nombre_archivo', 'fecha_de_carga'],
+            where_clause='project_id = ?',  # Cambiar la cláusula a usar project_id directamente
+            where_params=(global_session.get_id_proyecto(),)
+        )
         print(lista_de_versiones_new, "lista_de_versiones_new")
         lista_reactiva.set(lista_de_versiones_new)
         ui.update_select(

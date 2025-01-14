@@ -82,7 +82,7 @@ def server_produccion(input, output, session, name_suffix):
         proceso = modelo_produccion.proceso.get()
         validar_ids = check_if_exist_id_version_id_niveles_scord(global_session.get_id_version(), global_session.get_version_parametros_id())
         if validar_ids:
-            ui.modal_show(create_modal_generic("boton_advertencia_ejecute_of", f"Es obligatorio generar una versión de {global_name_out_of_Sample} y una versión para continuar."))
+            ui.modal_show(create_modal_generic("boton_advertencia_ejecute_produccion", f"Es obligatorio generar una versión de {global_name_out_of_Sample} y una versión para continuar."))
             return
 
         valid = validar_existencia_modelo(

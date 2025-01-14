@@ -4,7 +4,7 @@ from funciones.utils import crear_card_con_input_seleccionador, crear_card_con_i
 from shiny import ui
 from clases.global_sessionV2 import  *
 import pandas as pd
-from funciones.utils import crear_card_con_input_numeric
+
 
 def get_datasets_directory_json(user_id, proyecto_id, name_proyect, id_version, nombre_version):
     # Limpiar el user_id reemplazando cualquier '|' por '_'
@@ -225,6 +225,7 @@ def update_dataframe_from_json(json_data):
                 print(f"Error processing parameter {param_name}: {e}")
 
     return result
+
 
 
 

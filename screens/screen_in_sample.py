@@ -2,9 +2,7 @@ from shiny import App, ui, reactive
 from clases.loadJson import LoadJson
 from global_var import global_data_loader_manager
 from faicons import icon_svg
-from funciones.utils import crear_card_con_input, crear_card_con_input_numeric, crear_card_con_input_seleccionador
 from global_names import global_name_in_Sample
-from funciones.utils import crear_card_con_input_numeric, crear_card_con_input_seleccionador_V3, crear_card_con_input_numeric_2
 data = reactive.Value()
 data_loader = global_data_loader_manager.get_loader("desarrollo")
 

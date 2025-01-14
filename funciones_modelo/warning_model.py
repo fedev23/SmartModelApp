@@ -126,6 +126,12 @@ def check_if_exist_id_version_id_niveles_scord(version_id, niveles_sc_id):
     return not version_id or not niveles_sc_id
 
 
+
+def check_if_exist_id_version(version_id):
+    return not version_id
+
+
+
 def create_modal_generic(id_button_close, descripcion):
     """
     Crea un modal genérico.

@@ -241,7 +241,7 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
     
     @reactive.Effect
     @reactive.event(input.boton_advertencia_files)
-    def button_cancel(args):
+    def button_cancel():
         return ui.modal_remove()
     
 
@@ -262,4 +262,16 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
                     fecha=global_session_modelos.modelo_produccion_hora.get(),
                     estado=global_session_modelos.modelo_produccion_estado.get(),
                 )
+    
+
+    @reactive.Effect
+    @reactive.event(input.boton_advertencia_ejecute_of)
+    def button_cancel():
+        return ui.modal_remove()
+    
+    
+    @reactive.Effect
+    @reactive.event(input.boton_advertencia_ejecute_produccion)
+    def button_cancel():
+        return ui.modal_remove()
     

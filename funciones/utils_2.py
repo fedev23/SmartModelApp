@@ -23,7 +23,19 @@ def cambiarAstring(nombre_input):
     input = ', '.join(map(str, nombre_input))
     return input
 
-
+def get_equal_from_tuple(value):
+    """
+    Extrae el símbolo '=' del contenido de una tupla separándolo por una coma.
+    
+    :param value: Una tupla que contiene un string.
+    :return: El valor '=' si existe, de lo contrario un mensaje de error.
+    """
+    if isinstance(value, tuple):  # Verifica que sea una tupla
+        if len(value) > 0:  # Verifica que no esté vacía
+            # Toma el primer elemento y lo divide por la coma
+            parts = value[0].split(',')
+            if len(parts) > 1:  # Verifica que haya al menos dos partes
+                return parts[1].strip()  # Devuelve la segunda parte limpia de espacios
 
 def trans_nulos_adic(input_name):
     # Recorre cada valor de input_name, conviértelo a string y agrega " = 0"

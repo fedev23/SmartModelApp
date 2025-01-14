@@ -194,8 +194,8 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         )
         # Refresca proyectos_usuario con la lista actualizada
         name_proyecto = replace_spaces_with_underscores(global_session.get_name_proyecto())
-        path_carpeta_versiones_borrar_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}'
-        path_carpeta_versiones_borrar_entrada  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}'
+        path_carpeta_versiones_borrar_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{name_proyecto}'
+        path_carpeta_versiones_borrar_entrada  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{name_proyecto}'
         
         eliminar_carpeta(path_carpeta_versiones_borrar_salida)
         eliminar_carpeta(path_carpeta_versiones_borrar_entrada)
@@ -221,10 +221,6 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     def canacelar_eliminacion():
        return ui.modal_remove()
 
-    @output
-    @render.ui
-    def nombre_proyecto_user():
-        return ui.div()
 
     @output
     @render.ui
@@ -265,7 +261,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         ui.update_select("other_select", choices=opciones_de_versiones_por_proyecto.get(), selected=ultimo_id_versiones_proyecto.get())
         global_session.set_proyecto_seleccionado_id(id_proyecto_Recien_Creado.get())
         name_2 = replace_spaces_with_underscores(name)
-        entrada, salida = crear_carpeta_version_por_proyecto(user_get.get(), global_session.get_id_proyecto(), ultimo_id_versiones_proyecto.get(), name, global_session.get_name_proyecto())
+        entrada, salida = crear_carpeta_version_por_proyecto(user_get.get(), global_session.get_id_proyecto(), ultimo_id_versiones_proyecto.get(), name_2, global_session.get_name_proyecto())
         global_session.set_path_guardar_dataSet_en_proyectos(entrada)
         ui.modal_remove()
 
@@ -319,7 +315,8 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                     selected=ultimo_proyecto_id  # Preselecciona el último ID
                 )
                 global_session.set_id_user(user_get())
-                #name = replace_spaces_with_underscores(name)
+                
+                name = replace_spaces_with_underscores(name)
                 crear_carpeta_proyecto(user_get.get(), global_session.get_id_proyecto(), name)
                 data_Set = get_datasets_directory(user_get.get(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
                 #global_session.set_path_guardar_dataSet_en_proyectos(data_Set)

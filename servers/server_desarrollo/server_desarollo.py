@@ -16,6 +16,7 @@ from clases.global_reactives import global_estados
 from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
 from funciones.clase_estitca.cargar_files import FilesLoad
 from clases.reactives_name import global_names_reactivos
+from global_names import global_name_desarrollo
 from funciones_modelo.global_estados_model import global_session_modelos
 from api.db.sqlite_utils import *
 from funciones_modelo.global_estados_model import global_session_modelos
@@ -139,6 +140,11 @@ def server_desarollo(input, output, session, name_suffix):
         proceso = global_desarollo.get_proceso()
         base_datos = 'Modeling_App.db'
         
+        validar_si_existe_version = check_if_exist_id_version(global_session.get_id_version())
+        if validar_si_existe_version:
+            ui.modal_show(create_modal_generic("boton_advertencia_ejecute_desa", f"Es obligatorio generar una versión para continuar en {global_name_desarrollo}."))
+            return
+        
         validacion_existencia_modelo = validar_existencia_modelo(modelo_boolean_value=global_desarollo.pisar_el_modelo_actual.get(),base_datos=base_datos, version_id=global_session.get_id_version(), nombre_modelo=global_desarollo.nombre, nombre_version=global_session.get_versiones_name())
             
         # Crear instancia de la clase Validator
@@ -237,3 +243,8 @@ def server_desarollo(input, output, session, name_suffix):
         return ui.modal_remove()
   
     
+    @reactive.effect
+    @reactive.event(input.boton_advertencia_ejecute_desa)
+    def ok_no():
+        return ui.modal_remove()
+     

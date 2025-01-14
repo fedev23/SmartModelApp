@@ -2,6 +2,7 @@ from shiny import App, reactive, render, ui
 from funciones.utils import  create_modal_parametros, id_buttons
 from clases.global_session import global_session
 from funciones.help_parametros.valid_columns import *
+from funciones.utils_2 import *
 from clases.global_sessionV2 import *
 from funciones.help_parametros import *
 from funciones.utils import create_modal_parametros, id_buttons_desa
@@ -13,17 +14,11 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
     # Obtener el DataLoader correspondiente basado en name_suffix, ya que necesita un key la clase dataloader
     count = reactive.value(0)
     no_version =  reactive.Value(False)
-    
-    def user_session():
-        @reactive.Effect
-        def obtener_user() -> str:
-            if global_session.proceso.get():
-                state = global_session.session_state.get()
-                if state["is_logged_in"]:
-                    user_id = state["id"]
-                    return user_id
-        
-    
+    selected_value = reactive.Value(None)
+    select_value_operator = reactive.Value(None)
+    selected_value_num = reactive.Value(None)
+    step3 =  reactive.Value(False)
+    step2 = reactive.Value(False)
     
     ##ES IMPORTANTE USAR ESTA FUNCION Y DECLARAR EL PARAMETO QUE LE CORRESPONDE, PARA ACTUALIZAR EL UI DE SELECCIONADOR
     # ESTO FUNCIONA ASI: ACTUALIZA EL VALOR UNA VEZ DELCARADO PARA QUE RECONOZCA LAS COLUMNAS
@@ -69,19 +64,65 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
             update_selectize_from_columns_and_json(column_names, selectize_params, json_params)
             update_selectize_from_columns_and_json(column_target, selectize_params_only_target, json_params)
             
-    def create_modals(id_buttons_desa):
-            for id_button in id_buttons_desa:
-
-                @reactive.Effect
-                @reactive.event(input[id_button])
-                def monitor_clicks(id_button=id_button):
-                    count.set(count() + 1)	
-                    if count.get() > 0:
-                        print(id_button, count.get())
-                        modal = create_modal_parametros(id_button)
-                        ui.modal_show(modal)
-
+    @reactive.Effect
+    @reactive.event(input["cols_nulos_adic"])
+    def change():
+        value_cols_nulos_adic = input[f'cols_nulos_adic']()
+        last_value = value_cols_nulos_adic
+        value_cols_nulos_adic = cambiarAstring(value_cols_nulos_adic)
+        if value_cols_nulos_adic != "=" and value_cols_nulos_adic != "!=":
+            value_select = value_cols_nulos_adic
+            selected_value.set(value_select)
+        
+        fixed_choices = ["=", "!="]
+        if selected_value.get() not in fixed_choices:
+            
+            if last_value:  # Si last_value tiene un valor
+                print("esta la tupla?")
+                last_value = get_equal_from_tuple(last_value)  # Procesa la tupla
+                print(last_value, "valor de tupla")
+                # Compara explícitamente last_value con fixed_choices
+                if last_value in fixed_choices:
+                    select_value_operator.set(last_value)
+                        
+            dynamic_operator = fixed_choices + [selected_value.get()]
+            ui.update_select("cols_nulos_adic", choices=dynamic_operator, selected=selected_value.get())
+        
+        if select_value_operator.get() in fixed_choices:
+            operator_list = ['0', '1', 'Null']
+            # Concatenamos las listas correctamente
+            dynamic_choices = dynamic_operator + operator_list + [select_value_operator.get()]
    
+            if select_value_operator.get() not in operator_list:
+                selected_value_num.set(value_cols_nulos_adic)
+                
+            # Actualizamos el selector
+            ui.update_select("cols_nulos_adic", choices=dynamic_choices, selected=selected_value.get())
+            step3.set(True)
+            
+        
+        
+        
+      
+            
+    processed_ids = set()
+
+    def create_modals(id_buttons_desa):
+        for id_button in id_buttons_desa:
+            if id_button in processed_ids:
+                continue  # Saltar IDs ya procesados
+
+            processed_ids.add(id_button)  # Registrar como procesado
+
+            @reactive.Effect
+            @reactive.event(input[id_button])
+            def monitor_clicks(id_button=id_button):
+                count.set(count() + 1)
+                if count.get() > 0:
+                    print(id_button, count.get())
+                    modal = create_modal_parametros(id_button)
+                    ui.modal_show(modal)
+
 
                 
     
@@ -225,7 +266,4 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
 
             
             
-        
-    
-        
-    
+   
