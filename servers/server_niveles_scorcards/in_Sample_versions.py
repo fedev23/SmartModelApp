@@ -8,6 +8,7 @@ from clases.global_session import global_session
 from api.db.sqlite_utils import *
 from funciones.funciones_user import create_modal_v2, create_modal_versiones_param, button_remove
 from api.db import *
+from clases.global_sessionV3 import *
 from funciones.utils_2 import crear_carpeta_version_parametros
 from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version, eliminar_carpeta
 from datetime import datetime
@@ -43,7 +44,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
         id_versiones_params.set(add)
         print(f"id aca en continue {add}")
         obtener_nombre_version_por_id(global_session.get_id_version())
-        name_2 = replace_spaces_with_underscores(name)
+        name = replace_spaces_with_underscores(name)
         crear_carpeta_version_parametros(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_version_parametros_id(), name, global_session.get_name_proyecto(), global_session.get_versiones_name())
 
         ##ACTUALIZO ACA TAMBIEN EL SELECTOR YA QUE SI LO HAGO ACA CUANDO PONEN CONTINUAR LE DA LA ULT VERSION
@@ -85,11 +86,16 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
                     if opciones_param.get() is  None:
                         nombre_version = versiones[0]['nombre_version']
                         nombre_de_la_version_in_sample.set(nombre_version)
-                        global_session.set_versiones_parametros_nombre(obtener_valor_por_id_versiones(global_session.get_version_parametros_id()))
+                        nombre_version_niveles_score = obtener_valor_por_id_versiones(global_session.get_version_parametros_id())
+                        global_session.set_versiones_parametros_nombre(replace_spaces_with_underscores(nombre_version_niveles_score))
+                        global_session_V3.name_version_niveles_score_original.set(nombre_version_niveles_score)
+                        
                 
             nombre_version_niveles_Scord = obtener_valor_por_id_versiones(global_session.get_version_parametros_id())
             print(nombre_version_niveles_Scord, "viendo nombre de la version a mi izquierda")
-            global_session.set_versiones_parametros_nombre(nombre_version_niveles_Scord)
+            
+            global_session_V3.name_version_niveles_score_original.set(nombre_version_niveles_Scord)
+            global_session.set_versiones_parametros_nombre(replace_spaces_with_underscores(nombre_version_niveles_Scord))
             estado_in_sample , hora_in_sample = procesar_etapa_in_sample_2(base_datos="Modeling_App.db", json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")
             
             

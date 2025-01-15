@@ -11,6 +11,7 @@ from funciones.utils_2 import *
 from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version, eliminar_carpeta, mapear_valor_a_clave
 from api.db.help_config_db import *
 from api.db.sqlite_utils import *
+from clases.global_sessionV3 import *
 from auth.utils import help_api 
 from api.db.sqlite_utils import *
 from logica_users.utils.manejo_session import manejo_de_ultimo_seleccionado
@@ -78,6 +79,10 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         
     
         nombre_proyecto = obtener_nombre_proyecto_por_id(global_session.get_id_proyecto())
+        global_session_V3.name_proyecto_original.set(nombre_proyecto)
+        
+        nombre_proyecto = replace_spaces_with_underscores(nombre_proyecto)
+        #global_session_V3.name_proyecto_sin_espacios.set(replace_spaces_with_underscores(nombre_proyecto)) 
         global_session.set_name_proyecto(nombre_proyecto)
         
         proyectos_usuario.set(get_user_projects(global_session.get_id_user()))
@@ -96,7 +101,8 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         # Si hay versiones, establece el nombre de la primera versión como predeterminado
         if boolean_check():
             nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
-            global_session.set_versiones_name(nombre_version)
+            global_session_V3.name_version_original.set(nombre_version)
+            global_session.set_versiones_name(replace_spaces_with_underscores(nombre_version))
             
         # Obtiene y configura las versiones de parámetros
         versiones_parametros  = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
@@ -120,8 +126,9 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         #LEEO ELDATA SET SI EXISTE
         # Actualiza los selectores en la UI
         nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
-        global_session.set_versiones_name(nombre_version)
-
+        global_session_V3.name_version_original.set(nombre_version)
+        global_session.set_versiones_name(replace_spaces_with_underscores(nombre_version))
+        
         if (global_session.get_id_user() and
             global_session.get_name_proyecto() and
             global_session.get_id_proyecto() and
@@ -194,8 +201,8 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         )
         # Refresca proyectos_usuario con la lista actualizada
         name_proyecto = replace_spaces_with_underscores(global_session.get_name_proyecto())
-        path_carpeta_versiones_borrar_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{name_proyecto}'
-        path_carpeta_versiones_borrar_entrada  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{name_proyecto}'
+        path_carpeta_versiones_borrar_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}'
+        path_carpeta_versiones_borrar_entrada  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}'
         
         eliminar_carpeta(path_carpeta_versiones_borrar_salida)
         eliminar_carpeta(path_carpeta_versiones_borrar_entrada)
@@ -250,7 +257,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         name = input[f'name_version']()
         id_proyect = global_session.get_id_proyecto()
         global_session.set_id_version(agregar_version(id_proyect, name))
-
+        name = replace_spaces_with_underscores(name)
         
         versiones = get_project_versions(global_session.get_id_proyecto())
         # actualizo la version por proyecto id
@@ -260,8 +267,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
 
         ui.update_select("other_select", choices=opciones_de_versiones_por_proyecto.get(), selected=ultimo_id_versiones_proyecto.get())
         global_session.set_proyecto_seleccionado_id(id_proyecto_Recien_Creado.get())
-        name_2 = replace_spaces_with_underscores(name)
-        entrada, salida = crear_carpeta_version_por_proyecto(user_get.get(), global_session.get_id_proyecto(), ultimo_id_versiones_proyecto.get(), name_2, global_session.get_name_proyecto())
+        entrada, salida = crear_carpeta_version_por_proyecto(user_get.get(), global_session.get_id_proyecto(), ultimo_id_versiones_proyecto.get(), name, global_session.get_name_proyecto())
         global_session.set_path_guardar_dataSet_en_proyectos(entrada)
         ui.modal_remove()
 
@@ -289,7 +295,8 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                 user = user_get.get()
                 name = input[f'proyecto_nombre']()
                 # Crear el proyecto y obtener su ID
-                global_session.set_name_proyecto(name)
+                global_session.set_name_proyecto(replace_spaces_with_underscores(name))
+                
             
                 name_proyecto.set(name)
                 global_session.set_id_proyect(add_project(user, name))  # Esta función debería establecer el ID del proyecto recién creado en la sesión global
@@ -315,7 +322,6 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                     selected=ultimo_proyecto_id  # Preselecciona el último ID
                 )
                 global_session.set_id_user(user_get())
-                
                 name = replace_spaces_with_underscores(name)
                 crear_carpeta_proyecto(user_get.get(), global_session.get_id_proyecto(), name)
                 data_Set = get_datasets_directory(user_get.get(), global_session.get_id_proyecto(), global_session.get_name_proyecto())

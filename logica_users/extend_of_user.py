@@ -15,6 +15,7 @@ from clases.global_sessionV2 import *
 from clases.global_reactives import global_estados
 from api.db.sqlite_utils import *
 from global_names import base_datos
+from clases.global_sessionV3 import *
 from logica_users.utils.manejo_session import manejo_de_ultimo_seleccionado
 
 def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
@@ -111,7 +112,7 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
                     ui.modal_show(
                         create_modal_warning_exist_model(
                             name=global_desarollo.nombre,
-                            nombre_version=global_session.get_versiones_name()
+                            nombre_version=global_session_V3.name_version_original.get()
                         )
                     )
                     # Bloquear cambios en el archivo

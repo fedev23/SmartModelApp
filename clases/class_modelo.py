@@ -6,6 +6,8 @@ import asyncio
 import traceback
 from funciones_modelo.warning_model import *
 from api.db import *
+import re
+from clases.global_sessionV3 import *
 from funciones_modelo.global_estados_model import global_session_modelos
 from clases.global_sessionV2 import *
 
@@ -30,10 +32,11 @@ class ModeloProceso:
         self.proceso_fallo = reactive.value(False)
         self.mensaje_error = reactive.Value("")
         self.pisar_el_modelo_actual = reactive.Value(False)
+        self.porcentaje = reactive.Value(0)
+        self.proceso_inicio = reactive.Value(False)
         
         
-        
-    async def run_script_prueba(self):
+    async def run_script_prueba(self, progress_callback=None):
         # Convertir la ruta de Windows a WSL
         wsl_directorio = self.directorio
         comando = f'cd {wsl_directorio} && {self.script_path}'
@@ -49,14 +52,30 @@ class ModeloProceso:
 
             # Capturar la salida y los errores en tiempo real
             stdout, stderr = [], []
+            progress_percentage = 0
 
             async def read_stream(stream, output_list, output_prefix):
+                nonlocal progress_percentage
+                total_steps = None
                 while True:
                     line = await stream.readline()
                     if not line:
                         break
-                    output_list.append(line.decode('utf-8').strip())
-                    print(f"{output_prefix}: {output_list[-1]}")
+                    decoded_line = line.decode('utf-8').strip()
+                    output_list.append(decoded_line)
+                    print(f"{output_prefix}: {decoded_line}")
+
+                    # Intentar calcular el porcentaje si hay un patrón
+                    match = re.search(r'(\d+)/(\d+)', decoded_line)
+                    if match:
+                        current_step = int(match.group(1))
+                        total_steps = int(match.group(2))
+                        progress_percentage = int((current_step / total_steps) * 100)
+                        print(f"Progreso: {progress_percentage}%")
+                        
+                        # Usar callback para comunicar el progreso
+                        if progress_callback:
+                            progress_callback(progress_percentage)
 
             await asyncio.gather(
                 read_stream(process.stdout, stdout, "STDOUT"),
@@ -73,27 +92,34 @@ class ModeloProceso:
             # Preparar el mensaje de error si hay un código de retorno diferente de 0
             error_message = f"Error durante la ejecución: {stderr_output}" if return_code != 0 else None
 
-            return stdout_output, stderr_output, return_code, error_message
+            return stdout_output, stderr_output, return_code, error_message, progress_percentage
 
         except Exception as e:
             # Capturar cualquier excepción y devolver el mensaje de error
             error_message = f"Excepción durante la ejecución: {str(e)}"
             print("Stacktrace:")
             traceback.print_exc()
-            return None, None, 1, error_message
+            return None, None, 1, error_message, 0
+
 
     async def ejecutar_proceso_prueba(self, click_count, mensaje, proceso):
         try:
             # Obtener valores de fuentes reactivas antes de la tarea extendida
             
             # Mostrar mensaje inicial
-            self.mensaje.set("En ejecución...")
-            #proceso(False)
+            #self.porcentaje.set("En ejecución...")
+            #print(self.porcentaje.get(), "viendo el porcentaje en vivo?")
+            
+            def actualizar_progreso(porcentaje):
+                self.porcentaje.set(porcentaje)
+                self.proceso_inicio.set(True)
+                print(f"Progreso actualizado: {porcentaje}%")
+                #proceso(False)
 
             # Indicador de proceso en ejecución
             with ui.busy_indicators.use(spinners=True):
                 # Ejecutar el script de manera asíncrona
-                stdout, stderr, returncode, error_message = await self.run_script_prueba()
+                stdout, stderr, returncode, error_message, progress_percentage  = await self.run_script_prueba(progress_callback=actualizar_progreso)
 
                 # Verificar el resultado y actualizar los valores reactivos
                 if returncode != 0:
@@ -147,11 +173,17 @@ class ModeloProceso:
             return ui.card(
                 ui.card_header(
                     "",
-                    ui.p(f"Nombre del archivo: {file_name}", style="margin: 0; line-height: 1.5; vertical-align: middle;"), 
+                    #ui.p(f"Nombre del archivo: {file_name}", style="margin: 0; line-height: 1.5; vertical-align: middle;"), 
                     #ui.p(f"Fecha de última ejecución: {str(fecha_hora)}"),
-                    ui.p(f"Estado de la ultima ejecución: Versión {global_session.get_versiones_name()}: {estado}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
+                    ui.p(f"Estado de la ultima ejecución: Versión {global_session_V3.name_version_original.get()}: {estado}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
                     ui.p(f"Horario de ejecución: {fecha}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
-                    #ui.p(f"Estado: {self.mensaje.get() or default_message}, ", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
+                    #ui.p(f"Porcentaje de la ejecución: {self.porcentaje.get()}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
+                    ui.input_action_link("see_proces", "Ver porcentaje del proceso"),
+                    ui.p(ui.output_text_verbatim("value"),  style="margin: 0; line-height: 1.5; vertical-align: middle;"),
+                    
+                    #ui.output_text_verbatim("porcentaje"),
+                    
+                    
                     # ui.p(ui.output_text(self.mensaje_id)),
                     class_="d-flex justify-content-between align-items-center w-100",
                 ),

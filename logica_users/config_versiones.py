@@ -6,6 +6,7 @@ from clases.global_session import global_session
 from clases.global_sessionV2 import *
 from funciones.funciones_user import create_modal_v2, button_remove_version
 from funciones.utils_2 import *
+from clases.global_sessionV3 import *
 from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version, eliminar_carpeta, mapear_valor_a_clave
 from funciones.utils_cargar_json import leer_control_json
 from api.db.sqlite_utils import *
@@ -35,6 +36,7 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
     def project_card_container():
         id_version  = input.other_select() # Captura el ID seleccionado
 
+        
         manejo_de_ultimo_seleccionado(
         is_initializing=init_session,
         input_select_value=input.other_select(),
@@ -86,7 +88,9 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
             
         ##ACTUALIZO EL ULTIMO SELECCIONADO EN LA TABALA DE BD
         #actualizar_ultimo_seleccionado(base_datos, 'version', 'version_id', global_session.get_id_version())
-        global_session.set_versiones_name(nombre_version)
+        global_session_V3.name_version_original.set(nombre_version)
+        global_session.set_versiones_name(replace_spaces_with_underscores(nombre_version))
+        
         param_json = leer_control_json(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_id_version(), global_session.get_versiones_name())
         global_session_V2.set_json_params_desarrollo(param_json)
         

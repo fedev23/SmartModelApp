@@ -21,23 +21,37 @@ class Validator:
             self.error_messages.append(f"Error al descartar variables por bajo IV: {resultado_iv}")
         
     
-
     def validate_target_column(self):
+        # Obtén el valor de la columna objetivo
         target_col_value = self.input[f'par_target']()
         print(target_col_value, "valor de target, que pasa?")
-        resultado_target = process_target_col1(target_col_value)
-        #target_col_value = cambiarAstring(target_col_value)
-        if resultado_target is False:
-            self.error_messages.append(f"La columna target es obligatoria para la generación del muestra {self.name_suffix}")
 
+        # Valida que el valor no sea vacío
+        if not target_col_value:
+            self.error_messages.append(f"La columna target es obligatoria para la generación del muestra {self.name_suffix}")
+            return
+
+        # Procesa el valor de la columna objetivo
+        resultado_target = process_target_col1(target_col_value)
+        if resultado_target is False:
+            self.error_messages.append(f"La columna target no es válida {self.name_suffix}")
+            return
+
+        # Valida que la columna exista en el DataFrame
+        if target_col_value not in self.df.columns:
+            self.error_messages.append(f"La columna '{target_col_value}' no existe en el DataFrame {self.name_suffix}")
+            return
+
+        # Valida nulos en la columna objetivo
         tiene_nulls = validate_null(target_col_value, self.df)
         if tiene_nulls:
             self.error_messages.append(f"La columna target no puede contener valores nulos en la muestrea {self.name_suffix}")
-            
-        valores_distintos_univocos =  validate_binary_values(target_col_value, global_session.get_data_set_reactivo())
+
+        # Valida valores binarios
+        valores_distintos_univocos = validate_binary_values(target_col_value, global_session.get_data_set_reactivo())
         if valores_distintos_univocos:
             self.error_messages.append(f"La columna target no puede contener valores distintos de 0 y 1 {self.name_suffix}")
-            
+                
 
     def validate_target_column_of_sample(self, target_col_value):
         resultado_target = process_target_col1(target_col_value)

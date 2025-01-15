@@ -22,11 +22,12 @@ from api.db.sqlite_utils import *
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.help_models import *
+import asyncio
 
 
 def server_desarollo(input, output, session, name_suffix):
     clase_cargar_files = FilesLoad(name_suffix)
-    
+    click = reactive.value(0)
     directorio_desarollo = reactive.value("")
     screen_instance = reactive.value(None)  # Mantener screen_instance como valor reactivo
     user_id_send = reactive.Value("")
@@ -186,7 +187,9 @@ def server_desarollo(input, output, session, name_suffix):
                     json_file_path = json_loader.loop_json()
                     print(f"Inputs guardados en {json_file_path}")
                     #CREO EL PATH DONDE SE VA A EJECUTAR DESARROLLO DEPENDIENDO DEL PROYECYO Y LA VERSION QUE ESTE EN USO
-                
+
+                    ##NECESITO NOMBRE DEL PROYECTO Y NOMBRE DE LA VERSION NO ORIGINAL, SINO MAS BIEN CON ESPACIOS
+                    
                     path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
                     path_datos_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
                     
@@ -247,4 +250,32 @@ def server_desarollo(input, output, session, name_suffix):
     @reactive.event(input.boton_advertencia_ejecute_desa)
     def ok_no():
         return ui.modal_remove()
-     
+    
+    
+    @reactive.effect
+    @reactive.event(input.see_proces)
+    async def ver_proces():
+        click.set(click() + 1)
+        porcentaje = global_desarollo.porcentaje.get()
+        print(porcentaje, "VALUE DE PORCENTAJE")
+        
+        if porcentaje > 0:
+            ui.update_action_button("see_proces", label="Refrescar el progreso")
+            #ui.update_text("porcentaje", "Progreso de la ejecución: {porcentaje}%")
+        else:
+            ui.update_action_button("see_proces", label="Inicie el proceso para ver el progreso")
+            click.set(0)
+ 
+        if global_desarollo.proceso_inicio.get():
+            ui.update_action_button("see_proces", label="Refrescar el progreso")
+    
+    @render.text
+    def value():
+        porcentaje_actual = global_desarollo.porcentaje.get()
+        if click.get() >=1 and porcentaje_actual > 0:
+            print(f"porcentaje_actual: {porcentaje_actual}%")
+            return f"porcentaje de la ejecucion {porcentaje_actual}"
+            
+           
+   
+    

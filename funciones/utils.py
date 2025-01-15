@@ -32,21 +32,34 @@ def mover_file_reportes_puntoZip(origen: str, destino: str, nombre_archivo: str 
         print(error_msg)
         return False
 
-
 def validar_columnas(df, nombre_input):
+    """
+    Valida que las columnas en nombre_input existan en el DataFrame.
+
+    :param df: DataFrame de pandas.
+    :param nombre_input: String o lista de nombres de columnas.
+    :return: False si todas las columnas son válidas, de lo contrario un mensaje de error.
+    """
+    # Procesa nombre_input para convertirlo en una lista de columnas
     nombre_input = str(nombre_input)
     nombre_input = nombre_input[1:-1].replace("'", "").strip()
-    nombre_input = nombre_input.split(',')
-    for column in nombre_input:
-        if column.strip() in df.columns:
-            print("ok", column)
-            return False
-        else:
-            mensaje = (
-                f"error en el parametro '{nombre_input}',  '{column}' no encontrada.")
-            return mensaje
+    columnas = [col.strip() for col in nombre_input.split(',')]
 
-        return False
+    # Verifica la existencia de cada columna
+    errores = []
+    for column in columnas:
+        if column not in df.columns:
+            errores.append(column)
+
+    # Si hay errores, devuelve un mensaje
+    if errores:
+        return (
+            f"Error en el parámetro '{nombre_input}': "
+            f"las siguientes columnas no fueron encontradas: {', '.join(errores)}."
+        )
+
+    # Si todas las columnas son válidas, devuelve False
+    return False
 
 
 def create_zip_from_directory(directory_path, zip_file_path):

@@ -20,10 +20,10 @@ from funciones.utils_cargar_json import update_dataframe_from_json
 from clases.global_sessionV2 import *
 from clases.global_reactives import *
 from api.db.sqlite_utils import *
-from funciones_modelo.warning_model import validar_existencia_modelo_for_models
+from funciones_modelo.warning_model import *
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.help_models import *
-
+from global_names import global_name_in_Sample
 
 ejemplo_niveles_riesgo = pd.DataFrame({
     "Nombre Nivel": ["BajoBajo", "BajoMedio", "BajoAlto", "MedioBajo", "MedioMedio", "Alto"],
@@ -308,7 +308,11 @@ def server_in_sample(input, output, session, name_suffix):
             versiones = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
             
             
-          
+            validar_ids = check_if_exist_id_version_id_niveles_scord(global_session.get_id_version(), global_session.get_version_parametros_id())
+            if validar_ids:
+                ui.modal_show(create_modal_generic("boton_advertencia_ejecute_in", f"Es obligatorio generar una versión de {global_name_in_Sample} y una versión para continuar."))
+                return
+
             # Validar si hay versiones
             print(global_session.get_version_parametros_id(), "id model")
             print("antes de ejecutar: cuando??")
@@ -452,7 +456,10 @@ def server_in_sample(input, output, session, name_suffix):
         modelo_in_sample.pisar_el_modelo_actual.set(True)
         return  ui.modal_remove()
     
-    
+    @reactive.effect
+    @reactive.event(input.boton_advertencia_ejecute_in)
+    def ok_in():
+        return ui.modal_remove()
     
     @output
     @render.ui
