@@ -252,28 +252,23 @@ def server_desarollo(input, output, session, name_suffix):
         return ui.modal_remove()
     
     
-    @reactive.effect
-    @reactive.event(input.see_proces_desarollo)
-    async def ver_proces():
-        click.set(click() + 1)
-        porcentaje = global_desarollo.porcentaje.get()
-        print(porcentaje, "VALUE DE PORCENTAJE")
+    @reactive.calc
+    def cur_time():
+        reactive.invalidate_later(5)  # Se ejecutará cada 2 segundos
+        valor = global_desarollo.porcentaje.get()
+        if valor == 100:
+          return 100
+        if valor > 0:
+            return valor
         
-        if porcentaje > 0:
-            ui.update_action_button("see_proces", label="Refrescar el progreso")
-            #ui.update_text("porcentaje", "Progreso de la ejecución: {porcentaje}%")
-        else:
-            ui.update_action_button("see_proces", label="Inicie el proceso para ver el progreso")
-            click.set(0)
- 
-        if global_desarollo.proceso_inicio.get():
-            ui.update_action_button("see_proces", label="Refrescar el progreso")
+
     
-    @render.text
+        
+    @render.ui  
     def value_desarollo():
-        porcentaje_actual = global_desarollo.porcentaje.get()
-        if click.get() >=1 and porcentaje_actual > 0:
-            return f"porcentaje de la ejecucion {porcentaje_actual}%"
+        return f"Current time: {cur_time()}"
+        
+    
             
     @output
     @render.ui

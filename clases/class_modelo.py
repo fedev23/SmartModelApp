@@ -66,6 +66,7 @@ class ModeloProceso:
                     print(f"{output_prefix}: {decoded_line}")
 
                     # Intentar calcular el porcentaje si hay un patrón
+                    ##si no hay mach le doy el match anterior
                     match = re.search(r'(\d+)/(\d+)', decoded_line)
                     if match:
                         current_step = int(match.group(1))
@@ -76,6 +77,8 @@ class ModeloProceso:
                         # Usar callback para comunicar el progreso
                         if progress_callback:
                             progress_callback(progress_percentage)
+                    
+                    await asyncio.sleep(0.3)
 
             await asyncio.gather(
                 read_stream(process.stdout, stdout, "STDOUT"),
@@ -114,6 +117,7 @@ class ModeloProceso:
                 self.porcentaje.set(porcentaje)
                 self.proceso_inicio.set(True)
                 print(f"Progreso actualizado: {porcentaje}%")
+                
                 #proceso(False)
 
             # Indicador de proceso en ejecución
@@ -178,8 +182,8 @@ class ModeloProceso:
                     ui.p(f"Estado de la ultima ejecución: Versión {global_session_V3.name_version_original.get()}: {estado}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
                     ui.p(f"Horario de ejecución: {fecha}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
                     #ui.p(f"Error: {self.mensaje.get() or default_message}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
-                    ui.input_action_link(f"see_proces_{self.nombre}", "Ver porcentaje del proceso"),
-                    ui.p(ui.output_text_verbatim(f"value_{self.nombre}"),  style="margin: 0; line-height: 1.5; vertical-align: middle;"),
+                    #ui.input_action_link(f"see_proces_{self.nombre}", "Ver porcentaje del proceso"),
+                    ui.p(ui.output_ui(f"value_{self.nombre}"),  style="margin: 0; line-height: 1.5; vertical-align: middle;"),
                     ui.p( ui.output_ui(f"value_error_{self.nombre}"),  style="margin: 0; line-height: 1.5; vertical-align: middle;"),
                     
                     

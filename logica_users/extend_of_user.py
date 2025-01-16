@@ -26,12 +26,17 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     click = reactive.Value(0)
     pase_para_cambiar_file = reactive.Value(False)
     initialized = reactive.Value(False)
+    modelo_existe_reactivo = reactive.Value(False)
+    
     
    
     #EN ESTE ARCHIVO SE MANEJA LA LOGICA DE SELECCIONES SOBRE FILES EN DESARROLLO
     #TAMBIEN SE CREA EL MODAL DE CONFIGURACION
     
+    ##HACER LO DEL DICCIONARIO
     
+    delete_button_effects = {}
+    modals_mostrados = reactive.Value(set()) 
     @reactive.Effect
     @reactive.event(input.files_select)  # Escuchar cambios en el selector de archivos
     def project_card_container():
@@ -40,20 +45,46 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
             initialized.set(True)
             return 
         
-        if global_session_V2.boolean_for_change_file.get():
-            data = leer_dataset(
-            global_session.get_id_user(),
-            global_session.get_id_proyecto(),
-            global_session.get_name_proyecto(),
-            global_names_reactivos.get_name_file_db(),
-            global_session.get_versiones_name(),
-            global_session.get_id_version()
-        )   
-            selected_key = mapear_valor_a_clave(global_session_V2.get_dataSet_seleccionado(), global_session_V2.lista_nombre_archivos_por_version.get())
-            ui.update_select("files_select", selected=selected_key if selected_key else next(iter(global_session_V2.lista_nombre_archivos_por_version.get()), ""))
-            global_session.set_data_set_reactivo(data)
-            pase_para_cambiar_file.set(True)
-            return 
+        global_session_V2.count_global.set(global_session_V2.count_global() + 1)
+        
+        
+        reactive.invalidate_later(1)
+        
+        if global_session_V2.count_global.get() > 1:
+            modelo_existente = validar_existencia_modelo_por_dinamica_de_app(
+                modelo_boolean_value=global_desarollo.pisar_el_modelo_actual.get(),
+                base_datos=base_datos,
+                version_id=global_session.get_id_version()
+            )
+
+            modelo_existe_reactivo.set(True)
+            button_files_desa = f"button_files_{global_desarollo.nombre}"
+
+            if button_files_desa not in modals_mostrados.get():
+                print("paso dos veces??")
+                # Mostrar el modal de advertencia si ya existe un modelo
+                ui.modal_show(
+                    create_modal_warning_exist_model(
+                        name=global_desarollo.nombre,
+                        nombre_version=global_session_V3.name_version_original.get()
+                    )
+                )
+                data = leer_dataset(
+                global_session.get_id_user(),
+                global_session.get_id_proyecto(),
+                global_session.get_name_proyecto(),
+                global_names_reactivos.get_name_file_db(),
+                global_session.get_versiones_name(),
+                global_session.get_id_version()
+            )   
+                selected_key = mapear_valor_a_clave(global_session_V2.get_dataSet_seleccionado(), global_session_V2.lista_nombre_archivos_por_version.get())
+                ui.update_select("files_select", selected=selected_key if selected_key else next(iter(global_session_V2.lista_nombre_archivos_por_version.get()), ""))
+                global_session.set_data_set_reactivo(data)
+                pase_para_cambiar_file.set(True)
+                global_session_V2.count_global.set(1)
+                modelo_existe_reactivo.set(False)
+                modals_mostrados.set(modals_mostrados.get() | {button_files_desa})
+                return 
          
         data_id = input.files_select()  # Captura el ID del archivo seleccionado
         # Actualizar el ID del dataset en la sesión global
@@ -86,41 +117,11 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
             global_session.get_id_version()
         )
         click.set(click() + 1)
-        global_session_V2.count_global.set(global_session_V2.count_global() + 1)
         global_session.set_data_set_reactivo(data)
         # Validar si el archivo puede cambiar
 
 
-    @reactive.effect
-    def monitoring_change_file():
-            if global_session_V2.count_global.get() >= 1 or pase_para_cambiar_file.get():
-                base_datos = 'Modeling_App.db'
-                print("estoy aca, en monitoring")
-
-                global_session_V2.count_global.set(0)  # Reiniciar el contador para evitar ejecuciones repetidas
-                
-                print("estoy aca, en monitoring, parte dos")
-                # Validar si existe un modelo generado
-                modelo_existente = validar_existencia_modelo_por_dinamica_de_app(
-                    modelo_boolean_value=global_desarollo.pisar_el_modelo_actual.get(),
-                    base_datos=base_datos,
-                    version_id=global_session.get_id_version()
-                )
-
-                if modelo_existente:
-                    # Mostrar el modal de advertencia si ya existe un modelo
-                    ui.modal_show(
-                        create_modal_warning_exist_model(
-                            name=global_desarollo.nombre,
-                            nombre_version=global_session_V3.name_version_original.get()
-                        )
-                    )
-                    # Bloquear cambios en el archivo
-                    global_session_V2.boolean_for_change_file.set(True)
-                else:
-                    # Permitir el cambio de archivo
-                    global_session_V2.boolean_for_change_file.set(False)
-
+    
     @output
     @render.ui
     def remove_dataset():
