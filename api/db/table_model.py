@@ -80,7 +80,7 @@ def verificar_datos():
         conn.close()
 
 # Ejecutar la función
-verificar_datos()
+#verificar_datos()
 
 
 import sqlite3
@@ -120,4 +120,42 @@ def verificar_sql_manual():
         conn.close()
 
 # Ejecutar la verificación
-verificar_sql_manual()
+#verificar_sql_manual()
+def agregar_columna_error():
+    # Conexión a la base de datos
+    conn = sqlite3.connect('Modeling_App.db')
+    cur = conn.cursor()
+
+    try:
+        # Comando ALTER TABLE para agregar la columna 'error'
+        query_alter_table = "ALTER TABLE model_execution ADD COLUMN error TEXT"
+        cur.execute(query_alter_table)
+        
+        # Confirmar los cambios
+        conn.commit()
+        print("Columna 'error' agregada exitosamente a la tabla 'model_execution'.")
+    except sqlite3.OperationalError as e:
+        print(f"Error al agregar la columna 'error': {e}")
+    finally:
+        # Cerrar la conexión
+        conn.close()
+        
+        
+
+def agregar_columna_dataset_id_not_null():
+    conn = sqlite3.connect('Modeling_App.db')
+    cur = conn.cursor()
+
+    try:
+        # Agregar la columna dataset_id con NOT NULL y un valor predeterminado
+        query_alter_table = "ALTER TABLE model_execution ADD COLUMN dataset_id INT NOT NULL DEFAULT 0"
+        cur.execute(query_alter_table)
+        conn.commit()
+        print("Columna 'dataset_id' agregada exitosamente con la restricción NOT NULL.")
+    except sqlite3.OperationalError as e:
+        print(f"Error al agregar la columna 'dataset_id': {e}")
+    finally:
+        conn.close()
+
+        
+agregar_columna_dataset_id_not_null()

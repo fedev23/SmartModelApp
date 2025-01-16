@@ -73,7 +73,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             input_select_name="project_select",
             db_table="project",
             db_column_id="id",
-            db_column_name="name"
+            db_column_name="name"   
         )
 
         
@@ -110,6 +110,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version"))
         valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
         ##Actualizo tambien los dataSet de Validacion y scroing
+        
         nombre_files_validacion_sc = get_records(
             table='validation_scoring',
             columns=['id_validacion_sc', 

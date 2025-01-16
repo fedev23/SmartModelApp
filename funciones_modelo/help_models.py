@@ -63,8 +63,9 @@ def procesar_etapa(base_datos, id_version, etapa_nombre):
 
 
 
+from datetime import datetime
 
-def agregar_datos_model_execution(version_id, name, nombre_dataset, estado, json_version_id=None):
+def agregar_datos_model_execution(version_id, name, nombre_dataset, estado, json_version_id=None, mensaje_error=None, dataset_id=None):
     """
     Inserta un registro en la tabla model_execution con los datos proporcionados.
 
@@ -73,6 +74,8 @@ def agregar_datos_model_execution(version_id, name, nombre_dataset, estado, json
     :param nombre_dataset: Nombre del dataset.
     :param estado: Estado de la ejecución (por ejemplo, 'Exito', 'Error', etc.).
     :param json_version_id: (Opcional) ID del JSON de la versión, si aplica.
+    :param mensaje_error: (Opcional) Mensaje de error, si aplica.
+    :param dataset_id: (Opcional) ID del dataset relacionado.
     :return: ID del último registro insertado (add).
     """
     # Valores requeridos para la inserción
@@ -81,16 +84,22 @@ def agregar_datos_model_execution(version_id, name, nombre_dataset, estado, json
     dataset_name = nombre_dataset
     current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     execution_state = estado  # Puedes cambiarlo según corresponda
+    mensaje_error = mensaje_error
 
     # Definir la tabla y las columnas
     table_name = "model_execution"
-    columns = ['version_id', 'execution_date', 'model_name', 'dataset_name', 'execution_state']
-    values = [version_id, current_timestamp, nombre_modelo, dataset_name, execution_state]
+    columns = ['version_id', 'execution_date', 'model_name', 'dataset_name', 'execution_state', 'error']
+    values = [version_id, current_timestamp, nombre_modelo, dataset_name, execution_state, mensaje_error]
 
     # Agregar json_version_id si se proporciona
     if json_version_id is not None:
         columns.append('json_version_id')
         values.append(json_version_id)
+
+    # Agregar dataset_id si se proporciona
+    if dataset_id is not None:
+        columns.append('dataset_id')
+        values.append(dataset_id)
 
     # Llamar a la función de inserción
     add = insert_into_table(table_name, columns, values)

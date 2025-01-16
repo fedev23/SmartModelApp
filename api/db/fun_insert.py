@@ -464,7 +464,8 @@ def obtener_valor_por_id(base_datos, tabla, columna_objetivo, columna_filtro, va
         # Cerrar la conexión
         conn.close()
         
-        
+   
+
 def eliminar_version(nombre_tabla, nombre_columna_id, id_dato):
     # Conexión a la base de datos
     conn = sqlite3.connect('Modeling_App.db')
@@ -475,9 +476,20 @@ def eliminar_version(nombre_tabla, nombre_columna_id, id_dato):
         if not nombre_tabla.isidentifier() or not nombre_columna_id.isidentifier():
             raise ValueError("Nombre de tabla o columna no válido")
 
-        # Crear la consulta SQL de forma segura
-        query = f"DELETE FROM {nombre_tabla} WHERE {nombre_columna_id} = ?"
-        cur.execute(query, (id_dato,))
+        # Verificar si existe un modelo asociado en la tabla `model_execution`
+        query_verificar_modelo = "SELECT COUNT(*) FROM model_execution WHERE version_id = ?"
+        cur.execute(query_verificar_modelo, (id_dato,))
+        modelo_asociado = cur.fetchone()[0] > 0
+
+        # Eliminar el modelo asociado si existe
+        if modelo_asociado:
+            query_eliminar_modelo = "DELETE FROM model_execution WHERE version_id = ?"
+            cur.execute(query_eliminar_modelo, (id_dato,))
+            print(f"Modelo asociado con la versión {id_dato} eliminado exitosamente.")
+
+        # Crear la consulta SQL para eliminar la versión
+        query_eliminar_version = f"DELETE FROM {nombre_tabla} WHERE {nombre_columna_id} = ?"
+        cur.execute(query_eliminar_version, (id_dato,))
         
         # Confirmar los cambios
         conn.commit()
@@ -487,7 +499,7 @@ def eliminar_version(nombre_tabla, nombre_columna_id, id_dato):
     finally:
         # Cerrar la conexión
         conn.close()
-   
+
 def add_param_versions(project_id, version_id, name):
     conn = sqlite3.connect('Modeling_App.db')
     cur = conn.cursor()

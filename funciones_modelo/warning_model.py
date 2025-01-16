@@ -1,6 +1,8 @@
 from shiny import ui
 from api.db.sqlite_utils import *
 from funciones_modelo.help_models import *
+import sqlite3
+
 def create_modal_warning_exist_model(name, nombre_version):
     return ui.modal(
         ui.tags.div(
@@ -69,7 +71,7 @@ def validar_existencia_modelo(modelo_boolean_value , base_datos, version_id=None
         return True  # El modelo no existe o no tiene estado
     
 
-def validar_existencia_modelo_for_models(modelo_boolean_value , base_datos, version_id=None, json_id=None, nombre_modelo=None, nombre_version=None):
+def validar_existencia_modelo_for_files(modelo_boolean_value , base_datos, version_id=None, json_id=None, nombre_modelo=None, nombre_version=None):
     """
     Valida si existe un modelo con un estado de ejecución dado en la base de datos
     y muestra un modal de advertencia si es necesario.
@@ -88,11 +90,10 @@ def validar_existencia_modelo_for_models(modelo_boolean_value , base_datos, vers
         print(estado_ejecucion, "que estado hay aca?")
         if estado_ejecucion is not None and estado_ejecucion == "Exito":
             # Mostrar el modal de advertencia si el modelo ya tiene un estado de ejecución
-            ui.modal_show(create_modal_warning_exist_model(nombre_modelo, nombre_version))
-            return False  # El modelo ya existe con un estado asociado
+            ui.modal_show(create_modal_generic(f"button_files_{nombre_modelo}", f"Tenga en cuenta que ya tiene un modelo generado en {nombre_version}"))
+            return True  # El modelo ya existe con un estado asociado
 
-        return True  # El modelo no existe o no tiene estado
-    
+        return False  # El modelo no existe o no tiene estado
 
 def validar_existencia_modelo_por_dinamica_de_app(modelo_boolean_value , base_datos, version_id=None, json_id=None):
     """
@@ -171,3 +172,29 @@ def create_modal_generic(id_button_close, descripcion):
         ),
     )
     return m
+
+
+
+def tiene_modelo_generado(dataset_id):
+    """
+    Verifica si un dataset tiene un modelo generado en la tabla 'model_execution'.
+
+    :param dataset_id: El ID del dataset a verificar.
+    :return: True si tiene un modelo generado, False en caso contrario.
+    """
+    conn = sqlite3.connect('Modeling_App.db')
+    cur = conn.cursor()
+
+    try:
+        # Consulta para verificar si existe un modelo asociado al dataset_id
+        query = "SELECT COUNT(*) FROM model_execution WHERE dataset_id = ?"
+        cur.execute(query, (dataset_id,))
+        count = cur.fetchone()[0]
+
+        # Retorna True si se encontró al menos un modelo, False de lo contrario
+        return count > 0
+    except sqlite3.Error as e:
+        print(f"Error al verificar el modelo generado: {e}")
+        return False
+    finally:
+        conn.close()

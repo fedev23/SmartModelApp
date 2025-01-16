@@ -123,7 +123,7 @@ class ModeloProceso:
 
                 # Verificar el resultado y actualizar los valores reactivos
                 if returncode != 0:
-                    self.mensaje.set("Ejecucion fallida")
+                    self.mensaje.set(error_message)
                     self.set_proceso(False)
                     self.proceso_fallo.set(True)
                 else:
@@ -177,9 +177,11 @@ class ModeloProceso:
                     #ui.p(f"Fecha de última ejecución: {str(fecha_hora)}"),
                     ui.p(f"Estado de la ultima ejecución: Versión {global_session_V3.name_version_original.get()}: {estado}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
                     ui.p(f"Horario de ejecución: {fecha}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
-                    #ui.p(f"Porcentaje de la ejecución: {self.porcentaje.get()}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
-                    ui.input_action_link("see_proces", "Ver porcentaje del proceso"),
-                    ui.p(ui.output_text_verbatim("value"),  style="margin: 0; line-height: 1.5; vertical-align: middle;"),
+                    #ui.p(f"Error: {self.mensaje.get() or default_message}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
+                    ui.input_action_link(f"see_proces_{self.nombre}", "Ver porcentaje del proceso"),
+                    ui.p(ui.output_text_verbatim(f"value_{self.nombre}"),  style="margin: 0; line-height: 1.5; vertical-align: middle;"),
+                    ui.p( ui.output_ui(f"value_error_{self.nombre}"),  style="margin: 0; line-height: 1.5; vertical-align: middle;"),
+                    
                     
                     #ui.output_text_verbatim("porcentaje"),
                     

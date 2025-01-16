@@ -23,7 +23,10 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
     id_versiones_params = reactive.Value(None)
     opciones_param = reactive.Value(None)
     valor_predeterminado_parms = reactive.Value(None)
+    click_seleccion_niveles_score = reactive.Value(0)
     nombre_de_la_version_in_sample = reactive.Value("")
+    initialized = reactive.Value(False)
+        
     
 
     @reactive.effect
@@ -66,41 +69,50 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
     @reactive.effect
     @reactive.event(input.version_selector)
     def seleccionador_versiones_param():
-        versiones_id = input.version_selector()
-        print(f"id versiones selector: {versiones_id}")
-        global_session.set_version_parametros_id(versiones_id)
-        if global_session.get_version_parametros_id() != "a":
-            versiones = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
-            if versiones:
-                if (global_session.get_id_user() and
-                global_session.get_name_proyecto() and
-                global_session.get_id_proyecto() and
-                global_session.get_id_version() and
-                global_session.get_versiones_name() and 
-                global_session.get_version_parametros_id() and
-                global_session.get_versiones_parametros_nombre()):   
-                    help_api.procesar_starlette_api_insample(global_session.get_id_user(), global_session.get_name_proyecto(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_versiones_name(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre())
+        if not initialized():
+            initialized.set(True)
+            #click_seleccion_niveles_score.set(click_seleccion_niveles_score() + 1)
+            return 
+    
+        print("hice click??")
+        click_seleccion_niveles_score.set(click_seleccion_niveles_score() + 1)
+        print(click_seleccion_niveles_score.get() ,"value aca?")
+        if click_seleccion_niveles_score.get() >=1:
+            
+            versiones_id = input.version_selector()
+            global_session.set_version_parametros_id(versiones_id)
+            if global_session.get_version_parametros_id() != "a":
+                versiones = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
+                if versiones:
+                    if (global_session.get_id_user() and
+                    global_session.get_name_proyecto() and
+                    global_session.get_id_proyecto() and
+                    global_session.get_id_version() and
+                    global_session.get_versiones_name() and 
+                    global_session.get_version_parametros_id() and
+                    global_session.get_versiones_parametros_nombre()):   
+                        help_api.procesar_starlette_api_insample(global_session.get_id_user(), global_session.get_name_proyecto(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_versiones_name(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre())
 
-                    #ult_model = obtener_ultimo_modelo_por_version(base_datos="Modeling_App.db",version_id=None, json_version_id=global_session.get_version_parametros_id())
-                    #print(ult_model, "viendo si duelve bien el diccionario") 
-                    if opciones_param.get() is  None:
-                        nombre_version = versiones[0]['nombre_version']
-                        nombre_de_la_version_in_sample.set(nombre_version)
-                        nombre_version_niveles_score = obtener_valor_por_id_versiones(global_session.get_version_parametros_id())
-                        global_session.set_versiones_parametros_nombre(replace_spaces_with_underscores(nombre_version_niveles_score))
-                        global_session_V3.name_version_niveles_score_original.set(nombre_version_niveles_score)
-                        
+                        #ult_model = obtener_ultimo_modelo_por_version(base_datos="Modeling_App.db",version_id=None, json_version_id=global_session.get_version_parametros_id())
+                        #print(ult_model, "viendo si duelve bien el diccionario") 
+                        if opciones_param.get() is  None:
+                            nombre_version = versiones[0]['nombre_version']
+                            nombre_de_la_version_in_sample.set(nombre_version)
+                            nombre_version_niveles_score = obtener_valor_por_id_versiones(global_session.get_version_parametros_id())
+                            global_session.set_versiones_parametros_nombre(replace_spaces_with_underscores(nombre_version_niveles_score))
+                            global_session_V3.name_version_niveles_score_original.set(nombre_version_niveles_score)
+                            
+                    
+                nombre_version_niveles_Scord = obtener_valor_por_id_versiones(global_session.get_version_parametros_id())
                 
-            nombre_version_niveles_Scord = obtener_valor_por_id_versiones(global_session.get_version_parametros_id())
-            print(nombre_version_niveles_Scord, "viendo nombre de la version a mi izquierda")
-            
-            global_session_V3.name_version_niveles_score_original.set(nombre_version_niveles_Scord)
-            global_session.set_versiones_parametros_nombre(replace_spaces_with_underscores(nombre_version_niveles_Scord))
-            estado_in_sample , hora_in_sample = procesar_etapa_in_sample_2(base_datos="Modeling_App.db", json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")
-            
-            
-            global_session_modelos.modelo_in_sample_estado.set(estado_in_sample)
-            global_session_modelos.modelo_in_sample_hora.set(hora_in_sample)
+                global_session_V3.name_version_niveles_score_original.set(nombre_version_niveles_Scord)
+                global_session.set_versiones_parametros_nombre(replace_spaces_with_underscores(nombre_version_niveles_Scord))
+                estado_in_sample , hora_in_sample = procesar_etapa_in_sample_2(base_datos="Modeling_App.db", json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")
+                
+                
+                global_session_modelos.modelo_in_sample_estado.set(estado_in_sample)
+                global_session_modelos.modelo_in_sample_hora.set(hora_in_sample)
+                #click_seleccion_niveles_score.set(click_seleccion_niveles_score() + 1)
             
             
               
@@ -181,3 +193,12 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
         
      
         
+
+
+    @reactive.effect
+    def update_nav():
+        if click_seleccion_niveles_score.get() > 1:
+            print(f"con que value paso? {click_seleccion_niveles_score.get()}")
+            ui.update_navs("navset", selected="screen_niveles_scorcads")  # Cambia al panel deseado
+            #click_seleccion_niveles_score.set(0)
+                

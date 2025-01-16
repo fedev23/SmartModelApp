@@ -209,14 +209,14 @@ def server_desarollo(input, output, session, name_suffix):
         def insert_data_depends_value():  
             base_datos = "Modeling_App.db"
             if global_desarollo.proceso_ok.get():
-                agregar_datos_model_execution(global_session.get_id_version(), global_desarollo.nombre, base_datos , "Exito")
+                agregar_datos_model_execution(global_session.get_id_version(), global_desarollo.nombre, base_datos , "Exito", dataset_id=global_session.get_id_dataSet())
                 estado_desarrollo , hora_desarrollo = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="desarollo")
                 global_session_modelos.modelo_desarrollo_estado.set(estado_desarrollo)
                 global_session_modelos.modelo_desarrollo_hora.set(hora_desarrollo)
                 global_desarollo.proceso_ok.set(False)
                 
             if global_desarollo.proceso_fallo.get():
-                agregar_datos_model_execution(global_session.get_id_version(), global_desarollo.nombre, base_datos , "Error")
+                agregar_datos_model_execution(global_session.get_id_version(), global_desarollo.nombre, base_datos , "Error", mensaje_error=global_desarollo.mensaje.get(), dataset_id=global_session.get_id_dataSet())
                 estado_desarrollo , hora_desarrollo = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="desarollo")
                 global_session_modelos.modelo_desarrollo_estado.set(estado_desarrollo)
                 global_session_modelos.modelo_desarrollo_hora.set(hora_desarrollo)
@@ -253,7 +253,7 @@ def server_desarollo(input, output, session, name_suffix):
     
     
     @reactive.effect
-    @reactive.event(input.see_proces)
+    @reactive.event(input.see_proces_desarollo)
     async def ver_proces():
         click.set(click() + 1)
         porcentaje = global_desarollo.porcentaje.get()
@@ -270,12 +270,18 @@ def server_desarollo(input, output, session, name_suffix):
             ui.update_action_button("see_proces", label="Refrescar el progreso")
     
     @render.text
-    def value():
+    def value_desarollo():
         porcentaje_actual = global_desarollo.porcentaje.get()
         if click.get() >=1 and porcentaje_actual > 0:
-            print(f"porcentaje_actual: {porcentaje_actual}%")
-            return f"porcentaje de la ejecucion {porcentaje_actual}"
+            return f"porcentaje de la ejecucion {porcentaje_actual}%"
             
+    @output
+    @render.ui
+    def value_error_desarollo():
+        if global_desarollo.mensaje.get():
+            print("pase por que hay error?")
+            return ui.p(f"Error: {global_desarollo.mensaje.get()}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
+
            
    
     

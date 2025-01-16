@@ -10,7 +10,7 @@ from funciones.funciones_user import button_remove, create_modal_v2
 from funciones.utils_2 import eliminar_archivo, leer_dataset
 from logica_users.utils.help_versios import obtener_ultimo_nombre_archivo
 from api.db.help_config_db import *
-from funciones_modelo.warning_model import create_modal_warning_exist_model, validar_existencia_modelo_por_dinamica_de_app
+from funciones_modelo.warning_model import create_modal_warning_exist_model, validar_existencia_modelo_por_dinamica_de_app, tiene_modelo_generado, create_modal_generic
 from clases.global_sessionV2 import *
 from clases.global_reactives import global_estados
 from api.db.sqlite_utils import *
@@ -135,22 +135,25 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
         print(global_session.get_id_dataSet(), "id data?")
         return button_remove(lista_reactiva.get(), global_session.get_id_dataSet(), "id_files", name)
         
-    
+    delete_button_effects = {}
     @reactive.Effect
     def boton_para_eliminar_name_data_set():
-        eliminar_version_id = f"eliminar_version_{global_session.get_id_dataSet()}_{name}"
-
-        @reactive.Effect
-        @reactive.event(input[eliminar_version_id])
-        def eliminar_version_id():
-            base_datos = 'Modeling_App.db'
-            tabla = 'name_files'
-            columna_objetivo = 'nombre_archivo'
-            columna_filtro = 'id_files'
-            nombre_version = obtener_valor_por_id(base_datos, tabla, columna_objetivo, columna_filtro, global_session.get_id_dataSet())
-            #nombre_version = obtener_valor_por_id(global_session.get_id_dataSet())
-            create_modal_v2(f"Seguro que quieres eliminar el Dataset {nombre_version}?", "Confirmar", "Cancelar", "confirmar_id_borrar_dataset", "cancelar_id_dataSet")
-    
+        eliminar_data_set = f"eliminar_version_{global_session.get_id_dataSet()}_{name}"
+        if eliminar_data_set not in delete_button_effects:
+            @reactive.Effect
+            @reactive.event(input[eliminar_data_set])
+            def eliminar_version_id():
+                base_datos = 'Modeling_App.db'
+                tabla = 'name_files'
+                columna_objetivo = 'nombre_archivo'
+                columna_filtro = 'id_files'
+                nombre_version = obtener_valor_por_id(base_datos, tabla, columna_objetivo, columna_filtro, global_session.get_id_dataSet())
+                #nombre_version = obtener_valor_por_id(global_session.get_id_dataSet())
+                create_modal_v2(f"Seguro que quieres eliminar el Dataset {nombre_version}?", "Confirmar", "Cancelar", "confirmar_id_borrar_dataset", "cancelar_id_dataSet")
+        
+            delete_button_effects[eliminar_data_set] = eliminar_version_id
+            
+                
     
     @reactive.Effect
     @reactive.event(input["cancelar_id_dataSet"])
@@ -161,6 +164,10 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     @reactive.Effect
     @reactive.event(input.confirmar_id_borrar_dataset)
     def remove_versiones_de_parametros():
+        if tiene_modelo_generado(global_session.get_id_dataSet()):
+            ui.modal_show(create_modal_generic(f"tiene_model", f"Usted tiene un modelo generado para el Dataset: {global_names_reactivos.get_name_file_db()}"))
+            return 
+        
         eliminar_version("name_files", "id_files", global_session.get_id_dataSet())
         datasets_directory = get_datasets_directory(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
         dataset_path = os.path.join(datasets_directory, global_names_reactivos.get_name_file_db())
@@ -173,10 +180,8 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
         )
         print(lista_de_versiones_new, "lista_de_versiones_new")
         lista_reactiva.set(lista_de_versiones_new)
-        ui.update_select(
-            "files_select",
-            choices={str(vers['id_files']): vers['nombre_archivo']
-                     for vers in lista_de_versiones_new}
+        ui.update_select("files_select", choices={str(vers['id_files']): vers['nombre_archivo']
+        for vers in lista_de_versiones_new}
         )
         ui.modal_remove()
             

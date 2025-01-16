@@ -18,6 +18,7 @@ class GlobalSessionV2:
         self.nombre_file_sin_extension_validacion_scoring = reactive.value()
         self.boolean_for_change_file = reactive.Value(False)
         self.count_global = reactive.Value(0)
+        self.id_data_set = reactive.Value()
 
     def set_id_Data_validacion_sc(self, id):
         self.id_Data_validacion_sc.set(id)
@@ -95,6 +96,9 @@ class GlobalSessionV2:
       
     def get_id_modelo(self):
         return self.id_modelo.get()
+    
+    
+    
     
     
    

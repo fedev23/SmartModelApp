@@ -121,9 +121,9 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
             create_modal_v2(f"Seguro que quieres eliminar el Dataset {nombre_version}?", "Confirmar", "Cancelar", "confirmar_id_borrar_dataset_validacion_Sc", "cancelar_id_dataSet_validacion_Sc")
     
     @reactive.Effect
-    @reactive.event(input["confirmar_id_borrar_dataset_validacion_Sc"])
+    @reactive.event(input["cancelar_id_dataSet_validacion_Sc"])
     def remove_modal_Dataset():
-        ui.modal_remove()     
+        return ui.modal_remove()     
      
      
     @reactive.Effect
@@ -152,7 +152,7 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
             choices={str(vers['id_validacion_sc']): vers['nombre_archivo_validation_sc']
                      for vers in lista_de_versiones_new}
         )
-        ui.modal_remove()   
+        return ui.modal_remove()   
   
   
     

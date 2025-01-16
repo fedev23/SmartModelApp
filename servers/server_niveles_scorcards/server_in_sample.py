@@ -31,6 +31,8 @@ ejemplo_niveles_riesgo = pd.DataFrame({
     "Tasa de Malos Máxima": ["3.0%", "6.0%", "9.0%", "15.0%", "18.0%", "100.0%"]
 })
 
+##HACER QUE ORDENE POR ORDEN ALFABETICA
+
 ejemplo_segmentos = pd.DataFrame({
     "Segment": ["Female_Employees", "Male_Employees", "Other", "Other"],
     "Rule": [
