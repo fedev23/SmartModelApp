@@ -49,7 +49,7 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
         
         
         reactive.invalidate_later(1)
-        
+        print(f"valor de count_global")
         if global_session_V2.count_global.get() > 1:
             modelo_existente = validar_existencia_modelo_por_dinamica_de_app(
                 modelo_boolean_value=global_desarollo.pisar_el_modelo_actual.get(),
@@ -81,7 +81,7 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
                 ui.update_select("files_select", selected=selected_key if selected_key else next(iter(global_session_V2.lista_nombre_archivos_por_version.get()), ""))
                 global_session.set_data_set_reactivo(data)
                 pase_para_cambiar_file.set(True)
-                global_session_V2.count_global.set(1)
+                global_session_V2.count_global.set(0)
                 modelo_existe_reactivo.set(False)
                 modals_mostrados.set(modals_mostrados.get() | {button_files_desa})
                 return 

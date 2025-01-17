@@ -19,6 +19,7 @@ class GlobalSessionV2:
         self.boolean_for_change_file = reactive.Value(False)
         self.count_global = reactive.Value(0)
         self.id_data_set = reactive.Value()
+        self.click_seleccion_niveles_score = reactive.Value(0)
 
     def set_id_Data_validacion_sc(self, id):
         self.id_Data_validacion_sc.set(id)

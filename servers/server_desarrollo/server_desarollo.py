@@ -33,6 +33,8 @@ def server_desarollo(input, output, session, name_suffix):
     user_id_send = reactive.Value("")
     global_names_reactivos.name_desarrollo_set(name_suffix)
     mensaje = reactive.Value("")
+    file_lines = reactive.value()
+    path_salida_reactivo = reactive.value()
     
     
     
@@ -130,8 +132,9 @@ def server_desarollo(input, output, session, name_suffix):
 
     @ui.bind_task_button(button_id="execute_desarollo")
     @reactive.extended_task
-    async def ejectutar_desarrollo_asnyc(click_count, mensaje, proceso):
-        await global_desarollo.ejecutar_proceso_prueba(click_count, mensaje, proceso)
+    async def ejectutar_desarrollo_asnyc(click_count, mensaje, proceso, porcentaje):
+        await global_desarollo.ejecutar_proceso_prueba(click_count, mensaje, proceso, porcentaje)
+        
 
     @reactive.effect
     @reactive.event(input.execute_desarollo, ignore_none=True)
@@ -139,6 +142,7 @@ def server_desarollo(input, output, session, name_suffix):
         click_count_value = global_desarollo.click_counter.get()  # Obtener contador
         mensaje_value = global_desarollo.mensaje.get()  # Obtener mensaje actual
         proceso = global_desarollo.get_proceso()
+        porcentaje = global_desarollo.porcentaje.get()
         base_datos = 'Modeling_App.db'
         
         validar_si_existe_version = check_if_exist_id_version(global_session.get_id_version())
@@ -199,7 +203,9 @@ def server_desarollo(input, output, session, name_suffix):
                     mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), data_Set, name_suffix, path_datos_entrada)
                     
                     global_desarollo.script_path = f'./Modelar.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida}'
-                    ejectutar_desarrollo_asnyc(click_count_value, mensaje_value, proceso)
+                    click.set(click() + 1)
+                    ejectutar_desarrollo_asnyc(click_count_value, mensaje_value, proceso, porcentaje)
+                    print(f'porcnetaje {porcentaje}')
                     global_desarollo.pisar_el_modelo_actual.set(False)
                     
                 
@@ -252,31 +258,38 @@ def server_desarollo(input, output, session, name_suffix):
         return ui.modal_remove()
     
     
-    @reactive.calc
-    def cur_time():
-        reactive.invalidate_later(5)  # Se ejecutará cada 2 segundos
-        valor = global_desarollo.porcentaje.get()
-        if valor == 100:
-          return 100
-        if valor > 0:
-            return valor
-        
-
-    
-        
-    @render.ui  
-    def value_desarollo():
-        return f"Current time: {cur_time()}"
-        
-    
             
-    @output
-    @render.ui
-    def value_error_desarollo():
-        if global_desarollo.mensaje.get():
-            print("pase por que hay error?")
-            return ui.p(f"Error: {global_desarollo.mensaje.get()}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
+        
+    @reactive.calc
+    def leer_archivo():
+        """Lee el archivo y actualiza la variable reactiva cada segundo, hasta llegar a 63/63."""
+        if click.get() < 1:
+            return "Esperando inicio..."
 
-           
+        path = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+        name_file = "results_clean_transf.log"
+
+        # Obtener la última línea del archivo
+        ultima_linea = monitorizar_archivo(path, nombre_archivo=name_file)
+
+        if ultima_linea == "63":  # Si ya llegó a 63/63, no continuar
+            print("Proceso completado. No se seguirá actualizando.")
+            return "63"  # Último valor, la UI mostrará 63 y no se ejecutará más
+
+        # Actualizar variable reactiva
+        file_lines.set(ultima_linea)
+        print(f"Ultima línea capturada: {file_lines.get()}")
+
+        # Reactivar cada 3 segundos si aún no ha llegado a 63
+        reactive.invalidate_later(3)
+
+        return ultima_linea
+
+    # Mostrar el contenido del archivo en la UI
+    @render.ui
+    def value_desarollo():
+        """Muestra el contenido actualizado del archivo en la UI."""
+        return f"Última línea: {leer_archivo()}"
+       
    
     

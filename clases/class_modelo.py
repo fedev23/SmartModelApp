@@ -32,7 +32,7 @@ class ModeloProceso:
         self.proceso_fallo = reactive.value(False)
         self.mensaje_error = reactive.Value("")
         self.pisar_el_modelo_actual = reactive.Value(False)
-        self.porcentaje = reactive.Value(0)
+        self.porcentaje = reactive.value(0)
         self.proceso_inicio = reactive.Value(False)
         
         
@@ -72,14 +72,14 @@ class ModeloProceso:
                         current_step = int(match.group(1))
                         total_steps = int(match.group(2))
                         progress_percentage = int((current_step / total_steps) * 100)
+                        self.porcentaje.set(progress_percentage)
                         print(f"Progreso: {progress_percentage}%")
                         
                         # Usar callback para comunicar el progreso
                         if progress_callback:
                             progress_callback(progress_percentage)
                     
-                    await asyncio.sleep(0.3)
-
+                    
             await asyncio.gather(
                 read_stream(process.stdout, stdout, "STDOUT"),
                 read_stream(process.stderr, stderr, "STDERR")
@@ -105,20 +105,14 @@ class ModeloProceso:
             return None, None, 1, error_message, 0
 
 
-    async def ejecutar_proceso_prueba(self, click_count, mensaje, proceso):
+    async def ejecutar_proceso_prueba(self, click_count, mensaje, proceso, porcentaje):
         try:
-            # Obtener valores de fuentes reactivas antes de la tarea extendida
             
-            # Mostrar mensaje inicial
-            #self.porcentaje.set("En ejecución...")
-            #print(self.porcentaje.get(), "viendo el porcentaje en vivo?")
-            
+           
             def actualizar_progreso(porcentaje):
                 self.porcentaje.set(porcentaje)
                 self.proceso_inicio.set(True)
-                print(f"Progreso actualizado: {porcentaje}%")
-                
-                #proceso(False)
+                print(f"Progreso actualizado: {porcentaje}%")  
 
             # Indicador de proceso en ejecución
             with ui.busy_indicators.use(spinners=True):
@@ -187,10 +181,6 @@ class ModeloProceso:
                     ui.p( ui.output_ui(f"value_error_{self.nombre}"),  style="margin: 0; line-height: 1.5; vertical-align: middle;"),
                     
                     
-                    #ui.output_text_verbatim("porcentaje"),
-                    
-                    
-                    # ui.p(ui.output_text(self.mensaje_id)),
                     class_="d-flex justify-content-between align-items-center w-100",
                 ),
                 ui.div(

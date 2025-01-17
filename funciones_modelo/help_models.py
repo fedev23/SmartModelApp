@@ -1,5 +1,7 @@
 from api.db.sqlite_utils import *
 from api.db import *
+import os , re
+
 
 def obtener_estado_por_modelo(modelo, nombre_modelo):
     """
@@ -275,3 +277,27 @@ def check_execution_status(db_path, version_id=None, json_id=None):
         return None
     finally:
         conn.close()
+
+
+
+
+
+def monitorizar_archivo(path, nombre_archivo):
+        """Monitorea un archivo y devuelve el último número encontrado."""
+        archivo_path = os.path.join(path, nombre_archivo)
+
+        if not os.path.exists(archivo_path):
+            print(f"El archivo {archivo_path} no existe aún.")
+            return "Archivo aún no disponible"
+
+        with open(archivo_path, "r") as f:
+            lineas = f.readlines()
+
+        # Filtrar solo las líneas que contienen números en formato "X/63"
+        numeros = [re.search(r'(\d+)/\d+', linea) for linea in lineas]
+        numeros = [match.group(1) for match in numeros if match]  # Extraer los números
+
+        if numeros:
+            return numeros[-1]  # Devuelve el último número capturado
+        else:
+            return "No se encontraron números"

@@ -8,6 +8,7 @@ from clases.global_session import global_session
 from api.db.sqlite_utils import *
 from funciones.funciones_user import create_modal_v2, create_modal_versiones_param, button_remove
 from api.db import *
+from clases.global_sessionV2 import *
 from clases.global_sessionV3 import *
 from funciones.utils_2 import crear_carpeta_version_parametros
 from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version, eliminar_carpeta
@@ -75,9 +76,8 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
             return 
     
         print("hice click??")
-        click_seleccion_niveles_score.set(click_seleccion_niveles_score() + 1)
-        print(click_seleccion_niveles_score.get() ,"value aca?")
-        if click_seleccion_niveles_score.get() >=1:
+        global_session_V2.click_seleccion_niveles_score.set(global_session_V2.click_seleccion_niveles_score() + 1)
+        if global_session_V2.click_seleccion_niveles_score.get() >=1:
             
             versiones_id = input.version_selector()
             global_session.set_version_parametros_id(versiones_id)
@@ -112,8 +112,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
                 
                 global_session_modelos.modelo_in_sample_estado.set(estado_in_sample)
                 global_session_modelos.modelo_in_sample_hora.set(hora_in_sample)
-                #click_seleccion_niveles_score.set(click_seleccion_niveles_score() + 1)
-            
+                
             
               
         
@@ -197,8 +196,8 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
 
     @reactive.effect
     def update_nav():
-        if click_seleccion_niveles_score.get() > 1:
+        if global_session_V2.click_seleccion_niveles_score.get() > 1:
             print(f"con que value paso? {click_seleccion_niveles_score.get()}")
             ui.update_navs("navset", selected="screen_niveles_scorcads")  # Cambia al panel deseado
-            #click_seleccion_niveles_score.set(0)
+            global_session_V2.click_seleccion_niveles_score.set(0)
                 

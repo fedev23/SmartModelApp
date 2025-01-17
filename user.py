@@ -146,8 +146,9 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         #ui.update_select("files_select", choices=nombre_file.get(),  selected=selected_key if selected_key else next(iter(nombre_file.get()), ""))
         ui.update_select("other_select", choices=opciones_de_versiones_por_proyecto.get(), selected=key_versiones_mach if key_versiones_mach else next(iter(opciones_de_versiones_por_proyecto.get()), ""))
         ui.update_select("version_selector", choices=opciones_param.get(), selected=valor_predeterminado_parms.get())
-        #global_session_V2.count_global.set(0) 
+        global_session_V2.count_global.set(0) 
         global_session_V2.boolean_for_change_file.set(False)
+        global_session_V2.click_seleccion_niveles_score.set(0)
         
     @output
     @render.ui
