@@ -137,8 +137,8 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             global_session.get_versiones_name()):   
             api_code = help_api.procesar_starlette_api(global_session.get_id_user(), global_session.get_name_proyecto(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_versiones_name())
         
-        ultimo_archivo = obtener_ultimo_seleccionado(base_datos, 'name_files', 'nombre_archivo')
-        global_session_V2.set_dataSet_seleccionado(ultimo_archivo)
+        #ultimo_archivo = obtener_ultimo_seleccionado(base_datos, 'name_files', 'nombre_archivo')
+        #global_session_V2.set_dataSet_seleccionado(ultimo_archivo)
         #selected_key = mapear_valor_a_clave(global_session_V2.get_dataSet_seleccionado(), nombre_file.get())
         
         ui.update_select("project_select",choices=proyectos_choise, selected=key_proyecto_mach if key_proyecto_mach else next(iter(ultimo_proyecto_seleccionado.get()), ""))

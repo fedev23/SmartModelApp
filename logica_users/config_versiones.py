@@ -7,10 +7,12 @@ from clases.global_sessionV2 import *
 from funciones.funciones_user import create_modal_v2, button_remove_version
 from funciones.utils_2 import *
 from clases.global_sessionV3 import *
+from clases.global_modelo import global_desarollo
 from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version, eliminar_carpeta, mapear_valor_a_clave
 from funciones.utils_cargar_json import leer_control_json
 from api.db.sqlite_utils import *
 from funciones_modelo.help_models import *
+from funciones_modelo.warning_model import validar_existencia_modelo_por_dinamica_de_app, obtener_nombre_dataset
 from api.db.sqlite_utils import *
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo import help_models 
@@ -68,6 +70,16 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
             str(file['id_files']): file['nombre_archivo']
             for file in files_name
         } if files_name else {"": "No hay archivos"})
+        
+        modelo_existente = validar_existencia_modelo_por_dinamica_de_app(
+                modelo_boolean_value=global_desarollo.pisar_el_modelo_actual.get(),
+                base_datos=base_datos,
+                version_id=global_session.get_id_version())
+            
+        if  modelo_existente:
+            print("pase a tiene modelo?")
+            nombre_dataSet_con_modelo = obtener_nombre_dataset(global_session.get_id_version())
+            
 
         ult_model = obtener_ultimo_modelo_por_version_y_nombre(base_datos, global_session.get_id_version(), "desarollo")
       

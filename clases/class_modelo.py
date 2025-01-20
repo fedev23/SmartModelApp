@@ -7,6 +7,10 @@ import traceback
 from funciones_modelo.warning_model import *
 from api.db import *
 import re
+import asyncio
+import re
+import traceback
+import os
 from clases.global_sessionV3 import *
 from funciones_modelo.global_estados_model import global_session_modelos
 from clases.global_sessionV2 import *
@@ -14,13 +18,14 @@ from clases.global_sessionV2 import *
 
 
 class ModeloProceso:
-    def __init__(self, nombre, directorio, script_name, script_path, name_file, mensaje_id, hora, estado):
+    def __init__(self, nombre, directorio, script_name, script_path, name_file, mensaje_id, hora, estado, porcentaje_path):
         self.nombre = nombre
         self.name_file = name_file
         self.mensaje_id = mensaje_id
         self.directorio = directorio
         self.hora = hora
         self.estado = estado
+        self.porcentaje_path = porcentaje_path
         self.script_name = script_name
         self.script_path = script_path
         self.proceso = reactive.Value(False)
@@ -33,9 +38,11 @@ class ModeloProceso:
         self.mensaje_error = reactive.Value("")
         self.pisar_el_modelo_actual = reactive.Value(False)
         self.porcentaje = reactive.value(0)
+        self.file_reactivo = reactive.Value("")
         self.proceso_inicio = reactive.Value(False)
         
         
+
     async def run_script_prueba(self, progress_callback=None):
         # Convertir la ruta de Windows a WSL
         wsl_directorio = self.directorio
@@ -43,6 +50,8 @@ class ModeloProceso:
         print(f"Comando a ejecutar: {comando}")
 
         try:
+            # Verificar si `self.progress_file` está definido, de lo contrario usar uno por defecto
+
             # Crear el proceso de forma asíncrona
             process = await asyncio.create_subprocess_shell(
                 comando,
@@ -53,9 +62,23 @@ class ModeloProceso:
             # Capturar la salida y los errores en tiempo real
             stdout, stderr = [], []
             progress_percentage = 0
+            last_match = None  # Almacena el último valor de progreso válido
+
+            self.porcentaje_path = os.path.join(self.porcentaje_path, "progreso.txt")
+            # Eliminar el archivo de progreso si existe
+            if os.path.exists(self.porcentaje_path):
+                os.remove(self.porcentaje_path)
+
+            async def write_progress_to_file(percentage):
+                """Escribe el progreso en un archivo de texto"""
+                try:
+                    with open(self.porcentaje_path, "w") as file:
+                        file.write(f"{percentage}%\n")
+                except Exception as e:
+                    print(f"Error escribiendo progreso en archivo: {str(e)}")
 
             async def read_stream(stream, output_list, output_prefix):
-                nonlocal progress_percentage
+                nonlocal progress_percentage, last_match
                 total_steps = None
                 while True:
                     line = await stream.readline()
@@ -66,20 +89,25 @@ class ModeloProceso:
                     print(f"{output_prefix}: {decoded_line}")
 
                     # Intentar calcular el porcentaje si hay un patrón
-                    ##si no hay mach le doy el match anterior
                     match = re.search(r'(\d+)/(\d+)', decoded_line)
                     if match:
                         current_step = int(match.group(1))
                         total_steps = int(match.group(2))
-                        progress_percentage = int((current_step / total_steps) * 100)
+                        last_match = (current_step, total_steps)  # Guardar el último match válido
+                    
+                    # Si hay un último match, calcular el progreso
+                    if last_match:
+                        progress_percentage = int((last_match[0] / last_match[1]) * 100)
                         self.porcentaje.set(progress_percentage)
                         print(f"Progreso: {progress_percentage}%")
-                        
+
+                        # Guardar progreso en el archivo
+                        await write_progress_to_file(progress_percentage)
+
                         # Usar callback para comunicar el progreso
                         if progress_callback:
                             progress_callback(progress_percentage)
-                    
-                    
+
             await asyncio.gather(
                 read_stream(process.stdout, stdout, "STDOUT"),
                 read_stream(process.stderr, stderr, "STDERR")
@@ -103,8 +131,7 @@ class ModeloProceso:
             print("Stacktrace:")
             traceback.print_exc()
             return None, None, 1, error_message, 0
-
-
+    
     async def ejecutar_proceso_prueba(self, click_count, mensaje, proceso, porcentaje):
         try:
             

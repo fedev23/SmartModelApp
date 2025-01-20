@@ -31,6 +31,7 @@ def server_out_of_sample(input, output, session, name_suffix):
     screen_instance = reactive.Value(None)
     mensaje = reactive.Value("")
     name = "Out-Of-Sample"
+    click =  reactive.Value(0)
     global_names_reactivos.name_validacion_of_to_sample_set(name_suffix)
     data_loader = global_data_loader_manager.get_loader(name_suffix)
     
@@ -137,20 +138,17 @@ def server_out_of_sample(input, output, session, name_suffix):
                 if not json_existe:
                     raise ValueError("Hubo un error con los parámetros de ejecución.")
                 
-                # Verificar si el JSON existe
-                path_niveles_sc = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
-                json_existe = help_versios.copiar_json_si_existe(path_niveles_sc, path_datos_entrada)
-                
-                # Validar existencia de .zip y JSON
-               
                 # Continuar con la ejecución
                 ##MOVILIZAR EL DATASET DEPENDE DONDE SE GUARDA
                 data_Set = get_datasets_directory(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
                 mover_y_renombrar_archivo(global_session_V2.get_nombre_dataset_validacion_sc(), data_Set, name_suffix, path_datos_entrada)
                 
                 path_datos_salida_path  = get_folder_directory_data_validacion_scoring(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
-        
+
+                modelo_of_sample.porcentaje_path = path_datos_salida_path
+                
                 modelo_of_sample.script_path = f'./Validar_Nueva.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida_path}'
+                click.set(click() + 1)
                 ejecutar_of_to_sample(click_count_value, mensaje_value, proceso)
                 modelo_of_sample.pisar_el_modelo_actual.set(False)
             
@@ -164,7 +162,7 @@ def server_out_of_sample(input, output, session, name_suffix):
         def insert_data_depends_value():
             base_datos = "Modeling_App.db"
             if modelo_of_sample.proceso_ok.get():
-                agregar_datos_model_execution(global_session.get_id_version(), modelo_of_sample.nombre, base_datos , "Exito")
+                agregar_datos_model_execution(global_session.get_id_version(), modelo_of_sample.nombre, global_session_V2.get_nombre_dataset_validacion_sc(), "Exito")
                 estado_out_sample , hora_of_sample = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre=modelo_of_sample.nombre)
                 global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
                 global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
@@ -172,7 +170,7 @@ def server_out_of_sample(input, output, session, name_suffix):
             
                 
             if modelo_of_sample.proceso_fallo.get():
-                agregar_datos_model_execution(global_session.get_id_version(), modelo_of_sample.nombre, "Modeling_App.db", "Error")
+                agregar_datos_model_execution(global_session.get_id_version(), modelo_of_sample.nombre, global_session_V2.get_nombre_dataset_validacion_sc(), "Error")
                 estado_out_sample , hora_of_sample = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre=modelo_of_sample.nombre)
                 global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
                 global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
@@ -201,4 +199,37 @@ def server_out_of_sample(input, output, session, name_suffix):
     def valid_model_of_sample():
         modelo_of_sample.pisar_el_modelo_actual.set(True)
         return  ui.modal_remove()
+    
+    
+    
+    @reactive.calc
+    def leer_archivo():
+        """Lee el archivo de progreso y actualiza la UI."""
+        if click.get() < 1:
+            return "Esperando inicio..."
+
+        path_datos_salida  = get_folder_directory_data_validacion_scoring(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
+        name_file = "progreso.txt"
+
+        # Obtener el último porcentaje del archivo
+        ultimo_porcentaje = monitorizar_archivo(path_datos_salida, nombre_archivo=name_file)
+
+        if ultimo_porcentaje == "100%":  # Si ya llegó al 100%, detener actualización
+            print("Proceso completado. No se seguirá actualizando.")
+            return "100%"
+
+        # Actualizar variable reactiva
+        modelo_of_sample.file_reactivo.set((ultimo_porcentaje))
+        print(f"Último porcentaje capturado: {modelo_of_sample.file_reactivo.get()}")
+
+        # Reactivar cada 3 segundos si aún no ha llegado al 100%
+        reactive.invalidate_later(3)
+
+        return ultimo_porcentaje
+
+    # Mostrar el contenido del archivo en la UI
+    @render.ui
+    def value_of_sample():
+        """Muestra el contenido actualizado del archivo en la UI."""
+        return f"Última línea: {leer_archivo()}"
     

@@ -198,3 +198,42 @@ def tiene_modelo_generado(dataset_id):
         return False
     finally:
         conn.close()
+        
+
+
+def obtener_nombre_dataset(version_id=None, json_version_id=None):
+    """
+    Recupera el nombre del dataset asociado a un modelo en la tabla 'model_execution'.
+    Puede filtrar por 'version_id', 'json_version_id' o ambos.
+
+    :param version_id: (Opcional) ID de la versión del modelo.
+    :param json_version_id: (Opcional) ID del JSON de la versión.
+    :return: Nombre del dataset si se encuentra, de lo contrario, None.
+    """
+    conn = sqlite3.connect('Modeling_App.db')
+    cur = conn.cursor()
+    
+    try:
+        # Construir la consulta de forma dinámica
+        query = "SELECT dataset_name FROM model_execution WHERE 1=1"
+        params = []
+
+        if version_id is not None:
+            query += " AND version_id = ?"
+            params.append(version_id)
+
+        if json_version_id is not None:
+            query += " AND json_version_id = ?"
+            params.append(json_version_id)
+
+        # Ejecutar la consulta
+        cur.execute(query, params)
+        result = cur.fetchone()
+        
+        return result[0] if result else None
+    
+    except sqlite3.Error as e:
+        print(f"Error al consultar la base de datos: {e}")
+        return None
+    finally:
+        conn.close()

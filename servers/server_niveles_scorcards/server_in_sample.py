@@ -25,7 +25,10 @@ from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.help_models import *
 from global_names import global_name_in_Sample
 
-ejemplo_niveles_riesgo = pd.DataFrame({
+ejemplo_niveles_riesgo = pd.DataFrame({})
+
+
+ejemplo_niveles_riesgo_2 = pd.DataFrame({
     "Nombre Nivel": ["BajoBajo", "BajoMedio", "BajoAlto", "MedioBajo", "MedioMedio", "Alto"],
     "Regla": ["> 955", "> 930", "> 895", "> 865", "> 750", "<= 750"],
     "Tasa de Malos Máxima": ["3.0%", "6.0%", "9.0%", "15.0%", "18.0%", "100.0%"]
@@ -52,15 +55,20 @@ ejemplos_rangos = pd.DataFrame({
 def server_in_sample(input, output, session, name_suffix):
     screen_instance = ScreenClass("", name_suffix)
     mensaje_de_error = reactive.Value("")
+    retorno = reactive.Value(False)
     mensaje = reactive.Value("")
     count = reactive.value(0)
     count_add_files = reactive.Value(0)
     no_error = reactive.Value(True)
     fila_insert = reactive.Value(False)
     global_names_reactivos.name_validacion_in_sample_set(name_suffix)
-    # Inicializamos el estado reactivo del dataset
+    click_add_filas_niveles =  reactive.Value(0)
     data_set = reactive.Value(pd.DataFrame({"Variables de corte": []}))
+    values_tabla_niveles = reactive.Value(pd.DataFrame({"Nombre Nivel": [], "Regla": [], "Tasa de Malos Máxima": []}))
     list_transformada = reactive.Value([])
+    lista_nombres = reactive.Value([])
+    click = reactive.Value(0)
+
 
 
     
@@ -117,11 +125,66 @@ def server_in_sample(input, output, session, name_suffix):
         #return ui.modal_remove()
     
     
+    @reactive.effect
+    @reactive.event(input.add_files_niveles_riesgo)
+    def devolver_input_text():
+        click_add_filas_niveles.set(click_add_filas_niveles() + 1)
+        
+    
+    @output
+    @render.ui
+    def input_text_retorno():
+        if click_add_filas_niveles.get() >=1:
+            return ui.input_text("add_value", "Inserte un nombre de nivel")
+        
+    @output
+    @render.ui
+    def insert_value():
+        if click_add_filas_niveles.get() >=1:
+            return ui.input_action_link("add_files_niveles_riesgo_2", "Insertar"),
+        
+    @output
+    @render.ui
+    def insert_value_numeric():
+        if retorno.get():
+            return ui.input_action_link("add_filas_por_valor_numeric", label="Insertar valor de niveles")
+  
+                                               
+    
+    @reactive.effect
+    @reactive.event(input.add_files_niveles_riesgo_2)
+    def name():
+        nombre_seleccionado = input.add_value()
+        # Obtener la lista actual de nombres
+        lista_actual = lista_nombres.get()
+
+        # Determinar el número incremental
+        numero_incremental = len(lista_actual) + 1
+        numero_formateado = f"{numero_incremental:02}"  # Convierte 1 -> "01", 2 -> "02", etc.
+
+        # Agregar el nombre con su número incremental
+        nuevo_nombre = f"{nombre_seleccionado}_{numero_formateado}"
+        lista_actual.append(nuevo_nombre)
+
+        # Actualizar la variable reactiva con la nueva lista
+        lista_nombres.set(lista_actual)
+        
+        data = par_rango_niveles.data_view()
+        new_row = pd.DataFrame({"Nombre Nivel": [nuevo_nombre]})
+        data = pd.concat([data, new_row], ignore_index=True)
+        values_tabla_niveles.set(data) 
+        click_add_filas_niveles.set(0)
+        reactive.invalidate_later(1)
+        retorno.set(True)
+        
+            
+            
+          
+    
     @output
     @render.ui
     def selector():
         if count_add_files.get() >= 1:
-            print("pase??")
             return  ui.input_selectize("agregar_filas","Insertar valores",choices=[],  # Initially empty; will be updated reactively
                                      multiple=True,
                                      options={
@@ -217,24 +280,23 @@ def server_in_sample(input, output, session, name_suffix):
     @output
     @render.data_frame
     def par_rango_niveles():
-        # Obtén el diccionario con los DataFrames
-        if global_session_V2.get_json_params_desarrollo() is not None:
-            df_dict = update_dataframe_from_json(global_session_V2.get_json_params_desarrollo())
-            
-            # Asegúrate de que 'niveles_riesgo' esté en el diccionario y sea un DataFrame válido
-            if "par_rango_niveles" in df_dict and isinstance(df_dict["par_rango_niveles"], pd.DataFrame):
-                df_niveles_riesgo = df_dict["par_rango_niveles"]
-                return render.DataGrid(df_niveles_riesgo, editable=True, width='500px')
-                #print(df_niveles_riesgo, "que tiene este df?")
-            else:
-                print("Error: 'niveles_riesgo' no es un DataFrame válido o está ausente.")
-                return render.DataGrid(ejemplo_niveles_riesgo, editable=True, width='500px')
-        else:
-            return render.DataGrid(ejemplo_niveles_riesgo, editable=True, width='500px')
-
-            # Renderizar el DataFrame específico
-            #return render.DataGrid(df_niveles_riesgo, editable=True, width='500px')
-            
+        data = values_tabla_niveles.get()
+        ejemplo_niveles_riesgo_2 = pd.DataFrame({
+            "Nombre Nivel": [],
+            "Regla": [],
+            "Tasa de Malos Máxima": []
+        })
+        if data is not None and not data.empty:
+            print(data, "estoy end ata")
+         
+            return render.DataGrid(data, selection_mode="rows",  editable=True , width="500px")
+        
+        return render.DataGrid(ejemplo_niveles_riesgo_2, selection_mode="rows",  width="500px")
+    
+    
+    
+    
+    
     @output
     @render.data_frame
     def par_rango_segmentos():
@@ -285,14 +347,8 @@ def server_in_sample(input, output, session, name_suffix):
         valor1 = input.par_vars_segmento()
         trans_formara_lista = list(valor1)
         list_transformada.set(trans_formara_lista)
-        #print(trans_formara_lista)
     
     
-     ##FUNCION PARA RETORNAR LA TARJETA
-        
-
-    ##USO ESTE DECORADOR PARA CORRER EL PROCESO ANSYC Y NO HAYA INTERRUCIONES EN EL CODIGO LEER DOCUENTACION
-    #https://shiny.posit.co/py/docs/nonblocking.html
     @ui.bind_task_button(button_id="execute_in_sample")
     @reactive.extended_task
     async def ejecutar_in_sample_ascyn(click_count, mensaje, proceso):
@@ -316,9 +372,6 @@ def server_in_sample(input, output, session, name_suffix):
                 return
 
             # Validar si hay versiones
-            print(global_session.get_version_parametros_id(), "id model")
-            print("antes de ejecutar: cuando??")
-        
             validacion_existe_modelo = modelo_in_sample.existencia_modelo(
                 modelo_in_sample.pisar_el_modelo_actual.get(),
                 base_datos="Modeling_App.db",
@@ -327,8 +380,6 @@ def server_in_sample(input, output, session, name_suffix):
                 nombre_version=global_session.get_versiones_name()
             )
             
-            print(validacion_existe_modelo)
-            print(modelo_in_sample.pisar_el_modelo_actual.get())
             if modelo_in_sample.pisar_el_modelo_actual.get() or validacion_existe_modelo:
                 validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
                 
@@ -366,8 +417,9 @@ def server_in_sample(input, output, session, name_suffix):
 
                     mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), data_Set, name_suffix, path_datos_entrada)
 
+                    modelo_in_sample.porcentaje_path = path_datos_salida
                     modelo_in_sample.script_path = f"./Validar_Desa.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida}"
-                    
+                    click.set(click() + 1)
                     ejecutar_in_sample_ascyn(click_count_value, mensaje_value, proceso)
                     modelo_in_sample.pisar_el_modelo_actual.set(False)
                 else:
@@ -472,4 +524,37 @@ def server_in_sample(input, output, session, name_suffix):
         fecha=global_session_modelos.modelo_in_sample_hora.get(),
         estado=global_session_modelos.modelo_in_sample_estado.get()
     )
+    
+    
+    
+    @reactive.calc
+    def leer_archivo():
+        """Lee el archivo de progreso y actualiza la UI."""
+        if click.get() < 1:
+            return "Esperando inicio..."
+
+        path_datos_salida = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
+        name_file = "progreso.txt"
+
+        # Obtener el último porcentaje del archivo
+        ultimo_porcentaje = monitorizar_archivo(path_datos_salida, nombre_archivo=name_file)
+
+        if ultimo_porcentaje == "100%":  # Si ya llegó al 100%, detener actualización
+            print("Proceso completado. No se seguirá actualizando.")
+            return "100%"
+
+        # Actualizar variable reactiva
+        modelo_in_sample.file_reactivo.set((ultimo_porcentaje))
+        print(f"Último porcentaje capturado: {modelo_in_sample.file_reactivo.get()}")
+
+        # Reactivar cada 3 segundos si aún no ha llegado al 100%
+        reactive.invalidate_later(3)
+
+        return ultimo_porcentaje
+
+    # Mostrar el contenido del archivo en la UI
+    @render.ui
+    def value_in_sample():
+        """Muestra el contenido actualizado del archivo en la UI."""
+        return f"Última línea: {leer_archivo()}"
     

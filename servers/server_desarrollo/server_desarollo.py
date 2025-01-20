@@ -197,6 +197,7 @@ def server_desarollo(input, output, session, name_suffix):
                     path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
                     path_datos_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
                     
+                    global_desarollo.porcentaje_path = path_datos_salida
                     ##necesito tener el nombre del dataset seleccionado asi le cambio el nombre y lo
                     data_Set  = get_datasets_directory(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
         
@@ -205,7 +206,6 @@ def server_desarollo(input, output, session, name_suffix):
                     global_desarollo.script_path = f'./Modelar.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida}'
                     click.set(click() + 1)
                     ejectutar_desarrollo_asnyc(click_count_value, mensaje_value, proceso, porcentaje)
-                    print(f'porcnetaje {porcentaje}')
                     global_desarollo.pisar_el_modelo_actual.set(False)
                     
                 
@@ -215,14 +215,14 @@ def server_desarollo(input, output, session, name_suffix):
         def insert_data_depends_value():  
             base_datos = "Modeling_App.db"
             if global_desarollo.proceso_ok.get():
-                agregar_datos_model_execution(global_session.get_id_version(), global_desarollo.nombre, base_datos , "Exito", dataset_id=global_session.get_id_dataSet())
+                agregar_datos_model_execution(global_session.get_id_version(), global_desarollo.nombre, global_names_reactivos.get_name_file_db(), "Exito", dataset_id=global_session.get_id_dataSet())
                 estado_desarrollo , hora_desarrollo = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="desarollo")
                 global_session_modelos.modelo_desarrollo_estado.set(estado_desarrollo)
                 global_session_modelos.modelo_desarrollo_hora.set(hora_desarrollo)
                 global_desarollo.proceso_ok.set(False)
                 
             if global_desarollo.proceso_fallo.get():
-                agregar_datos_model_execution(global_session.get_id_version(), global_desarollo.nombre, base_datos , "Error", mensaje_error=global_desarollo.mensaje.get(), dataset_id=global_session.get_id_dataSet())
+                agregar_datos_model_execution(global_session.get_id_version(), global_desarollo.nombre, global_names_reactivos.get_name_file_db(), "Error", mensaje_error=global_desarollo.mensaje.get(), dataset_id=global_session.get_id_dataSet())
                 estado_desarrollo , hora_desarrollo = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="desarollo")
                 global_session_modelos.modelo_desarrollo_estado.set(estado_desarrollo)
                 global_session_modelos.modelo_desarrollo_hora.set(hora_desarrollo)
@@ -262,28 +262,28 @@ def server_desarollo(input, output, session, name_suffix):
         
     @reactive.calc
     def leer_archivo():
-        """Lee el archivo y actualiza la variable reactiva cada segundo, hasta llegar a 63/63."""
+        """Lee el archivo de progreso y actualiza la UI."""
         if click.get() < 1:
             return "Esperando inicio..."
 
         path = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
-        name_file = "results_clean_transf.log"
+        name_file = "progreso.txt"
 
-        # Obtener la última línea del archivo
-        ultima_linea = monitorizar_archivo(path, nombre_archivo=name_file)
+        # Obtener el último porcentaje del archivo
+        ultimo_porcentaje = monitorizar_archivo(path, nombre_archivo=name_file)
 
-        if ultima_linea == "63":  # Si ya llegó a 63/63, no continuar
+        if ultimo_porcentaje == "100%":  # Si ya llegó al 100%, detener actualización
             print("Proceso completado. No se seguirá actualizando.")
-            return "63"  # Último valor, la UI mostrará 63 y no se ejecutará más
+            return "100%"
 
         # Actualizar variable reactiva
-        file_lines.set(ultima_linea)
-        print(f"Ultima línea capturada: {file_lines.get()}")
+        file_lines.set(ultimo_porcentaje)
+        print(f"Último porcentaje capturado: {file_lines.get()}")
 
-        # Reactivar cada 3 segundos si aún no ha llegado a 63
+        # Reactivar cada 3 segundos si aún no ha llegado al 100%
         reactive.invalidate_later(3)
 
-        return ultima_linea
+        return ultimo_porcentaje
 
     # Mostrar el contenido del archivo en la UI
     @render.ui

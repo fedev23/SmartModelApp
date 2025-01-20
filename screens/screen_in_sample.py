@@ -50,7 +50,16 @@ screenInSample = ui.page_fluid(
                                           ui.column(2,
                                                     ui.input_action_link("help_niveles", ui.tags.i(
                                                         class_="fa fa-question-circle-o", style="font-size:24px")),
-                                                    )
+                                                    ),
+                                          ui.column(
+                                              6,
+                                               ui.input_action_link("add_files_niveles_riesgo", "Agregar una fila de niveles"),
+                                               ui.output_ui("input_text_retorno"),
+                                               ui.output_ui("insert_value"),
+                                               ui.output_ui("insert_value_numeric"),
+                                               
+                                          )
+                                          
                                       ),
                                   ),
                                   ui.output_data_frame("par_rango_niveles"),

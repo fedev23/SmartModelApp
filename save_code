@@ -1,0 +1,17 @@
+# @output
+# @render.data_frame
+# def par_rango_niveles():
+#     # Obtén el diccionario con los DataFrames
+#     if global_session_V2.get_json_params_desarrollo() is not None:
+#         df_dict = update_dataframe_from_json(global_session_V2.get_json_params_desarrollo())
+        
+#         # Asegúrate de que 'niveles_riesgo' esté en el diccionario y sea un DataFrame válido
+#         if "par_rango_niveles" in df_dict and isinstance(df_dict["par_rango_niveles"], pd.DataFrame):
+#             df_niveles_riesgo = df_dict["par_rango_niveles"]
+#             return render.DataGrid(df_niveles_riesgo, editable=True, width='500px')
+#             # print(df_niveles_riesgo, "que tiene este df?")
+#         else:
+#             print("Error: 'niveles_riesgo' no es un DataFrame válido o está ausente.")
+#             return render.DataGrid(ejemplo_niveles_riesgo, editable=True, width='500px')
+#     else:
+#         return render.DataGrid(ejemplo_niveles_riesgo, editable=True, width='500px')

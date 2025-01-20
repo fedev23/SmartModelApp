@@ -283,21 +283,27 @@ def check_execution_status(db_path, version_id=None, json_id=None):
 
 
 def monitorizar_archivo(path, nombre_archivo):
-        """Monitorea un archivo y devuelve el último número encontrado."""
+        """Lee el último porcentaje de progreso de un archivo y lo retorna."""
         archivo_path = os.path.join(path, nombre_archivo)
 
+        # Verificar si el archivo existe
         if not os.path.exists(archivo_path):
             print(f"El archivo {archivo_path} no existe aún.")
-            return "Archivo aún no disponible"
+            return "0%"  # Devolver 0% si el archivo aún no existe
 
-        with open(archivo_path, "r") as f:
-            lineas = f.readlines()
+        try:
+            with open(archivo_path, "r") as f:
+                lineas = f.readlines()
 
-        # Filtrar solo las líneas que contienen números en formato "X/63"
-        numeros = [re.search(r'(\d+)/\d+', linea) for linea in lineas]
-        numeros = [match.group(1) for match in numeros if match]  # Extraer los números
+            # Buscar el último porcentaje en formato "X%"
+            progresos = [re.search(r'(\d+)%', linea) for linea in lineas]
+            progresos = [int(match.group(1)) for match in progresos if match]  # Convertir a enteros
 
-        if numeros:
-            return numeros[-1]  # Devuelve el último número capturado
-        else:
-            return "No se encontraron números"
+            if progresos:
+                return f"{progresos[-1]}%"  # Último porcentaje detectado
+            else:
+                return "0%"  # Si no encuentra progreso, devolver 0%
+        
+        except Exception as e:
+            print(f"Error leyendo el archivo de progreso: {str(e)}")
+            return "0%"  # En caso de error, devolver 0%

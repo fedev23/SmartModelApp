@@ -25,6 +25,7 @@ def server_produccion(input, output, session, name_suffix):
     global_names_reactivos.name_produccion_set(name_suffix)
     mensaje = reactive.Value("")
     directorio = reactive.Value("")
+    click = reactive.Value(0)
     
    
     
@@ -118,6 +119,8 @@ def server_produccion(input, output, session, name_suffix):
                 
                 path_datos_salida_path  = get_folder_directory_data_validacion_scoring(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
 
+                modelo_produccion.porcentaje_path = path_datos_salida_path
+                click.set(click() + 1)
                 modelo_produccion.script_path = f'./Scoring.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida_path}'
                 
                 ejectutar_produccion(click_count_value, mensaje_value, proceso)
@@ -133,7 +136,7 @@ def server_produccion(input, output, session, name_suffix):
         def insert_data_depends_value():
             base_datos = "Modeling_App.db"
             if modelo_produccion.proceso_ok.get():
-                agregar_datos_model_execution(global_session.get_id_version(), modelo_produccion.nombre, base_datos , "Exito")
+                agregar_datos_model_execution(global_session.get_id_version(), modelo_produccion.nombre, global_session_V2.get_nombre_dataset_validacion_sc(),"Exito")
                 estado_out_sample , hora_of_sample = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="of_sample")
                 global_session_modelos.modelo_produccion_estado.set(estado_out_sample)
                 global_session_modelos.modelo_produccion_hora.set(hora_of_sample)
@@ -141,7 +144,7 @@ def server_produccion(input, output, session, name_suffix):
             
                 
             if modelo_produccion.proceso_fallo.get():
-                agregar_datos_model_execution(global_session.get_id_version(), modelo_produccion.nombre, "Modeling_App.db", "Error")
+                agregar_datos_model_execution(global_session.get_id_version(), modelo_produccion.nombre, global_session_V2.get_nombre_dataset_validacion_sc(), "Error")
                 estado_out_sample , hora_of_sample = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="of_sample")
                 global_session_modelos.modelo_produccion_estado.set(estado_out_sample)
                 global_session_modelos.modelo_produccion_hora.set(hora_of_sample)
@@ -155,3 +158,35 @@ def server_produccion(input, output, session, name_suffix):
     @reactive.event(input.cancel_overwrite_produccion)
     def modal_():
          return  ui.modal_remove()
+     
+    
+    
+    @reactive.calc
+    def leer_archivo():
+        """Lee el archivo de progreso y actualiza la UI."""
+        if click.get() < 1:
+            return "Esperando inicio..."
+
+        path_datos_salida  = get_folder_directory_data_validacion_scoring(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
+        name_file = "progreso.txt"
+
+        # Obtener el último porcentaje del archivo
+        ultimo_porcentaje = monitorizar_archivo(path_datos_salida, nombre_archivo=name_file)
+
+        if ultimo_porcentaje == "100%":  # Si ya llegó al 100%, detener actualización
+            print("Proceso completado. No se seguirá actualizando.")
+            return "100%"
+
+        # Actualizar variable reactiva
+        modelo_produccion.file_reactivo.set((ultimo_porcentaje))
+        # Reactivar cada 3 segundos si aún no ha llegado al 100%
+        reactive.invalidate_later(3)
+
+        return ultimo_porcentaje
+
+    # Mostrar el contenido del archivo en la UI
+    @render.ui
+    def value_produccion():
+        """Muestra el contenido actualizado del archivo en la UI."""
+        return f"Última línea: {leer_archivo()}"
+    
