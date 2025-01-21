@@ -1,5 +1,5 @@
 from shiny import reactive, render, ui
-from funciones.utils_2 import render_data_summary, eliminar_archivo, leer_dataset_sc, get_datasets_directory
+from funciones.utils_2 import render_data_summary, eliminar_archivo, leer_dataset, get_datasets_directory
 from clases.global_modelo import modelo_of_sample
 from clases.global_session import global_session
 from api.db import *
@@ -30,7 +30,8 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
     validadacion_retornar_card = reactive.Value("")
     lista = reactive.Value("")
     reactivo_dinamico =  reactive.Value("")
-    es_none = reactive.Value(False)
+    modelo_existe = reactive.Value(False)
+    
     
     
     @reactive.Effect
@@ -71,7 +72,8 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
         modelo_existente = validar_existencia_modelo_por_dinamica_de_app(
                 modelo_boolean_value=global_desarollo.pisar_el_modelo_actual.get(),
                 base_datos=base_datos,
-                nombre_modelo=modelo_of_sample.nombre
+                nombre_modelo=modelo_of_sample.nombre,
+                id_validacion_score=global_session_V2.get_id_Data_validacion_sc()
             )
         
         
@@ -81,6 +83,7 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
         if modelo_existente:
             nombre_modelo_usado = obtener_nombre_dataset(global_session.get_version_parametros_id())
             print(f"estoy en si modelo _existe {nombre_modelo_usado}")
+            modelo_existe.set(True)
             global_session_V2.set_nombre_dataset_validacion_sc(nombre_modelo_usado)
             
          
@@ -95,9 +98,17 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
                     help_api.procesar_starlette_api_validacion_scoring(global_session.get_id_user(), global_session.get_name_proyecto(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_versiones_name(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
 
         
-        data = leer_dataset_sc(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session_V2.get_nombre_dataset_validacion_sc())
+        #data = leer_dataset_sc(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session_V2.get_nombre_dataset_validacion_sc())
         #ui.update_select("files_select_validation_scoring",choices=global_session_V2.get_opciones_name_dataset_Validation_sc(), selected=dataSet_predeterminado_parms.get())
-        
+        print("cuando cambio no llego aca verdad??")
+        data = leer_dataset(
+            global_session.get_id_user(),
+            global_session.get_id_proyecto(),
+            global_session.get_name_proyecto(),
+            global_session_V2.get_nombre_dataset_validacion_sc(),
+            global_session.get_versiones_name(),
+            global_session.get_id_version()
+        )
         global_session_V2.set_data_set_reactivo_validacion_sc(data)
         
         ##actualizo el selector de columna target
@@ -120,21 +131,24 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
         return button_remove(lista_2_borrar, global_session_V2.get_id_Data_validacion_sc(), "id_validacion_sc", name_suffix)
     
     
+    delete_button_effects = {}
     @reactive.Effect
     def boton_para_eliminar_name_data_set_validacion_sc():
         eliminar_version_id = f"eliminar_version_{global_session_V2.get_id_Data_validacion_sc()}_{name_suffix}"
-
-        @reactive.Effect
-        @reactive.event(input[eliminar_version_id])
-        def eliminar_version_id():
-            base_datos = 'Modeling_App.db'
-            tabla = 'validation_scoring'
-            columna_objetivo = 'nombre_archivo_validation_sc'
-            columna_filtro = 'id_validacion_sc'
-            nombre_version = obtener_valor_por_id(base_datos, tabla, columna_objetivo, columna_filtro, global_session_V2.get_id_Data_validacion_sc())
-            #nombre_version = obtener_valor_por_id(global_session.get_id_dataSet())
-            create_modal_v2(f"Seguro que quieres eliminar el Dataset {nombre_version}?", "Confirmar", "Cancelar", "confirmar_id_borrar_dataset_validacion_Sc", "cancelar_id_dataSet_validacion_Sc")
-    
+        if eliminar_version_id not in delete_button_effects:
+            @reactive.Effect
+            @reactive.event(input[eliminar_version_id])
+            def elimanar_validacion_score():
+                base_datos = 'Modeling_App.db'
+                tabla = 'validation_scoring'
+                columna_objetivo = 'nombre_archivo_validation_sc'
+                columna_filtro = 'id_validacion_sc'
+                nombre_version = obtener_valor_por_id(base_datos, tabla, columna_objetivo, columna_filtro, global_session_V2.get_id_Data_validacion_sc())
+                #nombre_version = obtener_valor_por_id(global_session.get_id_dataSet())
+                create_modal_v2(f"Seguro que quieres eliminar el Dataset {nombre_version}?", "Confirmar", "Cancelar", "confirmar_id_borrar_dataset_validacion_Sc", "cancelar_id_dataSet_validacion_Sc")
+            
+            delete_button_effects[eliminar_version_id] = eliminar_version_id
+        
     @reactive.Effect
     @reactive.event(input["cancelar_id_dataSet_validacion_Sc"])
     def remove_modal_Dataset():
@@ -144,13 +158,17 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
     @reactive.Effect
     @reactive.event(input.confirmar_id_borrar_dataset_validacion_Sc)
     def remove_versiones_de_parametros():
+        print("estoy pasando?")
         eliminar_version("validation_scoring", "id_validacion_sc", global_session_V2.get_id_Data_validacion_sc())
         directorio = get_datasets_directory(
         global_session.get_id_user(), 
         global_session.get_id_proyecto(), 
         global_session.get_name_proyecto()
         )
+        
+        print(f"directprio: {directorio}")
         dataset_path = os.path.join(directorio, global_session_V2.get_nombre_dataset_validacion_sc())
+        print(f"eliminar: {dataset_path}")
         eliminar_archivo(dataset_path)
         lista_de_versiones_new = get_records(
             table='validation_scoring',
@@ -193,9 +211,14 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
     @render.ui
     def card_out_to_sample():
         if validadacion_retornar_card.get()== "1":
-            print(global_session.id_version_v2.get(), "id version antes de procesar con V2")
+            if modelo_existe.get():
+                print("estoy pasando?")
+                nombre_modelo_usado = obtener_nombre_dataset(global_session.get_version_parametros_id())
+                print(f"estoy en si modelo _existe  == 1{nombre_modelo_usado}")
+                modelo_existe.set(True)
+                global_session_V2.set_nombre_dataset_validacion_sc(nombre_modelo_usado)
+            
             estado_out_sample , hora_of_sample = procesar_etapa_validacion_scroing("Modeling_App.db", id_validacion_sc=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_of_sample.nombre)
-            print(f'estado od sample {estado_out_sample}, hora {hora_of_sample}')
             global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
             global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
             
@@ -220,7 +243,7 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
         @reactive.Effect
         def handle_radio_change():
             if validadacion_retornar_card.get() == "1":
-                # Evita bucles reactivos: verifica si el dataset ya está configurado
+                    # Evita bucles reactivos: verifica si el dataset ya está configurado
                 data = global_session_V2.get_data_reactivo_validacion_sc()
                 if data is not None and not data.empty:
                     # Actualiza la lista de registros solo si es necesario
@@ -264,6 +287,12 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
     def card_produccion1():
         if  reactivo_dinamico.get() == "2":
             data = global_session_V2.get_data_reactivo_validacion_sc()
+            print(modelo_existe.get())
+            if modelo_existe.get():
+                    nombre_modelo_usado = obtener_nombre_dataset(global_session.get_version_parametros_id())
+                    print(f"estoy en si modelo _existe  == 2 {nombre_modelo_usado}")
+                    modelo_existe.set(True)
+                    global_session_V2.set_nombre_dataset_validacion_sc(nombre_modelo_usado)
             estado_produccion , hora_produccion = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_validacion_sc=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_produccion.nombre)
             global_session_modelos.modelo_produccion_estado.set(estado_produccion)
             global_session_modelos.modelo_produccion_hora.set(hora_produccion)

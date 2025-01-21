@@ -119,7 +119,6 @@ def server_produccion(input, output, session, name_suffix):
                 
                 path_datos_salida_path  = get_folder_directory_data_validacion_scoring_SALIDA(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
                 
-                print("PATH??", path_datos_salida_path)
                 modelo_produccion.porcentaje_path = path_datos_salida_path
                 click.set(click() + 1)
                 
@@ -167,6 +166,9 @@ def server_produccion(input, output, session, name_suffix):
     @reactive.calc
     def leer_archivo():
         """Lee el archivo de progreso y actualiza la UI."""
+        if modelo_produccion.proceso_fallo.get():
+            return
+          
         if click.get() < 1:
             return "Esperando inicio..."
 
@@ -183,7 +185,7 @@ def server_produccion(input, output, session, name_suffix):
         # Actualizar variable reactiva
         modelo_produccion.file_reactivo.set((ultimo_porcentaje))
         # Reactivar cada 3 segundos si aún no ha llegado al 100%
-        reactive.invalidate_later(0.5)
+        reactive.invalidate_later(2)
 
         return ultimo_porcentaje
 
