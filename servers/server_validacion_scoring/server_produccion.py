@@ -4,7 +4,7 @@ from clases.global_sessionV2 import global_session_V2
 from clases.global_modelo import modelo_produccion
 from clases.class_screens import ScreenClass
 from funciones_modelo.warning_model import *
-from funciones.utils_2 import errores
+from funciones.utils_2 import errores, get_folder_directory_data_validacion_scoring_SALIDA
 from clases.global_session import global_session
 from funciones.utils_2 import get_user_directory, get_datasets_directory,get_folder_directory_data_validacion_scoring
 from logica_users.utils.help_versios import copiar_json_si_existe
@@ -89,9 +89,9 @@ def server_produccion(input, output, session, name_suffix):
         valid = validar_existencia_modelo(
             modelo_produccion.pisar_el_modelo_actual.get(),
             base_datos="Modeling_App.db",
-            version_id=global_session.get_id_version(),
-            nombre_modelo=modelo_produccion.nombre,
-            nombre_version=global_session.get_versiones_name()
+            dataset_id=global_session_V2.get_id_Data_validacion_sc(),
+            nombre_modelo=modelo_produccion.nombre,  
+            nombre_version=global_session.get_versiones_parametros_nombre()
         )
         if modelo_produccion.pisar_el_modelo_actual.get() or valid:
             try:
@@ -117,10 +117,13 @@ def server_produccion(input, output, session, name_suffix):
                 
                 #mover_y_renombrar_archivo(global_session_V2.get_nombre_dataset_validacion_sc(), global_session.get_path_guardar_dataSet_en_proyectos(), name_suffix, path_entrada)
                 
-                path_datos_salida_path  = get_folder_directory_data_validacion_scoring(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
-
+                path_datos_salida_path  = get_folder_directory_data_validacion_scoring_SALIDA(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
+                
+                print("PATH??", path_datos_salida_path)
                 modelo_produccion.porcentaje_path = path_datos_salida_path
                 click.set(click() + 1)
+                
+                print(f"path_datos_salida_path: {path_datos_salida_path}")
                 modelo_produccion.script_path = f'./Scoring.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida_path}'
                 
                 ejectutar_produccion(click_count_value, mensaje_value, proceso)
@@ -136,18 +139,18 @@ def server_produccion(input, output, session, name_suffix):
         def insert_data_depends_value():
             base_datos = "Modeling_App.db"
             if modelo_produccion.proceso_ok.get():
-                agregar_datos_model_execution(global_session.get_id_version(), modelo_produccion.nombre, global_session_V2.get_nombre_dataset_validacion_sc(),"Exito")
-                estado_out_sample , hora_of_sample = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="of_sample")
-                global_session_modelos.modelo_produccion_estado.set(estado_out_sample)
-                global_session_modelos.modelo_produccion_hora.set(hora_of_sample)
+                agregar_datos_model_execution_por_id_validacion_scoring(global_session_V2.get_id_Data_validacion_sc(), modelo_produccion.nombre, nombre_dataset=global_session_V2.get_nombre_dataset_validacion_sc(),  estado="Éxito")
+                estado_produccion , hora_produccion = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_validacion_sc=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_produccion.nombre)
+                global_session_modelos.modelo_produccion_estado.set(estado_produccion)
+                global_session_modelos.modelo_produccion_hora.set(hora_produccion)
                 modelo_produccion.proceso_ok.set(False)
             
                 
             if modelo_produccion.proceso_fallo.get():
-                agregar_datos_model_execution(global_session.get_id_version(), modelo_produccion.nombre, global_session_V2.get_nombre_dataset_validacion_sc(), "Error")
-                estado_out_sample , hora_of_sample = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="of_sample")
-                global_session_modelos.modelo_produccion_estado.set(estado_out_sample)
-                global_session_modelos.modelo_produccion_hora.set(hora_of_sample)
+                agregar_datos_model_execution_por_id_validacion_scoring(global_session_V2.get_id_Data_validacion_sc(), modelo_produccion.nombre, nombre_dataset=global_session_V2.get_nombre_dataset_validacion_sc(),  estado="Error")
+                estado_produccion , hora_produccion = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_validacion_sc=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_produccion.nombre)
+                global_session_modelos.modelo_produccion_estado.set(estado_produccion)
+                global_session_modelos.modelo_produccion_hora.set(hora_produccion)
                 modelo_produccion.proceso_fallo.set(False),
                 
     agregar_reactivo()      
@@ -180,7 +183,7 @@ def server_produccion(input, output, session, name_suffix):
         # Actualizar variable reactiva
         modelo_produccion.file_reactivo.set((ultimo_porcentaje))
         # Reactivar cada 3 segundos si aún no ha llegado al 100%
-        reactive.invalidate_later(3)
+        reactive.invalidate_later(0.5)
 
         return ultimo_porcentaje
 

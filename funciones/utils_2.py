@@ -429,9 +429,8 @@ def get_folder_directory_data_validacion_scoring(user_id, proyecto_id, name_proy
     version_niveles_y_scord = os.path.join(version_folder, f"version_parametros_{id_niveles_y_scord}_{nombre_niveles_scord}")
     # Construir la ruta de la carpeta 'datasets' dentro del proyecto
     datasets_folder = os.path.join(version_niveles_y_scord, nombre_data)
-    
-    
-    print(f'dataser: {datasets_folder}')
+        
+    print(f'PATH DE SC: {datasets_folder}')
     
     # Verificar si la carpeta 'datasets' existe antes de devolverla
     if os.path.exists(datasets_folder):
@@ -439,6 +438,35 @@ def get_folder_directory_data_validacion_scoring(user_id, proyecto_id, name_proy
     else:
         print(f"La carpeta {datasets_folder} no existe.")
         return None
+
+
+
+def get_folder_directory_data_validacion_scoring_SALIDA(user_id, proyecto_id, name_proyect, version_name, version_id, id_niveles_y_scord, nombre_niveles_scord, nombre_data):
+    # Limpiar el user_id reemplazando cualquier '|' por '_'
+    user_id_cleaned = user_id
+    base_directory = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat'
+    
+    # Construir la ruta de la carpeta de entrada del usuario
+    entrada_folder = os.path.join(base_directory, f'datos_salida_{user_id_cleaned}')
+    
+    # Construir la ruta de la carpeta del proyecto dentro de la carpeta de entrada
+    proyecto_folder = os.path.join(entrada_folder, f"proyecto_{proyecto_id}_{name_proyect}")
+    
+    version_folder = os.path.join(proyecto_folder, f"version_{version_id}_{version_name}")
+    
+    version_niveles_y_scord = os.path.join(version_folder, f"version_parametros_{id_niveles_y_scord}_{nombre_niveles_scord}")
+    # Construir la ruta de la carpeta 'datasets' dentro del proyecto
+    datasets_folder = os.path.join(version_niveles_y_scord, nombre_data)
+    
+    print(f'PATH DE SC: {datasets_folder}')
+    
+    # Verificar si la carpeta 'datasets' existe antes de devolverla
+    if os.path.exists(datasets_folder):
+        return datasets_folder
+    else:
+        print(f"La carpeta {datasets_folder} no existe.")
+        return None
+
 
 
 def eliminar_archivo(nombre_archivo):

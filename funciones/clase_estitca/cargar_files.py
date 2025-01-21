@@ -117,8 +117,6 @@ class FilesLoad:
                 global_session.get_name_proyecto()
             )
             
-            print(global_session.get_id_version())
-            print(global_session.get_version_parametros_id())
             validar_ids = check_if_exist_id_version_id_niveles_scord(global_session.get_id_version(), global_session.get_version_parametros_id())
             print(validar_ids, "que valor hay acA?")
             if validar_ids:

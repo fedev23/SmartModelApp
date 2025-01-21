@@ -65,6 +65,33 @@ def procesar_etapa(base_datos, id_version, etapa_nombre):
 
 
 
+
+def procesar_etapa_validacion_scroing(base_datos, id_validacion_sc, etapa_nombre):
+    """
+    Procesa una etapa específica, obteniendo estado y fecha para el modelo.
+
+    :param base_datos: Ruta a la base de datos.
+    :param id_version: ID de la versión actual.
+    :param etapa_nombre: Nombre de la etapa a procesar.
+    :return: Tupla con (estado_model, fecha_model).
+    """
+    # Obtener el último modelo
+    ult_model = obtener_ultimo_modelo_por_validacion_sc_y_nombre(base_datos, id_validacion_sc, etapa_nombre)
+
+    print(f"ult_model {ult_model}")
+    # Obtener el estado del modelo para la etapa
+    estado_model = obtener_estado_por_modelo(ult_model, etapa_nombre)
+   
+    print(f"estado_model {estado_model}")
+    # Obtener la fecha del modelo para la etapa
+    fecha_model = obtener_fecha_por_modelo(ult_model, etapa_nombre)
+    
+    print(f"fecha_model {fecha_model}")
+
+    # Retornar el estado y la fecha como una tupla
+    return estado_model, fecha_model
+
+
 from datetime import datetime
 
 def agregar_datos_model_execution(version_id, name, nombre_dataset, estado, json_version_id=None, mensaje_error=None, dataset_id=None):
@@ -131,7 +158,7 @@ def agregar_datos_model_execution_por_json_version(json_version_id, name, nombre
     columns = ['json_version_id', 'execution_date', 'model_name', 'dataset_name', 'execution_state']
     values = [json_version_id, current_timestamp, nombre_modelo, dataset_name, execution_state]
 
-    # Llamar a la función de inserción
+    
     add = insert_into_table(table_name, columns, values)
 
     # Retornar el ID del registro insertado
@@ -203,82 +230,79 @@ def procesar_etapa_in_sample(base_datos, json_version_id, etapa_nombre):
 
 
 
-def agregar_datos_model_execution_in_sample(base_datos, version_id, json_version_id, name, nombre_dataset, estado):
+def agregar_datos_model_execution_por_id_validacion_scoring(id_validacion_scoring, name, nombre_dataset, estado):
     """
-    Inserta un registro en la tabla model_execution para in_sample.
+    Inserta un registro en la tabla model_execution basado únicamente en json_version_id.
 
-    :param base_datos: Ruta a la base de datos.
-    :param version_id: ID de la versión principal en la tabla version.
-    :param json_version_id: ID de la versión JSON en la tabla json_versions.
+    :param json_version_id: ID del JSON de la versión.
     :param name: Nombre del modelo.
     :param nombre_dataset: Nombre del dataset.
     :param estado: Estado de la ejecución (por ejemplo, 'Exito', 'Error', etc.).
-    :return: ID del último registro insertado (add).
+    :return: ID del último registro insertado.
     """
-    from datetime import datetime
-
+    # Valores requeridos para la inserción
+    nombre_modelo = name
+    dataset_name = nombre_dataset
     current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    execution_state = estado
 
-    conn = sqlite3.connect(base_datos)
-    cur = conn.cursor()
+    # Definir la tabla y las columnas
+    table_name = "model_execution"
+    columns = ['id_validacion_sc', 'execution_date', 'model_name', 'dataset_name', 'execution_state']
+    values = [id_validacion_scoring, current_timestamp, nombre_modelo, dataset_name, execution_state]
 
-    try:
-        # Insertar el nuevo registro
-        cur.execute('''
-        INSERT INTO model_execution (
-            version_id, json_version_id, execution_date, model_name, dataset_name, execution_state
-        )
-        VALUES (?, ?, ?, ?, ?, ?);
-        ''', (version_id, json_version_id, current_timestamp, name, nombre_dataset, estado))
+    
+    add = insert_into_table(table_name, columns, values)
+    
+    print("REGISTRO INSERT")
 
-        conn.commit()
-        add = cur.lastrowid
-        #print(f"Registro agregado exitosamente con ID: {add}")
-        return add
-
-    except sqlite3.Error as e:
-        print(f"Error al insertar datos en in_sample: {e}")
-        return None
-
-    finally:
-        if conn:
-            conn.close()
+    # Retornar el ID del registro insertado
+    return add
 
 
-def check_execution_status(db_path, version_id=None, json_id=None):
-    print(f"Valores recibidos - version_id={version_id}, json_id={json_id}")
-    try:
+
+
+def check_execution_status(db_path, version_id=None, json_id=None, dataset_id=None):
+        """
+        Verifica el estado de ejecución de un modelo en la base de datos SQLite.
+
+        :param base_datos: Ruta al archivo de la base de datos.
+        :param version_id: (Opcional) ID de la versión del modelo.
+        :param json_id: (Opcional) ID del JSON de la versión.
+        :param dataset_id: (Opcional) ID del dataset.
+        :return: Estado de ejecución del modelo si existe, None si no se encuentra.
+        """
         conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
+        cur = conn.cursor()
 
-        if version_id:
-            print(f"Consultando por version_id={version_id}")
-            cursor.execute("""
-            SELECT execution_state 
-            FROM model_execution 
-            WHERE version_id = ?;
-            """, (version_id,))
-        elif json_id:
-            print(f"Consultando por json_id={json_id}")
-            cursor.execute("""
-            SELECT execution_state 
-            FROM model_execution 
-            WHERE json_version_id = ?;
-            """, (json_id,))
-        else:
-            print("Error: No se proporcionaron version_id ni json_id.")
+        try:
+            # Construcción dinámica de la consulta según los parámetros proporcionados
+            query = "SELECT execution_state FROM model_execution WHERE 1=1"
+            params = []
+
+            if version_id is not None:
+                query += " AND version_id = ?"
+                params.append(version_id)
+
+            if json_id is not None:
+                query += " AND json_version_id = ?"
+                params.append(json_id)
+
+            if dataset_id is not None:
+                query += " AND dataset_id = ?"
+                params.append(dataset_id)
+
+            # Ejecutar la consulta
+            cur.execute(query, params)
+            result = cur.fetchone()
+            
+            return result[0] if result else None
+
+        except sqlite3.Error as e:
+            print(f"Error al consultar la base de datos: {e}")
             return None
-
-        result = cursor.fetchone()
-        print(f"Resultado de la consulta: {result}")
-        return result[0] if result else None
-    except sqlite3.Error as e:
-        print(f"Error al consultar la base de datos: {e}")
-        return None
-    finally:
-        conn.close()
-
-
+        finally:
+            conn.close()
 
 
 
@@ -288,7 +312,6 @@ def monitorizar_archivo(path, nombre_archivo):
 
         # Verificar si el archivo existe
         if not os.path.exists(archivo_path):
-            print(f"El archivo {archivo_path} no existe aún.")
             return "0%"  # Devolver 0% si el archivo aún no existe
 
         try:

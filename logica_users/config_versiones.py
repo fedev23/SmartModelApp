@@ -27,6 +27,7 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
     valor_predeterminado_parms =  reactive.Value()
     versiones_por_proyecto = reactive.Value(None)
     init_session = reactive.Value(True)
+
     
     
     
@@ -71,6 +72,7 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
             for file in files_name
         } if files_name else {"": "No hay archivos"})
         
+        ##VALIDA LA EXISTENCIA DEL MODELO, SI ESE MODELO TIENE UNA VERSION CON UN NOMBRE DEL DATASET ASOCIADO CARGA ESE
         modelo_existente = validar_existencia_modelo_por_dinamica_de_app(
                 modelo_boolean_value=global_desarollo.pisar_el_modelo_actual.get(),
                 base_datos=base_datos,
@@ -79,7 +81,19 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
         if  modelo_existente:
             print("pase a tiene modelo?")
             nombre_dataSet_con_modelo = obtener_nombre_dataset(global_session.get_id_version())
+            print(f"nombre_dataSet_con_modelo {nombre_dataSet_con_modelo}")
+            global_session_V2.set_dataSet_seleccionado(nombre_dataSet_con_modelo)
+            selected_key = mapear_valor_a_clave(global_session_V2.get_dataSet_seleccionado(), global_session_V2.lista_nombre_archivos_por_version.get())
+            ui.update_select("files_select", choices=global_session_V2.lista_nombre_archivos_por_version.get(),  selected=selected_key if selected_key else next(iter(global_session_V2.lista_nombre_archivos_por_version.get()), ""))
+        else:
+            print("pase a no tiene modelo")
+            ultimo_archivo = obtener_ultimo_seleccionado(base_datos, 'name_files', 'nombre_archivo')
+            print(f"ultimo_archivo {ultimo_archivo}")
+            global_session_V2.set_dataSet_seleccionado(ultimo_archivo)
+            selected_key = mapear_valor_a_clave(global_session_V2.get_dataSet_seleccionado(), global_session_V2.lista_nombre_archivos_por_version.get())
+            ui.update_select("files_select", choices=global_session_V2.lista_nombre_archivos_por_version.get(),  selected=selected_key if selected_key else next(iter(global_session_V2.lista_nombre_archivos_por_version.get()), ""))
             
+           
 
         ult_model = obtener_ultimo_modelo_por_version_y_nombre(base_datos, global_session.get_id_version(), "desarollo")
       
@@ -112,9 +126,6 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
         opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version")) 
         valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
         
-        selected_key = mapear_valor_a_clave(global_session_V2.get_dataSet_seleccionado(), global_session_V2.lista_nombre_archivos_por_version.get())
-        
-        ui.update_select("files_select", choices=global_session_V2.lista_nombre_archivos_por_version.get(),  selected=selected_key if selected_key else next(iter(global_session_V2.lista_nombre_archivos_por_version.get()), ""))
         ui.update_select("version_selector",choices=opciones_param.get(), selected=valor_predeterminado_parms.get())
     
 

@@ -418,9 +418,12 @@ def server_in_sample(input, output, session, name_suffix):
                     mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), data_Set, name_suffix, path_datos_entrada)
 
                     modelo_in_sample.porcentaje_path = path_datos_salida
+                    print("llgue hasta aca??")
                     modelo_in_sample.script_path = f"./Validar_Desa.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida}"
                     click.set(click() + 1)
+                    print("llgue hasta aca?????")
                     ejecutar_in_sample_ascyn(click_count_value, mensaje_value, proceso)
+                    print("llgue hasta aca?????")
                     modelo_in_sample.pisar_el_modelo_actual.set(False)
                 else:
                     mensaje_de_error.set("\n".join(validator.get_errors()))
@@ -438,6 +441,7 @@ def server_in_sample(input, output, session, name_suffix):
         def insert_data_depends_value():  
             if modelo_in_sample.proceso_ok.get():
                 print("ENTRO A PROCESO OK?")
+                print(f"antes de insert veo el valor de get name file db {global_names_reactivos.get_name_file_db()}")
                 registro_id = agregar_datos_model_execution_por_json_version(
                     json_version_id=global_session.get_version_parametros_id(),
                     name=modelo_in_sample.nombre,
@@ -545,7 +549,6 @@ def server_in_sample(input, output, session, name_suffix):
 
         # Actualizar variable reactiva
         modelo_in_sample.file_reactivo.set((ultimo_porcentaje))
-        print(f"Último porcentaje capturado: {modelo_in_sample.file_reactivo.get()}")
 
         # Reactivar cada 3 segundos si aún no ha llegado al 100%
         reactive.invalidate_later(3)

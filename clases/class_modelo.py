@@ -63,7 +63,8 @@ class ModeloProceso:
             stdout, stderr = [], []
             progress_percentage = 0
             last_match = None  # Almacena el último valor de progreso válido
-
+            
+            print(f"PORCENTAJE PATH? {self.porcentaje_path}")
             self.porcentaje_path = os.path.join(self.porcentaje_path, "progreso.txt")
             # Eliminar el archivo de progreso si existe
             if os.path.exists(self.porcentaje_path):
@@ -132,7 +133,7 @@ class ModeloProceso:
             traceback.print_exc()
             return None, None, 1, error_message, 0
     
-    async def ejecutar_proceso_prueba(self, click_count, mensaje, proceso, porcentaje):
+    async def ejecutar_proceso_prueba(self, click_count, mensaje, proceso):
         try:
             
            

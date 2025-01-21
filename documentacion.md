@@ -57,3 +57,8 @@ https://posit-dev.github.io/brand-yml/articles/llm-brand-yml-prompt/
 solucion para en tiempo real
 
 https://shiny.posit.co/py/docs/reactive-patterns.html#:~:text=To%20repeatedly%20invalidate%20a%20reactive%20function%20on%20a,that%20updates%20every%20second%2C%20you%20can%20use%20reactive.invalidate_later%281%29%3A
+
+
+
+## poll
+https://shiny.posit.co/py/api/core/reactive.poll.html

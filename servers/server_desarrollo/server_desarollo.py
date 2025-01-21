@@ -132,8 +132,8 @@ def server_desarollo(input, output, session, name_suffix):
 
     @ui.bind_task_button(button_id="execute_desarollo")
     @reactive.extended_task
-    async def ejectutar_desarrollo_asnyc(click_count, mensaje, proceso, porcentaje):
-        await global_desarollo.ejecutar_proceso_prueba(click_count, mensaje, proceso, porcentaje)
+    async def ejectutar_desarrollo_asnyc(click_count, mensaje, proceso):
+        await global_desarollo.ejecutar_proceso_prueba(click_count, mensaje, proceso)
         
 
     @reactive.effect

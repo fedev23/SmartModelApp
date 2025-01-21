@@ -93,6 +93,7 @@ def server_out_of_sample(input, output, session, name_suffix):
         click_count_value = modelo_of_sample.click_counter.get()  # Obtener contador
         mensaje_value = modelo_of_sample.mensaje.get()  # Obtener mensaje actual
         proceso = modelo_of_sample.proceso.get()
+        
         validar_ids = check_if_exist_id_version_id_niveles_scord(global_session.get_id_version(), global_session.get_version_parametros_id())
         if validar_ids:
             ui.modal_show(create_modal_generic("boton_advertencia_ejecute_of", f"Es obligatorio generar una versión de {global_name_out_of_Sample} y una versión para continuar."))
@@ -101,17 +102,21 @@ def server_out_of_sample(input, output, session, name_suffix):
         valid = validar_existencia_modelo(
             modelo_of_sample.pisar_el_modelo_actual.get(),
             base_datos="Modeling_App.db",
-            version_id=global_session.get_id_version(),
-            nombre_modelo=modelo_of_sample.nombre,
-            nombre_version=global_session.get_versiones_name()
+            dataset_id=global_session_V2.get_id_Data_validacion_sc(),
+            nombre_modelo=modelo_of_sample.nombre,  
+            nombre_version=global_session.get_versiones_parametros_nombre()
         )
         
+        print(f"{valid} que value tinee?")
+        
         if modelo_of_sample.pisar_el_modelo_actual.get() or valid:
+            print("estoy pasando este if?")
             validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
             try:
                 
-                input_target_of_sample = input['selectize_columnas_target']
-                input_target_of_sample = cambiarAstring(input_target_of_sample)
+                input_target_of_sample = input['selectize_columnas_target']()
+                print(input_target_of_sample)
+                #input_target_of_sample = cambiarAstring(input_target_of_sample)
                 validator.validate_target_column_of_sample(input_target_of_sample)
                 
                 error_messages = validator.get_errors()
@@ -143,8 +148,13 @@ def server_out_of_sample(input, output, session, name_suffix):
                 data_Set = get_datasets_directory(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
                 mover_y_renombrar_archivo(global_session_V2.get_nombre_dataset_validacion_sc(), data_Set, name_suffix, path_datos_entrada)
                 
-                path_datos_salida_path  = get_folder_directory_data_validacion_scoring(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
-
+                path_datos_salida_path  = get_folder_directory_data_validacion_scoring_SALIDA(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
+                
+                if path_datos_salida_path is None:
+                    entrada, salida = crear_carpeta_validacion_scoring(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
+                    path_datos_salida_path = salida
+                    
+                print(f"datos salida? {path_datos_salida_path}")
                 modelo_of_sample.porcentaje_path = path_datos_salida_path
                 
                 modelo_of_sample.script_path = f'./Validar_Nueva.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida_path}'
@@ -162,16 +172,20 @@ def server_out_of_sample(input, output, session, name_suffix):
         def insert_data_depends_value():
             base_datos = "Modeling_App.db"
             if modelo_of_sample.proceso_ok.get():
-                agregar_datos_model_execution(global_session.get_id_version(), modelo_of_sample.nombre, global_session_V2.get_nombre_dataset_validacion_sc(), "Exito")
-                estado_out_sample , hora_of_sample = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre=modelo_of_sample.nombre)
+                print("no falle")
+                agregar_datos_model_execution_por_id_validacion_scoring(global_session_V2.get_id_Data_validacion_sc(), modelo_of_sample.nombre, global_session_V2.get_nombre_dataset_validacion_sc(), estado="Éxito")
+                estado_out_sample , hora_of_sample = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_validacion_sc=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_of_sample.nombre)
+                print(f"estado_out_sample {estado_out_sample}, hora_of_sample: {hora_of_sample}")
                 global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
                 global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
                 modelo_of_sample.proceso_ok.set(False)
             
                 
             if modelo_of_sample.proceso_fallo.get():
-                agregar_datos_model_execution(global_session.get_id_version(), modelo_of_sample.nombre, global_session_V2.get_nombre_dataset_validacion_sc(), "Error")
-                estado_out_sample , hora_of_sample = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre=modelo_of_sample.nombre)
+                print("falle")
+                agregar_datos_model_execution_por_id_validacion_scoring(global_session_V2.get_id_Data_validacion_sc(), modelo_of_sample.nombre, nombre_dataset=global_session_V2.get_nombre_dataset_validacion_sc(), estado="Error")
+                estado_out_sample , hora_of_sample = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_validacion_sc=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_of_sample.nombre)
+                print(f"estado_out_sample {estado_out_sample}, hora_of_sample: {hora_of_sample}")
                 global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
                 global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
                 modelo_of_sample.proceso_fallo.set(False)

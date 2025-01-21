@@ -11,6 +11,8 @@ from logica_users.utils.help_versios import obtener_ultimo_nombre_archivo_valida
 from clases.global_sessionV2 import *
 import pandas as pd
 from funciones_modelo.help_models import *
+from funciones_modelo.warning_model import validar_existencia_modelo_por_dinamica_de_app, obtener_nombre_dataset
+from clases.global_modelo import global_desarollo
 from funciones.funciones_user import button_remove, create_modal_v2
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones.clase_estitca.cargar_files import FilesLoad
@@ -28,6 +30,7 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
     validadacion_retornar_card = reactive.Value("")
     lista = reactive.Value("")
     reactivo_dinamico =  reactive.Value("")
+    es_none = reactive.Value(False)
     
     
     @reactive.Effect
@@ -54,8 +57,6 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
         if nombre_file:
             file_name_without_extension = os.path.splitext(nombre_file)[0]
             global_session_V2.nombre_file_sin_extension_validacion_scoring.set(file_name_without_extension)
-        
-            pass
         ##obengo los valores de la tabla
         lista.set(get_records(
             table='validation_scoring',
@@ -65,11 +66,25 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
             where_clause='project_id = ?',  # Cambiado para usar project_id directamente
             where_params=(global_session.get_id_proyecto(),)
         ))
+        
+        #EL PARAMETRO DE PISAR EL MODELO ACTUAL NO ESTA EN USO POR EL MOMENTO, ESTA HECHO POR SI EN UN MOMENTO SE LE DA LA OPCION DEL USER DE PISAR EL MODELO GENERADO
+        modelo_existente = validar_existencia_modelo_por_dinamica_de_app(
+                modelo_boolean_value=global_desarollo.pisar_el_modelo_actual.get(),
+                base_datos=base_datos,
+                nombre_modelo=modelo_of_sample.nombre
+            )
+        
+        
         if global_session_V2.get_nombre_dataset_validacion_sc() is None:
             dataSet_predeterminado_parms.set(obtener_ultimo_nombre_archivo_validacion_c(lista.get()))
-        else:
-            dataSet_predeterminado_parms.set(global_session_V2.get_nombre_dataset_validacion_sc())
-        
+            
+        if modelo_existente:
+            nombre_modelo_usado = obtener_nombre_dataset(global_session.get_version_parametros_id())
+            print(f"estoy en si modelo _existe {nombre_modelo_usado}")
+            global_session_V2.set_nombre_dataset_validacion_sc(nombre_modelo_usado)
+            
+         
+            
         
         if (global_session.get_id_user() and
                 global_session.get_name_proyecto() and
@@ -77,11 +92,11 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
                 global_session.get_id_version() and
                 global_session.get_versiones_name() and 
                 global_session_V2.nombre_file_sin_extension_validacion_scoring.get()): 
-                    print("ESTOY PASANDO EN PROCES API??????")  
                     help_api.procesar_starlette_api_validacion_scoring(global_session.get_id_user(), global_session.get_name_proyecto(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_versiones_name(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
 
         
         data = leer_dataset_sc(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session_V2.get_nombre_dataset_validacion_sc())
+        #ui.update_select("files_select_validation_scoring",choices=global_session_V2.get_opciones_name_dataset_Validation_sc(), selected=dataSet_predeterminado_parms.get())
         
         global_session_V2.set_data_set_reactivo_validacion_sc(data)
         
@@ -179,7 +194,7 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
     def card_out_to_sample():
         if validadacion_retornar_card.get()== "1":
             print(global_session.id_version_v2.get(), "id version antes de procesar con V2")
-            estado_out_sample , hora_of_sample = procesar_etapa("Modeling_App.db", global_session.get_id_version(), modelo_of_sample.nombre)
+            estado_out_sample , hora_of_sample = procesar_etapa_validacion_scroing("Modeling_App.db", id_validacion_sc=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_of_sample.nombre)
             print(f'estado od sample {estado_out_sample}, hora {hora_of_sample}')
             global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
             global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
@@ -210,7 +225,6 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
                 if data is not None and not data.empty:
                     # Actualiza la lista de registros solo si es necesario
                     column_names = get_binary_columns(data)
-                    print(f"que columns hay?: {column_names}")
                     # Verificar si el dataset es válido y obtener nombres de columnas
                     if isinstance(data, pd.DataFrame) and not data.empty:
                         column_names = get_binary_columns(data)
@@ -223,7 +237,7 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
         if validadacion_retornar_card.get() == "1":
             return ui.input_selectize(
                 "selectize_columnas_target",
-                "",
+                "Seleccione la columna target",
                 choices=[],
                 multiple=False,
                 options={"placeholder": "Seleccionar columna target."}
@@ -250,7 +264,7 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
     def card_produccion1():
         if  reactivo_dinamico.get() == "2":
             data = global_session_V2.get_data_reactivo_validacion_sc()
-            estado_produccion , hora_produccion = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="produccion")
+            estado_produccion , hora_produccion = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_validacion_sc=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_produccion.nombre)
             global_session_modelos.modelo_produccion_estado.set(estado_produccion)
             global_session_modelos.modelo_produccion_hora.set(hora_produccion)
             
