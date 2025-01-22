@@ -12,6 +12,7 @@ from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_
 from clases.global_session import *
 from datetime import datetime
 import os
+from clases.global_sessionV3 import *
 from funciones.cargar_archivosNEW import create_modal_warning_exist_file
 from clases.reactives_name import global_names_reactivos
 
@@ -46,6 +47,9 @@ class FilesLoad:
                 global_session.get_name_proyecto()
             )
             
+            if global_session_V3.modelo_existe.get():
+                ui.modal_show(create_modal_generic("cerrar_existe", f"Se le recuerda que usted en la versión {global_session.get_versiones_name()} tiene un modelo generado"))
+             
 
             existe = verificar_archivo_sc(data_Set, input_name)
             if existe and self.select_overwrite.get() is False:

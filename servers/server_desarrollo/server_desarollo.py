@@ -85,6 +85,7 @@ def server_desarollo(input, output, session, name_suffix):
     @reactive.event(input.cancel_overwrite_desarollo)
     def overwrite_file():
         #global_session_V2.boolean_for_change_file.set(False)
+        global_session_V2.count_global.set(1) 
         return  ui.modal_remove()    
     
     @output

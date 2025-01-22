@@ -3,7 +3,7 @@ from api.db.sqlite_utils import *
 from funciones_modelo.help_models import *
 import sqlite3
 
-def create_modal_warning_exist_model(name, nombre_version):
+def create_modal_warning_exist_model(name, nombre_version, id_boton):
     return ui.modal(
         ui.tags.div(
             ui.row(
@@ -35,6 +35,47 @@ def create_modal_warning_exist_model(name, nombre_version):
                     # Botón "Cancelar"
                     ui.input_action_button(
                         f"cancel_overwrite_{name}",
+                        "Cancelar"
+                    ),
+                    #style="display: flex; justify-content: flex-end;"
+                )
+            )
+        )
+    )
+
+
+def create_modal_warning_exist_model_with_id(name, nombre_version, id_boton):
+    return ui.modal(
+        ui.tags.div(
+            ui.row(
+                ui.column(
+                    12,
+                    ui.tags.div(
+                        # Estilo para el texto de advertencia
+                        ui.tags.p(
+                            f"El modelo en la etapa '{name}' ya existe en la versión '{nombre_version}'. "
+                            "Si usted quiere continuar, se le recomienda generar una nueva versión.",
+                            style="color: #d9534f; font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 20px;"
+                        ),
+                        style="padding: 10px; border: 1px solid #d9534f; border-radius: 5px; background-color: #f2dede;"
+                    )
+                )
+            )
+        ),
+        title=ui.tags.div(
+            "⚠️ Advertencia",
+            style="color: #f0ad4e; font-size: 20px; font-weight: bold; text-align: center;"
+        ),
+        easy_close=True,
+        size='xs',
+        footer=ui.row(
+            # Primera fila de botones
+            ui.column(
+                5,
+                ui.tags.div(
+                    # Botón "Cancelar"
+                    ui.input_action_button(
+                        f"{id_boton}",
                         "Cancelar"
                     ),
                     #style="display: flex; justify-content: flex-end;"
