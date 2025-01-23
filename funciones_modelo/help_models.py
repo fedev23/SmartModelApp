@@ -93,6 +93,33 @@ def procesar_etapa_validacion_scroing(base_datos, id_validacion_sc, etapa_nombre
     return estado_model, fecha_model
 
 
+def procesar_etapa_validacion_scroing(base_datos, id_score, etapa_nombre):
+    """
+    Procesa una etapa específica, obteniendo estado y fecha para el modelo.
+
+    :param base_datos: Ruta a la base de datos.
+    :param id_version: ID de la versión actual.
+    :param etapa_nombre: Nombre de la etapa a procesar.
+    :return: Tupla con (estado_model, fecha_model).
+    """
+    # Obtener el último modelo
+    nombre_modelo = etapa_nombre
+    ult_model = obtener_ultimo_scoring_por_json_version_y_modelo(base_datos, id_score, nombre_modelo)
+
+    print(f"ult_model {ult_model}")
+    # Obtener el estado del modelo para la etapa
+    estado_model = obtener_estado_por_modelo(ult_model, etapa_nombre)
+   
+    print(f"estado_model {estado_model}")
+    # Obtener la fecha del modelo para la etapa
+    fecha_model = obtener_fecha_por_modelo(ult_model, etapa_nombre)
+    
+    print(f"fecha_model {fecha_model}")
+
+    # Retornar el estado y la fecha como una tupla
+    return estado_model, fecha_model
+
+
 from datetime import datetime
 
 def agregar_datos_model_execution(version_id, name, nombre_dataset, estado, json_version_id=None, mensaje_error=None, dataset_id=None):
@@ -262,48 +289,95 @@ def agregar_datos_model_execution_por_id_validacion_scoring(id_validacion_scorin
 
 
 
+def agregar_datos_model_execution_scoring(id_score,  name, nombre_dataset, estado):
+    """
+    Inserta un registro en la tabla model_execution basado únicamente en json_version_id.
 
-def check_execution_status(db_path, version_id=None, json_id=None, id_validacion_sc=None):
-        """
-        Verifica el estado de ejecución de un modelo en la base de datos SQLite.
+    :param json_version_id: ID del JSON de la versión.
+    :param name: Nombre del modelo.
+    :param nombre_dataset: Nombre del dataset.
+    :param estado: Estado de la ejecución (por ejemplo, 'Exito', 'Error', etc.).
+    :return: ID del último registro insertado.
+    """
+    # Valores requeridos para la inserción
+    nombre_modelo = name
+    dataset_name = nombre_dataset
+    current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    execution_state = estado
 
-        :param base_datos: Ruta al archivo de la base de datos.
-        :param version_id: (Opcional) ID de la versión del modelo.
-        :param json_id: (Opcional) ID del JSON de la versión.
-        :param id_validacion_sc: (Opcional) ID del dataset.
-        :return: Estado de ejecución del modelo si existe, None si no se encuentra.
-        """
-        conn = sqlite3.connect(db_path)
-        cur = conn.cursor()
+    # Definir la tabla y las columnas
+    table_name = "scoring"
+    columns = ['id_score', 'fecha_de_ejecucion', 'model_name', 'nombre_dataset', 'execution_state']
+    values = [id_score, current_timestamp, nombre_modelo, dataset_name, execution_state]
 
-        try:
-            # Construcción dinámica de la consulta según los parámetros proporcionados
-            query = "SELECT execution_state FROM model_execution WHERE 1=1"
-            params = []
+    print(f"hora {current_timestamp}")
+    print(f"fecha {execution_state}")
+    add = insert_into_table(table_name, columns, values)
+    
+    print("REGISTRO INSERT")
 
-            if version_id is not None:
-                query += " AND version_id = ?"
-                params.append(version_id)
+    # Retornar el ID del registro insertado
+    return add
 
-            if json_id is not None:
-                query += " AND json_version_id = ?"
-                params.append(json_id)
 
-            if id_validacion_sc is not None:
-                query += " AND dataset_id = ?"
-                params.append(id_validacion_sc)
+import sqlite3
 
-            # Ejecutar la consulta
+def check_execution_status(db_path, version_id=None, json_id=None, id_validacion_sc=None, score_id=None):
+    """
+    Verifica el estado de ejecución de un modelo en la base de datos SQLite.
+
+    :param db_path: Ruta al archivo de la base de datos.
+    :param version_id: (Opcional) ID de la versión del modelo en 'model_execution'.
+    :param json_id: (Opcional) ID del JSON de la versión en 'model_execution' o 'scoring'.
+    :param id_validacion_sc: (Opcional) ID del dataset en 'model_execution'.
+    :param score_id: (Opcional) ID del score en 'scoring'.
+    :return: Estado de ejecución del modelo si existe, None si no se encuentra.
+    """
+    conn = sqlite3.connect(db_path)
+    cur = conn.cursor()
+
+    try:
+        # Si score_id es None, descartamos la consulta a 'scoring'
+        if score_id is not None and isinstance(score_id, int):
+            print(f"🔎 Buscando en 'scoring' con id_score={score_id}")
+            query = "SELECT execution_state FROM scoring WHERE id_score = ?"
+            cur.execute(query, (score_id,))
+            result = cur.fetchone()
+            if result:
+                return result[0]
+
+        # Si version_id, json_id o id_validacion_sc son None, descartamos la consulta a 'model_execution'
+        params = []
+        query = "SELECT execution_state FROM model_execution WHERE 1=1"
+
+        if version_id is not None and isinstance(version_id, int):
+            query += " AND version_id = ?"
+            params.append(version_id)
+
+        if json_id is not None and isinstance(json_id, int):
+            query += " AND json_version_id = ?"
+            params.append(json_id)
+
+        if id_validacion_sc is not None and isinstance(id_validacion_sc, int):
+            query += " AND dataset_id = ?"
+            params.append(id_validacion_sc)
+
+        # Solo ejecutamos la consulta si hay condiciones válidas
+        if params:
+            print(f"🔎 Buscando en 'model_execution' con {params}")
             cur.execute(query, params)
             result = cur.fetchone()
-            
             return result[0] if result else None
 
-        except sqlite3.Error as e:
-            print(f"Error al consultar la base de datos: {e}")
-            return None
-        finally:
-            conn.close()
+        print("⚠️ Ningún parámetro válido fue proporcionado, devolviendo None")
+        return None
+
+    except sqlite3.Error as e:
+        print(f"❌ Error al consultar la base de datos: {e}")
+        return None
+
+    finally:
+        conn.close()
 
 
 

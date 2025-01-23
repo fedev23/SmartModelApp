@@ -49,7 +49,7 @@ def create_modal_warning_exist_model(name, nombre_version):
 
 
 
-def validar_existencia_modelo(modelo_boolean_value , base_datos, version_id=None, json_id=None, id_validacion_sc=None, nombre_modelo=None, nombre_version=None):
+def validar_existencia_modelo(modelo_boolean_value , base_datos, version_id=None, json_id=None, id_validacion_sc=None, score_id=None, nombre_modelo=None, nombre_version=None):
     """
     Valida si existe un modelo con un estado de ejecución dado en la base de datos
     y muestra un modal de advertencia si es necesario.
@@ -64,7 +64,7 @@ def validar_existencia_modelo(modelo_boolean_value , base_datos, version_id=None
     # Verificar el estado de ejecución utilizando la función check_execution_status
     if not modelo_boolean_value:  
         #print("valores antes de ejecutar check:" ,modelo_boolean_value , base_datos, version_id, json_id, nombre_modelo,nombre_version)  
-        estado_ejecucion = check_execution_status(base_datos, version_id=version_id, json_id=json_id, id_validacion_sc=id_validacion_sc)
+        estado_ejecucion = check_execution_status(base_datos, version_id=version_id, json_id=json_id, id_validacion_sc=id_validacion_sc, score_id=score_id)
         #print(estado_ejecucion, "que estado hay aca? despues de check?")
         if estado_ejecucion is not None and estado_ejecucion == "Exito":
             # Mostrar el modal de advertencia si el modelo ya tiene un estado de ejecución

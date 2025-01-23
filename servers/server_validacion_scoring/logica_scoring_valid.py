@@ -99,7 +99,6 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
         
         #data = leer_dataset_sc(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session_V2.get_nombre_dataset_validacion_sc())
         #ui.update_select("files_select_validation_scoring",choices=global_session_V2.get_opciones_name_dataset_Validation_sc(), selected=dataSet_predeterminado_parms.get())
-        print("cuando cambio no llego aca verdad??")
         data = leer_dataset(
             global_session.get_id_user(),
             global_session.get_id_proyecto(),
@@ -290,11 +289,17 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
                     modelo_existe.set(True)
                     global_session_V2.set_nombre_dataset_validacion_sc(nombre_modelo_usado)
                  
-                   
-            if global_session_V3.id_validacion_scoring.get() is not None:
-                estado_produccion , hora_produccion = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_validacion_sc=global_session_V3.id_validacion_scoring.get(), etapa_nombre=modelo_produccion.nombre)
+            print(f"id score, {global_session_V3.id_score.get()}")
+            if global_session_V3.id_score.get() is not None:
+                estado_produccion , hora_produccion = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_score=global_session_V3.id_score.get(), etapa_nombre=modelo_produccion.nombre)
+                print(estado_produccion, "estado")
+                print(hora_produccion, "hora produccion")
                 global_session_modelos.modelo_produccion_estado.set(estado_produccion)
                 global_session_modelos.modelo_produccion_hora.set(hora_produccion)
+                
+            else:
+                global_session_modelos.modelo_produccion_estado.set("")
+                global_session_modelos.modelo_produccion_hora.set("")
                 
             if data is not None and not data.empty:
                 return retornar_card(

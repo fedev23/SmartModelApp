@@ -7,6 +7,7 @@ class GlobalSessionV3:
         self.name_version_niveles_score_original = reactive.Value()
         self.modelo_existe = reactive.Value(False)
         self.id_validacion_scoring = reactive.Value(None)
+        self.id_score = reactive.Value(None)
         
         
 

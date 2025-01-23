@@ -81,15 +81,22 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
             
             versiones_id = input.version_selector()
             global_session.set_version_parametros_id(versiones_id)
-            ultimo_id_validacion_score = obtener_ultimo_id_validation_scoring_por_json_version(global_session.get_version_parametros_id())
+            ultimo_id_validacion_score = obtener_ultimo_id_validation_scoring_por_json_version(global_session.get_version_parametros_id(), "validation_scoring")
+            ultimo_id_score = obtener_ultimo_id_validation_scoring_por_json_version(global_session.get_version_parametros_id(), "scoring")
+            
             
             if ultimo_id_validacion_score:  # Verifica si hay un registro válido
-                print(f"value de {ultimo_id_validacion_score}")
                 global_session_V3.id_validacion_scoring.set(ultimo_id_validacion_score["id_validacion_sc"])
             else:
-                print("estoy en el else??")
                 global_session_V3.id_validacion_scoring.set(None)
-                print(global_session_V3.id_validacion_scoring.get())
+                
+            ##OBTENOG EL ULTIMO ID SE SOCORE
+            print(f"ultimo_id_score {ultimo_id_score}")
+            if ultimo_id_score:
+                global_session_V3.id_score.set(ultimo_id_score)
+            else:
+                global_session_V3.id_score.set(None)
+              
 
             if global_session.get_version_parametros_id() != "a":
                 versiones = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())

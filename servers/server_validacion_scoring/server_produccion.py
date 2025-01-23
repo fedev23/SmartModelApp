@@ -82,25 +82,31 @@ def server_produccion(input, output, session, name_suffix):
         click_count_value = modelo_produccion.click_counter.get()  # Obtener contador
         mensaje_value = modelo_produccion.mensaje.get()  # Obtener mensaje actual
         proceso = modelo_produccion.proceso.get()
-        
-        id_version_score = insert_validation_scoring(global_session_V2.nombre_dataset_validacion_sc(), global_session.get_version_parametros_id(), modelo_produccion.nombre)
-        
+    
+
         validar_ids = check_if_exist_id_version_id_niveles_scord(global_session.get_id_version(), global_session.get_version_parametros_id())
         if validar_ids:
             ui.modal_show(create_modal_generic("boton_advertencia_ejecute_produccion", f"Es obligatorio generar una versión de {global_name_out_of_Sample} y una versión para continuar."))
             return
 
+
+        print(global_session_V3.id_score.get(), "valor de id score en produc")
         valid = validar_existencia_modelo(
             modelo_produccion.pisar_el_modelo_actual.get(),
             base_datos="Modeling_App.db",
-            id_validacion_sc=global_session_V3.id_validacion_scoring(),
+            score_id=global_session_V3.id_score.get(),
             nombre_modelo=modelo_produccion.nombre,  
             nombre_version=global_session.get_versiones_parametros_nombre()
         )
         
-        
+        print(valid, "value valid?")
         if modelo_produccion.pisar_el_modelo_actual.get() or valid:
             try:
+                id_version_score = insert_scoring("scoring" , global_session_V2.nombre_dataset_validacion_sc(), global_session.get_version_parametros_id(), modelo_produccion.nombre)
+        
+                print(id_version_score, "valor de scre id")
+                global_session_V3.id_score.set(id_version_score)
+                
                 path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
                 origen_modelo_puntoZip = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
                 
@@ -141,7 +147,7 @@ def server_produccion(input, output, session, name_suffix):
             except Exception as e:
                 mensaje.set(f"Error durante la ejecución: {str(e)}")
                 return
-            
+        
     
     
     def agregar_reactivo():  
@@ -149,16 +155,16 @@ def server_produccion(input, output, session, name_suffix):
         def insert_data_depends_value():
             base_datos = "Modeling_App.db"
             if modelo_produccion.proceso_ok.get():
-                agregar_datos_model_execution_por_id_validacion_scoring(global_session_V3.id_validacion_scoring.get(), global_session.get_version_parametros_id(), modelo_produccion.nombre, global_session_V2.get_nombre_dataset_validacion_sc(), estado="Éxito")
-                estado_produccion , hora_produccion = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_validacion_sc=global_session_V3.id_validacion_scoring.get(), etapa_nombre=modelo_produccion.nombre)
+                agregar_datos_model_execution_scoring(global_session_V3.id_score.get(),  modelo_produccion.nombre, global_session_V2.get_nombre_dataset_validacion_sc(), estado="Éxito")
+                estado_produccion , hora_produccion = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_score=global_session_V3.id_score.get(), etapa_nombre=modelo_produccion.nombre)
                 global_session_modelos.modelo_produccion_estado.set(estado_produccion)
                 global_session_modelos.modelo_produccion_hora.set(hora_produccion)
                 modelo_produccion.proceso_ok.set(False)
             
                 
             if modelo_produccion.proceso_fallo.get():
-                agregar_datos_model_execution_por_id_validacion_scoring(global_session_V2.get_id_Data_validacion_sc(), modelo_produccion.nombre, nombre_dataset=global_session_V2.get_nombre_dataset_validacion_sc(),  estado="Error")
-                estado_produccion , hora_produccion = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_validacion_sc=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_produccion.nombre)
+                agregar_datos_model_execution_scoring(global_session_V3.id_score.get(),  modelo_produccion.nombre, global_session_V2.get_nombre_dataset_validacion_sc(), estado="Error")
+                estado_produccion , hora_produccion = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_score=global_session_V3.id_score.get(), etapa_nombre=modelo_produccion.nombre)
                 global_session_modelos.modelo_produccion_estado.set(estado_produccion)
                 global_session_modelos.modelo_produccion_hora.set(hora_produccion)
                 modelo_produccion.proceso_fallo.set(False),

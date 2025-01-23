@@ -97,7 +97,7 @@ def server_out_of_sample(input, output, session, name_suffix):
         proceso = modelo_of_sample.proceso.get()
         
         
-        id_version_score = insert_validation_scoring(global_session_V2.nombre_dataset_validacion_sc(), global_session.get_version_parametros_id(), modelo_of_sample.nombre)
+        id_version_score = insert_validation_scoring("validation_scoring", global_session_V2.nombre_dataset_validacion_sc(), global_session.get_version_parametros_id(), modelo_of_sample.nombre)
         
         global_session_V3.id_validacion_scoring.set(id_version_score)
         validar_ids = check_if_exist_id_version_id_niveles_scord(global_session.get_id_version(), global_session.get_version_parametros_id())
