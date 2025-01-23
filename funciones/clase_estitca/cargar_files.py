@@ -145,8 +145,8 @@ class FilesLoad:
             # Insertar datos en la tabla
             id = insert_into_table(
                 table_name="validation_scoring",
-                columns=['nombre_archivo_validation_sc', 'fecha_de_carga', 'project_id'],
-                values=[input_name, fecha_de_carga, global_session.get_id_proyecto()]
+                columns=['nombre_archivo_validation_sc', 'fecha_de_carga', 'json_versiones_id'],
+                values=[input_name, fecha_de_carga, global_session.get_version_parametros_id()]
             )
             
             print("Datos insertados en la tabla validation_scoring.")
@@ -154,11 +154,9 @@ class FilesLoad:
             # Extraer datos
             self.files_name.set(get_records(
             table='validation_scoring',
-            columns=['id_validacion_sc', 
-                    'nombre_archivo_validation_sc', 
-                    'fecha_de_carga'],
-            where_clause='project_id = ?',  # Cambiado para usar project_id directamente
-            where_params=(global_session.get_id_proyecto(),)
+            columns=['id_validacion_sc', 'nombre_archivo_validation_sc', 'fecha_de_carga'],
+            where_clause='json_versiones_id IN (SELECT id_jsons FROM json_versions WHERE version_id = ?)',
+            where_params=(global_session.get_id_version(),)
         ))
 
             # Actualizar opciones y seleccionar predeterminados

@@ -113,14 +113,12 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         
         nombre_files_validacion_sc = get_records(
             table='validation_scoring',
-            columns=['id_validacion_sc', 
-                    'nombre_archivo_validation_sc', 
-                    'fecha_de_carga'],
-            where_clause='project_id = ?',  # Cambiado para usar project_id directamente
-            where_params=(global_session.get_id_proyecto(),)
+            columns=['id_validacion_sc', 'nombre_archivo_validation_sc', 'fecha_de_carga'],
+            where_clause='json_versiones_id IN (SELECT id_jsons FROM json_versions WHERE version_id = ?)',
+            where_params=(global_session.get_id_version(),)
         )
     
-        
+        print(nombre_files_validacion_sc, "value?")
         global_session_V2.set_opciones_name_dataset_Validation_sc(obtener_opciones_versiones(nombre_files_validacion_sc, "id_validacion_sc", "nombre_archivo_validation_sc"))
         data_predeterminado.set(obtener_ultimo_id_version(nombre_files_validacion_sc, 'id_validacion_sc'))
 

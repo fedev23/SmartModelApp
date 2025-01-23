@@ -3,91 +3,53 @@ from api.db.sqlite_utils import *
 from funciones_modelo.help_models import *
 import sqlite3
 
-def create_modal_warning_exist_model(name, nombre_version, id_boton):
+def create_modal_warning_exist_model(name, nombre_version):
+    """
+    Crea un modal de advertencia con un estilo más profesional y corporativo.
+
+    :param name: Nombre de la etapa donde ya existe el modelo.
+    :param nombre_version: Nombre de la versión del modelo.
+    :param id_boton: ID del botón de cierre.
+    :return: Modal Shiny UI.
+    """
     return ui.modal(
         ui.tags.div(
             ui.row(
                 ui.column(
                     12,
                     ui.tags.div(
-                        # Estilo para el texto de advertencia
+                        # Texto con diseño más profesional
                         ui.tags.p(
                             f"El modelo en la etapa '{name}' ya existe en la versión '{nombre_version}'. "
-                            "Si usted quiere continuar, se le recomienda generar una nueva versión.",
-                            style="color: #d9534f; font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 20px;"
+                            "Si desea continuar, se recomienda generar una nueva versión para evitar conflictos.",
+                            style="color: #333; font-size: 16px; text-align: center; margin-bottom: 20px; font-weight: normal;"
                         ),
-                        style="padding: 10px; border: 1px solid #d9534f; border-radius: 5px; background-color: #f2dede;"
+                        # Contenedor con bordes suaves y fondo neutro
+                        style="padding: 15px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; box-shadow: 0px 4px 6px rgba(0,0,0,0.1);"
                     )
                 )
             )
         ),
         title=ui.tags.div(
-            "⚠️ Advertencia",
-            style="color: #f0ad4e; font-size: 20px; font-weight: bold; text-align: center;"
+            "🔹 Información Importante",
+            style="color: #0056b3; font-size: 20px; font-weight: bold; text-align: center;"
         ),
         easy_close=True,
         size='xs',
-        footer=ui.row(
-            # Primera fila de botones
-            ui.column(
-                5,
-                ui.tags.div(
-                    # Botón "Cancelar"
-                    ui.input_action_button(
-                        f"cancel_overwrite_{name}",
-                        "Cancelar"
-                    ),
-                    #style="display: flex; justify-content: flex-end;"
-                )
-            )
-        )
-    )
-
-
-def create_modal_warning_exist_model_with_id(name, nombre_version, id_boton):
-    return ui.modal(
-        ui.tags.div(
-            ui.row(
-                ui.column(
-                    12,
-                    ui.tags.div(
-                        # Estilo para el texto de advertencia
-                        ui.tags.p(
-                            f"El modelo en la etapa '{name}' ya existe en la versión '{nombre_version}'. "
-                            "Si usted quiere continuar, se le recomienda generar una nueva versión.",
-                            style="color: #d9534f; font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 20px;"
-                        ),
-                        style="padding: 10px; border: 1px solid #d9534f; border-radius: 5px; background-color: #f2dede;"
-                    )
-                )
-            )
-        ),
-        title=ui.tags.div(
-            "⚠️ Advertencia",
-            style="color: #f0ad4e; font-size: 20px; font-weight: bold; text-align: center;"
-        ),
-        easy_close=True,
-        size='xs',
-        footer=ui.row(
-            # Primera fila de botones
-            ui.column(
-                5,
-                ui.tags.div(
-                    # Botón "Cancelar"
-                    ui.input_action_button(
-                        f"{id_boton}",
-                        "Cancelar"
-                    ),
-                    #style="display: flex; justify-content: flex-end;"
-                )
-            )
+        footer=ui.tags.div(
+            ui.input_action_button(
+                f"cancel_overwrite_{name}",
+                "Aceptar",
+                style="background-color: #0056b3; color: white; border-radius: 5px; padding: 8px 16px; border: none; cursor: pointer;"
+            ),
+            style="display: flex; justify-content: center; margin-top: 15px;"
         )
     )
 
 
 
 
-def validar_existencia_modelo(modelo_boolean_value , base_datos, version_id=None, json_id=None, dataset_id=None, nombre_modelo=None, nombre_version=None):
+def validar_existencia_modelo(modelo_boolean_value , base_datos, version_id=None, json_id=None, id_validacion_sc=None, nombre_modelo=None, nombre_version=None):
     """
     Valida si existe un modelo con un estado de ejecución dado en la base de datos
     y muestra un modal de advertencia si es necesario.
@@ -102,7 +64,7 @@ def validar_existencia_modelo(modelo_boolean_value , base_datos, version_id=None
     # Verificar el estado de ejecución utilizando la función check_execution_status
     if not modelo_boolean_value:  
         #print("valores antes de ejecutar check:" ,modelo_boolean_value , base_datos, version_id, json_id, nombre_modelo,nombre_version)  
-        estado_ejecucion = check_execution_status(base_datos, version_id=version_id, json_id=json_id, dataset_id=dataset_id)
+        estado_ejecucion = check_execution_status(base_datos, version_id=version_id, json_id=json_id, id_validacion_sc=id_validacion_sc)
         #print(estado_ejecucion, "que estado hay aca? despues de check?")
         if estado_ejecucion is not None and estado_ejecucion == "Exito":
             # Mostrar el modal de advertencia si el modelo ya tiene un estado de ejecución
@@ -186,10 +148,9 @@ def check_if_exist_id_version(version_id):
     return not version_id
 
 
-
 def create_modal_generic(id_button_close, descripcion):
     """
-    Crea un modal genérico.
+    Crea un modal genérico con un diseño empresarial.
 
     :param id_button_close: ID del botón de cierre.
     :param descripcion: Descripción o contenido principal del modal.
@@ -199,34 +160,37 @@ def create_modal_generic(id_button_close, descripcion):
     if not isinstance(descripcion, str):
         descripcion = str(descripcion)
 
-    m = ui.modal(
+    return ui.modal(
         ui.tags.div(
             ui.row(
                 ui.column(
                     12,
                     ui.tags.div(
-                        # Estilo para el texto de advertencia
+                        # Texto con estilo más profesional
                         ui.tags.p(
                             descripcion,
-                            style="color: #d9534f; font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 20px;"
+                            style="color: #333; font-size: 16px; text-align: center; margin-bottom: 20px; font-weight: normal;"
                         ),
-                        style="padding: 10px; border: 1px solid #d9534f; border-radius: 5px; background-color: #f2dede;"
+                        # Contenedor con diseño más limpio y empresarial
+                        style="padding: 15px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; box-shadow: 0px 4px 6px rgba(0,0,0,0.1);"
                     )
                 )
             )
         ),
-        "",
-        
-        title="⚠️ Advertencia",  # El título debe ser directamente un string
-        easy_close=True,
-        footer=ui.input_action_link(
-            id_button_close,
-            "Cerrar",
-            class_="btn btn-warning"
+        title=ui.tags.div(
+            "🔹 Información",
+            style="color: #0056b3; font-size: 20px; font-weight: bold; text-align: center;"
         ),
+        easy_close=True,
+        footer=ui.tags.div(
+            ui.input_action_button(
+                id_button_close,
+                "Cerrar",
+                style="background-color: #0056b3; color: white; border-radius: 5px; padding: 8px 16px; border: none; cursor: pointer;"
+            ),
+            style="display: flex; justify-content: center; margin-top: 15px;"
+        )
     )
-    return m
-
 
 
 def tiene_modelo_generado(dataset_id):

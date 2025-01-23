@@ -430,7 +430,7 @@ def get_folder_directory_data_validacion_scoring(user_id, proyecto_id, name_proy
     # Construir la ruta de la carpeta 'datasets' dentro del proyecto
     datasets_folder = os.path.join(version_niveles_y_scord, nombre_data)
         
-    print(f'PATH DE SC: {datasets_folder}')
+    
     
     # Verificar si la carpeta 'datasets' existe antes de devolverla
     if os.path.exists(datasets_folder):
@@ -458,7 +458,7 @@ def get_folder_directory_data_validacion_scoring_SALIDA(user_id, proyecto_id, na
     # Construir la ruta de la carpeta 'datasets' dentro del proyecto
     datasets_folder = os.path.join(version_niveles_y_scord, nombre_data)
     
-    print(f'PATH DE SC: {datasets_folder}')
+    
     
     # Verificar si la carpeta 'datasets' existe antes de devolverla
     if os.path.exists(datasets_folder):

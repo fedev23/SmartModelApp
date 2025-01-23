@@ -76,7 +76,8 @@ def procesar_etapa_validacion_scroing(base_datos, id_validacion_sc, etapa_nombre
     :return: Tupla con (estado_model, fecha_model).
     """
     # Obtener el último modelo
-    ult_model = obtener_ultimo_modelo_por_validacion_sc_y_nombre(base_datos, id_validacion_sc, etapa_nombre)
+    nombre_modelo = etapa_nombre
+    ult_model = obtener_ultimo_modelo_por_validacion_sc_y_nombre(base_datos, id_validacion_sc, nombre_modelo)
 
     print(f"ult_model {ult_model}")
     # Obtener el estado del modelo para la etapa
@@ -230,7 +231,7 @@ def procesar_etapa_in_sample(base_datos, json_version_id, etapa_nombre):
 
 
 
-def agregar_datos_model_execution_por_id_validacion_scoring(id_validacion_scoring, name, nombre_dataset, estado):
+def agregar_datos_model_execution_por_id_validacion_scoring(id_validacion_scoring,  name, nombre_dataset, estado):
     """
     Inserta un registro en la tabla model_execution basado únicamente en json_version_id.
 
@@ -262,14 +263,14 @@ def agregar_datos_model_execution_por_id_validacion_scoring(id_validacion_scorin
 
 
 
-def check_execution_status(db_path, version_id=None, json_id=None, dataset_id=None):
+def check_execution_status(db_path, version_id=None, json_id=None, id_validacion_sc=None):
         """
         Verifica el estado de ejecución de un modelo en la base de datos SQLite.
 
         :param base_datos: Ruta al archivo de la base de datos.
         :param version_id: (Opcional) ID de la versión del modelo.
         :param json_id: (Opcional) ID del JSON de la versión.
-        :param dataset_id: (Opcional) ID del dataset.
+        :param id_validacion_sc: (Opcional) ID del dataset.
         :return: Estado de ejecución del modelo si existe, None si no se encuentra.
         """
         conn = sqlite3.connect(db_path)
@@ -288,9 +289,9 @@ def check_execution_status(db_path, version_id=None, json_id=None, dataset_id=No
                 query += " AND json_version_id = ?"
                 params.append(json_id)
 
-            if dataset_id is not None:
+            if id_validacion_sc is not None:
                 query += " AND dataset_id = ?"
-                params.append(dataset_id)
+                params.append(id_validacion_sc)
 
             # Ejecutar la consulta
             cur.execute(query, params)

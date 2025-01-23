@@ -10,7 +10,7 @@ from funciones.funciones_user import button_remove, create_modal_v2
 from funciones.utils_2 import eliminar_archivo, leer_dataset
 from logica_users.utils.help_versios import obtener_ultimo_nombre_archivo
 from api.db.help_config_db import *
-from funciones_modelo.warning_model import create_modal_warning_exist_model_with_id, validar_existencia_modelo_por_dinamica_de_app, tiene_modelo_generado, create_modal_generic, obtener_nombre_dataset
+from funciones_modelo.warning_model import create_modal_warning_exist_model, validar_existencia_modelo_por_dinamica_de_app, tiene_modelo_generado, create_modal_generic, obtener_nombre_dataset
 from clases.global_sessionV2 import *
 from clases.global_reactives import global_estados
 from api.db.sqlite_utils import *
@@ -72,10 +72,9 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
 
                 # Mostramos el modal
                 ui.modal_show(
-                    create_modal_warning_exist_model_with_id(
+                    create_modal_warning_exist_model(
                         name=global_desarollo.nombre,
-                        nombre_version=global_session_V3.name_version_original.get(),
-                        id_boton=f"button_{contador_for_files.get()}"  # ID único
+                        nombre_version=global_session_V3.name_version_original.get(),  # ID único
                     )
                 )
 

@@ -8,6 +8,7 @@ from clases.global_session import global_session
 from api.db.sqlite_utils import *
 from funciones.funciones_user import create_modal_v2, create_modal_versiones_param, button_remove
 from api.db import *
+from funciones_modelo.bd_tabla_validacion_sc import obtener_ultimo_id_validation_scoring_por_json_version
 from clases.global_sessionV2 import *
 from clases.global_sessionV3 import *
 from funciones.utils_2 import crear_carpeta_version_parametros
@@ -75,12 +76,21 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
             #click_seleccion_niveles_score.set(click_seleccion_niveles_score() + 1)
             return 
     
-        print("hice click??")
         global_session_V2.click_seleccion_niveles_score.set(global_session_V2.click_seleccion_niveles_score() + 1)
         if global_session_V2.click_seleccion_niveles_score.get() >=1:
             
             versiones_id = input.version_selector()
             global_session.set_version_parametros_id(versiones_id)
+            ultimo_id_validacion_score = obtener_ultimo_id_validation_scoring_por_json_version(global_session.get_version_parametros_id())
+            
+            if ultimo_id_validacion_score:  # Verifica si hay un registro válido
+                print(f"value de {ultimo_id_validacion_score}")
+                global_session_V3.id_validacion_scoring.set(ultimo_id_validacion_score["id_validacion_sc"])
+            else:
+                print("estoy en el else??")
+                global_session_V3.id_validacion_scoring.set(None)
+                print(global_session_V3.id_validacion_scoring.get())
+
             if global_session.get_version_parametros_id() != "a":
                 versiones = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
                 if versiones:

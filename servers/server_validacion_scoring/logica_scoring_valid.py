@@ -5,6 +5,7 @@ from clases.global_session import global_session
 from api.db import *
 from funciones.help_parametros.valid_columns import *
 from auth.utils import help_api
+from clases.global_sessionV3 import *
 from clases.reactives_name import global_names_reactivos
 from funciones.utils import retornar_card
 from logica_users.utils.help_versios import obtener_ultimo_nombre_archivo_validacion_c
@@ -61,11 +62,9 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
         ##obengo los valores de la tabla
         lista.set(get_records(
             table='validation_scoring',
-            columns=['id_validacion_sc', 
-                    'nombre_archivo_validation_sc', 
-                    'fecha_de_carga'],
-            where_clause='project_id = ?',  # Cambiado para usar project_id directamente
-            where_params=(global_session.get_id_proyecto(),)
+            columns=['id_validacion_sc', 'nombre_archivo_validation_sc', 'fecha_de_carga'],
+            where_clause='json_versiones_id IN (SELECT id_jsons FROM json_versions WHERE version_id = ?)',
+            where_params=(global_session.get_id_version(),)
         ))
         
         #EL PARAMETRO DE PISAR EL MODELO ACTUAL NO ESTA EN USO POR EL MOMENTO, ESTA HECHO POR SI EN UN MOMENTO SE LE DA LA OPCION DEL USER DE PISAR EL MODELO GENERADO
@@ -120,14 +119,11 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
     def remove_dataset_data_alidacionSC():
         lista_2_borrar = (get_records(
             table='validation_scoring',
-            columns=['id_validacion_sc', 
-                    'nombre_archivo_validation_sc', 
-                    'fecha_de_carga'],
-            where_clause='project_id = ?',  # Cambiado para usar project_id directamente
-            where_params=(global_session.get_id_proyecto(),)
+            columns=['id_validacion_sc', 'nombre_archivo_validation_sc', 'fecha_de_carga'],
+            where_clause='json_versiones_id IN (SELECT id_jsons FROM json_versions WHERE version_id = ?)',
+            where_params=(global_session.get_id_version(),)
         ))
-        #name.set(global_names_reactivos.get_name_file_db())
-        #print(lista_2_borrar, "estoy en lista dos de borrar")
+        
         return button_remove(lista_2_borrar, global_session_V2.get_id_Data_validacion_sc(), "id_validacion_sc", name_suffix)
     
     
@@ -172,11 +168,9 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
         eliminar_archivo(dataset_path)
         lista_de_versiones_new = get_records(
             table='validation_scoring',
-            columns=['id_validacion_sc', 
-                    'nombre_archivo_validation_sc', 
-                    'fecha_de_carga'],
-            where_clause='project_id = ?',  # Cambiado para usar project_id directamente
-            where_params=(global_session.get_id_proyecto(),)
+            columns=['id_validacion_sc', 'nombre_archivo_validation_sc', 'fecha_de_carga'],
+            where_clause='json_versiones_id IN (SELECT id_jsons FROM json_versions WHERE version_id = ?)',
+            where_params=(global_session.get_id_version(),)
         )
         lista.set(lista_de_versiones_new)
         print(f"nueva lista? {lista_de_versiones_new}")
@@ -212,16 +206,19 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
     def card_out_to_sample():
         if validadacion_retornar_card.get()== "1":
             if modelo_existe.get():
-                print("estoy pasando?")
                 nombre_modelo_usado = obtener_nombre_dataset(global_session.get_version_parametros_id())
-                print(f"estoy en si modelo _existe  == 1{nombre_modelo_usado}")
                 modelo_existe.set(True)
                 global_session_V2.set_nombre_dataset_validacion_sc(nombre_modelo_usado)
             
-            estado_out_sample , hora_of_sample = procesar_etapa_validacion_scroing("Modeling_App.db", id_validacion_sc=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_of_sample.nombre)
-            global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
-            global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
-            
+            print(f"que valor tengo aca? {global_session_V3.id_validacion_scoring.get()}")
+            if global_session_V3.id_validacion_scoring.get() is not None:
+                estado_out_sample , hora_of_sample = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_validacion_sc=global_session_V3.id_validacion_scoring.get(), etapa_nombre=modelo_of_sample.nombre)
+                global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
+                global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
+            else:
+                global_session_modelos.modelo_of_sample_estado.set("")
+                global_session_modelos.modelo_of_sample_hora.set("")
+                
             data = global_session_V2.get_data_reactivo_validacion_sc()
             if data is not None and not data.empty:
                 return  retornar_card(
@@ -290,13 +287,15 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
             print(modelo_existe.get())
             if modelo_existe.get():
                     nombre_modelo_usado = obtener_nombre_dataset(global_session.get_version_parametros_id())
-                    print(f"estoy en si modelo _existe  == 2 {nombre_modelo_usado}")
                     modelo_existe.set(True)
                     global_session_V2.set_nombre_dataset_validacion_sc(nombre_modelo_usado)
-            estado_produccion , hora_produccion = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_validacion_sc=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_produccion.nombre)
-            global_session_modelos.modelo_produccion_estado.set(estado_produccion)
-            global_session_modelos.modelo_produccion_hora.set(hora_produccion)
-            
+                 
+                   
+            if global_session_V3.id_validacion_scoring.get() is not None:
+                estado_produccion , hora_produccion = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_validacion_sc=global_session_V3.id_validacion_scoring.get(), etapa_nombre=modelo_produccion.nombre)
+                global_session_modelos.modelo_produccion_estado.set(estado_produccion)
+                global_session_modelos.modelo_produccion_hora.set(hora_produccion)
+                
             if data is not None and not data.empty:
                 return retornar_card(
                     get_file_name=global_session_V2.get_nombre_dataset_validacion_sc(),

@@ -6,10 +6,12 @@ from funciones.utils_2 import *
 from clases.global_modelo import modelo_of_sample
 from clases.global_session import global_session
 from api.db import *
+from clases.global_sessionV3 import *
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.help_models import *
+from funciones_modelo.bd_tabla_validacion_sc import *
 from clases.reactives_name import global_names_reactivos
-from global_names import global_name_out_of_Sample
+from global_names import global_name_out_of_Sample, global_name_in_Sample
 from clases.global_sessionV2 import *
 from funciones.validacionY_Scoring.create_card import crate_file_input_y_seleccionador
 from clases.global_modelo import modelo_of_sample
@@ -94,6 +96,10 @@ def server_out_of_sample(input, output, session, name_suffix):
         mensaje_value = modelo_of_sample.mensaje.get()  # Obtener mensaje actual
         proceso = modelo_of_sample.proceso.get()
         
+        
+        id_version_score = insert_validation_scoring(global_session_V2.nombre_dataset_validacion_sc(), global_session.get_version_parametros_id(), modelo_of_sample.nombre)
+        
+        global_session_V3.id_validacion_scoring.set(id_version_score)
         validar_ids = check_if_exist_id_version_id_niveles_scord(global_session.get_id_version(), global_session.get_version_parametros_id())
         if validar_ids:
             ui.modal_show(create_modal_generic("boton_advertencia_ejecute_of", f"Es obligatorio generar una versión de {global_name_out_of_Sample} y una versión para continuar."))
@@ -102,12 +108,14 @@ def server_out_of_sample(input, output, session, name_suffix):
         valid = validar_existencia_modelo(
             modelo_of_sample.pisar_el_modelo_actual.get(),
             base_datos="Modeling_App.db",
-            dataset_id=global_session_V2.get_id_Data_validacion_sc(),
+            id_validacion_sc=global_session_V3.id_validacion_scoring.get(),
             nombre_modelo=modelo_of_sample.nombre,  
             nombre_version=global_session.get_versiones_parametros_nombre()
         )
         
-        print(f"{valid} que value tinee?")
+        if valid is False:
+            ui.modal_show(create_modal_generic("modal_existe_of", "Ya hay un modelo Full generado."))
+            return 
         
         if modelo_of_sample.pisar_el_modelo_actual.get() or valid:
             print("estoy pasando este if?")
@@ -135,7 +143,7 @@ def server_out_of_sample(input, output, session, name_suffix):
                 # Mover archivo .zip y verificar si existe
                 zip_existe = mover_file_reportes_puntoZip(origen_modelo_puntoZip, path_datos_entrada)
                 if not zip_existe:
-                    raise ValueError(f"Es de carácter obligatorio que se ejecute posteriormente la muestra de Desarrollo, para continuar en {global_name_out_of_Sample}")
+                    raise ValueError(f"Es de carácter obligatorio que se ejecute posteriormente la muestra de Desarrollo y {global_name_in_Sample}, para continuar en {global_name_out_of_Sample}")
                 
                 # Validar si el JSON existe y detenerse si no existe
                 path_niveles_sc = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
@@ -173,8 +181,8 @@ def server_out_of_sample(input, output, session, name_suffix):
             base_datos = "Modeling_App.db"
             if modelo_of_sample.proceso_ok.get():
                 print("no falle")
-                agregar_datos_model_execution_por_id_validacion_scoring(global_session_V2.get_id_Data_validacion_sc(), modelo_of_sample.nombre, global_session_V2.get_nombre_dataset_validacion_sc(), estado="Éxito")
-                estado_out_sample , hora_of_sample = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_validacion_sc=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_of_sample.nombre)
+                agregar_datos_model_execution_por_id_validacion_scoring(global_session_V3.id_validacion_scoring.get(),  modelo_of_sample.nombre, global_session_V2.get_nombre_dataset_validacion_sc(), estado="Éxito")
+                estado_out_sample , hora_of_sample = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_validacion_sc=global_session_V3.id_validacion_scoring.get(), etapa_nombre=modelo_of_sample.nombre)
                 print(f"estado_out_sample {estado_out_sample}, hora_of_sample: {hora_of_sample}")
                 global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
                 global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
@@ -182,9 +190,8 @@ def server_out_of_sample(input, output, session, name_suffix):
             
                 
             if modelo_of_sample.proceso_fallo.get():
-                print("falle")
-                agregar_datos_model_execution_por_id_validacion_scoring(global_session_V2.get_id_Data_validacion_sc(), modelo_of_sample.nombre, nombre_dataset=global_session_V2.get_nombre_dataset_validacion_sc(), estado="Error")
-                estado_out_sample , hora_of_sample = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_validacion_sc=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_of_sample.nombre)
+                agregar_datos_model_execution_por_id_validacion_scoring(global_session_V3.id_validacion_scoring.get(), modelo_of_sample.nombre, global_session_V2.get_nombre_dataset_validacion_sc(), estado="Error")
+                estado_out_sample , hora_of_sample = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_validacion_sc=global_session_V3.id_validacion_scoring.get(), etapa_nombre=modelo_of_sample.nombre)
                 print(f"estado_out_sample {estado_out_sample}, hora_of_sample: {hora_of_sample}")
                 global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
                 global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
@@ -222,7 +229,8 @@ def server_out_of_sample(input, output, session, name_suffix):
         if click.get() < 1:
             return "Esperando inicio..."
 
-        path_datos_salida  = get_folder_directory_data_validacion_scoring(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
+        path_datos_salida  = get_folder_directory_data_validacion_scoring_SALIDA(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
+        
         name_file = "progreso.txt"
 
         # Obtener el último porcentaje del archivo
@@ -246,4 +254,10 @@ def server_out_of_sample(input, output, session, name_suffix):
     def value_of_sample():
         """Muestra el contenido actualizado del archivo en la UI."""
         return f"Última línea: {leer_archivo()}"
+    
+    
+    @reactive.effect
+    @reactive.event(input.modal_existe_of)
+    def close_modal():
+        return ui.modal_remove()
     
