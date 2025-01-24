@@ -181,8 +181,8 @@ def server_out_of_sample(input, output, session, name_suffix):
             base_datos = "Modeling_App.db"
             if modelo_of_sample.proceso_ok.get():
                 print("no falle")
-                agregar_datos_model_execution_por_id_validacion_scoring(global_session_V3.id_validacion_scoring.get(),  modelo_of_sample.nombre, global_session_V2.get_nombre_dataset_validacion_sc(), estado="Éxito")
-                estado_out_sample , hora_of_sample = procesar_etapa_validacion_full(base_datos="Modeling_App.db", id_validacion_sc=global_session_V3.id_validacion_scoring.get(), etapa_nombre=modelo_of_sample.nombre)
+                agregar_datos_model_execution_validcion_full(global_session_V3.id_validacion_scoring.get(),  modelo_of_sample.nombre, global_session_V2.get_id_Data_validacion_sc(),  estado="Éxito")
+                estado_out_sample , hora_of_sample = procesar_etapa_validacion_full(base_datos="Modeling_App.db", id_validacion_sc=global_session_V3.id_validacion_scoring.get(), id_file=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_of_sample.nombre)
                 print(f"estado_out_sample {estado_out_sample}, hora_of_sample: {hora_of_sample}")
                 global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
                 global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
@@ -190,8 +190,8 @@ def server_out_of_sample(input, output, session, name_suffix):
             
                 
             if modelo_of_sample.proceso_fallo.get():
-                agregar_datos_model_execution_por_id_validacion_scoring(global_session_V3.id_validacion_scoring.get(), modelo_of_sample.nombre, global_session_V2.get_nombre_dataset_validacion_sc(), estado="Error")
-                estado_out_sample , hora_of_sample = procesar_etapa_validacion_full(base_datos="Modeling_App.db", id_validacion_sc=global_session_V3.id_validacion_scoring.get(), etapa_nombre=modelo_of_sample.nombre)
+                agregar_datos_model_execution_validcion_full(global_session_V3.id_validacion_scoring.get(),  modelo_of_sample.nombre, global_session_V2.get_id_Data_validacion_sc(),  estado="Error")
+                estado_out_sample , hora_of_sample = procesar_etapa_validacion_full(base_datos="Modeling_App.db", id_validacion_sc=global_session_V3.id_validacion_scoring.get(), id_file=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_of_sample.nombre)
                 print(f"estado_out_sample {estado_out_sample}, hora_of_sample: {hora_of_sample}")
                 global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
                 global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
@@ -257,7 +257,7 @@ def server_out_of_sample(input, output, session, name_suffix):
     @render.ui
     def value_of_sample():
         """Muestra el contenido actualizado del archivo en la UI."""
-        return f"Porcentaje de ejecucion {leer_archivo()}"
+        return f"Porcentaje de ejecucion {  ()}"
     
     
     @reactive.effect

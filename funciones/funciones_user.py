@@ -146,6 +146,7 @@ def button_remove_version(project_id, target_version_id):
     if version:
         sanitized_name = version['version_id']  # Obtén el ID de la versión
         # Devuelve un enlace de acción para eliminar la versión
+        print(f"estoy retornarnado? {version}")
         return ui.input_action_link(
             f"eliminar_version_{sanitized_name}", 
            ui.tags.i(class_="fa fa-trash fa-2x text-danger"),  # Ícono de basura en rojo

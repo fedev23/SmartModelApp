@@ -116,7 +116,7 @@ def validar_existencia_modelo_por_dinamica_de_app(modelo_boolean_value, base_dat
             print(f"Llamando a check_execution_status con version_id={version_id}, json_id={json_id}, nombre_modelo={nombre_modelo}")
             
             # Llamar a la función que verifica el estado de ejecución
-            estado_ejecucion = check_execution_status(base_datos, version_id=version_id, json_id=json_id, dataset_id=id_validacion_score)
+            estado_ejecucion = check_execution_status(base_datos, version_id=version_id, json_id=json_id)
             
             if estado_ejecucion is not None and estado_ejecucion == "Exito":
                 return True  # El modelo ya existe con estado exitoso

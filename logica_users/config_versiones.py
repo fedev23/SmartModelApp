@@ -66,7 +66,6 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
         where_params=(global_session.get_id_proyecto(),)
     )
         
-        print(f"files_name en update desde versiones {files_name}")
         global_session_V2.lista_nombre_archivos_por_version.set({
             str(file['id_files']): file['nombre_archivo']
             for file in files_name
@@ -79,16 +78,12 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
                 version_id=global_session.get_id_version())
             
         if  modelo_existente:
-            print("pase a tiene modelo?")
             nombre_dataSet_con_modelo = obtener_nombre_dataset(global_session.get_id_version())
-            print(f"nombre_dataSet_con_modelo {nombre_dataSet_con_modelo}")
             global_session_V2.set_dataSet_seleccionado(nombre_dataSet_con_modelo)
             selected_key = mapear_valor_a_clave(global_session_V2.get_dataSet_seleccionado(), global_session_V2.lista_nombre_archivos_por_version.get())
             ui.update_select("files_select", choices=global_session_V2.lista_nombre_archivos_por_version.get(),  selected=selected_key if selected_key else next(iter(global_session_V2.lista_nombre_archivos_por_version.get()), ""))
         else:
-            print("pase a no tiene modelo")
             ultimo_archivo = obtener_ultimo_seleccionado(base_datos, 'name_files', 'nombre_archivo')
-            print(f"ultimo_archivo {ultimo_archivo}")
             global_session_V2.set_dataSet_seleccionado(ultimo_archivo)
             selected_key = mapear_valor_a_clave(global_session_V2.get_dataSet_seleccionado(), global_session_V2.lista_nombre_archivos_por_version.get())
             ui.update_select("files_select", choices=global_session_V2.lista_nombre_archivos_por_version.get(),  selected=selected_key if selected_key else next(iter(global_session_V2.lista_nombre_archivos_por_version.get()), ""))

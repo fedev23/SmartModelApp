@@ -10,6 +10,7 @@ from funciones.funciones_user import create_modal_versiones, show_selected_proje
 from funciones.utils_2 import *
 from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version, eliminar_carpeta, mapear_valor_a_clave
 from api.db.help_config_db import *
+from api.db.up_date import *
 from api.db.sqlite_utils import *
 from clases.global_sessionV3 import *
 from auth.utils import help_api 
@@ -111,19 +112,12 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
         ##Actualizo tambien los dataSet de Validacion y scroing
         
-        nombre_files_validacion_sc = get_records(
-            table='validation_scoring',
-            columns=['id_validacion_sc', 'nombre_archivo_validation_sc', 'fecha_de_carga'],
-            where_clause='json_versiones_id IN (SELECT id_jsons FROM json_versions WHERE version_id = ?)',
-            where_params=(global_session.get_id_version(),)
-        )
+        nombre_files_validacion_sc = obtener_nombres_files_por_proyecto(global_session.get_id_proyecto())
     
-        print(nombre_files_validacion_sc, "value?")
-        global_session_V2.set_opciones_name_dataset_Validation_sc(obtener_opciones_versiones(nombre_files_validacion_sc, "id_validacion_sc", "nombre_archivo_validation_sc"))
-        print(f"valor de opciones data {global_session_V2.get_opciones_name_dataset_Validation_sc()}")
-        data_predeterminado.set(obtener_ultimo_id_version(nombre_files_validacion_sc, 'id_validacion_sc'))
-        print(f"data {data_predeterminado.get()}")
-        #LEEO ELDATA SET SI EXISTE
+        global_session_V2.set_opciones_name_dataset_Validation_sc(obtener_opciones_versiones(nombre_files_validacion_sc, "id_nombre_file", "nombre_file"))
+
+        data_predeterminado.set(obtener_ultimo_id_version(nombre_files_validacion_sc, 'id_nombre_file'))
+       
         # Actualiza los selectores en la UI
         nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
         global_session_V3.name_version_original.set(nombre_version)

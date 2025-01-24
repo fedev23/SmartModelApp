@@ -12,6 +12,7 @@ from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_
 from clases.global_session import *
 from datetime import datetime
 import os
+from api.db.up_date import *
 from clases.global_sessionV3 import *
 from funciones.cargar_archivosNEW import create_modal_warning_exist_file
 from clases.reactives_name import global_names_reactivos
@@ -63,7 +64,7 @@ class FilesLoad:
             ##GUARDO LEL DATO CARGADO EN LA TABLA
             #insert_into_table("name_files", ['nombre_archivo', 'fecha_de_carga', 'project_id', 'version_id'], [input_name, fecha_de_carga, global_session.get_id_proyecto(), global_session.get_id_version()])
             print("pase antes de insertar??")
-            insert_into_table(
+            insertar_nombre_file(
                 table_name="name_files",
                 columns=['nombre_archivo', 'fecha_de_carga', 'project_id'],
                 values=[input_name, fecha_de_carga, global_session.get_id_proyecto()]
@@ -143,26 +144,15 @@ class FilesLoad:
             fecha_de_carga = datetime.now().strftime("%Y-%m-%d %H:%M")
 
             # Insertar datos en la tabla
-            id = insert_into_table(
-                table_name="validation_scoring",
-                columns=['nombre_archivo_validation_sc', 'fecha_de_carga', 'json_versiones_id'],
-                values=[input_name, fecha_de_carga, global_session.get_version_parametros_id()]
-            )
-            
-            print("Datos insertados en la tabla validation_scoring.")
+            id = insertar_nombre_file(input_name, global_session.get_id_proyecto())
             global_session_V2.set_id_Data_validacion_sc(id)
             # Extraer datos
-            self.files_name.set(get_records(
-            table='validation_scoring',
-            columns=['id_validacion_sc', 'nombre_archivo_validation_sc', 'fecha_de_carga'],
-            where_clause='json_versiones_id IN (SELECT id_jsons FROM json_versions WHERE version_id = ?)',
-            where_params=(global_session.get_id_version(),)
-        ))
+            self.files_name.set(obtener_nombres_files_por_proyecto(global_session.get_id_proyecto()))
 
             # Actualizar opciones y seleccionar predeterminados
-            global_session_V2.set_opciones_name_dataset_Validation_sc(obtener_opciones_versiones(self.files_name.get(), "id_validacion_sc", "nombre_archivo_validation_sc"))
+            global_session_V2.set_opciones_name_dataset_Validation_sc(obtener_opciones_versiones(self.files_name.get(), "id_nombre_file", "nombre_file"))
             
-            self.data_predeterminado.set(obtener_ultimo_id_version(self.files_name.get(), 'id_validacion_sc'))
+            self.data_predeterminado.set(obtener_ultimo_id_version(self.files_name.get(), 'id_nombre_file'))
             
             #opciones_actualizadas = [d["nombre_archivo_validation_sc"].rsplit('.', 1)[0] for d in files_name.get()]
             entrada, salida = crear_carpeta_validacion_scoring(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session.get_name_proyecto(), global_session.get_versiones_name(), file_name_without_extension)

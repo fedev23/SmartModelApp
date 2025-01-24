@@ -21,6 +21,45 @@ def obtener_estado_por_modelo(modelo, nombre_modelo):
 
     return f""
 
+
+
+def obtener_estado_por_modelo_full(modelo, nombre_modelo):
+    """
+    Busca un modelo por su nombre y retorna su estado de ejecución.
+
+    Args:
+        modelo (dict): Diccionario que contiene información del modelo.
+        nombre_modelo (str): Nombre del modelo a buscar.
+
+    Returns:
+        str: Estado de ejecución si se encuentra el modelo.
+        str: Mensaje de error si no se encuentra el modelo.
+    """
+    if modelo.get('nombre_modelo') == nombre_modelo:
+        return modelo.get('execution_state', 'No disponible')
+
+    return f""
+
+
+
+def obtener_fecha_por_modelo_full(modelo, nombre_modelo):
+    """
+    Busca un modelo por su nombre y retorna su fecha de ejecución.
+
+    Args:
+        modelo (dict): Diccionario que contiene información del modelo.
+        nombre_modelo (str): Nombre del modelo a buscar.
+
+    Returns:
+        str: Fecha de ejecución si se encuentra el modelo.
+        str: Mensaje de error si no se encuentra el modelo.
+    """
+    if modelo.get('nombre_modelo') == nombre_modelo:
+        return modelo.get('fecha_de_ejecucion', 'No disponible')
+
+    return f""
+
+
 def obtener_fecha_por_modelo(modelo, nombre_modelo):
     """
     Busca un modelo por su nombre y retorna su fecha de ejecución.
@@ -52,7 +91,7 @@ def obtener_fecha_por_modelo_Score(modelo, nombre_modelo):
         str: Mensaje de error si no se encuentra el modelo.
     """
     if modelo.get('model_name') == nombre_modelo:
-        return modelo.get('fecha_de_ejecucion', 'No disponible')
+        return modelo.get('execution_date', 'No disponible')
 
     return f""
 
@@ -85,7 +124,7 @@ def procesar_etapa(base_datos, id_version, etapa_nombre):
 
 
 
-def procesar_etapa_validacion_full(base_datos, id_validacion_sc, etapa_nombre):
+def procesar_etapa_validacion_full(base_datos, id_validacion_sc, id_file, etapa_nombre):
     """
     Procesa una etapa específica, obteniendo estado y fecha para el modelo.
 
@@ -96,15 +135,15 @@ def procesar_etapa_validacion_full(base_datos, id_validacion_sc, etapa_nombre):
     """
     # Obtener el último modelo
     nombre_modelo = etapa_nombre
-    ult_model = obtener_ultimo_modelo_por_validacion_sc_y_nombre(base_datos, id_validacion_sc, nombre_modelo)
+    ult_model = obtener_ultimo_modelo_por_validacion_sc_y_nombre(base_datos, id_validacion_sc, id_file, nombre_modelo)
 
     print(f"ult_model {ult_model}")
     # Obtener el estado del modelo para la etapa
-    estado_model = obtener_estado_por_modelo(ult_model, etapa_nombre)
+    estado_model = obtener_estado_por_modelo_full(ult_model, etapa_nombre)
    
     print(f"estado_model {estado_model}")
     # Obtener la fecha del modelo para la etapa
-    fecha_model = obtener_fecha_por_modelo(ult_model, etapa_nombre)
+    fecha_model = obtener_fecha_por_modelo_full(ult_model, etapa_nombre)
     
     print(f"fecha_model {fecha_model}")
 
@@ -112,7 +151,7 @@ def procesar_etapa_validacion_full(base_datos, id_validacion_sc, etapa_nombre):
     return estado_model, fecha_model
 
 
-def procesar_etapa_validacion_scroing(base_datos, id_score, etapa_nombre):
+def procesar_etapa_validacion_scroing(base_datos, id_score, id_nombre_file, etapa_nombre):
     """
     Procesa una etapa específica, obteniendo estado y fecha para el modelo.
 
@@ -123,7 +162,7 @@ def procesar_etapa_validacion_scroing(base_datos, id_score, etapa_nombre):
     """
     # Obtener el último modelo
     nombre_modelo = etapa_nombre
-    ult_model = obtener_ultimo_scoring_por_json_version_y_modelo(base_datos, id_score, nombre_modelo)
+    ult_model = obtener_ultimo_scoring_por_json_version_y_modelo(base_datos, id_score, id_nombre_file, nombre_modelo)
 
     print(f"ult_model {ult_model}")
     # Obtener el estado del modelo para la etapa
@@ -306,7 +345,7 @@ def agregar_datos_model_execution_por_id_validacion_scoring(id_validacion_scorin
     # Retornar el ID del registro insertado
     return add
 
-def agregar_datos_model_execution_scoring(id_score, name, nombre_dataset, estado):
+def agregar_datos_model_execution_scoring(id_score, name, id_nombre_file, estado):
     """
     Actualiza un registro en la tabla 'scoring' basado en el ID de score.
 
@@ -332,9 +371,9 @@ def agregar_datos_model_execution_scoring(id_score, name, nombre_dataset, estado
             table_name="scoring",
             update_values={
                 "model_name": name,
-                "nombre_dataset": nombre_dataset,
                 "execution_state": estado,
-                "fecha_de_ejecucion": current_timestamp
+                "fecha_de_ejecucion": current_timestamp,
+                "id_nombre_file": id_nombre_file
             },
             where_conditions={"id_score": id_score},
             connection=connection
@@ -350,30 +389,95 @@ def agregar_datos_model_execution_scoring(id_score, name, nombre_dataset, estado
     finally:
         connection.close() 
 
-def check_execution_status(db_path, version_id=None, json_id=None, id_validacion_sc=None, score_id=None):
+def agregar_datos_model_execution_validcion_full(id_validacion_sc, name, id_nombre_file, estado):
+    """
+    Actualiza un registro en la tabla 'scoring' basado en el ID de score.
+
+    :param id_validacion_sc: ID del registro en la tabla 'scoring' que se debe actualizar.
+    :param name: Nombre del modelo.
+    :param nombre_dataset: Nombre del dataset.
+    :param estado: Estado de la ejecución (por ejemplo, 'Éxito', 'Error', etc.).
+    :return: Cantidad de registros actualizados.
+    """
+    # Verificar si el id_score es válido antes de actualizar
+    if id_validacion_sc is None:
+        raise ValueError("El ID de score no puede ser None")
+
+    # Conectar a la base de datos dentro de la función
+    connection = sqlite3.connect("Modeling_App.db")
+
+    try:
+        # Obtener la fecha actual
+        current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # Llamar a la función genérica update_table()
+        registros_actualizados = update_table(
+            table_name="validation_scoring",
+            update_values={
+                "nombre_modelo": name,
+                "execution_state": estado,
+                "fecha_de_ejecucion": current_timestamp,
+                "id_nombre_file": id_nombre_file
+            },
+            where_conditions={"id_validacion_sc": id_validacion_sc},
+            connection=connection
+        )
+
+        print(f"Registro actualizado para id_validacion_sc {id_validacion_sc} con fecha {current_timestamp} y  estado {estado}")
+        return registros_actualizados  # Retorna la cantidad de registros actualizados
+
+    except sqlite3.Error as e:
+        print(f"Error al actualizar la tabla 'id_validacion_sc': {e}")
+        return 0
+
+    finally:
+        connection.close() 
+
+
+def check_execution_status(db_path, version_id=None, json_id=None, id_validacion_sc=None, score_id=None, id_nombre_file=None):
     """
     Verifica el estado de ejecución de un modelo en la base de datos SQLite.
 
     :param db_path: Ruta al archivo de la base de datos.
     :param version_id: (Opcional) ID de la versión del modelo en 'model_execution'.
-    :param json_id: (Opcional) ID del JSON de la versión en 'model_execution' o 'scoring'.
-    :param id_validacion_sc: (Opcional) ID del dataset en 'model_execution'.
-    :param score_id: (Opcional) ID del score en 'scoring'.
-    :return: Estado de ejecución del modelo si existe, None si no se encuentra.
+    :param json_id: (Opcional) ID del JSON de la versión en 'model_execution', 'scoring' o 'validation_scoring'.
+    :param id_validacion_sc: (Opcional) ID de validación en 'validation_scoring'.
+    :param score_id: (Opcional) ID del scoring en 'scoring'.
+    :param id_nombre_file: (Opcional) ID del archivo en 'scoring' o 'validation_scoring'.
+    :return: Estado de ejecución del modelo si existe, 'No ejecutado' si no se encuentra.
     """
     conn = sqlite3.connect(db_path)
     cur = conn.cursor()
 
     try:
-        # Si score_id es None, descartamos la consulta a 'scoring'
+        ####### 🔹 VERIFICACIÓN EN SCORING #######
         if score_id is not None and isinstance(score_id, int):
-            query = "SELECT execution_state FROM scoring WHERE id_score = ?"
+            query = '''
+            SELECT execution_state FROM scoring 
+            WHERE id_score = ?
+            ORDER BY datetime(fecha_de_ejecucion) DESC, id_score DESC
+            LIMIT 1;
+            '''
             cur.execute(query, (score_id,))
             result = cur.fetchone()
             if result:
                 return result[0]
 
-        # Si version_id, json_id o id_validacion_sc son None, descartamos la consulta a 'model_execution'
+        ####### 🔹 VERIFICACIÓN EN VALIDATION_SCORING #######
+        if id_validacion_sc is not None:
+            query = '''
+            SELECT execution_state FROM validation_scoring 
+            WHERE id_validacion_sc = ?
+            ORDER BY datetime(fecha_de_ejecucion) DESC, id_validacion_sc DESC
+            LIMIT 1;
+            '''
+            cur.execute(query, (id_validacion_sc,))
+            result = cur.fetchone()
+            if result:
+                print(f"imprimiendo resultado  {result}")
+                return result[0]
+
+        ####### 🔹 VERIFICACIÓN EN MODEL_EXECUTION #######
         params = []
         query = "SELECT execution_state FROM model_execution WHERE 1=1"
 
@@ -389,23 +493,26 @@ def check_execution_status(db_path, version_id=None, json_id=None, id_validacion
             query += " AND id_validacion_sc = ?"
             params.append(id_validacion_sc)
 
+        if id_nombre_file is not None and isinstance(id_nombre_file, int):
+            query += " AND id_nombre_file = ?"
+            params.append(id_nombre_file)
+
         # Solo ejecutamos la consulta si hay condiciones válidas
         if params:
-            print(f"🔎 Buscando en 'model_execution' con {params}")
+            query += " ORDER BY datetime(execution_date) DESC, version_id DESC LIMIT 1;"
             cur.execute(query, params)
             result = cur.fetchone()
-            return result[0] if result else None
+            return result[0] if result else "No ejecutado"
 
-        print("⚠️ Ningún parámetro válido fue proporcionado, devolviendo None")
-        return None
+        print("Ningún parámetro válido fue proporcionado, devolviendo 'No ejecutado'")
+        return "No ejecutado"
 
     except sqlite3.Error as e:
-        print(f"❌ Error al consultar la base de datos: {e}")
-        return None
+        print(f"Error al consultar la base de datos: {e}")
+        return "Error en base de datos"
 
     finally:
         conn.close()
-
 
 def monitorizar_archivo(path, nombre_archivo):
     """
