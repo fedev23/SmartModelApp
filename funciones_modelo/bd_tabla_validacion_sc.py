@@ -72,9 +72,11 @@ def obtener_ultimo_id_validation_scoring_por_json_version(json_versiones_id, tab
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()
 
-        # Consulta SQL para obtener el último ID basado en 'ultima_vez_usado'
+        # Determinar el nombre de la columna ID dependiendo de la tabla
+        id_columna = "id_validacion_sc" if tabla == "validation_scoring" else "id_score"
+
         query = f"""
-            SELECT {tabla}.id_validacion_sc
+            SELECT {tabla}.{id_columna}
             FROM {tabla}
             WHERE {tabla}.json_versiones_id = ? AND {tabla}.ultima_vez_usado IS NOT NULL
             ORDER BY datetime({tabla}.ultima_vez_usado) DESC
@@ -90,4 +92,38 @@ def obtener_ultimo_id_validation_scoring_por_json_version(json_versiones_id, tab
     except sqlite3.Error as e:
         print(f"Error al obtener el último ID en la tabla {tabla} para json_versiones_id={json_versiones_id}: {e}")
         return None
+    
+    
+    
+def obtener_ultimo_id_scoring(json_versiones_id, database_path="Modeling_App.db"):
+    """
+    Obtiene el último ID utilizado en la tabla 'scoring' para un json_versiones_id dado,
+    basado en la columna 'ultima_vez_usado'.
+
+    :param json_versiones_id: ID de la versión JSON a buscar.
+    :param database_path: Ruta de la base de datos SQLite.
+    :return: ID del último registro usado o None si no hay registros.
+    """
+    try:
+        conn = sqlite3.connect(database_path)
+        cursor = conn.cursor()
+
+        query = """
+            SELECT id_score
+            FROM scoring 
+            WHERE json_versiones_id = ? AND ultima_vez_usado IS NOT NULL
+            ORDER BY datetime(ultima_vez_usado) DESC
+            LIMIT 1;
+        """
+
+        cursor.execute(query, (json_versiones_id,))
+        row = cursor.fetchone()
+        conn.close()
+
+        return row[0] if row else None
+
+    except sqlite3.Error as e:
+        print(f"Error al obtener el último ID en la tabla 'scoring' para json_versiones_id={json_versiones_id}: {e}")
+        return None
+
 

@@ -113,12 +113,12 @@ def server_out_of_sample(input, output, session, name_suffix):
             nombre_version=global_session.get_versiones_parametros_nombre()
         )
         
+        print(valid,"value valid?")
         if valid is False:
             ui.modal_show(create_modal_generic("modal_existe_of", "Ya hay un modelo Full generado."))
             return 
         
         if modelo_of_sample.pisar_el_modelo_actual.get() or valid:
-            print("estoy pasando este if?")
             validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
             try:
                 
@@ -182,7 +182,7 @@ def server_out_of_sample(input, output, session, name_suffix):
             if modelo_of_sample.proceso_ok.get():
                 print("no falle")
                 agregar_datos_model_execution_por_id_validacion_scoring(global_session_V3.id_validacion_scoring.get(),  modelo_of_sample.nombre, global_session_V2.get_nombre_dataset_validacion_sc(), estado="Éxito")
-                estado_out_sample , hora_of_sample = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_validacion_sc=global_session_V3.id_validacion_scoring.get(), etapa_nombre=modelo_of_sample.nombre)
+                estado_out_sample , hora_of_sample = procesar_etapa_validacion_full(base_datos="Modeling_App.db", id_validacion_sc=global_session_V3.id_validacion_scoring.get(), etapa_nombre=modelo_of_sample.nombre)
                 print(f"estado_out_sample {estado_out_sample}, hora_of_sample: {hora_of_sample}")
                 global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
                 global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
@@ -191,7 +191,7 @@ def server_out_of_sample(input, output, session, name_suffix):
                 
             if modelo_of_sample.proceso_fallo.get():
                 agregar_datos_model_execution_por_id_validacion_scoring(global_session_V3.id_validacion_scoring.get(), modelo_of_sample.nombre, global_session_V2.get_nombre_dataset_validacion_sc(), estado="Error")
-                estado_out_sample , hora_of_sample = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_validacion_sc=global_session_V3.id_validacion_scoring.get(), etapa_nombre=modelo_of_sample.nombre)
+                estado_out_sample , hora_of_sample = procesar_etapa_validacion_full(base_datos="Modeling_App.db", id_validacion_sc=global_session_V3.id_validacion_scoring.get(), etapa_nombre=modelo_of_sample.nombre)
                 print(f"estado_out_sample {estado_out_sample}, hora_of_sample: {hora_of_sample}")
                 global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
                 global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
@@ -229,31 +229,35 @@ def server_out_of_sample(input, output, session, name_suffix):
         if click.get() < 1:
             return "Esperando inicio..."
 
-        path_datos_salida  = get_folder_directory_data_validacion_scoring_SALIDA(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
-        
-        name_file = "progreso.txt"
+        if modelo_of_sample.proceso_fallo.get() is False:
+            
 
-        # Obtener el último porcentaje del archivo
-        ultimo_porcentaje = monitorizar_archivo(path_datos_salida, nombre_archivo=name_file)
+            path_datos_salida  = get_folder_directory_data_validacion_scoring_SALIDA(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
+            
+            print(path_datos_salida, "path salida")
+            name_file = "progreso.txt"
 
-        if ultimo_porcentaje == "100%":  # Si ya llegó al 100%, detener actualización
-            print("Proceso completado. No se seguirá actualizando.")
-            return "100%"
+            # Obtener el último porcentaje del archivo
+            ultimo_porcentaje = monitorizar_archivo(path_datos_salida, nombre_archivo=name_file)
 
-        # Actualizar variable reactiva
-        modelo_of_sample.file_reactivo.set((ultimo_porcentaje))
-        print(f"Último porcentaje capturado: {modelo_of_sample.file_reactivo.get()}")
+            if ultimo_porcentaje == "100%":  # Si ya llegó al 100%, detener actualización
+                print("Proceso completado. No se seguirá actualizando.")
+                return "100%"
 
-        # Reactivar cada 3 segundos si aún no ha llegado al 100%
-        reactive.invalidate_later(3)
+            # Actualizar variable reactiva
+            modelo_of_sample.file_reactivo.set((ultimo_porcentaje))
+            print(f"Último porcentaje capturado: {modelo_of_sample.file_reactivo.get()}")
 
-        return ultimo_porcentaje
+            # Reactivar cada 3 segundos si aún no ha llegado al 100%
+            reactive.invalidate_later(1)
+
+            return ultimo_porcentaje
 
     # Mostrar el contenido del archivo en la UI
     @render.ui
     def value_of_sample():
         """Muestra el contenido actualizado del archivo en la UI."""
-        return f"Última línea: {leer_archivo()}"
+        return f"Porcentaje de ejecucion {leer_archivo()}"
     
     
     @reactive.effect

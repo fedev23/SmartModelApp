@@ -209,9 +209,8 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
                 modelo_existe.set(True)
                 global_session_V2.set_nombre_dataset_validacion_sc(nombre_modelo_usado)
             
-            print(f"que valor tengo aca? {global_session_V3.id_validacion_scoring.get()}")
             if global_session_V3.id_validacion_scoring.get() is not None:
-                estado_out_sample , hora_of_sample = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_validacion_sc=global_session_V3.id_validacion_scoring.get(), etapa_nombre=modelo_of_sample.nombre)
+                estado_out_sample , hora_of_sample = procesar_etapa_validacion_full(base_datos="Modeling_App.db", id_validacion_sc=global_session_V3.id_validacion_scoring.get(), etapa_nombre=modelo_of_sample.nombre)
                 global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
                 global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
             else:

@@ -1,5 +1,6 @@
 from api.db.sqlite_utils import *
 from api.db import *
+from api.db.utils.update_genric import *
 import os , re
 
 
@@ -38,6 +39,24 @@ def obtener_fecha_por_modelo(modelo, nombre_modelo):
     return f""
 
 
+def obtener_fecha_por_modelo_Score(modelo, nombre_modelo):
+    """
+    Busca un modelo por su nombre y retorna su fecha de ejecución.
+
+    Args:
+        modelo (dict): Diccionario que contiene información del modelo.
+        nombre_modelo (str): Nombre del modelo a buscar.
+
+    Returns:
+        str: Fecha de ejecución si se encuentra el modelo.
+        str: Mensaje de error si no se encuentra el modelo.
+    """
+    if modelo.get('model_name') == nombre_modelo:
+        return modelo.get('fecha_de_ejecucion', 'No disponible')
+
+    return f""
+
+
 
 
 
@@ -66,7 +85,7 @@ def procesar_etapa(base_datos, id_version, etapa_nombre):
 
 
 
-def procesar_etapa_validacion_scroing(base_datos, id_validacion_sc, etapa_nombre):
+def procesar_etapa_validacion_full(base_datos, id_validacion_sc, etapa_nombre):
     """
     Procesa una etapa específica, obteniendo estado y fecha para el modelo.
 
@@ -112,7 +131,7 @@ def procesar_etapa_validacion_scroing(base_datos, id_score, etapa_nombre):
    
     print(f"estado_model {estado_model}")
     # Obtener la fecha del modelo para la etapa
-    fecha_model = obtener_fecha_por_modelo(ult_model, etapa_nombre)
+    fecha_model = obtener_fecha_por_modelo_Score(ult_model, etapa_nombre)
     
     print(f"fecha_model {fecha_model}")
 
@@ -287,40 +306,49 @@ def agregar_datos_model_execution_por_id_validacion_scoring(id_validacion_scorin
     # Retornar el ID del registro insertado
     return add
 
-
-
-def agregar_datos_model_execution_scoring(id_score,  name, nombre_dataset, estado):
+def agregar_datos_model_execution_scoring(id_score, name, nombre_dataset, estado):
     """
-    Inserta un registro en la tabla model_execution basado únicamente en json_version_id.
+    Actualiza un registro en la tabla 'scoring' basado en el ID de score.
 
-    :param json_version_id: ID del JSON de la versión.
+    :param id_score: ID del registro en la tabla 'scoring' que se debe actualizar.
     :param name: Nombre del modelo.
     :param nombre_dataset: Nombre del dataset.
-    :param estado: Estado de la ejecución (por ejemplo, 'Exito', 'Error', etc.).
-    :return: ID del último registro insertado.
+    :param estado: Estado de la ejecución (por ejemplo, 'Éxito', 'Error', etc.).
+    :return: Cantidad de registros actualizados.
     """
-    # Valores requeridos para la inserción
-    nombre_modelo = name
-    dataset_name = nombre_dataset
-    current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    execution_state = estado
+    # Verificar si el id_score es válido antes de actualizar
+    if id_score is None:
+        raise ValueError("El ID de score no puede ser None")
 
-    # Definir la tabla y las columnas
-    table_name = "scoring"
-    columns = ['id_score', 'fecha_de_ejecucion', 'model_name', 'nombre_dataset', 'execution_state']
-    values = [id_score, current_timestamp, nombre_modelo, dataset_name, execution_state]
+    # Conectar a la base de datos dentro de la función
+    connection = sqlite3.connect("Modeling_App.db")
 
-    print(f"hora {current_timestamp}")
-    print(f"fecha {execution_state}")
-    add = insert_into_table(table_name, columns, values)
-    
-    print("REGISTRO INSERT")
+    try:
+        # Obtener la fecha actual
+        current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # Retornar el ID del registro insertado
-    return add
+        # Llamar a la función genérica update_table()
+        registros_actualizados = update_table(
+            table_name="scoring",
+            update_values={
+                "model_name": name,
+                "nombre_dataset": nombre_dataset,
+                "execution_state": estado,
+                "fecha_de_ejecucion": current_timestamp
+            },
+            where_conditions={"id_score": id_score},
+            connection=connection
+        )
 
+        print(f"Registro actualizado para id_score {id_score} con fecha {current_timestamp}")
+        return registros_actualizados  # Retorna la cantidad de registros actualizados
 
-import sqlite3
+    except sqlite3.Error as e:
+        print(f"Error al actualizar la tabla 'scoring': {e}")
+        return 0
+
+    finally:
+        connection.close() 
 
 def check_execution_status(db_path, version_id=None, json_id=None, id_validacion_sc=None, score_id=None):
     """
@@ -339,7 +367,6 @@ def check_execution_status(db_path, version_id=None, json_id=None, id_validacion
     try:
         # Si score_id es None, descartamos la consulta a 'scoring'
         if score_id is not None and isinstance(score_id, int):
-            print(f"🔎 Buscando en 'scoring' con id_score={score_id}")
             query = "SELECT execution_state FROM scoring WHERE id_score = ?"
             cur.execute(query, (score_id,))
             result = cur.fetchone()
@@ -359,7 +386,7 @@ def check_execution_status(db_path, version_id=None, json_id=None, id_validacion
             params.append(json_id)
 
         if id_validacion_sc is not None and isinstance(id_validacion_sc, int):
-            query += " AND dataset_id = ?"
+            query += " AND id_validacion_sc = ?"
             params.append(id_validacion_sc)
 
         # Solo ejecutamos la consulta si hay condiciones válidas
@@ -380,28 +407,32 @@ def check_execution_status(db_path, version_id=None, json_id=None, id_validacion
         conn.close()
 
 
-
 def monitorizar_archivo(path, nombre_archivo):
-        """Lee el último porcentaje de progreso de un archivo y lo retorna."""
-        archivo_path = os.path.join(path, nombre_archivo)
+    """
+    Lee el último porcentaje de progreso de un archivo y lo retorna.
+    Si el archivo existe, lo borra antes de crearlo de nuevo.
 
-        # Verificar si el archivo existe
-        if not os.path.exists(archivo_path):
-            return "0%"  # Devolver 0% si el archivo aún no existe
+    :param path: Ruta del directorio donde se encuentra el archivo.
+    :param nombre_archivo: Nombre del archivo a monitorizar.
+    :return: Último porcentaje de progreso en formato "X%" o "0%" si no hay progreso registrado.
+    """
+    archivo_path = os.path.join(path, nombre_archivo)
 
+    # Si el archivo existe, eliminarlo
+    if os.path.exists(archivo_path):
         try:
-            with open(archivo_path, "r") as f:
-                lineas = f.readlines()
-
-            # Buscar el último porcentaje en formato "X%"
-            progresos = [re.search(r'(\d+)%', linea) for linea in lineas]
-            progresos = [int(match.group(1)) for match in progresos if match]  # Convertir a enteros
-
-            if progresos:
-                return f"{progresos[-1]}%"  # Último porcentaje detectado
-            else:
-                return "0%"  # Si no encuentra progreso, devolver 0%
-        
+            os.remove(archivo_path)
         except Exception as e:
-            print(f"Error leyendo el archivo de progreso: {str(e)}")
-            return "0%"  # En caso de error, devolver 0%
+            print(f"Error al eliminar el archivo '{archivo_path}': {str(e)}")
+            return "0%"  # En caso de error al borrar, devolver 0%
+
+    # Crear un archivo vacío para iniciar desde 0 si se necesita
+    try:
+        with open(archivo_path, "w") as f:
+            f.write("")  # Se crea un archivo vacío
+        print(f"✅ Archivo '{archivo_path}' creado nuevamente.")
+    except Exception as e:
+        print(f"❌ Error al crear el archivo '{archivo_path}': {str(e)}")
+        return "0%"  # En caso de error, devolver 0%
+
+    return "0%"  # Siempre inicia en 0% al recrear el archivo

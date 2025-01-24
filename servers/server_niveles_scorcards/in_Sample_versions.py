@@ -8,7 +8,7 @@ from clases.global_session import global_session
 from api.db.sqlite_utils import *
 from funciones.funciones_user import create_modal_v2, create_modal_versiones_param, button_remove
 from api.db import *
-from funciones_modelo.bd_tabla_validacion_sc import obtener_ultimo_id_validation_scoring_por_json_version
+from funciones_modelo.bd_tabla_validacion_sc import obtener_ultimo_id_validation_scoring_por_json_version, obtener_ultimo_id_scoring
 from clases.global_sessionV2 import *
 from clases.global_sessionV3 import *
 from funciones.utils_2 import crear_carpeta_version_parametros
@@ -82,11 +82,11 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
             versiones_id = input.version_selector()
             global_session.set_version_parametros_id(versiones_id)
             ultimo_id_validacion_score = obtener_ultimo_id_validation_scoring_por_json_version(global_session.get_version_parametros_id(), "validation_scoring")
-            ultimo_id_score = obtener_ultimo_id_validation_scoring_por_json_version(global_session.get_version_parametros_id(), "scoring")
+            ultimo_id_score = obtener_ultimo_id_scoring(global_session.get_version_parametros_id())
             
             
             if ultimo_id_validacion_score:  # Verifica si hay un registro válido
-                global_session_V3.id_validacion_scoring.set(ultimo_id_validacion_score["id_validacion_sc"])
+                global_session_V3.id_validacion_scoring.set(ultimo_id_validacion_score)
             else:
                 global_session_V3.id_validacion_scoring.set(None)
                 

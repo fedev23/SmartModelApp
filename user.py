@@ -120,8 +120,9 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     
         print(nombre_files_validacion_sc, "value?")
         global_session_V2.set_opciones_name_dataset_Validation_sc(obtener_opciones_versiones(nombre_files_validacion_sc, "id_validacion_sc", "nombre_archivo_validation_sc"))
+        print(f"valor de opciones data {global_session_V2.get_opciones_name_dataset_Validation_sc()}")
         data_predeterminado.set(obtener_ultimo_id_version(nombre_files_validacion_sc, 'id_validacion_sc'))
-
+        print(f"data {data_predeterminado.get()}")
         #LEEO ELDATA SET SI EXISTE
         # Actualiza los selectores en la UI
         nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
