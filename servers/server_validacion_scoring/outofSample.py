@@ -97,14 +97,13 @@ def server_out_of_sample(input, output, session, name_suffix):
         proceso = modelo_of_sample.proceso.get()
         
         
-        id_version_score = insert_validation_scoring("validation_scoring", global_session_V2.nombre_dataset_validacion_sc(), global_session.get_version_parametros_id(), modelo_of_sample.nombre)
-        
-        global_session_V3.id_validacion_scoring.set(id_version_score)
         validar_ids = check_if_exist_id_version_id_niveles_scord(global_session.get_id_version(), global_session.get_version_parametros_id())
         if validar_ids:
             ui.modal_show(create_modal_generic("boton_advertencia_ejecute_of", f"Es obligatorio generar una versión de {global_name_out_of_Sample} y una versión para continuar."))
             return
 
+
+        print(f"global_session_V3.id_validacion_scoring.get(), {global_session_V3.id_validacion_scoring.get()}")
         valid = validar_existencia_modelo(
             modelo_of_sample.pisar_el_modelo_actual.get(),
             base_datos="Modeling_App.db",
@@ -113,15 +112,15 @@ def server_out_of_sample(input, output, session, name_suffix):
             nombre_version=global_session.get_versiones_parametros_nombre()
         )
         
-        print(valid,"value valid?")
-        if valid is False:
-            ui.modal_show(create_modal_generic("modal_existe_of", "Ya hay un modelo Full generado."))
-            return 
-        
+       
+     
         if modelo_of_sample.pisar_el_modelo_actual.get() or valid:
             validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
             try:
-                
+                id_version_score = insert_validation_scoring("validation_scoring", global_session_V2.nombre_dataset_validacion_sc(), global_session.get_version_parametros_id(), modelo_of_sample.nombre)
+        
+                global_session_V3.id_validacion_scoring.set(id_version_score)
+        
                 input_target_of_sample = input['selectize_columnas_target']()
                 print(input_target_of_sample)
                 #input_target_of_sample = cambiarAstring(input_target_of_sample)

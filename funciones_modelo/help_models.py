@@ -474,7 +474,7 @@ def check_execution_status(db_path, version_id=None, json_id=None, id_validacion
             cur.execute(query, (id_validacion_sc,))
             result = cur.fetchone()
             if result:
-                print(f"imprimiendo resultado  {result}")
+                print(f"imprimiendo resultado  {result} , para el id {id_validacion_sc}")
                 return result[0]
 
         ####### 🔹 VERIFICACIÓN EN MODEL_EXECUTION #######

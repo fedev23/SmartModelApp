@@ -84,7 +84,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
             ultimo_id_validacion_score = obtener_ultimo_id_validation_scoring_por_json_version(global_session.get_version_parametros_id(), "validation_scoring")
             ultimo_id_score = obtener_ultimo_id_scoring(global_session.get_version_parametros_id())
             
-            
+            print(ultimo_id_validacion_score , "ultimo id??")
             if ultimo_id_validacion_score:  # Verifica si hay un registro válido
                 global_session_V3.id_validacion_scoring.set(ultimo_id_validacion_score)
             else:
