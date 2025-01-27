@@ -379,7 +379,7 @@ def agregar_datos_model_execution_scoring(id_score, name, id_nombre_file, estado
             connection=connection
         )
 
-        print(f"Registro actualizado para id_score {id_score} con fecha {current_timestamp}")
+        print(f"Registro actualizado para id_score {id_score} id data {id_nombre_file} con fecha {current_timestamp}")
         return registros_actualizados  # Retorna la cantidad de registros actualizados
 
     except sqlite3.Error as e:
@@ -515,31 +515,26 @@ def check_execution_status(db_path, version_id=None, json_id=None, id_validacion
         conn.close()
 
 def monitorizar_archivo(path, nombre_archivo):
-    """
-    Lee el último porcentaje de progreso de un archivo y lo retorna.
-    Si el archivo existe, lo borra antes de crearlo de nuevo.
+        """Lee el último porcentaje de progreso de un archivo y lo retorna."""
+        archivo_path = os.path.join(path, nombre_archivo)
 
-    :param path: Ruta del directorio donde se encuentra el archivo.
-    :param nombre_archivo: Nombre del archivo a monitorizar.
-    :return: Último porcentaje de progreso en formato "X%" o "0%" si no hay progreso registrado.
-    """
-    archivo_path = os.path.join(path, nombre_archivo)
+        # Verificar si el archivo existe
+        if not os.path.exists(archivo_path):
+            return "0%"  # Devolver 0% si el archivo aún no existe
 
-    # Si el archivo existe, eliminarlo
-    if os.path.exists(archivo_path):
         try:
-            os.remove(archivo_path)
+            with open(archivo_path, "r") as f:
+                lineas = f.readlines()
+
+            # Buscar el último porcentaje en formato "X%"
+            progresos = [re.search(r'(\d+)%', linea) for linea in lineas]
+            progresos = [int(match.group(1)) for match in progresos if match]  # Convertir a enteros
+
+            if progresos:
+                return f"{progresos[-1]}%"  # Último porcentaje detectado
+            else:
+                return "0%"  # Si no encuentra progreso, devolver 0%
+        
         except Exception as e:
-            print(f"Error al eliminar el archivo '{archivo_path}': {str(e)}")
-            return "0%"  # En caso de error al borrar, devolver 0%
-
-    # Crear un archivo vacío para iniciar desde 0 si se necesita
-    try:
-        with open(archivo_path, "w") as f:
-            f.write("")  # Se crea un archivo vacío
-        print(f"✅ Archivo '{archivo_path}' creado nuevamente.")
-    except Exception as e:
-        print(f"❌ Error al crear el archivo '{archivo_path}': {str(e)}")
-        return "0%"  # En caso de error, devolver 0%
-
-    return "0%"  # Siempre inicia en 0% al recrear el archivo
+            print(f"Error leyendo el archivo de progreso: {str(e)}")
+            return "0%"  # En caso de error, devolver 0%

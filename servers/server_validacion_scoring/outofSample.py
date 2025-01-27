@@ -1,7 +1,7 @@
 from shiny import reactive, render, ui
 from funciones.create_param import create_screen
 from clases.class_screens import ScreenClass
-from global_var import global_data_loader_manager
+from api.db.up_date import *
 from funciones.utils_2 import *
 from clases.global_modelo import modelo_of_sample
 from clases.global_session import global_session
@@ -35,8 +35,7 @@ def server_out_of_sample(input, output, session, name_suffix):
     name = "Out-Of-Sample"
     click =  reactive.Value(0)
     global_names_reactivos.name_validacion_of_to_sample_set(name_suffix)
-    data_loader = global_data_loader_manager.get_loader(name_suffix)
-    
+    file_lines = reactive.Value("")
 
     # Instanciamos la clase ScreenClass
     #screen_instance = ScreenClass(directorio_validacion, name_suffix)
@@ -97,6 +96,13 @@ def server_out_of_sample(input, output, session, name_suffix):
         proceso = modelo_of_sample.proceso.get()
         
         
+        ultimo_id_file = obtener_ultimo_id_file_del_ultimo_modelo(global_session.get_id_proyecto())
+       
+        if ultimo_id_file != global_session_V2.get_id_Data_validacion_sc():
+            id_version_score = insert_validation_scoring("validation_scoring", global_session_V2.nombre_dataset_validacion_sc(), global_session.get_version_parametros_id(), modelo_of_sample.nombre)
+            global_session_V3.id_validacion_scoring.set(id_version_score)
+        
+            
         validar_ids = check_if_exist_id_version_id_niveles_scord(global_session.get_id_version(), global_session.get_version_parametros_id())
         if validar_ids:
             ui.modal_show(create_modal_generic("boton_advertencia_ejecute_of", f"Es obligatorio generar una versión de {global_name_out_of_Sample} y una versión para continuar."))
@@ -230,7 +236,6 @@ def server_out_of_sample(input, output, session, name_suffix):
 
         if modelo_of_sample.proceso_fallo.get() is False:
             
-
             path_datos_salida  = get_folder_directory_data_validacion_scoring_SALIDA(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
             
             print(path_datos_salida, "path salida")
@@ -239,18 +244,22 @@ def server_out_of_sample(input, output, session, name_suffix):
             # Obtener el último porcentaje del archivo
             ultimo_porcentaje = monitorizar_archivo(path_datos_salida, nombre_archivo=name_file)
 
+           # Obtener el último porcentaje del archivo
+        
             if ultimo_porcentaje == "100%":  # Si ya llegó al 100%, detener actualización
                 print("Proceso completado. No se seguirá actualizando.")
                 return "100%"
 
             # Actualizar variable reactiva
-            modelo_of_sample.file_reactivo.set((ultimo_porcentaje))
-            print(f"Último porcentaje capturado: {modelo_of_sample.file_reactivo.get()}")
+            file_lines.set(ultimo_porcentaje)
+            print(f"Último porcentaje capturado: {file_lines.get()}")
 
             # Reactivar cada 3 segundos si aún no ha llegado al 100%
-            reactive.invalidate_later(1)
+            reactive.invalidate_later(3)
 
             return ultimo_porcentaje
+        else:
+            return file_lines.get()
 
     # Mostrar el contenido del archivo en la UI
     @render.ui

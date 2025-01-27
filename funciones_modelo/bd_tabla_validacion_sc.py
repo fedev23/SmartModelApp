@@ -94,36 +94,46 @@ def obtener_ultimo_id_validation_scoring_por_json_version(json_versiones_id, tab
         return None
     
     
-    
-def obtener_ultimo_id_scoring(json_versiones_id, database_path="Modeling_App.db"):
-    """
-    Obtiene el último ID utilizado en la tabla 'scoring' para un json_versiones_id dado,
-    basado en la columna 'ultima_vez_usado'.
 
-    :param json_versiones_id: ID de la versión JSON a buscar.
-    :param database_path: Ruta de la base de datos SQLite.
-    :return: ID del último registro usado o None si no hay registros.
+def obtener_ultimo_id_scoring_por_id_data_y_version(id_nombre_file, json_versiones_id):
     """
+    Obtiene el último ID de scoring (id_score) en la tabla 'scoring'
+    a partir del ID del dataset (id_nombre_file) y la versión de niveles (json_versiones_id).
+
+    Args:
+        id_nombre_file (int): ID del dataset.
+        json_versiones_id (int): ID de la versión de niveles asociada.
+
+    Returns:
+        int: ID de scoring si se encuentra.
+        None: Si no hay registros asociados a ese dataset y versión de niveles.
+    """
+    conn = sqlite3.connect("Modeling_App.db")  # Conectar a la base de datos
+    cursor = conn.cursor()
+
     try:
-        conn = sqlite3.connect(database_path)
-        cursor = conn.cursor()
+        print(f"Buscando scoring para dataset {id_nombre_file} y versión {json_versiones_id}...")
 
-        query = """
+        # Consulta para obtener el último id_score del dataset y versión de niveles
+        cursor.execute("""
             SELECT id_score
-            FROM scoring 
-            WHERE json_versiones_id = ? AND ultima_vez_usado IS NOT NULL
-            ORDER BY datetime(ultima_vez_usado) DESC
-            LIMIT 1;
-        """
+            FROM scoring
+            WHERE id_nombre_file = ? AND json_versiones_id = ?
+            ORDER BY datetime(fecha_de_ejecucion) DESC
+            LIMIT 1
+        """, (id_nombre_file, json_versiones_id))
 
-        cursor.execute(query, (json_versiones_id,))
-        row = cursor.fetchone()
-        conn.close()
+        resultado = cursor.fetchone()
 
-        return row[0] if row else None
+        if resultado:
+            return resultado[0]  # Devuelve el id_score
+        else:
+            print(f"No se encontró un scoring para dataset {id_nombre_file} con versión {json_versiones_id}.")
+            return None
 
     except sqlite3.Error as e:
-        print(f"Error al obtener el último ID en la tabla 'scoring' para json_versiones_id={json_versiones_id}: {e}")
+        print(f"Error al obtener el id_score para dataset {id_nombre_file} y versión {json_versiones_id}: {e}")
         return None
 
-
+    finally:
+        conn.close()

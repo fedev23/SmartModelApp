@@ -8,12 +8,13 @@ from clases.global_session import global_session
 from api.db.sqlite_utils import *
 from funciones.funciones_user import create_modal_v2, create_modal_versiones_param, button_remove
 from api.db import *
-from funciones_modelo.bd_tabla_validacion_sc import obtener_ultimo_id_validation_scoring_por_json_version, obtener_ultimo_id_scoring
+from funciones_modelo.bd_tabla_validacion_sc import obtener_ultimo_id_validation_scoring_por_json_version, obtener_ultimo_id_scoring_por_id_data_y_version
 from clases.global_sessionV2 import *
 from clases.global_sessionV3 import *
 from funciones.utils_2 import crear_carpeta_version_parametros
 from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version, eliminar_carpeta
 from datetime import datetime
+from api.db.up_date import *
 from auth.utils import help_api 
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.help_models import *
@@ -81,8 +82,9 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
             
             versiones_id = input.version_selector()
             global_session.set_version_parametros_id(versiones_id)
-            ultimo_id_validacion_score = obtener_ultimo_id_validation_scoring_por_json_version(global_session.get_version_parametros_id(), "validation_scoring")
-            ultimo_id_score = obtener_ultimo_id_scoring(global_session.get_version_parametros_id())
+            ultimo_id_validacion_score = obtener_ultimo_id_de_validacion_full_por_id_data_y_version(global_session_V2.get_id_Data_validacion_sc(), global_session.get_version_parametros_id())
+            
+            ultimo_id_score = obtener_ultimo_id_scoring_por_id_data_y_version(global_session_V2.get_id_Data_validacion_sc(), global_session.get_version_parametros_id())
             
             print(ultimo_id_validacion_score , "ultimo id??")
             if ultimo_id_validacion_score:  # Verifica si hay un registro válido

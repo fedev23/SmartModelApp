@@ -16,6 +16,7 @@ from funciones.utils import mover_file_reportes_puntoZip
 from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.help_models import *
+from api.db.up_date import obtener_ultimo_id_file_scoring
 from global_names import global_name_out_of_Sample
 
 
@@ -90,7 +91,14 @@ def server_produccion(input, output, session, name_suffix):
             return
 
 
-        print(global_session_V3.id_score.get(), "valor de id score en produc")
+        ultimo_id_file_produccion = obtener_ultimo_id_file_scoring(global_session.get_id_proyecto())
+       
+        if ultimo_id_file_produccion != global_session_V2.get_id_Data_validacion_sc():
+            id_version_score = insert_scoring("scoring" , global_session_V2.nombre_dataset_validacion_sc(), global_session.get_version_parametros_id(), modelo_produccion.nombre)
+            
+            global_session_V3.id_score.set(id_version_score)
+       
+        
         valid = validar_existencia_modelo(
             modelo_produccion.pisar_el_modelo_actual.get(),
             base_datos="Modeling_App.db",
@@ -99,7 +107,6 @@ def server_produccion(input, output, session, name_suffix):
             nombre_version=global_session.get_versiones_parametros_nombre()
         )
         
-        print(valid, "value valid?")
         if modelo_produccion.pisar_el_modelo_actual.get() or valid:
             try:
                 id_version_score = insert_scoring("scoring" , global_session_V2.nombre_dataset_validacion_sc(), global_session.get_version_parametros_id(), modelo_produccion.nombre)
@@ -155,6 +162,7 @@ def server_produccion(input, output, session, name_suffix):
         def insert_data_depends_value():
             base_datos = "Modeling_App.db"
             if modelo_produccion.proceso_ok.get():
+                print(f"id data en proceso ok {global_session_V2.get_id_Data_validacion_sc()}")
                 agregar_datos_model_execution_scoring(global_session_V3.id_score.get(), modelo_produccion.nombre,  global_session_V2.get_id_Data_validacion_sc(), estado="Éxito")
                 estado_produccion , hora_produccion = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_score=global_session_V3.id_score.get(), id_nombre_file=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_produccion.nombre)
                 print(estado_produccion , hora_produccion, "valores?")

@@ -12,6 +12,7 @@ from logica_users.utils.help_versios import obtener_ultimo_nombre_archivo_valida
 from clases.global_sessionV2 import *
 import pandas as pd
 from api.db.up_date import *
+from funciones_modelo.bd_tabla_validacion_sc import *
 from funciones_modelo.help_models import *
 from funciones_modelo.warning_model import validar_existencia_modelo_por_dinamica_de_app, obtener_nombre_dataset
 from clases.global_modelo import global_desarollo
@@ -49,6 +50,7 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
     def seleccionador():
         #PREPARO LA CONSULTA
         data_id = input.files_select_validation_scoring()  # Captura el ID seleccionado
+        print(data_id, "viendo id data")
         global_session_V2.set_id_Data_validacion_sc(data_id)
         base_datos = 'Modeling_App.db'
         nombre_file =  obtener_nombre_file(base_datos, data_id)
@@ -58,7 +60,18 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
             file_name_without_extension = os.path.splitext(nombre_file)[0]
             global_session_V2.nombre_file_sin_extension_validacion_scoring.set(file_name_without_extension)
         ##obengo los valores de la tabla
+        
+        ultimo_id_score = obtener_ultimo_id_scoring_por_id_data_y_version(global_session_V2.get_id_Data_validacion_sc(), global_session.get_version_parametros_id())
+     
+        if ultimo_id_score:
+                global_session_V3.id_score.set(ultimo_id_score)
+        else:
+                global_session_V3.id_score.set(None)
+                
+        
         lista.set(obtener_nombres_files_por_proyecto(global_session.get_id_proyecto()))
+        
+        global_session_V3.id_validacion_scoring.set(obtener_ultimo_id_de_validacion_full_por_id_data_y_version(global_session_V2.get_id_Data_validacion_sc(), global_session.get_version_parametros_id()))
         
         #EL PARAMETRO DE PISAR EL MODELO ACTUAL NO ESTA EN USO POR EL MOMENTO, ESTA HECHO POR SI EN UN MOMENTO SE LE DA LA OPCION DEL USER DE PISAR EL MODELO GENERADO
         modelo_existente = validar_existencia_modelo_por_dinamica_de_app(
@@ -184,6 +197,7 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
                 global_session_V2.set_nombre_dataset_validacion_sc(nombre_modelo_usado)
             
             if global_session_V3.id_validacion_scoring.get() is not None:
+                #global_session_V3.id_validacion_scoring.set(obtener_ultimo_id_de_validacion_full_por_id_data(global_session_V2.get_id_Data_validacion_sc()))
                 estado_out_sample , hora_of_sample = procesar_etapa_validacion_full(base_datos="Modeling_App.db", id_validacion_sc=global_session_V3.id_validacion_scoring.get(), id_file=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_of_sample.nombre)
                 global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
                 global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
@@ -256,13 +270,14 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
     def card_produccion1():
         if  reactivo_dinamico.get() == "2":
             data = global_session_V2.get_data_reactivo_validacion_sc()
-            print(modelo_existe.get())
             if modelo_existe.get():
                     nombre_modelo_usado = obtener_nombre_dataset(global_session.get_version_parametros_id())
                     modelo_existe.set(True)
                     global_session_V2.set_nombre_dataset_validacion_sc(nombre_modelo_usado)
                  
             if global_session_V3.id_score.get() is not None:
+                print(f"id socre {global_session_V3.id_score.get()}")
+                print(f"id data en hay id score{global_session_V2.get_id_Data_validacion_sc()}")
                 estado_produccion , hora_produccion = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_score=global_session_V3.id_score.get(), id_nombre_file=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_produccion.nombre)
                 global_session_modelos.modelo_produccion_estado.set(estado_produccion)
                 global_session_modelos.modelo_produccion_hora.set(hora_produccion)
