@@ -538,3 +538,5 @@ def monitorizar_archivo(path, nombre_archivo):
         except Exception as e:
             print(f"Error leyendo el archivo de progreso: {str(e)}")
             return "0%"  # En caso de error, devolver 0%
+        
+        

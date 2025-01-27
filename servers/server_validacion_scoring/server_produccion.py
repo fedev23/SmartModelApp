@@ -28,7 +28,7 @@ def server_produccion(input, output, session, name_suffix):
     directorio = reactive.Value("")
     click = reactive.Value(0)
     listo_para_ejecutar = reactive.Value(False)
-    
+    ultimo_porcentaje = reactive.Value(0)
    
     
     def see_session():
@@ -137,12 +137,13 @@ def server_produccion(input, output, session, name_suffix):
                 #mover_y_renombrar_archivo(global_session_V2.get_nombre_dataset_validacion_sc(), global_session.get_path_guardar_dataSet_en_proyectos(), name_suffix, path_entrada)
                 
                 path_datos_salida_path  = get_folder_directory_data_validacion_scoring_SALIDA(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
-                
+            
                 if path_datos_salida_path is None:
                     entrada, salida = crear_carpeta_validacion_scoring(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
                     path_datos_salida_path = salida
                 
                 
+                print(f"pat salida antes de correr {path_datos_salida_path}")
                 modelo_produccion.porcentaje_path = path_datos_salida_path
                 click.set(click() + 1)
                 
@@ -200,14 +201,15 @@ def server_produccion(input, output, session, name_suffix):
             if click.get() < 1:
                 return "Esperando inicio..."
 
-            path_datos_salida  = get_folder_directory_data_validacion_scoring(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
+            path_datos_salida  = get_folder_directory_data_validacion_scoring_SALIDA(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
             name_file = "progreso.txt"
 
+            print(f"path_datos_salida {path_datos_salida}")
             # Obtener el último porcentaje del archivo
-            ultimo_porcentaje = monitorizar_archivo(path_datos_salida, nombre_archivo=name_file)
-
-            if ultimo_porcentaje == "100%":  # Si ya llegó al 100%, detener actualización
+            ultimo_porcentaje.set(monitorizar_archivo(path_datos_salida, nombre_archivo=name_file)) 
+            if ultimo_porcentaje.get() == "100%":  # Si ya llegó al 100%, detener actualización
                 print("Proceso completado. No se seguirá actualizando.")
+                modelo_produccion.eliminar_archivo_progreso(path_datos_salida, name_file)
                 return "100%"
 
             # Actualizar variable reactiva
@@ -215,7 +217,7 @@ def server_produccion(input, output, session, name_suffix):
             # Reactivar cada 3 segundos si aún no ha llegado al 100%
             reactive.invalidate_later(2)
 
-            return ultimo_porcentaje
+            return ultimo_porcentaje.get()
 
     # Mostrar el contenido del archivo en la UI
     @render.ui

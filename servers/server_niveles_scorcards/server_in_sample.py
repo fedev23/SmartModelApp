@@ -68,6 +68,10 @@ def server_in_sample(input, output, session, name_suffix):
     list_transformada = reactive.Value([])
     lista_nombres = reactive.Value([])
     click = reactive.Value(0)
+    lista_regla = reactive.Value([])
+    lista_Tasa_malos = reactive.Value([])
+    retorno_lista = reactive.Value(False)
+        
 
 
 
@@ -123,63 +127,104 @@ def server_in_sample(input, output, session, name_suffix):
         create_navigation_handler("save_modal","Screen_User")
         
         #return ui.modal_remove()
-    
-    
-    @reactive.effect
-    @reactive.event(input.add_files_niveles_riesgo)
-    def devolver_input_text():
-        click_add_filas_niveles.set(click_add_filas_niveles() + 1)
         
     
-    @output
-    @render.ui
-    def input_text_retorno():
-        if click_add_filas_niveles.get() >=1:
-            return ui.input_text("add_value", "Inserte un nombre de nivel")
-        
-    @output
-    @render.ui
-    def insert_value():
-        if click_add_filas_niveles.get() >=1:
-            return ui.input_action_link("add_files_niveles_riesgo_2", "Insertar"),
-        
-    @output
-    @render.ui
-    def insert_value_numeric():
-        if retorno.get():
-            return ui.input_action_link("add_filas_por_valor_numeric", label="Insertar valor de niveles")
-  
                                                
+    
     
     @reactive.effect
     @reactive.event(input.add_files_niveles_riesgo_2)
-    def name():
-        nombre_seleccionado = input.add_value()
-        # Obtener la lista actual de nombres
-        lista_actual = lista_nombres.get()
+    def agregar_nombre_nivel():
+        nombre_seleccionado = input.add_value().strip()  # Eliminar espacios en blanco
 
-        # Determinar el número incremental
-        numero_incremental = len(lista_actual) + 1
-        numero_formateado = f"{numero_incremental:02}"  # Convierte 1 -> "01", 2 -> "02", etc.
+        # Obtener los datos actuales de la tabla
+        data = values_tabla_niveles.get()
 
-        # Agregar el nombre con su número incremental
-        nuevo_nombre = f"{nombre_seleccionado}_{numero_formateado}"
-        lista_actual.append(nuevo_nombre)
+        # Buscar si hay una fila existente sin valores en "Regla" o "Tasa de Malos Máxima"
+        index_vacio = data.index[(data["Regla"] == "") & (data["Tasa de Malos Máxima"] == "")].min()
 
-        # Actualizar la variable reactiva con la nueva lista
-        lista_nombres.set(lista_actual)
-        
-        data = par_rango_niveles.data_view()
-        new_row = pd.DataFrame({"Nombre Nivel": [nuevo_nombre]})
-        data = pd.concat([data, new_row], ignore_index=True)
-        values_tabla_niveles.set(data) 
-        click_add_filas_niveles.set(0)
-        reactive.invalidate_later(1)
-        retorno.set(True)
-        
+        if pd.notna(index_vacio):  # Si hay una fila vacía, llenarla con el nombre en lugar de crear una nueva
+            data.at[index_vacio, "Nombre Nivel"] = nombre_seleccionado
+        else:
+            # Determinar el número incremental
+            numero_incremental = len(data) + 1
+            numero_formateado = f"{numero_incremental:02}"
+
+            # Crear el nombre de nivel con su número incremental
+            nuevo_nombre = f"{numero_formateado}_{nombre_seleccionado}"
+
+            # Agregar la nueva fila con el nombre y dejar "Regla" y "Tasa de Malos Máxima" vacíos
+            new_row = pd.DataFrame({"Nombre Nivel": [nuevo_nombre], "Regla": [""], "Tasa de Malos Máxima": [""]})
+            data = pd.concat([data, new_row], ignore_index=True)  # Agregar la nueva fila al final
+
+        # Actualizar la tabla reactiva
+        values_tabla_niveles.set(data)
+
+
+    @reactive.effect
+    @reactive.event(input.add_files_niveles_riesgo_2)
+    def agregar_regla():
+        regla = input.add_regla().strip()
+
+        # Obtener el DataFrame actual de la tabla
+        data = values_tabla_niveles.get()
+
+        # Buscar la primera fila con un "Nombre Nivel" pero sin "Regla"
+        index_vacio = data.index[(data["Regla"] == "") & (data["Nombre Nivel"] != "")].min()
+
+        if pd.notna(index_vacio):  # Si hay una fila vacía, llenar
+            data.at[index_vacio, "Regla"] = regla
+        else:
+            print("⚠ No hay una fila vacía para agregar la regla.")
+
+        # Actualizar la tabla reactiva
+        values_tabla_niveles.set(data)
+
+
+    @reactive.effect
+    @reactive.event(input.add_files_niveles_riesgo_2)
+    def agregar_Tasa_malos():
+        tasa_malos = input.add_tasa_malos().strip()
+        tasa_malos = f"{tasa_malos}%"  # Agregar el símbolo '%' al final
+
+        # Obtener el DataFrame actual de la tabla
+        data = values_tabla_niveles.get()
+
+        # Buscar la primera fila con un "Nombre Nivel" pero sin "Tasa de Malos Máxima"
+        index_vacio = data.index[(data["Tasa de Malos Máxima"] == "") & (data["Nombre Nivel"] != "")].min()
+
+        if pd.notna(index_vacio):  # Si hay una fila vacía, llenar
+            data.at[index_vacio, "Tasa de Malos Máxima"] = tasa_malos
+        else:
+            print("⚠ No hay una fila vacía para agregar la tasa.")
+
+        # Actualizar la tabla reactiva con la nueva tasa incluida
+        values_tabla_niveles.set(data)
+    
+    
+    @output
+    @render.ui
+    def return_inser_values():
+        nombres = lista_nombres.get()
+        reglas = lista_regla.get()
+        tasas = lista_Tasa_malos.get()
             
-            
+        # Validar que todas las listas tengan al menos un valor
+        if nombres and reglas and tasas: 
+            retorno_lista.set(True)
+            return ui.input_action_link("add_files_niveles_riesgo_2", "Insertar")
+
           
+    @reactive.effect
+    def boolean_reactive():
+        if retorno_lista.get():
+            reactive.invalidate_later(3)
+            lista_nombres.set([])
+            lista_regla.set([])
+            lista_Tasa_malos.set([])
+          
+     
+    
     
     @output
     @render.ui

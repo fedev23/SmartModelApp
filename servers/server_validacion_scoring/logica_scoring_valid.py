@@ -1,5 +1,5 @@
 from shiny import reactive, render, ui
-from funciones.utils_2 import render_data_summary, eliminar_archivo, leer_dataset, get_datasets_directory
+from funciones.utils_2 import render_data_summary, eliminar_archivo, leer_dataset, get_datasets_directory, get_folder_directory_data_validacion_scoring_SALIDA
 from clases.global_modelo import modelo_of_sample
 from clases.global_session import global_session
 from api.db import *
@@ -156,8 +156,10 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
         )
         
         dataset_path = os.path.join(directorio, global_session_V2.get_nombre_dataset_validacion_sc())
-        print(f"eliminar: {dataset_path}")
+        
+        path_datos_salida  = get_folder_directory_data_validacion_scoring_SALIDA(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
         eliminar_archivo(dataset_path)
+        eliminar_archivo(path_datos_salida)
         lista_de_versiones_new = obtener_nombres_files_por_proyecto(global_session.get_id_proyecto())
         lista.set(lista_de_versiones_new)
         ui.update_select(

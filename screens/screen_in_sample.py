@@ -21,9 +21,9 @@ screenInSample = ui.page_fluid(
     ),
     # ui.output_ui("menuInSample"),
     ui.output_ui("salida_error"),
-    
-                # Ancho de la columna (puedes ajustarlo según sea necesario)
-                
+
+    # Ancho de la columna (puedes ajustarlo según sea necesario)
+
     ui.div(
         ui.card(
             ui.card_header(f"{global_name_in_Sample}"),
@@ -44,22 +44,31 @@ screenInSample = ui.page_fluid(
                                   ui.card_header(
                                       ui.row(
                                           # Texto a la izquierda
-                                          ui.column(3, ui.HTML("<div style='width: 20px;'></div>")),
+                                          ui.column(3, ui.HTML(
+                                              "<div style='width: 20px;'></div>")),
                                           ui.column(
                                               10, "Tabla de Niveles de Riesgo"),
                                           ui.column(2,
                                                     ui.input_action_link("help_niveles", ui.tags.i(
                                                         class_="fa fa-question-circle-o", style="font-size:24px")),
                                                     ),
-                                          ui.column(
-                                              6,
-                                               ui.input_action_link("add_files_niveles_riesgo", "Agregar una fila de niveles"),
-                                               ui.output_ui("input_text_retorno"),
-                                               ui.output_ui("insert_value"),
-                                               ui.output_ui("insert_value_numeric"),
-                                               
-                                          )
                                           
+                                          ui.div(class_="mt-5"),
+                                          ui.row(
+                                              ui.column(4, ui.input_text(
+                                                  "add_value", "", placeholder="Inserte un nombre de nivel")),
+                                              ui.column(4, ui.input_text(
+                                                  "add_regla", "", placeholder="Agregue un nivel de regla por ejemplo: 740>=")),
+                                              ui.column(4, ui.input_text(
+                                                  "add_tasa_malos", "", placeholder="Agregue una tasa de malos")),
+                                              
+                                            ui.tags.hr(),
+                                            ui.row(
+                                                #ui.column(4, ui.output_ui("return_inser_values"),
+                                                ui.column(4, ui.input_action_link("add_files_niveles_riesgo_2", "Insertar")),
+                                                
+                                            ),
+                                            ),
                                       ),
                                   ),
                                   ui.output_data_frame("par_rango_niveles"),
@@ -81,23 +90,24 @@ screenInSample = ui.page_fluid(
                                                         class_="fa fa-question-circle-o", style="font-size:24px")),
                                                     ),
                                       ),
-                                       ui.column(
-                                              6,
-                                              ui.input_action_link("add_fila", "Agregar una nueva fila"),
-                                            ui.output_ui("selector"),
-                                            ui.output_ui("insert"),
-                                          )
+                                      ui.column(
+                                          6,
+                                          ui.input_action_link(
+                                              "add_fila", "Agregar una nueva fila"),
+                                          ui.output_ui("selector"),
+                                          ui.output_ui("insert"),
+                                      )
                                   ),
                                   ui.output_data_frame("par_rango_reportes"),
-                                   ui.output_ui("delete"),
-                                  
+                                  ui.output_ui("delete"),
+
                                   class_="custom-card"
                               )
                           )
                           ),
-                
-      
-               
+
+
+
 
             ),
         ),

@@ -64,11 +64,19 @@ class ModeloProceso:
             progress_percentage = 0
             last_match = None  # Almacena el último valor de progreso válido
             
-            print(f"PORCENTAJE PATH? {self.porcentaje_path}")
+            
             self.porcentaje_path = os.path.join(self.porcentaje_path, "progreso.txt")
+            
+            print(self.porcentaje_path, "valor porcentaje path en la clase modelo")
             # Eliminar el archivo de progreso si existe
             if os.path.exists(self.porcentaje_path):
                 os.remove(self.porcentaje_path)
+                
+            directorio = os.path.dirname(self.porcentaje_path)
+            print(directorio, "viendo directorio")
+            if not os.path.exists(directorio):
+                print(f"El directorio {directorio} no existe. Creándolo...")
+                os.makedirs(directorio, exist_ok=True)
 
             async def write_progress_to_file(percentage):
                 """Escribe el progreso en un archivo de texto"""
@@ -187,7 +195,7 @@ class ModeloProceso:
         return formatted_now
 
     def render_card(self, file_name, fecha, estado): 
-        default_message = "Aún no se ha ejecutado el proceso."
+        default_message = ""
         if self.mensaje_error:
             self.mensaje = self.mensaje_error
         if file_name is not None:
@@ -203,7 +211,8 @@ class ModeloProceso:
                     #ui.p(f"Fecha de última ejecución: {str(fecha_hora)}"),
                     ui.p(f"Estado de la ultima ejecución: Versión {global_session_V3.name_version_original.get()}: {estado}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
                     ui.p(f"Horario de ejecución: {fecha}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
-                    #ui.p(f"Error: {self.mensaje.get() or default_message}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
+                    
+                    ui.p(f"{self.mensaje.get() or default_message}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
                     #ui.input_action_link(f"see_proces_{self.nombre}", "Ver porcentaje del proceso"),
                     ui.p(ui.output_ui(f"value_{self.nombre}"),  style="margin: 0; line-height: 1.5; vertical-align: middle;"),
                     ui.p( ui.output_ui(f"value_error_{self.nombre}"),  style="margin: 0; line-height: 1.5; vertical-align: middle;"),
@@ -247,3 +256,30 @@ class ModeloProceso:
                 return False  # El modelo ya existe con un estado asociado
 
             return True  # El modelo no existe o no tiene estado
+        
+ 
+    def eliminar_archivo_progreso(self,folder, filename):
+        """
+        Elimina un archivo en la ruta especificada si existe.
+
+        Args:
+            folder (str): Ruta de la carpeta donde está el archivo.
+            filename (str): Nombre del archivo a eliminar.
+
+        Returns:
+            bool: True si el archivo fue eliminado, False si no existía o hubo un error.
+        """
+        try:
+            # Construir la ruta completa
+            path = os.path.join(folder, filename)
+
+            if os.path.exists(path):
+                os.remove(path)
+                print(f"Archivo eliminado: {path}")
+                return True
+            else:
+                print(f"El archivo no existe: {path}")
+                return False
+        except Exception as e:
+            print(f"Error al eliminar el archivo {filename} en {folder}: {e}")
+            return False
