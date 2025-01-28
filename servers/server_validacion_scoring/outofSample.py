@@ -232,7 +232,7 @@ def server_out_of_sample(input, output, session, name_suffix):
     def leer_archivo():
         """Lee el archivo de progreso y actualiza la UI."""
         if click.get() < 1:
-            return "Esperando inicio..."
+            return ""
 
         if modelo_of_sample.proceso_fallo.get() is False:
             
@@ -264,8 +264,8 @@ def server_out_of_sample(input, output, session, name_suffix):
     # Mostrar el contenido del archivo en la UI
     @render.ui
     def value_of_sample():
-        """Muestra el contenido actualizado del archivo en la UI."""
-        return f"Porcentaje de ejecucion {  ()}"
+       if click.get() > 1:
+            return f" Porcentaje{leer_archivo()}"
     
     
     @reactive.effect

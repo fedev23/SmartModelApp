@@ -1,10 +1,4 @@
 from shiny import App, ui, reactive
-from clases.loadJson import LoadJson
-from funciones.create_param import create_screen
-from clases.class_user_proyectName import global_user_proyecto
-from funciones.utils import crear_card_con_input_seleccionador_V2, crear_card_con_input_numeric_2, crear_card_con_input_seleccionador
-from global_names import global_name_desarrollo
-from clases.global_session import global_session
 from global_var import global_data_loader_manager
 
 

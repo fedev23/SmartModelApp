@@ -66,12 +66,16 @@ screenInSample = ui.page_fluid(
                                             ui.row(
                                                 #ui.column(4, ui.output_ui("return_inser_values"),
                                                 ui.column(4, ui.input_action_link("add_files_niveles_riesgo_2", "Insertar")),
+                                                ui.column(4, ui.div()),
+                                                ui.column(4, ui.input_action_link("eliminar_filas_par_rango_niveles", "Eliminar fila")),
                                                 
                                             ),
                                             ),
                                       ),
                                   ),
                                   ui.output_data_frame("par_rango_niveles"),
+                                  #ui.tags.hr(),
+                                  #ui.input_action_link("eliminar_fila_niveles_riesgo", "Eliminar fila seleccionada"),
                                   class_="custom-card",
                                   style="margin-left: 30px;"
                               )

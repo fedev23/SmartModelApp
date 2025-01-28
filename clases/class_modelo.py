@@ -67,17 +67,11 @@ class ModeloProceso:
             
             self.porcentaje_path = os.path.join(self.porcentaje_path, "progreso.txt")
             
-            print(self.porcentaje_path, "valor porcentaje path en la clase modelo")
             # Eliminar el archivo de progreso si existe
             if os.path.exists(self.porcentaje_path):
                 os.remove(self.porcentaje_path)
                 
-            directorio = os.path.dirname(self.porcentaje_path)
-            print(directorio, "viendo directorio")
-            if not os.path.exists(directorio):
-                print(f"El directorio {directorio} no existe. Creándolo...")
-                os.makedirs(directorio, exist_ok=True)
-
+           
             async def write_progress_to_file(percentage):
                 """Escribe el progreso en un archivo de texto"""
                 try:
@@ -143,8 +137,6 @@ class ModeloProceso:
     
     async def ejecutar_proceso_prueba(self, click_count, mensaje, proceso):
         try:
-            
-           
             def actualizar_progreso(porcentaje):
                 self.porcentaje.set(porcentaje)
                 self.proceso_inicio.set(True)

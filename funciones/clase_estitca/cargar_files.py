@@ -64,8 +64,8 @@ class FilesLoad:
             ##GUARDO LEL DATO CARGADO EN LA TABLA
             #insert_into_table("name_files", ['nombre_archivo', 'fecha_de_carga', 'project_id', 'version_id'], [input_name, fecha_de_carga, global_session.get_id_proyecto(), global_session.get_id_version()])
             print("pase antes de insertar??")
-            insertar_nombre_file(
-                table_name="name_files",
+            insertar_nombre_file_desa_insa(
+                db_path="Modeling_App.db",
                 columns=['nombre_archivo', 'fecha_de_carga', 'project_id'],
                 values=[input_name, fecha_de_carga, global_session.get_id_proyecto()]
             ) 

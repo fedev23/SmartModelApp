@@ -2,7 +2,7 @@ import os
 from shiny import App, ui, reactive
 
 import zipfile
-
+import pandas as pd
 import os
 import shutil
 
@@ -393,38 +393,6 @@ def crear_card_con_input_numeric(input_id, input_label, action_link_id, icon, va
                      )
 
 
-def crear_card_con_input_2(input_id, input_label, action_link_id, icon, parameters, default_value=""):
-    #id_buttons_desa.append(action_link_id)
-
-    # Encontrar el parámetro que corresponde al input_id
-    input_value = default_value
-    for param in parameters:
-        if param["parameter"] == input_id:
-            # Si el valor es una lista, obtenemos el primer elemento
-            if isinstance(param["value"], list) and len(param["value"]) > 0:
-                input_value = param["value"][0].get("name", default_value)
-            # Si es un valor simple, lo asignamos directamente
-            else:
-                input_value = param["value"]
-            break
-
-    return ui.column(4,
-                     ui.row(
-                         ui.card(
-                             ui.card_header(
-                                 ui.row(
-                                     ui.column(10, ui.input_text(
-                                         input_id, input_label, value=input_value)),
-                                     ui.column(2,
-                                               ui.input_action_link(
-                                                   action_link_id, "", icon=icon)
-                                               )
-                                 )
-                             )
-                         )
-                     )
-                     )
-
 def crear_card_con_input_numeric_2(input_id, input_label, action_link_id, icon, default_value,min_value=None, max_value=None, step=None):
     """
     Crea una tarjeta con un input numérico y un botón de acción.
@@ -508,3 +476,37 @@ def create_modal_parametros(id):
     return m
 
     # Mostrar el modal
+
+
+def eliminar_filas_seleccionadas(data, filas_seleccionadas):
+    """
+    Elimina filas específicas de un DataFrame.
+
+    Parámetros:
+    - data: DataFrame original.
+    - filas_seleccionadas: Lista de índices de filas a eliminar.
+
+    Retorna:
+    - DataFrame actualizado sin las filas seleccionadas.
+    """
+
+    if not isinstance(data, pd.DataFrame):
+        raise ValueError("El parámetro 'data' debe ser un DataFrame de pandas.")
+
+    if filas_seleccionadas:  # Verificar si hay filas seleccionadas
+        selected_rows = sorted([int(row) for row in filas_seleccionadas])  # Convertir a enteros
+
+        print(f"Índices seleccionados para eliminar: {selected_rows}")
+
+        try:
+            updated_data = data.drop(index=selected_rows).reset_index(drop=True)  # Eliminar filas y resetear índices
+            print("Filas eliminadas exitosamente.")
+            return updated_data  # Devolver el DataFrame actualizado
+
+        except KeyError as e:
+            print(f"Error al intentar eliminar filas: {e}")
+            return data  # Devolver el mismo DataFrame si hay error
+
+    else:
+        print("No se seleccionaron filas para eliminar.")
+        return data  # Devolver el mismo DataFrame si no hay filas seleccionadas

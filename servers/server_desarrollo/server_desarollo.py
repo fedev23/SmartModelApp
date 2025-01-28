@@ -204,10 +204,12 @@ def server_desarollo(input, output, session, name_suffix):
         
                     mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), data_Set, name_suffix, path_datos_entrada)
                     
+                    print("hasta aca llego? ")
                     global_desarollo.script_path = f'./Modelar.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida}'
+                    ejectutar_desarrollo_asnyc(click_count_value, mensaje_value, proceso)
                     click.set(click() + 1)
-                    ejectutar_desarrollo_asnyc(click_count_value, mensaje_value, proceso, porcentaje)
                     global_desarollo.pisar_el_modelo_actual.set(False)
+                    
                     
                 
     ##ESTA FUNCION LA HAGO PARA DETECTAR BIEN LOS VALORES REACTIVOS QUE ESTAN DENTRO DEL PROCESO        
@@ -265,7 +267,11 @@ def server_desarollo(input, output, session, name_suffix):
     def leer_archivo():
         """Lee el archivo de progreso y actualiza la UI."""
         if click.get() < 1:
-            return "Esperando inicio..."
+            return ""
+        
+        print(global_desarollo.proceso_fallo.get(), "viendo si corta el modelo.")
+        if global_desarollo.proceso_fallo.get():
+            return
 
         path = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
         name_file = "progreso.txt"
@@ -289,8 +295,8 @@ def server_desarollo(input, output, session, name_suffix):
     # Mostrar el contenido del archivo en la UI
     @render.ui
     def value_desarollo():
-        """Muestra el contenido actualizado del archivo en la UI."""
-        return f"Última línea: {leer_archivo()}"
+        if click.get() >= 1:
+            return f"Porcentaje: {leer_archivo()}"
        
    
     

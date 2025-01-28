@@ -222,6 +222,6 @@ def server_produccion(input, output, session, name_suffix):
     # Mostrar el contenido del archivo en la UI
     @render.ui
     def value_produccion():
-        """Muestra el contenido actualizado del archivo en la UI."""
-        return f"Última línea: {leer_archivo()}"
+        if click.get() >= 1:
+            return f"Porcentaje: {leer_archivo()}"
     

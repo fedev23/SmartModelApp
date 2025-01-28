@@ -4,7 +4,7 @@ from clases.loadJson import LoadJson
 from funciones.param_in_sample import param_in_sample
 from funciones.utils import transform_data, transformar_reportes, create_modal_parametros, id_buttons
 import pandas as pd
-from funciones.utils import mover_file_reportes_puntoZip, retornar_card
+from funciones.utils import mover_file_reportes_puntoZip, retornar_card, eliminar_filas_seleccionadas
 from funciones.utils_2 import cambiarAstring, aplicar_transformaciones, get_datasets_directory
 from clases.global_session import global_session
 from api.db import *
@@ -55,23 +55,19 @@ ejemplos_rangos = pd.DataFrame({
 def server_in_sample(input, output, session, name_suffix):
     screen_instance = ScreenClass("", name_suffix)
     mensaje_de_error = reactive.Value("")
-    retorno = reactive.Value(False)
+    inserto = reactive.Value(False)
     mensaje = reactive.Value("")
     count = reactive.value(0)
     count_add_files = reactive.Value(0)
     no_error = reactive.Value(True)
     fila_insert = reactive.Value(False)
     global_names_reactivos.name_validacion_in_sample_set(name_suffix)
-    click_add_filas_niveles =  reactive.Value(0)
     data_set = reactive.Value(pd.DataFrame({"Variables de corte": []}))
     values_tabla_niveles = reactive.Value(pd.DataFrame({"Nombre Nivel": [], "Regla": [], "Tasa de Malos Máxima": []}))
     list_transformada = reactive.Value([])
-    lista_nombres = reactive.Value([])
     click = reactive.Value(0)
-    lista_regla = reactive.Value([])
-    lista_Tasa_malos = reactive.Value([])
-    retorno_lista = reactive.Value(False)
-        
+   
+    
 
 
 
@@ -137,9 +133,8 @@ def server_in_sample(input, output, session, name_suffix):
     def agregar_nombre_nivel():
         nombre_seleccionado = input.add_value().strip()  # Eliminar espacios en blanco
 
-        # Obtener los datos actuales de la tabla
-        data = values_tabla_niveles.get()
-
+        
+        data = values_tabla_niveles.get()   
         # Buscar si hay una fila existente sin valores en "Regla" o "Tasa de Malos Máxima"
         index_vacio = data.index[(data["Regla"] == "") & (data["Tasa de Malos Máxima"] == "")].min()
 
@@ -158,6 +153,7 @@ def server_in_sample(input, output, session, name_suffix):
             data = pd.concat([data, new_row], ignore_index=True)  # Agregar la nueva fila al final
 
         # Actualizar la tabla reactiva
+        inserto.set(True)
         values_tabla_niveles.set(data)
 
 
@@ -166,13 +162,17 @@ def server_in_sample(input, output, session, name_suffix):
     def agregar_regla():
         regla = input.add_regla().strip()
 
+        # Si la regla está vacía, asignar un valor por defecto (en este caso, una cadena vacía)
+        if not regla:
+            regla = ""
+
         # Obtener el DataFrame actual de la tabla
         data = values_tabla_niveles.get()
 
         # Buscar la primera fila con un "Nombre Nivel" pero sin "Regla"
         index_vacio = data.index[(data["Regla"] == "") & (data["Nombre Nivel"] != "")].min()
 
-        if pd.notna(index_vacio):  # Si hay una fila vacía, llenar
+        if pd.notna(index_vacio):  # Si hay una fila vacía, llenar con la regla
             data.at[index_vacio, "Regla"] = regla
         else:
             print("⚠ No hay una fila vacía para agregar la regla.")
@@ -185,8 +185,13 @@ def server_in_sample(input, output, session, name_suffix):
     @reactive.event(input.add_files_niveles_riesgo_2)
     def agregar_Tasa_malos():
         tasa_malos = input.add_tasa_malos().strip()
-        tasa_malos = f"{tasa_malos}%"  # Agregar el símbolo '%' al final
+        
+        if not tasa_malos:
+            tasa_malos = ""
+        else:
+            tasa_malos = f"{tasa_malos}%"  # Agregar el símbolo '%' al final
 
+      
         # Obtener el DataFrame actual de la tabla
         data = values_tabla_niveles.get()
 
@@ -201,29 +206,33 @@ def server_in_sample(input, output, session, name_suffix):
         # Actualizar la tabla reactiva con la nueva tasa incluida
         values_tabla_niveles.set(data)
     
-    
-    @output
-    @render.ui
-    def return_inser_values():
-        nombres = lista_nombres.get()
-        reglas = lista_regla.get()
-        tasas = lista_Tasa_malos.get()
-            
-        # Validar que todas las listas tengan al menos un valor
-        if nombres and reglas and tasas: 
-            retorno_lista.set(True)
-            return ui.input_action_link("add_files_niveles_riesgo_2", "Insertar")
-
-          
     @reactive.effect
-    def boolean_reactive():
-        if retorno_lista.get():
-            reactive.invalidate_later(3)
-            lista_nombres.set([])
-            lista_regla.set([])
-            lista_Tasa_malos.set([])
-          
-     
+    @reactive.event(input.eliminar_filas_par_rango_niveles)
+    def eliminar_filas():
+        data = values_tabla_niveles.get()  # Obtener el DataFrame actual
+        filas = par_rango_niveles.cell_selection()["rows"]  # Obtener filas seleccionadas
+
+        if filas:
+            data_editado = eliminar_filas_seleccionadas(data, filas)
+            values_tabla_niveles.set(data_editado)  # Actualizar el dataset reactivo con las filas eliminadas
+        else:
+            print("No hay filas seleccionadas para eliminar.")
+            
+    @reactive.effect
+    def actualizar_insertados():
+        if inserto.get():
+            print("¿Pasé?")
+            
+            # Actualizar los valores de los inputs usando `session.send_input_message`
+            session.send_input_message("add_value", {"value": ""})
+            session.send_input_message("add_regla", {"value": ""})
+            session.send_input_message("add_tasa_malos", {"value": ""})
+            
+            inserto.set(False)  # Resetear la variable reactiva
+        
+
+       
+ 
     
     
     @output
@@ -334,9 +343,9 @@ def server_in_sample(input, output, session, name_suffix):
         if data is not None and not data.empty:
             print(data, "estoy end ata")
          
-            return render.DataGrid(data, selection_mode="rows",  editable=True , width="500px")
+            return render.DataGrid(data, selection_mode="rows",  width="700px")
         
-        return render.DataGrid(ejemplo_niveles_riesgo_2, selection_mode="rows",  width="500px")
+        return render.DataGrid(ejemplo_niveles_riesgo_2, selection_mode="rows",  width="700px")
     
     
     
@@ -451,11 +460,13 @@ def server_in_sample(input, output, session, name_suffix):
                     path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
                     path_datos_salida = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
                     
+                    print(path_datos_salida, "viendo paths salida")
                     global_session.set_path_niveles_scorcads(path_datos_entrada)
                     global_session.set_path_niveles_scorcads_salida(path_datos_salida)
 
                     inputs_procesados = aplicar_transformaciones(input, transformaciones)
                     origen_modelo_puntoZip = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+                    
                     
                     movi = mover_file_reportes_puntoZip(origen_modelo_puntoZip, path_datos_entrada)
                     data_Set = get_datasets_directory(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
@@ -580,7 +591,10 @@ def server_in_sample(input, output, session, name_suffix):
     def leer_archivo():
         """Lee el archivo de progreso y actualiza la UI."""
         if click.get() < 1:
-            return "Esperando inicio..."
+            return ""
+        
+        if modelo_in_sample.proceso_fallo.get():
+            return
 
         path_datos_salida = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
         name_file = "progreso.txt"
@@ -603,6 +617,6 @@ def server_in_sample(input, output, session, name_suffix):
     # Mostrar el contenido del archivo en la UI
     @render.ui
     def value_in_sample():
-        """Muestra el contenido actualizado del archivo en la UI."""
-        return f"Última línea: {leer_archivo()}"
+        if click.get() >= 1:
+            return f"Porcentaje: {leer_archivo()}"
     
