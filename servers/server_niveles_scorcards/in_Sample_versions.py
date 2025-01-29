@@ -86,14 +86,12 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
             
             ultimo_id_score = obtener_ultimo_id_scoring_por_id_data_y_version(global_session_V2.get_id_Data_validacion_sc(), global_session.get_version_parametros_id())
             
-            print(ultimo_id_validacion_score , "ultimo id??")
             if ultimo_id_validacion_score:  # Verifica si hay un registro válido
                 global_session_V3.id_validacion_scoring.set(ultimo_id_validacion_score)
             else:
                 global_session_V3.id_validacion_scoring.set(None)
                 
             ##OBTENOG EL ULTIMO ID SE SOCORE
-            print(f"ultimo_id_score {ultimo_id_score}")
             if ultimo_id_score:
                 global_session_V3.id_score.set(ultimo_id_score)
             else:
@@ -126,11 +124,12 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
                 
                 global_session_V3.name_version_niveles_score_original.set(nombre_version_niveles_Scord)
                 global_session.set_versiones_parametros_nombre(replace_spaces_with_underscores(nombre_version_niveles_Scord))
-                estado_in_sample , hora_in_sample = procesar_etapa_in_sample_2(base_datos="Modeling_App.db", json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")
-                
+                estado_in_sample , hora_in_sample, mensaje_error = procesar_etapa_in_sample_2(base_datos="Modeling_App.db", json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")
+        
                 
                 global_session_modelos.modelo_in_sample_estado.set(estado_in_sample)
                 global_session_modelos.modelo_in_sample_hora.set(hora_in_sample)
+                global_session_modelos.modelo_in_sample_mensaje_error.set(mensaje_error)
                 
             
               

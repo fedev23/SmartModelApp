@@ -69,6 +69,12 @@ class LoadJson:
                     "type": "numeric",
                 },
                 {
+                    "parameter": "par_quick",
+                    "value": "1",
+                    "Descripción": "Cuadernos rápidos?",
+                    "type": "numeric"
+                },
+                {
                     "parameter": "par_ids",
                     "value": self.inputs["par_ids"],
                     "Descripción": "",

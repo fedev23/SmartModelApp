@@ -4,6 +4,7 @@ import os
 import jwt
 import pandas as pd
 import csv 
+
 from clases.global_reactives import global_estados
 
 
@@ -17,7 +18,10 @@ def errores(mensaje):
             # type='message',
         )
 
-
+def to_empty_list(input_value):
+    return []
+    
+ 
 def cambiarAstring(nombre_input):
     # Verificar si el input es un tuple
     input = ', '.join(map(str, nombre_input))
@@ -325,41 +329,6 @@ def leer_dataset(user_id, proyecto_id, name_proyect, dataset_name, nombre_versio
     except Exception as e:
         # Manejo global de errores
         print(f"Error inesperado en leer_dataset: {e}")
-        return pd.DataFrame()
-
-
-def leer_dataset_sc(user_id, proyecto_id, name_proyect, dataset_name):
-    # Obtener la ruta de la carpeta de datasets
-    datasets_directory = get_datasets_directory(user_id, proyecto_id, name_proyect)
-    
-    # Verificar que la carpeta de datasets no sea None
-    if datasets_directory is None:
-        print("No se encontró la carpeta de datasets.")
-        return pd.DataFrame()  # Retornar un DataFrame vacío
-    
-    if dataset_name is None:
-        print("No se encontro el dataSet")
-        return 
-    # Construir la ruta completa del archivo del dataset
-    dataset_path = os.path.join(datasets_directory, dataset_name)
-    
-    # Verificar que el archivo existe
-    if not os.path.exists(dataset_path):
-        print(f"El archivo {dataset_path} no existe.")
-        return pd.DataFrame()  # Retornar un DataFrame vacío
-        
-    # Leer el archivo de datos usando pandas
-    try:
-        # Detectar el delimitador del archivo
-        delimitador = detectar_delimitador(dataset_path)
-        dataset = pd.read_csv(dataset_path, delimiter=delimitador)
-        print(f"Dataset {dataset_name} leyendo data_Set")
-        
-        # Retornar las primeras 10 filas del dataset
-        return dataset.head(10)
-
-    except Exception as e:
-        print(f"Error al leer el dataset: {e}")
         return pd.DataFrame()
 
 

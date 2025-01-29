@@ -88,9 +88,7 @@ def validar_existencia_modelo_for_files(modelo_boolean_value , base_datos, versi
     """
     # Verificar el estado de ejecución utilizando la función check_execution_status
     if not modelo_boolean_value:
-        print()
         estado_ejecucion = check_execution_status(base_datos, version_id=version_id, json_id=json_id)
-        print(estado_ejecucion, "que estado hay aca?")
         if estado_ejecucion is not None and estado_ejecucion == "Exito":
             # Mostrar el modal de advertencia si el modelo ya tiene un estado de ejecución
             ui.modal_show(create_modal_generic(f"button_files_{nombre_modelo}", f"Tenga en cuenta que ya tiene un modelo generado en {nombre_version}"))
@@ -131,6 +129,80 @@ def validar_existencia_modelo_por_dinamica_de_app(modelo_boolean_value, base_dat
         print(f"Error inesperado: {e}")
         return None  # Devuelve None en caso de error inesperado
     
+    
+def obtener_ultimo_id_DataSet_modelo_Desa(db_path, version_id):
+    """
+    Obtiene el último dataset_id para un version_id dado en la tabla model_execution.
+
+    :param db_path: Ruta a la base de datos SQLite.
+    :param version_id: ID de la versión del modelo.
+    :return: Último dataset_id asociado con el version_id.
+    """
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+
+        query = """
+        SELECT dataset_id
+        FROM model_execution
+        WHERE version_id = ?
+        ORDER BY execution_date DESC
+        LIMIT 1;
+        """
+        cursor.execute(query, (version_id,))
+        result = cursor.fetchone()
+        
+        conn.close()
+
+        return result[0] if result else None
+
+    except sqlite3.Error as e:
+        print("Error en la consulta:", e)
+        return None
+
+
+def verificar_estado_modelo(db_path, version_id, dataset_id):
+    """
+    Verifica el estado de ejecución del modelo para una versión y dataset específicos.
+    
+    :param db_path: Ruta a la base de datos SQLite.
+    :param version_id: ID de la versión del modelo.
+    :param dataset_id: ID del dataset asociado.
+    :return: 
+        - True si el estado es 'Exito'.
+        - False si el estado es 'Error'.
+        - None si no existe un registro de ejecución para esa versión y dataset.
+    """
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+
+        query = """
+        SELECT execution_state 
+        FROM model_execution 
+        WHERE version_id = ? AND dataset_id = ?
+        ORDER BY execution_date DESC
+        LIMIT 1;
+        """
+        cursor.execute(query, (version_id, dataset_id))
+        result = cursor.fetchone()
+        
+        conn.close()
+
+        # Si no hay registro de ejecución, devuelve None
+        if result is None:
+            return None
+        
+        # Si el estado es 'Exito', devuelve True
+        if result[0] == "Exito":
+            return True
+        
+        # Si el estado es 'Error' u otro estado, devuelve False
+        return False
+
+    except sqlite3.Error as e:
+        print("Error en la consulta:", e)
+        return None
     
 def check_if_exist_id_version_id_niveles_scord(version_id, niveles_sc_id):
     """
@@ -255,3 +327,37 @@ def obtener_nombre_dataset(version_id=None, json_version_id=None):
         return None
     finally:
         conn.close()
+        
+        
+    
+    
+def tiene_modelo_ejecutado(db_path, version_id):
+    """
+    Verifica si una versión tiene al menos un modelo ejecutado en la tabla model_execution.
+
+    :param db_path: Ruta a la base de datos SQLite.
+    :param version_id: ID de la versión del modelo.
+    :return: 
+        - True si existe al menos un modelo ejecutado.
+        - False si no hay ningún modelo registrado.
+    """
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+
+        query = """
+        SELECT COUNT(*) 
+        FROM model_execution 
+        WHERE version_id = ?;
+        """
+        cursor.execute(query, (version_id,))
+        result = cursor.fetchone()
+        
+        conn.close()
+
+        # Si hay al menos un registro, devuelve True; si no, False
+        return result[0] > 0 if result else False
+
+    except sqlite3.Error as e:
+        print("Error en la consulta:", e)
+        return False

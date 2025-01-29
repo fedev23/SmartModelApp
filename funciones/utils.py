@@ -132,11 +132,11 @@ def create_zip_from_file_unico(file_path, zip_file_path):
             print(f"El archivo no existe: {file_path}")
 
 
-def retornar_card(get_file_name, modelo, fecha, estado):  # get_fecha
+def retornar_card(get_file_name, modelo, fecha, estado, mensaje_error):  # get_fecha
     # Llama a las funciones `get_file_name` y `get_fecha` proporcionadas
     file_name = get_file_name
    
-    return modelo.render_card(file_name, fecha, estado)
+    return modelo.render_card(file_name, fecha, estado, mensaje_error)
 
 def transformar_reportes(df):
     if df.empty:
@@ -336,8 +336,6 @@ def crear_card_con_input_seleccionador_V3_sin_multiples_opciones(input_id, input
                      ),
                        
                      )
-
-
 
 
 def crear_card_con_input_seleccionador_V2(input_id, input_label, action_link_id, icon):

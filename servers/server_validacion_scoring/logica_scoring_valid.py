@@ -20,6 +20,7 @@ from funciones.funciones_user import button_remove, create_modal_v2
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones.clase_estitca.cargar_files import FilesLoad
 import os
+from funciones.utils_cargar_json import update_selectize_from_columns_and_json
 from clases.global_modelo import modelo_of_sample, modelo_produccion
 
 
@@ -200,12 +201,16 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
             
             if global_session_V3.id_validacion_scoring.get() is not None:
                 #global_session_V3.id_validacion_scoring.set(obtener_ultimo_id_de_validacion_full_por_id_data(global_session_V2.get_id_Data_validacion_sc()))
-                estado_out_sample , hora_of_sample = procesar_etapa_validacion_full(base_datos="Modeling_App.db", id_validacion_sc=global_session_V3.id_validacion_scoring.get(), id_file=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_of_sample.nombre)
+                estado_out_sample , hora_of_sample, mensaje_error = procesar_etapa_validacion_full(base_datos="Modeling_App.db", id_validacion_sc=global_session_V3.id_validacion_scoring.get(), id_file=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_of_sample.nombre)
                 global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
                 global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
+                global_session_modelos.modelo_of_sample_error.set(mensaje_error)
+                
             else:
                 global_session_modelos.modelo_of_sample_estado.set("")
                 global_session_modelos.modelo_of_sample_hora.set("")
+                global_session_modelos.modelo_of_sample_error.set("")
+            
                 
             data = global_session_V2.get_data_reactivo_validacion_sc()
             if data is not None and not data.empty:
@@ -213,7 +218,8 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
                 get_file_name=global_session_V2.get_nombre_dataset_validacion_sc(),
                 modelo=modelo_of_sample,
                 fecha=global_session_modelos.modelo_of_sample_hora.get(),
-                estado=global_session_modelos.modelo_of_sample_estado.get(),)
+                estado=global_session_modelos.modelo_of_sample_estado.get(),
+                mensaje_error=global_session_modelos.modelo_of_sample_error.get())
                 
             else:
                return ui.div()
@@ -241,6 +247,12 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
                     
                     # Actualizar el selector con las columnas disponibles
                     ui.update_selectize("selectize_columnas_target", choices=column_names)
+                    
+                    json_params = global_session_V2.get_json_params_desarrollo()
+                    update_full = {"selectize_columnas_target" : "par_target"}
+                    update_selectize_from_columns_and_json(column_names, update_full, json_params)
+           
+                    
          # Devuelve el selector con opciones dinámicamente actualizadas
         if validadacion_retornar_card.get() == "1":
             return ui.input_selectize(
@@ -280,13 +292,14 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
             if global_session_V3.id_score.get() is not None:
                 print(f"id socre {global_session_V3.id_score.get()}")
                 print(f"id data en hay id score{global_session_V2.get_id_Data_validacion_sc()}")
-                estado_produccion , hora_produccion = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_score=global_session_V3.id_score.get(), id_nombre_file=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_produccion.nombre)
+                estado_produccion , hora_produccion, mensaje_error = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_score=global_session_V3.id_score.get(), id_nombre_file=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_produccion.nombre)
                 global_session_modelos.modelo_produccion_estado.set(estado_produccion)
                 global_session_modelos.modelo_produccion_hora.set(hora_produccion)
-                
+                global_session_modelos.modelo_desarrollo_mensaje_error.set(mensaje_error)
             else:
                 global_session_modelos.modelo_produccion_estado.set("")
                 global_session_modelos.modelo_produccion_hora.set("")
+                global_session_modelos.modelo_desarrollo_mensaje_error.set("")
                 
             if data is not None and not data.empty:
                 return retornar_card(
@@ -295,6 +308,7 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
                     modelo=modelo_produccion,
                     fecha=global_session_modelos.modelo_produccion_hora.get(),
                     estado=global_session_modelos.modelo_produccion_estado.get(),
+                    mensaje_error=global_session_modelos.modelo_produccion_error.get()
                 )
     
 

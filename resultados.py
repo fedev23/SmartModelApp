@@ -81,7 +81,7 @@ def server_resul(input, output, session, name_suffix):
         resultados_in_sample = [
             {
                 "resultado_id": "Validation_InS",
-                "resultado_path": f"Validation_InS_quick.html",
+                "resultado_path": f"Validation_InS.html",
                 "salida": "result_in_sample_salida",
                 "descarga_unic": "download_btn1_insample",
                 "salida_unic": "salida_prueba_in_sample",

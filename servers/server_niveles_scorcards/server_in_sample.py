@@ -30,7 +30,7 @@ ejemplo_niveles_riesgo = pd.DataFrame({})
 
 ejemplo_niveles_riesgo_2 = pd.DataFrame({
     "Nombre Nivel": ["BajoBajo", "BajoMedio", "BajoAlto", "MedioBajo", "MedioMedio", "Alto"],
-    "Regla": ["> 955", "> 930", "> 895", "> 865", "> 750", "<= 750"],
+    "Regla": [" score > 955", "> 930", "> 895", "> 865", "> 750", "<= 750"],
     "Tasa de Malos Máxima": ["3.0%", "6.0%", "9.0%", "15.0%", "18.0%", "100.0%"]
 })
 
@@ -460,7 +460,6 @@ def server_in_sample(input, output, session, name_suffix):
                     path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
                     path_datos_salida = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
                     
-                    print(path_datos_salida, "viendo paths salida")
                     global_session.set_path_niveles_scorcads(path_datos_entrada)
                     global_session.set_path_niveles_scorcads_salida(path_datos_salida)
 
@@ -474,12 +473,10 @@ def server_in_sample(input, output, session, name_suffix):
                     mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), data_Set, name_suffix, path_datos_entrada)
 
                     modelo_in_sample.porcentaje_path = path_datos_salida
-                    print("llgue hasta aca??")
+                
                     modelo_in_sample.script_path = f"./Validar_Desa.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida}"
                     click.set(click() + 1)
-                    print("llgue hasta aca?????")
                     ejecutar_in_sample_ascyn(click_count_value, mensaje_value, proceso)
-                    print("llgue hasta aca?????")
                     modelo_in_sample.pisar_el_modelo_actual.set(False)
                 else:
                     mensaje_de_error.set("\n".join(validator.get_errors()))
@@ -514,11 +511,13 @@ def server_in_sample(input, output, session, name_suffix):
                     json_version_id=global_session.get_version_parametros_id(),
                     name=modelo_in_sample.nombre,
                     nombre_dataset=global_names_reactivos.get_name_file_db(),
-                    estado="Error"
+                    estado="Error",
+                    mensaje_error=modelo_in_sample.mensaje.get()
                 )
-                estado_in_sample , hora_in_sample = procesar_etapa_in_sample_2(base_datos="Modeling_App.db",  json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")
+                estado_in_sample , hora_in_sample, mensaje_error = procesar_etapa_in_sample_2(base_datos="Modeling_App.db",  json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")
                 global_session_modelos.modelo_in_sample_estado.set(estado_in_sample)
                 global_session_modelos.modelo_in_sample_hora.set(hora_in_sample)
+                global_session_modelos.modelo_in_sample_mensaje_error.set(mensaje_error)                
                 modelo_in_sample.proceso_fallo.set(False),
         
     agregar_reactivo()        
@@ -582,7 +581,8 @@ def server_in_sample(input, output, session, name_suffix):
         get_file_name=global_names_reactivos.get_name_file_db(),
         modelo=modelo_in_sample,
         fecha=global_session_modelos.modelo_in_sample_hora.get(),
-        estado=global_session_modelos.modelo_in_sample_estado.get()
+        estado=global_session_modelos.modelo_in_sample_estado.get(),
+        mensaje_error=global_session_modelos.modelo_in_sample_estado.get()
     )
     
     

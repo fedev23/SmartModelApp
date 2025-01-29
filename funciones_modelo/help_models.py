@@ -23,6 +23,23 @@ def obtener_estado_por_modelo(modelo, nombre_modelo):
 
 
 
+def obtener_error_si_hay(modelo, nombre_modelo):
+    """
+    Extrae el mensaje de error si está presente en el diccionario del modelo.
+
+    Args:
+        modelo (dict): Diccionario que contiene información del modelo.
+
+    Returns:
+        str: Mensaje de error si existe, de lo contrario devuelve un mensaje indicando que no hay error.
+    """
+    if modelo.get('model_name') == nombre_modelo:
+        return modelo.get('mensaje_error', "No hay errores registrados.")
+    else:
+        modelo.get('nombre_modelo') == nombre_modelo
+        return modelo.get('mensaje_error', "No hay errores registrados.")
+
+
 def obtener_estado_por_modelo_full(modelo, nombre_modelo):
     """
     Busca un modelo por su nombre y retorna su estado de ejecución.
@@ -111,15 +128,20 @@ def procesar_etapa(base_datos, id_version, etapa_nombre):
     # Obtener el último modelo
     ult_model = obtener_ultimo_modelo_por_version_y_nombre(base_datos, id_version, etapa_nombre)
 
+    print(f"ult model {ult_model}")
     # Obtener el estado del modelo para la etapa
     estado_model = obtener_estado_por_modelo(ult_model, etapa_nombre)
    
     # Obtener la fecha del modelo para la etapa
     fecha_model = obtener_fecha_por_modelo(ult_model, etapa_nombre)
     
+    mensaje_error = obtener_error_si_hay(ult_model, etapa_nombre)
+    
+    print(f"mensaje error {mensaje_error}")
+    
 
     # Retornar el estado y la fecha como una tupla
-    return estado_model, fecha_model
+    return estado_model, fecha_model, mensaje_error
 
 
 
@@ -147,8 +169,9 @@ def procesar_etapa_validacion_full(base_datos, id_validacion_sc, id_file, etapa_
     
     print(f"fecha_model {fecha_model}")
 
+    mensaje_error = obtener_error_si_hay(ult_model, etapa_nombre)
     # Retornar el estado y la fecha como una tupla
-    return estado_model, fecha_model
+    return estado_model, fecha_model, mensaje_error
 
 
 def procesar_etapa_validacion_scroing(base_datos, id_score, id_nombre_file, etapa_nombre):
@@ -173,9 +196,11 @@ def procesar_etapa_validacion_scroing(base_datos, id_score, id_nombre_file, etap
     fecha_model = obtener_fecha_por_modelo_Score(ult_model, etapa_nombre)
     
     print(f"fecha_model {fecha_model}")
+    
+    mensaje_error = obtener_error_si_hay(ult_model, etapa_nombre)
 
     # Retornar el estado y la fecha como una tupla
-    return estado_model, fecha_model
+    return estado_model, fecha_model, mensaje_error
 
 
 from datetime import datetime
@@ -203,7 +228,7 @@ def agregar_datos_model_execution(version_id, name, nombre_dataset, estado, json
 
     # Definir la tabla y las columnas
     table_name = "model_execution"
-    columns = ['version_id', 'execution_date', 'model_name', 'dataset_name', 'execution_state', 'error']
+    columns = ['version_id', 'execution_date', 'model_name', 'dataset_name', 'execution_state', 'mensaje_error']
     values = [version_id, current_timestamp, nombre_modelo, dataset_name, execution_state, mensaje_error]
 
     # Agregar json_version_id si se proporciona
@@ -223,7 +248,7 @@ def agregar_datos_model_execution(version_id, name, nombre_dataset, estado, json
     return add
 
 
-def agregar_datos_model_execution_por_json_version(json_version_id, name, nombre_dataset, estado):
+def agregar_datos_model_execution_por_json_version(json_version_id, name, nombre_dataset, estado,  mensaje_error):
     """
     Inserta un registro en la tabla model_execution basado únicamente en json_version_id.
 
@@ -238,11 +263,12 @@ def agregar_datos_model_execution_por_json_version(json_version_id, name, nombre
     dataset_name = nombre_dataset
     current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     execution_state = estado
+    mensaje_error = mensaje_error
 
     # Definir la tabla y las columnas
     table_name = "model_execution"
-    columns = ['json_version_id', 'execution_date', 'model_name', 'dataset_name', 'execution_state']
-    values = [json_version_id, current_timestamp, nombre_modelo, dataset_name, execution_state]
+    columns = ['json_version_id', 'execution_date', 'model_name', 'dataset_name', 'execution_state', 'mensaje_error']
+    values = [json_version_id, current_timestamp, nombre_modelo, dataset_name, execution_state, mensaje_error]
 
     
     add = insert_into_table(table_name, columns, values)
@@ -270,8 +296,10 @@ def procesar_etapa_in_sample_2(base_datos, json_version_id, etapa_nombre):
     # Obtener la fecha del modelo para la etapa
     fecha_model = obtener_fecha_por_modelo(ult_model, etapa_nombre)
     
+    mensaje_error  = obtener_error_si_hay(ult_model,etapa_nombre)
+    
     # Retornar el estado y la fecha como una tupla
-    return estado_model, fecha_model
+    return estado_model, fecha_model, mensaje_error
 
 
 def procesar_etapa_in_sample(base_datos, json_version_id, etapa_nombre):
@@ -345,7 +373,7 @@ def agregar_datos_model_execution_por_id_validacion_scoring(id_validacion_scorin
     # Retornar el ID del registro insertado
     return add
 
-def agregar_datos_model_execution_scoring(id_score, name, id_nombre_file, estado):
+def agregar_datos_model_execution_scoring(id_score, name, id_nombre_file, estado, mensaje_error):
     """
     Actualiza un registro en la tabla 'scoring' basado en el ID de score.
 
@@ -373,7 +401,8 @@ def agregar_datos_model_execution_scoring(id_score, name, id_nombre_file, estado
                 "model_name": name,
                 "execution_state": estado,
                 "fecha_de_ejecucion": current_timestamp,
-                "id_nombre_file": id_nombre_file
+                "id_nombre_file": id_nombre_file,
+                "mensaje_error": mensaje_error
             },
             where_conditions={"id_score": id_score},
             connection=connection
@@ -389,7 +418,7 @@ def agregar_datos_model_execution_scoring(id_score, name, id_nombre_file, estado
     finally:
         connection.close() 
 
-def agregar_datos_model_execution_validcion_full(id_validacion_sc, name, id_nombre_file, estado):
+def agregar_datos_model_execution_validcion_full(id_validacion_sc, name, id_nombre_file, estado, mensaje_error):
     """
     Actualiza un registro en la tabla 'scoring' basado en el ID de score.
 
@@ -417,7 +446,8 @@ def agregar_datos_model_execution_validcion_full(id_validacion_sc, name, id_nomb
                 "nombre_modelo": name,
                 "execution_state": estado,
                 "fecha_de_ejecucion": current_timestamp,
-                "id_nombre_file": id_nombre_file
+                "id_nombre_file": id_nombre_file,
+                "mensaje_error": mensaje_error
             },
             where_conditions={"id_validacion_sc": id_validacion_sc},
             connection=connection

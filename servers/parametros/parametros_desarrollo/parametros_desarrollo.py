@@ -27,7 +27,6 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
     def update_column_choices():
         # Verifica si el retorno está listo
         if global_session_V2.get_retornado():
-            print("pase, aca??")
             # Carga el DataFrame y obtiene sus columnas
             df = global_session.get_data_set_reactivo()  # Asegúrate de obtener el DataFrame del cargador de datos
             if isinstance(df, pd.DataFrame) and not df.empty:
@@ -57,12 +56,13 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
             }
             
             
-
             json_params = global_session_V2.get_json_params_desarrollo()
 
-        # Llama a la función genérica para actualizar los selectores
+    
             update_selectize_from_columns_and_json(column_names, selectize_params, json_params)
             update_selectize_from_columns_and_json(column_target, selectize_params_only_target, json_params)
+           
+            
             
     @reactive.Effect
     @reactive.event(input["cols_nulos_adic"])
@@ -78,9 +78,7 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
         if selected_value.get() not in fixed_choices:
             
             if last_value:  # Si last_value tiene un valor
-                print("esta la tupla?")
                 last_value = get_equal_from_tuple(last_value)  # Procesa la tupla
-                print(last_value, "valor de tupla")
                 # Compara explícitamente last_value con fixed_choices
                 if last_value in fixed_choices:
                     select_value_operator.set(last_value)

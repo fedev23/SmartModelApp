@@ -38,7 +38,6 @@ class ResultadoClassPrueba:
                     user_id = state["id"]
                     user_id_cleaned = user_id.replace('|', '_') 
                     self.proceso_user.set(True)
-                    print(f"antes de retornar{user_id_cleaned}")
                     path_datos_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
                     self.path_salida.set(path_datos_salida)
                     self.user.set(user_id_cleaned)
@@ -131,7 +130,7 @@ class ResultadoClassPrueba:
                                 ui.tags.iframe(src=iframe_src, width='350%', height='500px')
                             )
                         else:
-                            print(f"El archivo no existe: {salida}")
+                            print(f"El archivo no existe in sample?: {salida}")
                             return ui.div()
                             
                     except Exception as e:

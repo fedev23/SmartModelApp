@@ -12,7 +12,7 @@ from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_
 from funciones.utils_cargar_json import leer_control_json
 from api.db.sqlite_utils import *
 from funciones_modelo.help_models import *
-from funciones_modelo.warning_model import validar_existencia_modelo_por_dinamica_de_app, obtener_nombre_dataset
+from funciones_modelo.warning_model import tiene_modelo_ejecutado, obtener_nombre_dataset, verificar_estado_modelo
 from api.db.sqlite_utils import *
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo import help_models 
@@ -55,7 +55,16 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
         db_column_id="version_id",
         db_column_name="nombre_version"
     )
-    
+
+        
+        print(f"global_session.get_id_version() {global_session.get_id_version()}")
+        model_ok = verificar_estado_modelo(base_datos, version_id=global_session.get_id_version(), dataset_id=global_session.get_id_dataSet())
+        if model_ok:
+            print("pase a modelo generado!!")
+            nombre_dataSet_con_modelo = obtener_nombre_dataset(global_session.get_id_version())
+            print(f"nombre_dataSet_con_modelo {nombre_dataSet_con_modelo}")
+            global_names_reactivos.set_name_file_db(nombre_dataSet_con_modelo)
+        
         
         nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
         
@@ -72,12 +81,10 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
         } if files_name else {"": "No hay archivos"})
         
         ##VALIDA LA EXISTENCIA DEL MODELO, SI ESE MODELO TIENE UNA VERSION CON UN NOMBRE DEL DATASET ASOCIADO CARGA ESE
-        modelo_existente = validar_existencia_modelo_por_dinamica_de_app(
-                modelo_boolean_value=global_desarollo.pisar_el_modelo_actual.get(),
-                base_datos=base_datos,
-                version_id=global_session.get_id_version())
+        modelo_existente = tiene_modelo_ejecutado(db_path=base_datos, version_id=global_session.get_id_version())
             
         if  modelo_existente:
+            print("pase a modelo existe?")
             nombre_dataSet_con_modelo = obtener_nombre_dataset(global_session.get_id_version())
             global_session_V2.set_dataSet_seleccionado(nombre_dataSet_con_modelo)
             selected_key = mapear_valor_a_clave(global_session_V2.get_dataSet_seleccionado(), global_session_V2.lista_nombre_archivos_por_version.get())
@@ -89,22 +96,20 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
             ui.update_select("files_select", choices=global_session_V2.lista_nombre_archivos_por_version.get(),  selected=selected_key if selected_key else next(iter(global_session_V2.lista_nombre_archivos_por_version.get()), ""))
             
            
-
-        ult_model = obtener_ultimo_modelo_por_version_y_nombre(base_datos, global_session.get_id_version(), "desarollo")
-      
-        estado_model_desarrollo = help_models.obtener_estado_por_modelo(ult_model, "desarollo")
+        #CAPTURO ESTADO DEL MODELO DE  DESARROLLO
+        estado_model_desarrollo, fecha_model_desarrollo, mensaje_errro = help_models.procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre=global_desarollo.nombre)
         
+        print(mensaje_errro, "viendo mensaje error")
         global_session_modelos.modelo_desarrollo_estado.set(estado_model_desarrollo)
-        
-        fecha_model_desarrollo = help_models.obtener_fecha_por_modelo(ult_model, "desarollo")
-       
         global_session_modelos.modelo_desarrollo_hora.set(fecha_model_desarrollo)
+        global_session_modelos.modelo_desarrollo_mensaje_error.set(mensaje_errro)
         
-        estado_in_sample , hora_in_sample = help_models.procesar_etapa_in_sample_2(base_datos="Modeling_App.db", json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")
-        
-        
+        #CAPTURO EL ESTADO DEL MODELO IN SAMPLE
+        estado_in_sample , hora_in_sample, mensaje_error = help_models.procesar_etapa_in_sample_2(base_datos="Modeling_App.db", json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")
         global_session_modelos.modelo_in_sample_estado.set(estado_in_sample)
         global_session_modelos.modelo_in_sample_hora.set(hora_in_sample)
+        global_session_modelos.modelo_in_sample_mensaje_error.set(mensaje_error)
+    
 
             
         ##ACTUALIZO EL ULTIMO SELECCIONADO EN LA TABALA DE BD

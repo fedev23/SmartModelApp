@@ -163,20 +163,19 @@ def server_produccion(input, output, session, name_suffix):
         def insert_data_depends_value():
             base_datos = "Modeling_App.db"
             if modelo_produccion.proceso_ok.get():
-                print(f"id data en proceso ok {global_session_V2.get_id_Data_validacion_sc()}")
                 agregar_datos_model_execution_scoring(global_session_V3.id_score.get(), modelo_produccion.nombre,  global_session_V2.get_id_Data_validacion_sc(), estado="Éxito")
                 estado_produccion , hora_produccion = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_score=global_session_V3.id_score.get(), id_nombre_file=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_produccion.nombre)
-                print(estado_produccion , hora_produccion, "valores?")
                 global_session_modelos.modelo_produccion_estado.set(estado_produccion)
                 global_session_modelos.modelo_produccion_hora.set(hora_produccion)
                 modelo_produccion.proceso_ok.set(False)
             
                 
             if modelo_produccion.proceso_fallo.get():
-                agregar_datos_model_execution_scoring(global_session_V3.id_score.get(), modelo_produccion.nombre, global_session_V2.get_id_Data_validacion_sc(), estado="Error")
-                estado_produccion , hora_produccion = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_score=global_session_V3.id_score.get(), id_nombre_file=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_produccion.nombre)
+                agregar_datos_model_execution_scoring(global_session_V3.id_score.get(), modelo_produccion.nombre, global_session_V2.get_id_Data_validacion_sc(), estado="Error", mensaje_error=modelo_produccion.mensaje.get())
+                estado_produccion , hora_produccion, mensaje_error = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_score=global_session_V3.id_score.get(), id_nombre_file=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_produccion.nombre)
                 global_session_modelos.modelo_produccion_estado.set(estado_produccion)
                 global_session_modelos.modelo_produccion_hora.set(hora_produccion)
+                global_session_modelos.modelo_produccion_error.set(mensaje_error)
                 modelo_produccion.proceso_fallo.set(False),
                 
     agregar_reactivo()      

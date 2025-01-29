@@ -149,6 +149,7 @@ class ModeloProceso:
 
                 # Verificar el resultado y actualizar los valores reactivos
                 if returncode != 0:
+                    error_message = self.extraer_mensaje_error(mensaje=error_message)
                     self.mensaje.set(error_message)
                     self.set_proceso(False)
                     self.proceso_fallo.set(True)
@@ -186,10 +187,9 @@ class ModeloProceso:
         self.fecha_hora = formatted_now
         return formatted_now
 
-    def render_card(self, file_name, fecha, estado): 
+    def render_card(self, file_name, fecha, estado, mensaje_error): 
         default_message = ""
-        if self.mensaje_error:
-            self.mensaje = self.mensaje_error
+        print(mensaje_error, "mensaje_error, del error ")
         if file_name is not None:
             if not fecha :
                 fecha = "Fecha no disponible."
@@ -204,7 +204,7 @@ class ModeloProceso:
                     ui.p(f"Estado de la ultima ejecución: Versión {global_session_V3.name_version_original.get()}: {estado}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
                     ui.p(f"Horario de ejecución: {fecha}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
                     
-                    ui.p(f"{self.mensaje.get() or default_message}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
+                    ui.p(f"{mensaje_error or default_message}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
                     #ui.input_action_link(f"see_proces_{self.nombre}", "Ver porcentaje del proceso"),
                     ui.p(ui.output_ui(f"value_{self.nombre}"),  style="margin: 0; line-height: 1.5; vertical-align: middle;"),
                     ui.p( ui.output_ui(f"value_error_{self.nombre}"),  style="margin: 0; line-height: 1.5; vertical-align: middle;"),
@@ -275,3 +275,28 @@ class ModeloProceso:
         except Exception as e:
             print(f"Error al eliminar el archivo {filename} en {folder}: {e}")
             return False
+
+        
+    def extraer_mensaje_error(self, mensaje):
+        """
+        Extrae el mensaje de error después de 'Error:' y antes de 'Backtrace:',
+        eliminando cualquier ocurrencia de '! >>>>' y '!<<<<'.
+        
+        Args:
+            mensaje (str): El mensaje de error completo.
+        
+        Returns:
+            str: El mensaje de error limpio o un mensaje indicando que no se encontró error.
+        """
+        pattern = r"Error.*:\s*([\s\S]*?)(?=\nBacktrace:)"
+        match = re.search(pattern, mensaje, re.DOTALL)
+
+        if match:
+            mensaje_error = match.group(1).strip()
+            
+            # Eliminar "! >>>>" y "!<<<<" si están presentes
+            mensaje_error = re.sub(r"! *>>>>|! *<<<<", "", mensaje_error).strip()
+            
+            return mensaje_error
+
+        return "No se encontró un mensaje de error válido."

@@ -15,7 +15,7 @@ from global_names import global_name_out_of_Sample, global_name_in_Sample
 from clases.global_sessionV2 import *
 from funciones.validacionY_Scoring.create_card import crate_file_input_y_seleccionador
 from clases.global_modelo import modelo_of_sample
-from datetime import datetime
+from clases.loadJson import LoadJson
 from clases.class_validacion import Validator
 from funciones_modelo.warning_model import *
 from funciones.utils import mover_file_reportes_puntoZip
@@ -140,7 +140,6 @@ def server_out_of_sample(input, output, session, name_suffix):
                 
                 origen_modelo_puntoZip = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
                 path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
-                print(f"path_datos_entrada: {path_datos_entrada}")
                 
                 ##PUNTO ZIP QUE QUEDO DEPRECADO YA QUE SIEMPRE SE VA A OBLIGAR AL USER A EJECUTAR IN SAMPLE
                 #origen_modelo_puntoZip = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
@@ -149,6 +148,13 @@ def server_out_of_sample(input, output, session, name_suffix):
                 zip_existe = mover_file_reportes_puntoZip(origen_modelo_puntoZip, path_datos_entrada)
                 if not zip_existe:
                     raise ValueError(f"Es de carácter obligatorio que se ejecute posteriormente la muestra de Desarrollo y {global_name_in_Sample}, para continuar en {global_name_out_of_Sample}")
+                
+                
+                ##EDITO LA VARIABLE TARGET, POR LA QUE ADJUNTA EL USER, PARA EL MODELO FULL
+                param_json = LoadJson(input)
+                new_value = {"par_tatget": input_target_of_sample}
+                param_json.update_values(new_value)
+                param_json.save_json()
                 
                 # Validar si el JSON existe y detenerse si no existe
                 path_niveles_sc = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
@@ -167,7 +173,6 @@ def server_out_of_sample(input, output, session, name_suffix):
                     entrada, salida = crear_carpeta_validacion_scoring(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
                     path_datos_salida_path = salida
                     
-                print(f"datos salida? {path_datos_salida_path}")
                 modelo_of_sample.porcentaje_path = path_datos_salida_path
                 
                 modelo_of_sample.script_path = f'./Validar_Nueva.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida_path}'
@@ -195,11 +200,11 @@ def server_out_of_sample(input, output, session, name_suffix):
             
                 
             if modelo_of_sample.proceso_fallo.get():
-                agregar_datos_model_execution_validcion_full(global_session_V3.id_validacion_scoring.get(),  modelo_of_sample.nombre, global_session_V2.get_id_Data_validacion_sc(),  estado="Error")
-                estado_out_sample , hora_of_sample = procesar_etapa_validacion_full(base_datos="Modeling_App.db", id_validacion_sc=global_session_V3.id_validacion_scoring.get(), id_file=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_of_sample.nombre)
-                print(f"estado_out_sample {estado_out_sample}, hora_of_sample: {hora_of_sample}")
+                agregar_datos_model_execution_validcion_full(global_session_V3.id_validacion_scoring.get(),  modelo_of_sample.nombre, global_session_V2.get_id_Data_validacion_sc(),  estado="Error", mensaje_error=modelo_of_sample.mensaje.get())
+                estado_out_sample , hora_of_sample, mensaje_error = procesar_etapa_validacion_full(base_datos="Modeling_App.db", id_validacion_sc=global_session_V3.id_validacion_scoring.get(), id_file=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_of_sample.nombre)
                 global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
                 global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
+                global_session_modelos.modelo_of_sample_error.set(mensaje_error)
                 modelo_of_sample.proceso_fallo.set(False)
             
     agregar_reactivo()

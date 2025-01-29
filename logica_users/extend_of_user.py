@@ -10,7 +10,7 @@ from funciones.funciones_user import button_remove, create_modal_v2
 from funciones.utils_2 import eliminar_archivo, leer_dataset
 from logica_users.utils.help_versios import obtener_ultimo_nombre_archivo
 from api.db.help_config_db import *
-from funciones_modelo.warning_model import create_modal_warning_exist_model, validar_existencia_modelo_por_dinamica_de_app, tiene_modelo_generado, create_modal_generic, obtener_nombre_dataset
+from funciones_modelo.warning_model import create_modal_warning_exist_model, obtener_ultimo_id_DataSet_modelo_Desa, tiene_modelo_generado, create_modal_generic, obtener_nombre_dataset, verificar_estado_modelo
 from clases.global_sessionV2 import *
 from clases.global_reactives import global_estados
 from api.db.sqlite_utils import *
@@ -48,67 +48,67 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
             initialized.set(True)
             return 
         
-        global_session_V2.count_global.set(global_session_V2.count_global() + 1)
-        
-        print(f"contador del modelo {global_session_V2.count_global.get()}")
-        
+        global_session_V2.count_global.set(global_session_V2.count_global() + 1)        
         if global_session_V2.count_global.get() > 1:
-            modelo_existente = validar_existencia_modelo_por_dinamica_de_app(
-                modelo_boolean_value=global_desarollo.pisar_el_modelo_actual.get(),
-                base_datos=base_datos,
-                version_id=global_session.get_id_version()
-            )
-
-            print(f"valor de count_global: {global_session_V2.count_global.get()}")
-            print(f"modelo existe: {modelo_existente}")
-
-            if modelo_existente:
-                # Aumentamos el contador para crear un ID único cada vez
-                reactive.invalidate_later(2)
-                contador_for_files.set(contador_for_files() + 1)
-
-                global_session_V3.modelo_existe.set(True)
-                modelo_existe_reactivo.set(True)
-
-                # Mostramos el modal
-                ui.modal_show(
-                    create_modal_warning_exist_model(
-                        name=global_desarollo.nombre,
-                        nombre_version=global_session_V3.name_version_original.get(),  # ID único
-                    )
-                )
-
-                # Procesamos el dataset
-                data = leer_dataset(
-                    global_session.get_id_user(),
-                    global_session.get_id_proyecto(),
-                    global_session.get_name_proyecto(),
-                    global_names_reactivos.get_name_file_db(),
-                    global_session.get_versiones_name(),
-                    global_session.get_id_version()
-                )   
-
-                # Seleccionamos el dataset correspondiente
-                selected_key = mapear_valor_a_clave(
-                    global_session_V2.get_dataSet_seleccionado(),
-                    global_session_V2.lista_nombre_archivos_por_version.get()
-                )
-                ui.update_select(
-                    "files_select",
-                    selected=selected_key if selected_key else next(iter(global_session_V2.lista_nombre_archivos_por_version.get()), "")
-                )
-
-                # Actualizamos las variables globales
-                global_session.set_data_set_reactivo(data)
-                hay_modelo.set(True)
-                pase_para_cambiar_file.set(True)
-                global_session_V2.count_global.set(1)
-
-                print(f'🔄 Reset global count: {global_session_V2.count_global.get()}')
-                modelo_existe_reactivo.set(False)
-                initialized.set(False)
-                return 
             
+            id_data_desa = obtener_ultimo_id_DataSet_modelo_Desa(db_path=base_datos, version_id=global_session.get_id_version())
+            model_ok = verificar_estado_modelo(base_datos, version_id=global_session.get_id_version(), dataset_id=global_session.get_id_dataSet())
+            
+            if model_ok:
+                nombre_dataSet_con_modelo = obtener_nombre_dataset(global_session.get_id_version())
+                global_names_reactivos.set_name_file_db(nombre_dataSet_con_modelo)
+                
+            if model_ok:
+                if id_data_desa is not None and id_data_desa != global_session.get_id_dataSet():
+                    # Aumentamos el contador para crear un ID único cada vez
+                    reactive.invalidate_later(2)
+                    
+                    
+                    contador_for_files.set(contador_for_files() + 1)
+
+                    global_session_V3.modelo_existe.set(True)
+                    modelo_existe_reactivo.set(True)
+
+                    # Mostramos el modal
+                    ui.modal_show(
+                        create_modal_warning_exist_model(
+                            name=global_desarollo.nombre,
+                            nombre_version=global_session_V3.name_version_original.get(),  # ID único
+                        )
+                    )
+
+                    # Procesamos el dataset
+                    data = leer_dataset(
+                        global_session.get_id_user(),
+                        global_session.get_id_proyecto(),
+                        global_session.get_name_proyecto(),
+                        global_names_reactivos.get_name_file_db(),
+                        global_session.get_versiones_name(),
+                        global_session.get_id_version()
+                    )   
+
+                    # Seleccionamos el dataset correspondiente
+                    selected_key = mapear_valor_a_clave(
+                        global_session_V2.get_dataSet_seleccionado(),
+                        global_session_V2.lista_nombre_archivos_por_version.get()
+                    )
+                    ui.update_select(
+                        "files_select",
+                        selected=selected_key if selected_key else next(iter(global_session_V2.lista_nombre_archivos_por_version.get()), "")
+                    )
+
+                    # Actualizamos las variables globales
+                    global_session.set_data_set_reactivo(data)
+                    hay_modelo.set(True)
+                    pase_para_cambiar_file.set(True)
+                    global_session_V2.count_global.set(1)
+
+                    print(f'🔄 Reset global count: {global_session_V2.count_global.get()}')
+                    modelo_existe_reactivo.set(False)
+                    initialized.set(False)
+                    return 
+        
+        
         data_id = input.files_select()  # Captura el ID del archivo seleccionado
         # Actualizar el ID del dataset en la sesión global
         global_session.set_id_dataSet(data_id)
@@ -128,12 +128,7 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
             global_session_V2.set_dataSet_seleccionado(obtener_ultimo_nombre_archivo(lista_reactiva.get()))
 
         # Leer el dataset
-        if  hay_modelo.get():
-            nombre_dataSet_con_modelo = obtener_nombre_dataset(global_session.get_id_version())
-            global_names_reactivos.set_name_file_db(nombre_dataSet_con_modelo)
-        else:
-            nombre_file = obtener_valor_por_id(base_datos, tabla, columna_objetivo, columna_filtro, data_id)
-            global_names_reactivos.set_name_file_db(nombre_file)
+       
         
         
         data = leer_dataset(
@@ -208,7 +203,6 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
             where_clause='project_id = ?',  # Cambiar la cláusula a usar project_id directamente
             where_params=(global_session.get_id_proyecto(),)
         )
-        print(lista_de_versiones_new, "lista_de_versiones_new")
         lista_reactiva.set(lista_de_versiones_new)
         ui.update_select("files_select", choices={str(vers['id_files']): vers['nombre_archivo']
         for vers in lista_de_versiones_new}

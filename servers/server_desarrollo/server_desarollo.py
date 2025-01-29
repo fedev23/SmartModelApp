@@ -42,6 +42,7 @@ def server_desarollo(input, output, session, name_suffix):
     transformaciones = {
         'par_ids': cambiarAstring,
         #'par_target': cambiarAstring,
+        'par_vars_segmento': to_empty_list,
         'cols_forzadas_a_predictoras': cambiarAstring,
         'par_var_grupo': cambiarAstring,
         'par_weight': cambiarAstring,
@@ -117,13 +118,16 @@ def server_desarollo(input, output, session, name_suffix):
         file_name = global_names_reactivos.get_name_file_db()
         hora = global_session_modelos.modelo_desarrollo_hora.get()
         estado = global_session_modelos.modelo_desarrollo_estado.get()
+        mensaje_error = global_session_modelos.modelo_desarrollo_mensaje_error.get()
         
+        print(mensaje_error, "mensaje error en desa")
         # Llamar a retornar_card con valores validados
         return retornar_card(
             get_file_name=file_name,
             modelo=global_desarollo,
             fecha=hora,
             estado=estado,
+            mensaje_error=mensaje_error
         )
 
     @output
@@ -226,8 +230,9 @@ def server_desarollo(input, output, session, name_suffix):
                 
             if global_desarollo.proceso_fallo.get():
                 agregar_datos_model_execution(global_session.get_id_version(), global_desarollo.nombre, global_names_reactivos.get_name_file_db(), "Error", mensaje_error=global_desarollo.mensaje.get(), dataset_id=global_session.get_id_dataSet())
-                estado_desarrollo , hora_desarrollo = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="desarollo")
+                estado_desarrollo , hora_desarrollo, mensaje_error = procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre="desarollo")
                 global_session_modelos.modelo_desarrollo_estado.set(estado_desarrollo)
+                global_session_modelos.modelo_desarrollo_mensaje_error.set(mensaje_error)
                 global_session_modelos.modelo_desarrollo_hora.set(hora_desarrollo)
                 global_desarollo.proceso_fallo.set(False)
         
@@ -272,7 +277,7 @@ def server_desarollo(input, output, session, name_suffix):
         print(global_desarollo.proceso_fallo.get(), "viendo si corta el modelo.")
         if global_desarollo.proceso_fallo.get():
             return
-
+    
         path = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
         name_file = "progreso.txt"
 
@@ -281,6 +286,7 @@ def server_desarollo(input, output, session, name_suffix):
 
         if ultimo_porcentaje == "100%":  # Si ya llegó al 100%, detener actualización
             print("Proceso completado. No se seguirá actualizando.")
+            global_desarollo.eliminar_archivo_progreso(path, name_file)
             return "100%"
 
         # Actualizar variable reactiva
