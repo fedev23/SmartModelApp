@@ -102,8 +102,7 @@ class ModeloProceso:
                     if last_match:
                         progress_percentage = int((last_match[0] / last_match[1]) * 100)
                         self.porcentaje.set(progress_percentage)
-                        print(f"Progreso: {progress_percentage}%")
-
+                        
                         # Guardar progreso en el archivo
                         await write_progress_to_file(progress_percentage)
 

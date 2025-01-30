@@ -1,5 +1,6 @@
 from api.db.sqlite_utils import *
 from api.db import *
+from pathlib import Path
 from api.db.utils.update_genric import *
 import os , re
 
@@ -570,3 +571,16 @@ def monitorizar_archivo(path, nombre_archivo):
             return "0%"  # En caso de error, devolver 0%
         
         
+
+def limpiar_archivo(path, nombre_archivo):
+    """Limpia el contenido de un archivo específico dentro de un directorio dado."""
+    try:
+        archivo_path = Path(path) / nombre_archivo  # Une la ruta con el nombre del archivo
+        
+        if archivo_path.exists() and archivo_path.is_file():
+            archivo_path.write_text('')  # Escribe un archivo vacío
+            print(f"El archivo '{archivo_path}' ha sido limpiado correctamente.")
+        else:
+            print(f"El archivo '{archivo_path}' no existe o no es un archivo válido.")
+    except Exception as e:
+        print(f"Error al limpiar el archivo: {e}")
