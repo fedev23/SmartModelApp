@@ -192,7 +192,7 @@ def server_out_of_sample(input, output, session, name_suffix):
             if modelo_of_sample.proceso_ok.get():
                 print("no falle")
                 agregar_datos_model_execution_validcion_full(global_session_V3.id_validacion_scoring.get(),  modelo_of_sample.nombre, global_session_V2.get_id_Data_validacion_sc(),  estado="Éxito")
-                estado_out_sample , hora_of_sample = procesar_etapa_validacion_full(base_datos="Modeling_App.db", id_validacion_sc=global_session_V3.id_validacion_scoring.get(), id_file=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_of_sample.nombre)
+                estado_out_sample , hora_of_sample, mensaje_error= procesar_etapa_validacion_full(base_datos="Modeling_App.db", id_validacion_sc=global_session_V3.id_validacion_scoring.get(), id_file=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_of_sample.nombre)
                 print(f"estado_out_sample {estado_out_sample}, hora_of_sample: {hora_of_sample}")
                 global_session_modelos.modelo_of_sample_estado.set(estado_out_sample)
                 global_session_modelos.modelo_of_sample_hora.set(hora_of_sample)
@@ -239,38 +239,36 @@ def server_out_of_sample(input, output, session, name_suffix):
         if click.get() < 1:
             return ""
 
-        if modelo_of_sample.proceso_fallo.get() is False:
-            
-            path_datos_salida  = get_folder_directory_data_validacion_scoring_SALIDA(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
-            
-            print(path_datos_salida, "path salida")
-            name_file = "progreso.txt"
-
-            # Obtener el último porcentaje del archivo
-            ultimo_porcentaje = monitorizar_archivo(path_datos_salida, nombre_archivo=name_file)
-
-           # Obtener el último porcentaje del archivo
+    
         
-            if ultimo_porcentaje == "100%":  # Si ya llegó al 100%, detener actualización
-                print("Proceso completado. No se seguirá actualizando.")
-                return "100%"
+        path_datos_salida  = get_folder_directory_data_validacion_scoring_SALIDA(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
+        
+        print(path_datos_salida, "path salida")
+        name_file = "progreso.txt"
 
-            # Actualizar variable reactiva
-            file_lines.set(ultimo_porcentaje)
-            print(f"Último porcentaje capturado: {file_lines.get()}")
+        # Obtener el último porcentaje del archivo
+        ultimo_porcentaje = monitorizar_archivo(path_datos_salida, nombre_archivo=name_file)
 
-            # Reactivar cada 3 segundos si aún no ha llegado al 100%
-            reactive.invalidate_later(3)
+        # Obtener el último porcentaje del archivo
+    
+        if ultimo_porcentaje == "100%":  # Si ya llegó al 100%, detener actualización
+            print("Proceso completado. No se seguirá actualizando.")
+            return "100%"
 
-            return ultimo_porcentaje
-        else:
-            return file_lines.get()
+        # Actualizar variable reactiva
+        file_lines.set(ultimo_porcentaje)
+        print(f"Último porcentaje capturado: {file_lines.get()}")
 
+        # Reactivar cada 3 segundos si aún no ha llegado al 100%
+        reactive.invalidate_later(3)
+
+        return ultimo_porcentaje
+   
     # Mostrar el contenido del archivo en la UI
     @render.ui
     def value_of_sample():
-       if click.get() > 1:
-            return f" Porcentaje{leer_archivo()}"
+       if click.get() >=1:
+            return f" Porcentaje {leer_archivo()}"
     
     
     @reactive.effect

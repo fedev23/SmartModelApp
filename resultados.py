@@ -95,7 +95,7 @@ def server_resul(input, output, session, name_suffix):
     resultados_out_to_sample = [
         {
             "resultado_id": "Resultados_Oss",
-            "resultado_path": "Validation_OoS_quick.html",
+            "resultado_path": "Validation_OoS.html",
             "salida": "output_modelling_out",
             "descarga_unic": "download_btn1",
             "salida_unic": "salida_prueba_out_to",

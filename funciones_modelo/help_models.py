@@ -249,7 +249,7 @@ def agregar_datos_model_execution(version_id, name, nombre_dataset, estado, json
     return add
 
 
-def agregar_datos_model_execution_por_json_version(json_version_id, name, nombre_dataset, estado,  mensaje_error):
+def agregar_datos_model_execution_por_json_version(json_version_id, name, nombre_dataset, estado,  mensaje_error=None):
     """
     Inserta un registro en la tabla model_execution basado únicamente en json_version_id.
 
@@ -374,7 +374,7 @@ def agregar_datos_model_execution_por_id_validacion_scoring(id_validacion_scorin
     # Retornar el ID del registro insertado
     return add
 
-def agregar_datos_model_execution_scoring(id_score, name, id_nombre_file, estado, mensaje_error):
+def agregar_datos_model_execution_scoring(id_score, name, id_nombre_file, estado, mensaje_error=None):
     """
     Actualiza un registro en la tabla 'scoring' basado en el ID de score.
 
@@ -419,7 +419,7 @@ def agregar_datos_model_execution_scoring(id_score, name, id_nombre_file, estado
     finally:
         connection.close() 
 
-def agregar_datos_model_execution_validcion_full(id_validacion_sc, name, id_nombre_file, estado, mensaje_error):
+def agregar_datos_model_execution_validcion_full(id_validacion_sc, name, id_nombre_file, estado, mensaje_error=None):
     """
     Actualiza un registro en la tabla 'scoring' basado en el ID de score.
 

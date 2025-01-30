@@ -164,7 +164,7 @@ def server_produccion(input, output, session, name_suffix):
             base_datos = "Modeling_App.db"
             if modelo_produccion.proceso_ok.get():
                 agregar_datos_model_execution_scoring(global_session_V3.id_score.get(), modelo_produccion.nombre,  global_session_V2.get_id_Data_validacion_sc(), estado="Éxito")
-                estado_produccion , hora_produccion = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_score=global_session_V3.id_score.get(), id_nombre_file=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_produccion.nombre)
+                estado_produccion , hora_produccion, mensaje_error = procesar_etapa_validacion_scroing(base_datos="Modeling_App.db", id_score=global_session_V3.id_score.get(), id_nombre_file=global_session_V2.get_id_Data_validacion_sc(), etapa_nombre=modelo_produccion.nombre)
                 global_session_modelos.modelo_produccion_estado.set(estado_produccion)
                 global_session_modelos.modelo_produccion_hora.set(hora_produccion)
                 modelo_produccion.proceso_ok.set(False)

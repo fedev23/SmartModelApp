@@ -30,7 +30,7 @@ ejemplo_niveles_riesgo = pd.DataFrame({})
 
 ejemplo_niveles_riesgo_2 = pd.DataFrame({
     "Nombre Nivel": ["BajoBajo", "BajoMedio", "BajoAlto", "MedioBajo", "MedioMedio", "Alto"],
-    "Regla": [" score > 955", "> 930", "> 895", "> 865", "> 750", "<= 750"],
+    "Regla": [" > 955", "> 930", "> 895", "> 865", "> 750", "<= 750"],
     "Tasa de Malos Máxima": ["3.0%", "6.0%", "9.0%", "15.0%", "18.0%", "100.0%"]
 })
 
@@ -189,7 +189,9 @@ def server_in_sample(input, output, session, name_suffix):
         if not tasa_malos:
             tasa_malos = ""
         else:
-            tasa_malos = f"{tasa_malos}%"  # Agregar el símbolo '%' al final
+            tasa_malos = float(tasa_malos)  # Convertir a float
+            tasa_malos = f"{tasa_malos}%" 
+            #tasa_malos = f"{tasa_malos}%"  # Agregar el símbolo '%' al final
 
       
         # Obtener el DataFrame actual de la tabla
@@ -442,6 +444,8 @@ def server_in_sample(input, output, session, name_suffix):
                     rango_reportes = par_rango_reportes.data_view()
                     reportesMap = transformar_reportes(rango_reportes)
                     df_editado = par_rango_niveles.data_view()
+                    
+                    print(df_editado, "vienod df" )
                     niveles_mapeados = transform_data(df_editado)
 
                     # Guardar los datos procesados
@@ -500,8 +504,9 @@ def server_in_sample(input, output, session, name_suffix):
                     name=modelo_in_sample.nombre,
                     nombre_dataset=global_names_reactivos.get_name_file_db(),
                     estado="Exito"
+                   
                 )
-                estado_in_sample , hora_in_sample = procesar_etapa_in_sample_2(base_datos="Modeling_App.db",  json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")
+                estado_in_sample , hora_in_sample, mensaje_error = procesar_etapa_in_sample_2(base_datos="Modeling_App.db",  json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")
                 global_session_modelos.modelo_in_sample_estado.set(estado_in_sample)
                 global_session_modelos.modelo_in_sample_hora.set(hora_in_sample)
                 modelo_in_sample.proceso_ok.set(False)

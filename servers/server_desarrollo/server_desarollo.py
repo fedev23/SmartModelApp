@@ -156,8 +156,12 @@ def server_desarollo(input, output, session, name_suffix):
             ui.modal_show(create_modal_generic("boton_advertencia_ejecute_desa", f"Es obligatorio generar una versión para continuar en {global_name_desarrollo}."))
             return
         
-        validacion_existencia_modelo = validar_existencia_modelo(modelo_boolean_value=global_desarollo.pisar_el_modelo_actual.get(),base_datos=base_datos, version_id=global_session.get_id_version(), nombre_modelo=global_desarollo.nombre, nombre_version=global_session.get_versiones_name())
-            
+        validacion_existencia_modelo =  verificar_estado_modelo(base_datos, version_id=global_session.get_id_version(), dataset_id=global_session.get_id_dataSet())
+        
+        if validacion_existencia_modelo:
+            return ui.modal_show(create_modal_generic("close_button_modelo_ok", f"Ya existe un modelo generado para la version {global_session.get_versiones_name()}"))
+          
+        
         # Crear instancia de la clase Validator
         if global_desarollo.pisar_el_modelo_actual.get() or validacion_existencia_modelo:
             validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
@@ -319,5 +323,11 @@ def server_desarollo(input, output, session, name_suffix):
         if click.get() >= 1:
             return f"Porcentaje: {leer_archivo()}"
    
+    
+    @reactive.effect
+    @reactive.event(input.close_button_modelo_ok)
+    def close_modal():
+        return ui.modal_remove()
+
    
     

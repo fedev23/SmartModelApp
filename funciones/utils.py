@@ -201,27 +201,22 @@ def transformar_segmentos(df):
 
 # Transformar los datos sin cálculos adicionales
 def transform_data(df):
-    # Lista para almacenar los valores procesados
-    value_list = []
     df.columns = df.columns.str.strip()
 
-   
+    # Diccionario donde cada clave es una lista de valores
+    result_dict = {
+        "Nombre Nivel": [],
+        "Regla": [],
+        "Tasa de Malos Máxima": []
+    }
 
     # Iterar sobre cada fila del DataFrame
-    for index, row in df.iterrows():
-        # Crear el diccionario para cada entrada según el formato del JSON deseado
-        value_dict = {
-            "Nombre Nivel": row['Nombre Nivel'],
-            "Regla": f"score {row['Regla']}",
-            # Convertir a string si es necesario
-            "Tasa de malos máxima": (row['Tasa de Malos Máxima'])
-        }
+    for _, row in df.iterrows():
+        result_dict["Nombre Nivel"].append(row['Nombre Nivel'])
+        result_dict["Regla"].append(row['Regla'])
+        result_dict["Tasa de Malos Máxima"].append(str(row['Tasa de Malos Máxima']))  # Convertir a string
 
-        # Agregar el diccionario a la lista
-        value_list.append(value_dict)
-
-    return value_list
-
+    return result_dict
 
 id_buttons = []
 id_buttons_desa = []
