@@ -428,13 +428,12 @@ def server_in_sample(input, output, session, name_suffix):
                 return
 
             # Validar si hay versiones
-            validacion_existe_modelo = modelo_in_sample.existencia_modelo(
-                modelo_in_sample.pisar_el_modelo_actual.get(),
-                base_datos="Modeling_App.db",
-                version_id=None,
-                json_id=global_session.get_version_parametros_id(),
-                nombre_version=global_session.get_versiones_name()
-            )
+            validacion_existe_modelo = verificar_estado_modelo_insa("Modeling_App.db", global_session.get_version_parametros_id(), global_session.get_id_dataSet())
+            
+            print(validacion_existe_modelo, "valor?")
+            if validacion_existe_modelo:
+               return ui.modal_show(create_modal_generic("close_button_insa_ok", f"Ya existe un modelo generado para la etapa {global_name_in_Sample}, en la versión {global_session.get_versiones_parametros_nombre()}"))
+  
             
             if modelo_in_sample.pisar_el_modelo_actual.get() or validacion_existe_modelo:
                 validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
@@ -503,8 +502,9 @@ def server_in_sample(input, output, session, name_suffix):
                     json_version_id=global_session.get_version_parametros_id(),
                     name=modelo_in_sample.nombre,
                     nombre_dataset=global_names_reactivos.get_name_file_db(),
-                    estado="Exito"
-                   
+                    estado="Exito",
+                    dataset_id=global_session.get_id_dataSet()
+                
                 )
                 estado_in_sample , hora_in_sample, mensaje_error = procesar_etapa_in_sample_2(base_datos="Modeling_App.db",  json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")
                 global_session_modelos.modelo_in_sample_estado.set(estado_in_sample)
@@ -517,6 +517,7 @@ def server_in_sample(input, output, session, name_suffix):
                     name=modelo_in_sample.nombre,
                     nombre_dataset=global_names_reactivos.get_name_file_db(),
                     estado="Error",
+                     dataset_id=global_session.get_id_dataSet(),
                     mensaje_error=modelo_in_sample.mensaje.get()
                 )
                 estado_in_sample , hora_in_sample, mensaje_error = procesar_etapa_in_sample_2(base_datos="Modeling_App.db",  json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")

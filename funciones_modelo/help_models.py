@@ -249,7 +249,7 @@ def agregar_datos_model_execution(version_id, name, nombre_dataset, estado, json
     return add
 
 
-def agregar_datos_model_execution_por_json_version(json_version_id, name, nombre_dataset, estado,  mensaje_error=None):
+def agregar_datos_model_execution_por_json_version(json_version_id, name, nombre_dataset, estado, dataset_id, mensaje_error=None):
     """
     Inserta un registro en la tabla model_execution basado únicamente en json_version_id.
 
@@ -265,11 +265,12 @@ def agregar_datos_model_execution_por_json_version(json_version_id, name, nombre
     current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     execution_state = estado
     mensaje_error = mensaje_error
+    dataset_id= dataset_id
 
     # Definir la tabla y las columnas
     table_name = "model_execution"
-    columns = ['json_version_id', 'execution_date', 'model_name', 'dataset_name', 'execution_state', 'mensaje_error']
-    values = [json_version_id, current_timestamp, nombre_modelo, dataset_name, execution_state, mensaje_error]
+    columns = ['json_version_id', 'execution_date', 'model_name', 'dataset_name', 'execution_state', 'dataset_id', 'mensaje_error']
+    values = [json_version_id, current_timestamp, nombre_modelo, dataset_name, execution_state, dataset_id, mensaje_error]
 
     
     add = insert_into_table(table_name, columns, values)

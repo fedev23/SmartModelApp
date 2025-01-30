@@ -191,7 +191,7 @@ def verificar_estado_modelo(db_path, version_id, dataset_id):
 
         # Si no hay registro de ejecución, devuelve None
         if result is None:
-            return None
+            return False
         
         # Si el estado es 'Exito', devuelve True
         if result[0] == "Exito":
@@ -361,3 +361,50 @@ def tiene_modelo_ejecutado(db_path, version_id):
     except sqlite3.Error as e:
         print("Error en la consulta:", e)
         return False
+    
+    
+
+
+def verificar_estado_modelo_insa(db_path, json_version_id, dataset_id):
+    """
+    Verifica el estado de ejecución del modelo para una versión y dataset específicos.
+    
+    :param db_path: Ruta a la base de datos SQLite.
+    :param json_version_id: ID de la versión del modelo.
+    :param dataset_id: ID del dataset asociado.
+    :return: 
+        - True si el estado es 'Exito'.
+        - False si el estado es 'Error'.
+        - None si no existe un registro de ejecución para esa versión y dataset.
+    """
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+
+        query = """
+        SELECT execution_state 
+        FROM model_execution 
+        WHERE json_version_id = ? AND dataset_id = ?
+        ORDER BY execution_date DESC
+        LIMIT 1;
+        """
+        cursor.execute(query, (json_version_id, dataset_id))
+        result = cursor.fetchone()
+        
+        conn.close()
+
+        # Si no hay registro de ejecución, devuelve None
+        if result is None:
+            return False
+        
+        # Si el estado es 'Exito', devuelve True
+        if result[0] == "Exito":
+            return True
+        
+        # Si el estado es 'Error' u otro estado, devuelve False
+        return False
+
+    except sqlite3.Error as e:
+        print("Error en la consulta:", e)
+        return None
+    
