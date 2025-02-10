@@ -93,19 +93,21 @@ def server_produccion(input, output, session, name_suffix):
 
         ultimo_id_file_produccion = obtener_ultimo_id_file_scoring(global_session.get_id_proyecto())
        
-        if ultimo_id_file_produccion != global_session_V2.get_id_Data_validacion_sc():
+        id_nombre_file = ultimo_id_file_produccion.get("id_nombre_file")  # Extrae el valor de forma segura
+        id_data = global_session_V2.get_id_Data_validacion_sc()
+        
+        id_nombre_file_int = int(id_nombre_file)
+        id_data_int = int(id_data)
+        
+        if id_nombre_file_int != id_data_int:
             id_version_score = insert_scoring("scoring" , global_session_V2.nombre_dataset_validacion_sc(), global_session.get_version_parametros_id(), modelo_produccion.nombre)
-            
             global_session_V3.id_score.set(id_version_score)
        
         
-        valid = validar_existencia_modelo(
-            modelo_produccion.pisar_el_modelo_actual.get(),
-            base_datos="Modeling_App.db",
-            score_id=global_session_V3.id_score.get(),
-            nombre_modelo=modelo_produccion.nombre,  
-            nombre_version=global_session.get_versiones_parametros_nombre()
-        )
+        valid = verificar_estado_modelo_full('Modeling_App.db', "scoring",  "id_score", global_session_V3.id_score.get(), "id_nombre_file", global_session_V2.get_id_Data_validacion_sc())
+        print(f"valid que tiene? {valid}")
+        if valid:
+            return  ui.modal_show(create_modal_generic("Close_modal_existe_ya_modelo", f"Ya existe un modelo generado para el Dataset: {global_session_V2.get_nombre_dataset_validacion_sc()}"))
         
         if modelo_produccion.pisar_el_modelo_actual.get() or valid:
             try:
@@ -203,7 +205,6 @@ def server_produccion(input, output, session, name_suffix):
             path_datos_salida  = get_folder_directory_data_validacion_scoring_SALIDA(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
             name_file = "progreso.txt"
 
-            print(f"path_datos_salida {path_datos_salida}")
             # Obtener el último porcentaje del archivo
             ultimo_porcentaje.set(monitorizar_archivo(path_datos_salida, nombre_archivo=name_file)) 
             if ultimo_porcentaje.get() == "100%":  # Si ya llegó al 100%, detener actualización

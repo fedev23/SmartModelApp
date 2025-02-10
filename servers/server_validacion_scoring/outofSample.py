@@ -96,31 +96,32 @@ def server_out_of_sample(input, output, session, name_suffix):
         proceso = modelo_of_sample.proceso.get()
         
         
-        ultimo_id_file = obtener_ultimo_id_file_del_ultimo_modelo(global_session.get_id_proyecto())
-       
-        if ultimo_id_file != global_session_V2.get_id_Data_validacion_sc():
+        ultimo_id_file = obtener_ultimo_id_file_por_validacion(global_session_V3.id_validacion_scoring.get())
+
+        id_nombre_file = ultimo_id_file.get("id_nombre_file")  # Extrae el valor de forma segura
+        id_data = global_session_V2.get_id_Data_validacion_sc()
+        
+        id_nombre_file_int = int(id_nombre_file)
+        id_data_int = int(id_data)
+        
+        if id_nombre_file_int != id_data_int:
             id_version_score = insert_validation_scoring("validation_scoring", global_session_V2.nombre_dataset_validacion_sc(), global_session.get_version_parametros_id(), modelo_of_sample.nombre)
             global_session_V3.id_validacion_scoring.set(id_version_score)
         
             
         validar_ids = check_if_exist_id_version_id_niveles_scord(global_session.get_id_version(), global_session.get_version_parametros_id())
         if validar_ids:
-            ui.modal_show(create_modal_generic("boton_advertencia_ejecute_of", f"Es obligatorio generar una versión de {global_name_out_of_Sample} y una versión para continuar."))
-            return
+            return ui.modal_show(create_modal_generic("boton_advertencia_ejecute_of", f"Es obligatorio generar una versión de {global_name_out_of_Sample} y una versión para continuar."))
 
 
-        print(f"global_session_V3.id_validacion_scoring.get(), {global_session_V3.id_validacion_scoring.get()}")
-        valid = validar_existencia_modelo(
-            modelo_of_sample.pisar_el_modelo_actual.get(),
-            base_datos="Modeling_App.db",
-            id_validacion_sc=global_session_V3.id_validacion_scoring.get(),
-            nombre_modelo=modelo_of_sample.nombre,  
-            nombre_version=global_session.get_versiones_parametros_nombre()
-        )
-        
-       
-     
-        if modelo_of_sample.pisar_el_modelo_actual.get() or valid:
+        valid = verificar_estado_modelo_full('Modeling_App.db', "validation_scoring", "id_validacion_sc",  global_session_V3.id_validacion_scoring.get(), "id_nombre_file", global_session_V2.get_id_Data_validacion_sc())
+        print(f"valid que tiene? {valid}")
+        if valid:
+            return  ui.modal_show(create_modal_generic("Close_modal_existe_ya_modelo", f"Ya existe un modelo generado para el Dataset: {global_session_V2.get_nombre_dataset_validacion_sc()}"))
+            
+          
+        if modelo_of_sample.pisar_el_modelo_actual.get() or valid is False:
+            
             validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
             try:
                 id_version_score = insert_validation_scoring("validation_scoring", global_session_V2.nombre_dataset_validacion_sc(), global_session.get_version_parametros_id(), modelo_of_sample.nombre)
@@ -253,6 +254,7 @@ def server_out_of_sample(input, output, session, name_suffix):
     
         if ultimo_porcentaje == "100%":  # Si ya llegó al 100%, detener actualización
             print("Proceso completado. No se seguirá actualizando.")
+            modelo_of_sample.eliminar_archivo_progreso(path_datos_salida, name_file )
             return "100%"
 
         # Actualizar variable reactiva

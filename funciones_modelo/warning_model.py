@@ -204,6 +204,63 @@ def verificar_estado_modelo(db_path, version_id, dataset_id):
         print("Error en la consulta:", e)
         return None
     
+
+def verificar_estado_modelo_full(db_path, table_name, id_field, id_value, file_id_field, file_id_value):
+    """
+    Verifica el estado de ejecución de un modelo en una tabla específica.
+
+    :param db_path: Ruta a la base de datos SQLite.
+    :param table_name: Nombre de la tabla donde se realizará la consulta.
+    :param id_field: Nombre del campo que representa el identificador principal (ej. 'id_validacion_sc' o 'id_score').
+    :param id_value: Valor del identificador principal.
+    :param file_id_field: Nombre del campo que representa el identificador del archivo (ej. 'id_nombre_file').
+    :param file_id_value: Valor del identificador del archivo.
+    :return: 
+        - True si el estado es 'Éxito'.
+        - False si el estado es 'Error' u otro estado.
+        - False si no existe un registro de ejecución para esos valores.
+    """
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+
+        # Construir la consulta dinámicamente
+        query = f"""
+        SELECT execution_state 
+        FROM {table_name} 
+        WHERE {id_field} = ? AND {file_id_field} = ?
+        ORDER BY fecha_de_ejecucion DESC
+        LIMIT 1;
+        """
+
+        print(f"Ejecutando consulta en la tabla {table_name} con {id_field}={id_value} y {file_id_field}={file_id_value}")
+
+        cursor.execute(query, (str(id_value), str(file_id_value)))  # Convertir a str si es necesario
+        result = cursor.fetchone()
+
+        conn.close()
+
+        # Si no hay registro de ejecución, devuelve False
+        if result is None:
+            print("No se encontró ningún registro en la base de datos con los valores proporcionados.")
+            return False
+
+        # Imprimir el resultado obtenido para depuración
+        print(f"Resultado de la consulta: {result[0]}")
+
+        # Comparación con minúsculas para evitar errores de formato
+        if result[0].lower() == "éxito":
+            return True
+        elif result[0].lower() == "error":
+            return False
+
+        return False
+
+    except sqlite3.Error as e:
+        print("Error en la consulta:", e)
+        return None
+    
+    
 def check_if_exist_id_version_id_niveles_scord(version_id, niveles_sc_id):
     """
     Verifica si alguno de los valores es None o está vacío.
