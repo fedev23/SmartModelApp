@@ -75,7 +75,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
     def seleccionador_versiones_param():
         base_datos = "Modeling_App.db"
         ultimo_id_reactivo.set(obtener_ultimo_id_seleccionado(base_datos, "json_versions", "id_jsons"))
-
+        print(f"ultimo id {ultimo_id_reactivo.get()}")
         versiones_parametros  = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
         manejo_de_ultimo_seleccionado(
             is_initializing=is_initializing,

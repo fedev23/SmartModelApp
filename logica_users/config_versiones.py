@@ -39,7 +39,7 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
     @reactive.event(input.other_select)  # Escuchar cambios en el selector
     def project_card_container():
         id_version  = input.other_select() # Captura el ID seleccionado
-        ultimo_id = obtener_ultimo_id_seleccionado(base_datos, "json_versions", "id_jsons"),
+        ultimo_id = obtener_ultimo_id_seleccionado(base_datos, "version", "version_id"),
         if isinstance(ultimo_id, tuple):
                 ultimo_id_version_reactivo.set(ultimo_id[0])  #
         
@@ -60,7 +60,6 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
     )
 
         
-        print(f"global_session.get_id_version() {global_session.get_id_version()}")
         model_ok = verificar_estado_modelo(base_datos, version_id=global_session.get_id_version(), dataset_id=global_session.get_id_dataSet())
         if model_ok:
             nombre_dataSet_con_modelo = obtener_nombre_dataset(global_session.get_id_version())
@@ -120,15 +119,7 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
         global_session_V2.set_json_params_desarrollo(param_json)
         
         
-        ##ACTUALIZO LAS VERSIONES DE NIELES Y SCORCARDS ACA Y EN LA SCREEN CORRESPONDIENTE DE NIVELES Y SC
-        versiones_parametros = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
-        opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version")) 
-        valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
         
-        
-        ##VIRFICIAR SI ESTO ESTA BIEN, QUE SOLO SE HAGA UN UPDATE EN IN SMAPELVERSIONS.
-        ui.update_select("version_selector",choices=opciones_param.get(), selected=valor_predeterminado_parms.get())
-    
 
     @output
     @render.ui
@@ -213,7 +204,16 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
         if id_actual != "a":
             id_actual = int(id_actual)
             
-            print("cuando estoy aca??")
+            print(f"id_actual {id_actual}")
+            print(f"ultimo_id_version_reactivo.get() {ultimo_id_version_reactivo.get()}")
             if ultimo_id_version_reactivo.get() != id_actual:
+                print("cuando estoy pasando??")
+                ##ACTUALIZO LAS VERSIONES DE NIELES Y SCORCARDS ACA Y EN LA SCREEN CORRESPONDIENTE DE NIVELES Y SC
+                versiones_parametros = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
+                opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version")) 
+                valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
+                ##VIRFICIAR SI ESTO ESTA BIEN, QUE SOLO SE HAGA UN UPDATE EN IN SMAPELVERSIONS.
+                ui.update_select("version_selector",choices=opciones_param.get(), selected=valor_predeterminado_parms.get())
+            
                 ui.update_navs("navset", selected="screen_desarrolo")  # Cambia al panel deseado
                 global_session_V2.click_seleccion_niveles_score.set(0)

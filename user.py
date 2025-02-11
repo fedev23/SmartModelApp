@@ -81,7 +81,6 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         
         
         ultimo_id = obtener_ultimo_id_seleccionado(base_datos, "json_versions", "id_jsons")
-        print(ultimo_id, "ultimo_id")
         
         nombre_proyecto = obtener_nombre_proyecto_por_id(global_session.get_id_proyecto())
         global_session_V3.name_proyecto_original.set(nombre_proyecto)

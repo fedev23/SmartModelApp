@@ -430,7 +430,6 @@ def server_in_sample(input, output, session, name_suffix):
             # Validar si hay versiones
             validacion_existe_modelo = verificar_estado_modelo_insa("Modeling_App.db", global_session.get_version_parametros_id(), global_session.get_id_dataSet())
             
-            print(validacion_existe_modelo, "valor?")
             if validacion_existe_modelo:
                return ui.modal_show(create_modal_generic("close_button_insa_ok", f"Ya existe un modelo generado para la etapa {global_name_in_Sample}, en la versión {global_session.get_versiones_parametros_nombre()}"))
   
@@ -444,7 +443,6 @@ def server_in_sample(input, output, session, name_suffix):
                     reportesMap = transformar_reportes(rango_reportes)
                     df_editado = par_rango_niveles.data_view()
                     
-                    print(df_editado, "vienod df" )
                     niveles_mapeados = transform_data(df_editado)
 
                     # Guardar los datos procesados
@@ -496,8 +494,6 @@ def server_in_sample(input, output, session, name_suffix):
         @reactive.effect
         def insert_data_depends_value():  
             if modelo_in_sample.proceso_ok.get():
-                print("ENTRO A PROCESO OK?")
-                print(f"antes de insert veo el valor de get name file db {global_names_reactivos.get_name_file_db()}")
                 registro_id = agregar_datos_model_execution_por_json_version(
                     json_version_id=global_session.get_version_parametros_id(),
                     name=modelo_in_sample.nombre,
@@ -588,7 +584,7 @@ def server_in_sample(input, output, session, name_suffix):
         modelo=modelo_in_sample,
         fecha=global_session_modelos.modelo_in_sample_hora.get(),
         estado=global_session_modelos.modelo_in_sample_estado.get(),
-        mensaje_error=global_session_modelos.modelo_in_sample_estado.get()
+        mensaje_error=global_session_modelos.modelo_in_sample_mensaje_error.get()
     )
     
     

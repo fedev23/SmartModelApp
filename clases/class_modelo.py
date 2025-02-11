@@ -187,7 +187,7 @@ class ModeloProceso:
         return formatted_now
 
     def render_card(self, file_name, fecha, estado, mensaje_error): 
-        default_message = ""
+        default_message = "No hay errores registrados"
         print(mensaje_error, "mensaje_error, del error ")
         if file_name is not None:
             if not fecha :
