@@ -20,6 +20,8 @@ def manejo_de_ultimo_seleccionado(
 
         # Configurar el selector al último valor seleccionado
         ultimo_id = ultimo_id_func()
+        
+        print(f"ultimo_id {ultimo_id} {input_select_name}")
         if ultimo_id:
             global_set_func(ultimo_id)
             ultimo_select = obtener_ultimo_func(db_table, db_column_name)

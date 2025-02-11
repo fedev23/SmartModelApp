@@ -179,6 +179,7 @@ class ResultadoClassPrueba:
         create_zip_from_directory(directory_path, temp_zip_path)
         return temp_zip_path
     
+    
     def boton_para_descagar_unico(self, resultado_id):
         if self.proceso_ok.get():
             return ui.download_button(resultado_id, f"Descargar resultado {resultado_id}")

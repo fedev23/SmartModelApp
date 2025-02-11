@@ -149,3 +149,16 @@ def mapear_valor_a_clave(valor, diccionario):
     :return: La clave correspondiente si se encuentra, o None si no hay coincidencia.
     """
     return next((key for key, value in diccionario.items() if value == valor), None)
+
+
+def mapear_valor_a_clave_2(valor, diccionario):
+    print(f"🔎 Buscando '{valor}' en opciones: {diccionario}")
+
+    if valor in diccionario.values():
+        for key, value in diccionario.items():
+            if value == valor:
+                print(f"✅ Mapeo encontrado: {valor} -> {key}")
+                return key
+
+    print(f"⚠️ No se encontró un mapeo para '{valor}', devolviendo None")
+    return None

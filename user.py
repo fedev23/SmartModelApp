@@ -76,9 +76,13 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             db_column_id="id",
             db_column_name="name"   
         )
-
         
-    
+        versiones_parametros  = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
+        
+        
+        ultimo_id = obtener_ultimo_id_seleccionado(base_datos, "json_versions", "id_jsons")
+        print(ultimo_id, "ultimo_id")
+        
         nombre_proyecto = obtener_nombre_proyecto_por_id(global_session.get_id_proyecto())
         global_session_V3.name_proyecto_original.set(nombre_proyecto)
         
@@ -106,11 +110,13 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             global_session.set_versiones_name(replace_spaces_with_underscores(nombre_version))
             
         # Obtiene y configura las versiones de parámetros
-        versiones_parametros  = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
+        
+        
             # 
         opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version"))
         valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
         ##Actualizo tambien los dataSet de Validacion y scroing
+        
         
         nombre_files_validacion_sc = obtener_nombres_files_por_proyecto(global_session.get_id_proyecto())
     
@@ -138,7 +144,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         ui.update_select("files_select_validation_scoring",choices=global_session_V2.get_opciones_name_dataset_Validation_sc(), selected=data_predeterminado.get())
         #ui.update_select("files_select", choices=nombre_file.get(),  selected=selected_key if selected_key else next(iter(nombre_file.get()), ""))
         ui.update_select("other_select", choices=opciones_de_versiones_por_proyecto.get(), selected=key_versiones_mach if key_versiones_mach else next(iter(opciones_de_versiones_por_proyecto.get()), ""))
-        ui.update_select("version_selector", choices=opciones_param.get(), selected=valor_predeterminado_parms.get())
+        #ui.update_select("version_selector", choices=opciones_param.get(), selected=valor_predeterminado_parms.get())
         global_session_V2.count_global.set(0) 
         global_session_V2.boolean_for_change_file.set(False)
         global_session_V2.click_seleccion_niveles_score.set(0)

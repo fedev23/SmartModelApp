@@ -27,6 +27,7 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
     valor_predeterminado_parms =  reactive.Value()
     versiones_por_proyecto = reactive.Value(None)
     init_session = reactive.Value(True)
+    ultimo_id_version_reactivo = reactive.Value()
 
     
     
@@ -38,7 +39,9 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
     @reactive.event(input.other_select)  # Escuchar cambios en el selector
     def project_card_container():
         id_version  = input.other_select() # Captura el ID seleccionado
-
+        ultimo_id = obtener_ultimo_id_seleccionado(base_datos, "json_versions", "id_jsons"),
+        if isinstance(ultimo_id, tuple):
+                ultimo_id_version_reactivo.set(ultimo_id[0])  #
         
         manejo_de_ultimo_seleccionado(
         is_initializing=init_session,
@@ -60,9 +63,7 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
         print(f"global_session.get_id_version() {global_session.get_id_version()}")
         model_ok = verificar_estado_modelo(base_datos, version_id=global_session.get_id_version(), dataset_id=global_session.get_id_dataSet())
         if model_ok:
-            print("pase a modelo generado!!")
             nombre_dataSet_con_modelo = obtener_nombre_dataset(global_session.get_id_version())
-            print(f"nombre_dataSet_con_modelo {nombre_dataSet_con_modelo}")
             global_names_reactivos.set_name_file_db(nombre_dataSet_con_modelo)
         
         
@@ -84,7 +85,6 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
         modelo_existente = tiene_modelo_ejecutado(db_path=base_datos, version_id=global_session.get_id_version())
             
         if  modelo_existente:
-            print("pase a modelo existe?")
             nombre_dataSet_con_modelo = obtener_nombre_dataset(global_session.get_id_version())
             global_session_V2.set_dataSet_seleccionado(nombre_dataSet_con_modelo)
             selected_key = mapear_valor_a_clave(global_session_V2.get_dataSet_seleccionado(), global_session_V2.lista_nombre_archivos_por_version.get())
@@ -99,7 +99,6 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
         #CAPTURO ESTADO DEL MODELO DE  DESARROLLO
         estado_model_desarrollo, fecha_model_desarrollo, mensaje_errro = help_models.procesar_etapa(base_datos="Modeling_App.db", id_version=global_session.get_id_version(), etapa_nombre=global_desarollo.nombre)
         
-        print(mensaje_errro, "viendo mensaje error")
         global_session_modelos.modelo_desarrollo_estado.set(estado_model_desarrollo)
         global_session_modelos.modelo_desarrollo_hora.set(fecha_model_desarrollo)
         global_session_modelos.modelo_desarrollo_mensaje_error.set(mensaje_errro)
@@ -126,6 +125,8 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
         opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version")) 
         valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
         
+        
+        ##VIRFICIAR SI ESTO ESTA BIEN, QUE SOLO SE HAGA UN UPDATE EN IN SMAPELVERSIONS.
         ui.update_select("version_selector",choices=opciones_param.get(), selected=valor_predeterminado_parms.get())
     
 
@@ -204,3 +205,15 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
     def cancelar_eliminacion_version():
         return ui.modal_remove()
     
+    
+    
+    @reactive.effect
+    def update_nav():
+        id_actual = input.other_select()
+        if id_actual != "a":
+            id_actual = int(id_actual)
+            
+            print("cuando estoy aca??")
+            if ultimo_id_version_reactivo.get() != id_actual:
+                ui.update_navs("navset", selected="screen_desarrolo")  # Cambia al panel deseado
+                global_session_V2.click_seleccion_niveles_score.set(0)

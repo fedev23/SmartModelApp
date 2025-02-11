@@ -3,6 +3,7 @@
 from shiny import App, Inputs, Outputs, Session, reactive, ui, render, module
 from funciones.help_parametros.valid_columns import replace_spaces_with_underscores
 from api import *
+from logica_users.utils.manejo_session import manejo_de_ultimo_seleccionado
 from global_names import global_name_in_Sample
 from clases.global_session import global_session
 from api.db.sqlite_utils import *
@@ -12,7 +13,7 @@ from funciones_modelo.bd_tabla_validacion_sc import obtener_ultimo_id_validation
 from clases.global_sessionV2 import *
 from clases.global_sessionV3 import *
 from funciones.utils_2 import crear_carpeta_version_parametros
-from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version, eliminar_carpeta
+from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version, eliminar_carpeta, mapear_valor_a_clave
 from datetime import datetime
 from api.db.up_date import *
 from auth.utils import help_api 
@@ -26,9 +27,10 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
     id_versiones_params = reactive.Value(None)
     opciones_param = reactive.Value(None)
     valor_predeterminado_parms = reactive.Value(None)
-    click_seleccion_niveles_score = reactive.Value(0)
+    ultimo_id_reactivo = reactive.Value()
     nombre_de_la_version_in_sample = reactive.Value("")
     initialized = reactive.Value(False)
+    is_initializing = reactive.Value(True)
         
     
 
@@ -48,7 +50,6 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
         add = insert_into_table(table_name, columns, values)
         global_session.set_version_parametros_id(add)
         id_versiones_params.set(add)
-        print(f"id aca en continue {add}")
         obtener_nombre_version_por_id(global_session.get_id_version())
         name = replace_spaces_with_underscores(name)
         crear_carpeta_version_parametros(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_version_parametros_id(), name, global_session.get_name_proyecto(), global_session.get_versiones_name())
@@ -72,11 +73,30 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
     @reactive.effect
     @reactive.event(input.version_selector)
     def seleccionador_versiones_param():
+        base_datos = "Modeling_App.db"
+        ultimo_id_reactivo.set(obtener_ultimo_id_seleccionado(base_datos, "json_versions", "id_jsons"))
+
+        versiones_parametros  = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
+        manejo_de_ultimo_seleccionado(
+            is_initializing=is_initializing,
+            input_select_value=input.version_selector(),
+            ultimo_id_func=lambda: obtener_ultimo_id_seleccionado(base_datos, "json_versions", "id_jsons"),
+            global_set_func=lambda x: global_session.set_version_parametros_id(x),
+            actualizar_ultimo_func=lambda table, column, value: actualizar_ultimo_seleccionado(base_datos, table, column, value),
+            obtener_ultimo_func=lambda table, column: obtener_ultimo_seleccionado(base_datos, table, column),
+            obtener_opciones_func=lambda: obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version"),
+            mapear_clave_func=mapear_valor_a_clave, 
+            ui_update_func=lambda name, choices, selected: ui.update_select(name, choices=choices, selected=selected),
+            input_select_name="version_selector",
+            db_table="json_versions",
+            db_column_id="id_jsons",
+            db_column_name="nombre_version"
+        )
+    
         if not initialized():
             initialized.set(True)
-            #click_seleccion_niveles_score.set(click_seleccion_niveles_score() + 1)
             return 
-    
+        
         global_session_V2.click_seleccion_niveles_score.set(global_session_V2.click_seleccion_niveles_score() + 1)
         if global_session_V2.click_seleccion_niveles_score.get() >=1:
             
@@ -214,8 +234,18 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
 
     @reactive.effect
     def update_nav():
-        if global_session_V2.click_seleccion_niveles_score.get() > 1:
-            print(f"con que value paso? {click_seleccion_niveles_score.get()}")
-            ui.update_navs("navset", selected="screen_niveles_scorcads")  # Cambia al panel deseado
-            global_session_V2.click_seleccion_niveles_score.set(0)
+        base_datos = "Modeling_App.db"
+        if global_session_V2.click_seleccion_niveles_score.get() >1:
+            
+            if isinstance(ultimo_id_reactivo.get(), tuple):
+                ultimo_id_reactivo.set(ultimo_id_reactivo.get()[0]) 
+                print(ultimo_id_reactivo.get())
+        
+            id_actual = input.version_selector()
+            id_actual = int(id_actual)
+            
+                
+            if ultimo_id_reactivo.get() != id_actual:
+                ui.update_navs("navset", selected="screen_niveles_scorcads")  # Cambia al panel deseado
+                global_session_V2.click_seleccion_niveles_score.set(0)
                 
