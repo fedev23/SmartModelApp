@@ -308,7 +308,7 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
                     modelo=modelo_produccion,
                     fecha=global_session_modelos.modelo_produccion_hora.get(),
                     estado=global_session_modelos.modelo_produccion_estado.get(),
-                    mensaje_error=global_session_modelos.modelo_produccion_error.get()
+                    mensaje_error=global_session_modelos.modelo_produccion_error.get(   )
                 )
     
 
