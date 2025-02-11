@@ -24,6 +24,8 @@ from funciones_modelo.warning_model import *
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.help_models import *
 from global_names import global_name_in_Sample
+from funciones.utils_cargar_json import *
+from clases.global_sessionV3 import *
 
 ejemplo_niveles_riesgo = pd.DataFrame({})
 
@@ -66,6 +68,7 @@ def server_in_sample(input, output, session, name_suffix):
     values_tabla_niveles = reactive.Value(pd.DataFrame({"Nombre Nivel": [], "Regla": [], "Tasa de Malos Máxima": []}))
     list_transformada = reactive.Value([])
     click = reactive.Value(0)
+    alamacen_data_json = reactive.Value()
    
     
 
@@ -174,8 +177,7 @@ def server_in_sample(input, output, session, name_suffix):
 
         if pd.notna(index_vacio):  # Si hay una fila vacía, llenar con la regla
             data.at[index_vacio, "Regla"] = regla
-        else:
-            print("⚠ No hay una fila vacía para agregar la regla.")
+        
 
         # Actualizar la tabla reactiva
         values_tabla_niveles.set(data)
@@ -202,8 +204,7 @@ def server_in_sample(input, output, session, name_suffix):
 
         if pd.notna(index_vacio):  # Si hay una fila vacía, llenar
             data.at[index_vacio, "Tasa de Malos Máxima"] = tasa_malos
-        else:
-            print("⚠ No hay una fila vacía para agregar la tasa.")
+        
 
         # Actualizar la tabla reactiva con la nueva tasa incluida
         values_tabla_niveles.set(data)
@@ -223,7 +224,6 @@ def server_in_sample(input, output, session, name_suffix):
     @reactive.effect
     def actualizar_insertados():
         if inserto.get():
-            print("¿Pasé?")
             
             # Actualizar los valores de los inputs usando `session.send_input_message`
             session.send_input_message("add_value", {"value": ""})
@@ -278,7 +278,6 @@ def server_in_sample(input, output, session, name_suffix):
 
             # Validar si los valores ya existen
             if valores_seleccionados in data["Variables de corte"].values:
-                print("El valor ya existe en el DataFrame. No se agregó.")
                 return  # Salir sin realizar cambios
 
             # Crear una nueva fila con los valores seleccionados
@@ -337,13 +336,22 @@ def server_in_sample(input, output, session, name_suffix):
     @render.data_frame
     def par_rango_niveles():
         data = values_tabla_niveles.get()
+        json_params = global_session_V3.json_params_insa.get()
+
+        df_niveles = get_parameter_dataframe("par_rango_niveles", json_params)
+        if df_niveles is not None and not df_niveles.empty:
+            alamacen_data_json.set(df_niveles)
+            data = alamacen_data_json.get()
+            return render.DataGrid(data, selection_mode="rows",  width="700px")
+        
+            
         ejemplo_niveles_riesgo_2 = pd.DataFrame({
-            "Nombre Nivel": [],
-            "Regla": [],
-            "Tasa de Malos Máxima": []
-        })
+        "Nombre Nivel": [],
+        "Regla": [],
+        "Tasa de Malos Máxima": []
+    })
         if data is not None and not data.empty:
-            print(data, "estoy end ata")
+            
          
             return render.DataGrid(data, selection_mode="rows",  width="700px")
         
@@ -374,16 +382,21 @@ def server_in_sample(input, output, session, name_suffix):
     def par_rango_reportes():
         # Obtén los datos del estado reactivo
         data = data_set.get()
+        json_params = global_session_V3.json_params_insa.get()
+
+        df_rango_repotes = get_parameter_dataframe("par_rango_reportes", json_params)
         
+        if df_rango_repotes is not None and not df_rango_repotes.empty:
+            data = df_rango_repotes
+            return render.DataGrid(data, selection_mode="rows",  width="500px")
+        
+            
         ejemplos_rangos = pd.DataFrame({
             "Variables de corte": []
         })
-
+        
         # Si el DataFrame está vacío, usa el DataFrame de ejemplo
         if data is not None and not data.empty:
-            print(data, "estoy end ata")
-        # Renderiza el DataFrame si no está vacío
-
             return render.DataGrid(data, selection_mode="rows",  width="500px")
         
         return render.DataGrid(ejemplos_rangos, selection_mode="rows",  width="500px")
@@ -434,7 +447,7 @@ def server_in_sample(input, output, session, name_suffix):
                return ui.modal_show(create_modal_generic("close_button_insa_ok", f"Ya existe un modelo generado para la etapa {global_name_in_Sample}, en la versión {global_session.get_versiones_parametros_nombre()}"))
   
             
-            if modelo_in_sample.pisar_el_modelo_actual.get() or validacion_existe_modelo:
+            if modelo_in_sample.pisar_el_modelo_actual.get() or validacion_existe_modelo is False:
                 validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
                 
                 if validator.is_valid():

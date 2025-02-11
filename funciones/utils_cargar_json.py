@@ -63,6 +63,36 @@ def leer_control_json(user_id, proyecto_id, name_proyect, id_version, nombre_ver
     except Exception as e:
         print(f"Error al leer el archivo JSON: {e}")
         return None
+
+def leer_control_json_in_sample(user_id, proyecto_id, name_proyect, id_version, nombre_version, nombre_version_insa, id_version_insa):
+    # Obtener la ruta de la carpeta de datasets (o de la versión y proyecto)
+    version_folder = get_datasets_directory_json(user_id, proyecto_id, name_proyect, id_version, nombre_version)
+    version_insa = f"version_parametros_{id_version_insa}_{nombre_version_insa}"
+    full_path = os.path.join(version_folder, version_insa)
+    # Verificar que la carpeta de la versión no sea None
+    if version_folder is None:
+        print(f"No se encontró la carpeta de la versión del proyectooo. {version_folder}")
+        return None  # Retornar None si no se encontró la carpeta
+    
+    # Construir la ruta completa del archivo JSON
+    control_json_path = os.path.join(full_path, 'Control de SmartModelStudio.json')
+    
+    #print(control_json_path, "viendo el path de json!!")
+    # Verificar que el archivo JSON exista
+    if not os.path.exists(control_json_path):
+        print(f"El archivo {control_json_path} no existe.")
+        return None  # Retornar None si el archivo no existe
+    
+    # Leer el archivo JSON
+    try:
+        with open(control_json_path, 'r', encoding='utf-8') as file:
+            control_data = json.load(file)
+        print(f"Archivo JSON {control_json_path} leído con éxito.")
+        return control_data  # Retornar el contenido del archivo JSON
+    
+    except Exception as e:
+        print(f"Error al leer el archivo JSON: {e}")
+        return None
     
 
 def get_parameter_value(parameter_name, lista):
@@ -120,6 +150,30 @@ def update_selectize_from_columns_and_json(column_names, selectize_params, json_
             # Actualiza el selectize con los valores seleccionados
             ui.update_selectize(selectize_id, choices=column_names, selected=value)
             
+def get_parameter_dataframe(parameter_name, lista):
+    """
+    Extrae el valor de un parámetro en formato 'data.frame' desde una lista de JSONs y lo convierte en un DataFrame.
+    
+    :param parameter_name: Nombre del parámetro a buscar en la lista.
+    :param lista: Lista de diccionarios JSON que contienen los parámetros.
+    :return: DataFrame con los valores extraídos o None si el parámetro no se encuentra o está vacío.
+    """
+    if lista:
+        value = get_parameter_value(parameter_name, lista)
+       
+
+        if isinstance(value, dict) and value.keys():  # Caso 1: Formato anterior (diccionario)
+            df = pd.DataFrame(value)
+            return df
+        
+        elif isinstance(value, list) and all(isinstance(i, dict) for i in value):  # Caso 2: Lista de diccionarios
+            df = pd.DataFrame(value)
+            return df
+        
+        else:
+            return None
+        
+                    
 def update_numeric_from_parameters(numeric_params, json_params=None, default_values=None):
     """
     Actualiza las entradas numéricas (`input_numeric`) con valores desde un JSON o un valor predeterminado.

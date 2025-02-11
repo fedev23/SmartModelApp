@@ -211,7 +211,7 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
                 ##ACTUALIZO LAS VERSIONES DE NIELES Y SCORCARDS ACA Y EN LA SCREEN CORRESPONDIENTE DE NIVELES Y SC
                 versiones_parametros = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
                 opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version")) 
-                valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
+                valor_predeterminado_parms.set(obtener_ultimo_id_seleccionado(base_datos, "json_versions", "id_jsons"))
                 ##VIRFICIAR SI ESTO ESTA BIEN, QUE SOLO SE HAGA UN UPDATE EN IN SMAPELVERSIONS.
                 ui.update_select("version_selector",choices=opciones_param.get(), selected=valor_predeterminado_parms.get())
             

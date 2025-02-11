@@ -9,13 +9,14 @@ from clases.global_session import global_session
 from api.db.sqlite_utils import *
 from funciones.funciones_user import create_modal_v2, create_modal_versiones_param, button_remove
 from api.db import *
-from funciones_modelo.bd_tabla_validacion_sc import obtener_ultimo_id_validation_scoring_por_json_version, obtener_ultimo_id_scoring_por_id_data_y_version
+from funciones_modelo.bd_tabla_validacion_sc import  obtener_ultimo_id_scoring_por_id_data_y_version
 from clases.global_sessionV2 import *
 from clases.global_sessionV3 import *
 from funciones.utils_2 import crear_carpeta_version_parametros
 from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version, eliminar_carpeta, mapear_valor_a_clave
 from datetime import datetime
 from api.db.up_date import *
+from funciones.utils_cargar_json import leer_control_json_in_sample
 from auth.utils import help_api 
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.help_models import *
@@ -23,7 +24,7 @@ from funciones_modelo.global_estados_model import global_session_modelos
 
 def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_para_button):
     
-    list = reactive.Value(None)
+    lista = reactive.Value(None)
     id_versiones_params = reactive.Value(None)
     opciones_param = reactive.Value(None)
     valor_predeterminado_parms = reactive.Value(None)
@@ -77,6 +78,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
         ultimo_id_reactivo.set(obtener_ultimo_id_seleccionado(base_datos, "json_versions", "id_jsons"))
         print(f"ultimo id {ultimo_id_reactivo.get()}")
         versiones_parametros  = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
+        
         manejo_de_ultimo_seleccionado(
             is_initializing=is_initializing,
             input_select_value=input.version_selector(),
@@ -151,6 +153,10 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
                 global_session_modelos.modelo_in_sample_hora.set(hora_in_sample)
                 global_session_modelos.modelo_in_sample_mensaje_error.set(mensaje_error)
                 
+                
+                param_json_in_sample = leer_control_json_in_sample(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_id_version(), global_session.get_versiones_name(), global_session.get_versiones_parametros_nombre(), global_session.get_version_parametros_id())
+                global_session_V3.json_params_insa.set(param_json_in_sample)
+                
             
               
         
@@ -213,7 +219,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
         condiciones = "version_id = ?"
         parametros = (global_session.get_id_version(),)  
         lista_de_versiones_new = obtener_versiones_por_proyecto(columnas,tabla, condiciones,parametros)
-        list.set(lista_de_versiones_new)
+        lista.set(lista_de_versiones_new)
         ui.update_select(
             "version_selector",
             choices={str(vers['id_jsons']): vers['nombre_version']
