@@ -21,6 +21,10 @@ Shiny.addCustomMessageHandler('open-accordion', function(data) {
     }
 });
 
+Shiny.addCustomMessageHandler("redirect", function(url) {
+    window.location.href = url;
+});
+
 
 Shiny.addCustomMessageHandler("render_screen", function(message) {
     var screen_id = message.screen_id;

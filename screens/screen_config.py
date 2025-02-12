@@ -10,11 +10,11 @@ screen_config = ui.page_fluid(
             ui.card(
                 ui.card_header("Panel de Configuración"),
                 ui.tags.details(
-                    ui.tags.summary("Configuración de columnas"),
+                    ui.tags.summary("Configuración de filas"),
                     ui.div(class_="mt-2"),
                     ui.input_numeric(
                         "number_choice",
-                        "Ingrese un número de columnas para ver en el dataset",
+                        "Ingrese un número de filas para ver en el dataset",
                         value=5
                     )
                 ),

@@ -18,11 +18,12 @@ from clases.global_sessionV2 import *
 
 
 class ModeloProceso:
-    def __init__(self, nombre, directorio, script_name, script_path, name_file, mensaje_id, hora, estado, porcentaje_path):
+    def __init__(self, nombre, directorio, script_name, script_path, name_file, mensaje_id, hora, estado, porcentaje_path, script_path_tablero):
         self.nombre = nombre
         self.name_file = name_file
         self.mensaje_id = mensaje_id
         self.directorio = directorio
+        self.script_path_tablero = script_path_tablero
         self.hora = hora
         self.estado = estado
         self.porcentaje_path = porcentaje_path
@@ -204,6 +205,9 @@ class ModeloProceso:
                     ui.p(f"Horario de ejecución: {fecha}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
                     
                     ui.p(f"{mensaje_error or default_message}", style="margin: 0; line-height: 1.5; vertical-align: middle;"),
+                    
+                    ui.p(ui.output_ui(f"tablero_{self.nombre}"),  style="margin: 0; line-height: 1.5; vertical-align: middle;"),
+                    
                     #ui.input_action_link(f"see_proces_{self.nombre}", "Ver porcentaje del proceso"),
                     ui.p(ui.output_ui(f"value_{self.nombre}"),  style="margin: 0; line-height: 1.5; vertical-align: middle;"),
                     ui.p( ui.output_ui(f"value_error_{self.nombre}"),  style="margin: 0; line-height: 1.5; vertical-align: middle;"),
@@ -237,8 +241,6 @@ class ModeloProceso:
         # Verificar el estado de ejecución utilizando la función check_execution_status
         print(f"estoy pasando en esta funcion???: {version_id}, {json_id}")
         if not modelo_boolean_value:
-            print("pase el boolean>")
-            print(f"values now? {version_id}, {json_id}")
             estado_ejecucion = check_execution_status(base_datos, version_id=version_id, json_id=json_id)
             print(estado_ejecucion, "que estado hay aca?")
             if estado_ejecucion is not None and estado_ejecucion == "Exito":
@@ -266,10 +268,8 @@ class ModeloProceso:
 
             if os.path.exists(path):
                 os.remove(path)
-                print(f"Archivo eliminado: {path}")
                 return True
             else:
-                print(f"El archivo no existe: {path}")
                 return False
         except Exception as e:
             print(f"Error al eliminar el archivo {filename} en {folder}: {e}")
@@ -299,3 +299,33 @@ class ModeloProceso:
             return mensaje_error
 
         return "No se encontró un mensaje de error válido."
+    
+    
+
+    async def run_script_tablero(self):
+        wsl_directorio = self.directorio.replace("\\", "/").replace("C:", "/mnt/c")
+        
+        cmd = f"cd {wsl_directorio} && {self.script_path_tablero}"
+        
+        print(f"comando: {cmd}")
+        
+        try:
+            # Ejecutamos el script de forma asíncrona
+            process = await asyncio.create_subprocess_shell(
+                cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+
+            stdout, stderr = await process.communicate()
+
+            if stdout:
+                print(f"Salida:\n{stdout.decode()}")
+            if stderr:
+                print(f"error:\n{stderr.decode()}")
+
+            return process.returncode
+
+        except Exception as e:
+            print(f"Error al ejecutar el script: {str(e)}")
+            return -1 

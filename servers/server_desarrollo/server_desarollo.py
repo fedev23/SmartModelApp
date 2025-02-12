@@ -34,6 +34,12 @@ def server_desarollo(input, output, session, name_suffix):
     global_names_reactivos.name_desarrollo_set(name_suffix)
     mensaje = reactive.Value("")
     file_lines = reactive.value()
+    primer_file  = reactive.Value(True)
+    segundo_file = reactive.Value(False)
+    progress1    = reactive.Value("0%")
+    progress2    = reactive.Value("0%")
+    esperando_reset = reactive.Value(False)  # Nueva variable para esperar el reinicio a 0%
+
     termino = reactive.value(False)
     primer_file = reactive.Value(True)
     segundo_file = reactive.Value(False)
@@ -163,7 +169,7 @@ def server_desarollo(input, output, session, name_suffix):
           
         
         # Crear instancia de la clase Validator
-        if global_desarollo.pisar_el_modelo_actual.get() or validacion_existencia_modelo:
+        if global_desarollo.pisar_el_modelo_actual.get() or validacion_existencia_modelo is False:
             validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
             
             # Realizar las validaciones
@@ -213,7 +219,6 @@ def server_desarollo(input, output, session, name_suffix):
         
                     mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), data_Set, name_suffix, path_datos_entrada)
                     
-                    print("hasta aca llego? ")
                     global_desarollo.script_path = f'./Modelar.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida}'
                     ejectutar_desarrollo_asnyc(click_count_value, mensaje_value, proceso)
                     click.set(click() + 1)
@@ -273,49 +278,54 @@ def server_desarollo(input, output, session, name_suffix):
     
             
         
+    # Asegúrate de definir estas variables en un ámbito global (o en un objeto persistente)
     @reactive.calc
     def leer_archivo():
-        """Lee el archivo de progreso y actualiza la UI."""
-        if termino.get() is False:
+        """Lee el progreso de dos procesos secuenciales y espera a que el primer proceso vuelva a 0% antes de iniciar el segundo."""
+        
+        # Si no se ha iniciado el proceso o si hubo fallo, no se hace nada
+        if click.get() < 1 or termino.get() or global_desarollo.proceso_fallo.get():
+            return ""
+        
+        # Ruta y nombre del archivo
+        path = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+        name_file = "progreso.txt"
+        
+        # Se lee el porcentaje actual del archivo
+        porcentaje = monitorizar_archivo(path, nombre_archivo=name_file)
+
+        # Proceso de la primera etapa
+        if primer_file.get():
+            progress1.set(porcentaje)
             
-            if click.get() < 1:
-                return ""
-
-            if global_desarollo.proceso_fallo.get():
-                return
-
-            path = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
-            name_file = "progreso.txt"
-
-            # Obtener el último porcentaje del archivo
-            ultimo_porcentaje = monitorizar_archivo(path, nombre_archivo=name_file)
-            file_lines.set(ultimo_porcentaje)
+            if porcentaje == "100%":
+                esperando_reset.set(True)  # Activar el estado de espera antes de cambiar a la segunda etapa
                 
-            if primer_file.get():
-                if ultimo_porcentaje == "100%":
-                    file_lines.set("100%")
-                    primer_file.set(False)
-                    
-            if file_lines.get() != "100%" and primer_file.get() is False:
-                segundo_file.set(True)  
-          
-            print("esperando pasar...")
-            if segundo_file.get():
-                print("pase...")
-                file_lines.set(f"Procesando segunda etapa.. {ultimo_porcentaje}")
-                if ultimo_porcentaje == "100%":
-                    print("cuando paso a esta validacion?")
-                    global_desarollo.eliminar_archivo_progreso(path, name_file)
-                    return "100%"
-                
+            # Esperar hasta que el progreso vuelva a ser menor a 100%
+            if esperando_reset.get() and porcentaje != "100%":
+                esperando_reset.set(False)
+                primer_file.set(False)
+                segundo_file.set(True)
+            
+            progress_text = f"Etapa 1: {progress1.get()}"
 
-            # Actualizar variable reactiva
-            print(f"Último porcentaje capturado: {file_lines.get()}")
+        # Proceso de la segunda etapa
+        elif segundo_file.get():
+            progress2.set(porcentaje)
 
-            # Reactivar cada 3 segundos si aún no ha llegado al 100% o si sigue habiendo actividad
-            reactive.invalidate_later(2)
+            if porcentaje == "100%":
+                global_desarollo.eliminar_archivo_progreso(path, name_file)
+                segundo_file.set(False)
+            
+            progress_text = f"Etapa 2: {progress2.get()}"
 
-            return file_lines.get()
+        else:
+            progress_text = "Procesos completados"
+
+        # Programar la próxima actualización (cada 2 segundos)
+        reactive.invalidate_later(2)
+
+        return progress_text
 
     # Mostrar el contenido del archivo en la UI
     @render.ui

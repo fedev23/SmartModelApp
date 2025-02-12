@@ -69,7 +69,7 @@ screenValid = ui.page_fluid(
         ),
         ui.nav_spacer(),
         ui.nav_panel(
-            "Resultados Scoring & validation",
+            "Resultados Scoring & validación full",
             ui.div(
                 ui.card(
                     ui.column(4, ui.download_button("descargar_resultados_validacion_out_to_sample",
@@ -88,7 +88,7 @@ screenValid = ui.page_fluid(
             )
 
         ),
-
+        
     ),
     ui.div(class_="mt-5"),
 

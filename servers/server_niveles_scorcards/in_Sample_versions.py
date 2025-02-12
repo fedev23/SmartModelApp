@@ -3,7 +3,8 @@
 from shiny import App, Inputs, Outputs, Session, reactive, ui, render, module
 from funciones.help_parametros.valid_columns import replace_spaces_with_underscores
 from api import *
-from logica_users.utils.manejo_session import manejo_de_ultimo_seleccionado
+from clases.global_modelo import modelo_in_sample
+from logica_users.utils.manejo_session import manejo_de_ultimo_seleccionado, generar_paths_insa
 from global_names import global_name_in_Sample
 from clases.global_session import global_session
 from api.db.sqlite_utils import *
@@ -15,6 +16,7 @@ from clases.global_sessionV3 import *
 from funciones.utils_2 import crear_carpeta_version_parametros
 from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_ultimo_id_version, eliminar_carpeta, mapear_valor_a_clave
 from datetime import datetime
+from funciones_modelo.warning_model import verificar_estado_modelo_insa
 from api.db.up_date import *
 from funciones.utils_cargar_json import leer_control_json_in_sample
 from auth.utils import help_api 
@@ -32,6 +34,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
     nombre_de_la_version_in_sample = reactive.Value("")
     initialized = reactive.Value(False)
     is_initializing = reactive.Value(True)
+    mensaje_error_tablero = reactive.Value()
         
     
 
@@ -255,3 +258,27 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
                 ui.update_navs("navset", selected="screen_niveles_scorcads")  # Cambia al panel deseado
                 global_session_V2.click_seleccion_niveles_score.set(0)
                 
+                
+    
+    @output
+    @render.ui
+    def tablero_in_sample():
+        validacion_existe_modelo = verificar_estado_modelo_insa("Modeling_App.db", global_session.get_version_parametros_id(), global_session.get_id_dataSet())
+        print(validacion_existe_modelo, "????")
+        if validacion_existe_modelo:
+            return ui.input_action_link("tablero_in_sample", "Ver tablero de reportes")
+    
+    
+    @reactive.effect
+    @reactive.event(input.tablero_in_sample)
+    async def rederic_tablero():
+        entrada, salida = generar_paths_insa(global_session)
+        modelo_in_sample.script_path_tablero = f"./Tablero_IVs.sh --input-dir {entrada} --output-dir {salida}"
+        return_code = await modelo_in_sample.run_script_tablero()
+
+        # Redirigir solo si el script se ejecutó correctamente (código 0 = éxito)
+        if return_code == 0:
+            session.send_custom_message("redirect", "http://localhost:3838")
+        else:
+            mensaje_error_tablero.set("Hubo un problema con la redirigimiento")
+        

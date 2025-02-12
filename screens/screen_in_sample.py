@@ -138,7 +138,7 @@ screenInSample = ui.page_fluid(
             ),
             ui.nav_spacer(),
             ui.nav_panel(
-                "Resultados Validación In sample",
+                f"Resultados {global_name_in_Sample}",
                 ui.div(
                     ui.card(
                         ui.column(4, ui.download_button(

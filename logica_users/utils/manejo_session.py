@@ -69,3 +69,37 @@ def manejo_de_ultimo_seleccionado(
         print(f"⚠️ No hay último ID, actualizando con input_select_value: {input_select_value}")
         global_set_func(input_select_value)
         actualizar_ultimo_func(db_table, db_column_id, input_select_value)
+
+
+
+
+
+def generar_paths_insa(global_session):
+    """
+    Genera los paths de entrada y salida basados en los valores de `global_session`.
+
+    :param global_session: Objeto con métodos `get_id_user()`, `get_id_proyecto()`, etc.
+    :return: Tupla con (path_datos_entrada, path_datos_salida)
+    """
+    base_path = "/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat"
+
+    user_id = global_session.get_id_user()
+    proyecto_id = global_session.get_id_proyecto()
+    proyecto_nombre = global_session.get_name_proyecto()
+    version_id = global_session.get_id_version()
+    version_nombre = global_session.get_versiones_name()
+    param_id = global_session.get_version_parametros_id()
+    param_nombre = global_session.get_versiones_parametros_nombre()
+
+    # Construcción de paths
+    path_datos_entrada = (
+        f"{base_path}/datos_entrada_{user_id}/proyecto_{proyecto_id}_{proyecto_nombre}/"
+        f"version_{version_id}_{version_nombre}/version_parametros_{param_id}_{param_nombre}"
+    )
+
+    path_datos_salida = (
+        f"{base_path}/datos_salida_{user_id}/proyecto_{proyecto_id}_{proyecto_nombre}/"
+        f"version_{version_id}_{version_nombre}/version_parametros_{param_id}_{param_nombre}"
+    )
+
+    return path_datos_entrada, path_datos_salida

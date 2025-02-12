@@ -10,7 +10,8 @@ global_desarollo = ModeloProceso(
     script_path="",
     estado= "",
     hora = "",
-    porcentaje_path= ""
+    porcentaje_path= "",
+    script_path_tablero = ""
 )
 
 modelo_in_sample = ModeloProceso(
@@ -22,7 +23,8 @@ modelo_in_sample = ModeloProceso(
         script_path="" ,
         estado= "",
         hora = "",
-        porcentaje_path= ""
+        porcentaje_path= "",
+        script_path_tablero = ""
     )
 
 
@@ -35,7 +37,10 @@ modelo_of_sample = ModeloProceso(
         script_path="",
         estado= "",
         hora = "",
-        porcentaje_path= ""
+        porcentaje_path= "",
+        script_path_tablero = ""
+        
+        
     )
 
 
@@ -49,7 +54,8 @@ modelo_produccion = ModeloProceso(
         script_path="",
         estado= "",
         hora = "",
-        porcentaje_path= ""
+        porcentaje_path= "",
+        script_path_tablero = ""
     )
 
 

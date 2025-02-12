@@ -34,7 +34,16 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                 ui.div(
                     ui.input_action_link(
                         f"start_{name_suffix}",
-                        ui.tags.i(class_="fa fa-plus-circle fa-2x", style="color: #007bff;")
+                        ui.tags.i(
+                        class_="fa fa-plus-circle fa-2x",
+                        style="""
+                            color: #0056A3;  /* Azul corporativo medio */
+                            transition: color 0.2s ease-in-out, transform 0.1s ease-in-out;
+                            cursor: pointer;
+                        """,
+                        onmouseover="this.style.color='#003E7E'; this.style.transform='scale(1.05)';",
+                        onmouseout="this.style.color='#0056A3'; this.style.transform='scale(1)';"
+                    )
                     ),
                     ui.output_ui("project_card_container"),
                     class_="d-flex align-items-stretch gap-3 mb-3"
@@ -55,10 +64,20 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                     width="50%"
                 ),
                 ui.div(
-                    ui.input_action_link(
-                        f"version_{name_suffix}",
-                        ui.tags.i(class_="fa fa-plus-circle fa-2x", style="color: #007bff;")
-                    ),
+              ui.input_action_link(
+    f"version_{name_suffix}",
+        ui.tags.i(
+            class_="fa fa-plus-circle fa-2x",
+            style="""
+                color: #0056A3;  /* Azul corporativo medio */
+                transition: color 0.2s ease-in-out, transform 0.1s ease-in-out;
+                cursor: pointer;
+            """,
+            onmouseover="this.style.color='#003E7E'; this.style.transform='scale(1.05)';",
+            onmouseout="this.style.color='#0056A3'; this.style.transform='scale(1)';"
+        )
+        ),
+
                     ui.output_ui("button_remove_versions"),
                     class_="d-flex align-items-stretch gap-3 mb-3"
                 ),
@@ -90,9 +109,15 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                 ui.input_action_link(
                     "create_parameters",
                     ui.tags.i(
-                        class_="fa fa-plus-circle fa-2x",
-                        style="color: #007bff;"
-                    )
+            class_="fa fa-plus-circle fa-2x",
+            style="""
+                color: #0056A3;  /* Azul corporativo medio */
+                transition: color 0.2s ease-in-out, transform 0.1s ease-in-out;
+                cursor: pointer;
+            """,
+            onmouseover="this.style.color='#003E7E'; this.style.transform='scale(1.05)';",
+            onmouseout="this.style.color='#0056A3'; this.style.transform='scale(1)';"
+        )
                 ),
                 ui.output_ui("button_remove_versions_params"),
                 class_="d-flex align-items-center gap-3 mb-3"

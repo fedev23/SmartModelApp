@@ -102,6 +102,28 @@ def copiar_json_si_existe(origen: str, destino: str, nombre_archivo: str = "Cont
     
 
 
+def copiar_estab_func(origen: str, destino: str, nombre_archivo: str = "Estab_ivs_mod_OoS.Rdat"):
+    archivo_origen = os.path.join(origen, nombre_archivo)
+    
+    # Verificar si el archivo existe en el origen
+    if os.path.exists(archivo_origen):
+        archivo_destino = os.path.join(destino, nombre_archivo)
+        
+        # Verificar si la carpeta destino existe. Si no, no se hará nada.
+        if not os.path.exists(destino):
+            print(f"Error: La carpeta de destino '{destino}' no existe.")
+            return False
+        
+        # Copiar el archivo al destino
+        shutil.copy(archivo_origen, archivo_destino)
+        print(f"El archivo '{nombre_archivo}' se ha copiado a '{destino}'.")
+        return True
+    else:
+        # Si el archivo no existe, mostrar el mensaje de error
+        print(f"Error: El archivo '{nombre_archivo}' no existe en '{origen}'.")
+        return False
+    
+
 def eliminar_carpeta(carpeta_path):
     """
     Elimina una carpeta y todo su contenido del sistema de archivos.

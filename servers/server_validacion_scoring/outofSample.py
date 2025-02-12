@@ -33,6 +33,7 @@ def server_out_of_sample(input, output, session, name_suffix):
     screen_instance = reactive.Value(None)
     mensaje = reactive.Value("")
     name = "Out-Of-Sample"
+    mensaje_error_tablero = reactive.Value()
     click =  reactive.Value(0)
     global_names_reactivos.name_validacion_of_to_sample_set(name_suffix)
     file_lines = reactive.Value("")
@@ -278,3 +279,28 @@ def server_out_of_sample(input, output, session, name_suffix):
     def close_modal():
         return ui.modal_remove()
     
+    
+    @output
+    @render.ui
+    def tablero_of_sample():
+        modelo_con_exito = verificar_estado_modelo_full('Modeling_App.db', "validation_scoring", "id_validacion_sc",  global_session_V3.id_validacion_scoring.get(), "id_nombre_file", global_session_V2.get_id_Data_validacion_sc())
+        if modelo_con_exito:
+            return ui.input_action_link(f"tablero_{modelo_of_sample.nombre}", "Ver tablero de reportes")
+        
+    
+    @reactive.effect
+    @reactive.event(input.tablero_of_sample)
+    async def action_tablero_reportes():
+        path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+        print(path_datos_entrada)
+        path_datos_salida  = get_folder_directory_data_validacion_scoring_SALIDA(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
+        help_versios.copiar_estab_func(path_datos_salida, path_datos_entrada)
+        modelo_of_sample.script_path_tablero = f"./Tablero_IVs.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida}"
+        return_code = await modelo_of_sample.run_script_tablero()
+
+        # Redirigir solo si el script se ejecutó correctamente (código 0 = éxito)
+        if return_code == 0:
+            session.send_custom_message("redirect", "http://localhost:3838")
+        else:
+            mensaje_error_tablero.set("Hubo un problema con la redirigimiento")
+            
