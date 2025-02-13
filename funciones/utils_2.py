@@ -412,40 +412,22 @@ def get_folder_directory_data_validacion_scoring(user_id, proyecto_id, name_proy
 
 
 def get_folder_directory_data_validacion_scoring_SALIDA(user_id, proyecto_id, name_proyect, version_name, version_id, id_niveles_y_scord, nombre_niveles_scord, nombre_data):
-    """
-    Genera los paths de entrada y salida basados en los valores proporcionados.
-
-    :param user_id: ID del usuario.
-    :param proyecto_id: ID del proyecto.
-    :param name_proyect: Nombre del proyecto.
-    :param version_name: Nombre de la versión.
-    :param version_id: ID de la versión.
-    :param id_niveles_y_scord: ID de niveles y scoring.
-    :param nombre_niveles_scord: Nombre de niveles y scoring.
-    :param nombre_data: Nombre del archivo de datos.
-    :return: Tupla con (path_datos_entrada, path_datos_salida)
-    """
-    # Base del directorio
+    # Limpiar el user_id reemplazando cualquier '|' por '_'
+    user_id_cleaned = user_id
     base_directory = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat'
-
-    # Normalizar `user_id` si contiene caracteres especiales
-    user_id_cleaned = user_id.replace("|", "_")
-
-    # 📌 **Path de Entrada**
-    entrada_folder = os.path.join(base_directory, f'datos_entrada_{user_id_cleaned}')
+    
+    # Construir la ruta de la carpeta de entrada del usuario
+    entrada_folder = os.path.join(base_directory, f'datos_salida_{user_id_cleaned}')
+    
+    # Construir la ruta de la carpeta del proyecto dentro de la carpeta de entrada
     proyecto_folder = os.path.join(entrada_folder, f"proyecto_{proyecto_id}_{name_proyect}")
+    
     version_folder = os.path.join(proyecto_folder, f"version_{version_id}_{version_name}")
+    
     version_niveles_y_scord = os.path.join(version_folder, f"version_parametros_{id_niveles_y_scord}_{nombre_niveles_scord}")
-    path_datos_entrada = os.path.join(version_niveles_y_scord, nombre_data)
-
-    # 📌 **Path de Salida**
-    salida_folder = os.path.join(base_directory, f'datos_salida_{user_id_cleaned}')
-    proyecto_folder_salida = os.path.join(salida_folder, f"proyecto_{proyecto_id}_{name_proyect}")
-    version_folder_salida = os.path.join(proyecto_folder_salida, f"version_{version_id}_{version_name}")
-    version_niveles_y_scord_salida = os.path.join(version_folder_salida, f"version_parametros_{id_niveles_y_scord}_{nombre_niveles_scord}")
-    path_datos_salida = os.path.join(version_niveles_y_scord_salida, nombre_data)
-
-    return path_datos_entrada, path_datos_salida
+    # Construir la ruta de la carpeta 'datasets' dentro del proyecto
+    datasets_folder = os.path.join(version_niveles_y_scord, nombre_data)
+    
     
     
     # Verificar si la carpeta 'datasets' existe antes de devolverla

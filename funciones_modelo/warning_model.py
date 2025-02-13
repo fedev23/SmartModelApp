@@ -205,7 +205,7 @@ def verificar_estado_modelo(db_path, version_id, dataset_id):
         return None
     
 
-def verificar_estado_modelo_full(db_path, table_name, id_field, id_value, file_id_field, file_id_value):
+def verificar_estado_modelo_edited(db_path, table_name, id_field, id_value, file_id_field, file_id_value):
     """
     Verifica el estado de ejecución de un modelo en una tabla específica.
 

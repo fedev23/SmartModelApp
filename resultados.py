@@ -146,7 +146,7 @@ def server_resul(input, output, session, name_suffix):
         @render.download(filename=filename)
         def download_btn1_():
             salida_desarrollo = resultado_desarrollo.descargar_unico_html(resultado_id)
-            salida_ot_sample = resultado_class_instance_produccion.descargar_unico_html(resultado_id)
+            salida_ot_sample = resultado_class_instance.descargar_unico_html(resultado_id)
             salida_in_sample = resultado_in_sample.descargar_unico_html(resultado_id)
             salida_produccion = resultado_class_instance_produccion.descargar_unico_html(resultado_id)
             return salida_in_sample, salida_ot_sample, salida_produccion, salida_desarrollo
@@ -278,12 +278,11 @@ def server_resul(input, output, session, name_suffix):
         return resultado_in_sample.descargar_resultados(path_in_sample_resultados)
     
     @render.download(filename="Resultados completos de Out-of-Sample.zip")
-    def descargar_resultados_validacion_out_of_sample():
+    def descargar_resultados_validacion_of_sample():
         path_of_sample_resultados =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}/{global_session_V2.nombre_file_sin_extension_validacion_scoring.get()}/Reportes'
         return resultado_class_instance.descargar_resultados(path_of_sample_resultados)
     
     @render.download(filename="Resultados completos de Producción.zip")
     def descargar_resultados_produccion():
         salida =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}/{global_session_V2.nombre_file_sin_extension_validacion_scoring.get()}/Reportes'
-        print(f"salida: {salida}")
         return resultado_class_instance_produccion.descargar_resultados(salida)

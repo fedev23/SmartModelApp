@@ -23,6 +23,7 @@ from logica_users.utils  import help_versios
 from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.help_models import *
+from logica_users.utils.manejo_session import generar_paths_of_sample_y_scoring
 
 
 
@@ -97,30 +98,15 @@ def server_out_of_sample(input, output, session, name_suffix):
         proceso = modelo_of_sample.proceso.get()
         
         
-        ultimo_id_file = obtener_ultimo_id_file_por_validacion(global_session_V3.id_validacion_scoring.get())
-
-        id_nombre_file = ultimo_id_file.get("id_nombre_file")  # Extrae el valor de forma segura
-        id_data = global_session_V2.get_id_Data_validacion_sc()
+        valid = verificar_estado_modelo_edited('Modeling_App.db', "validation_scoring", "id_validacion_sc",  global_session_V3.id_validacion_scoring.get(), "id_nombre_file", global_session_V2.get_id_Data_validacion_sc())
+        if valid:
+            return  ui.modal_show(create_modal_generic("Close_modal_existe_ya_modelo", f"Ya existe un modelo generado para el Dataset: {global_session_V2.get_nombre_dataset_validacion_sc()}"))
         
-        id_nombre_file_int = int(id_nombre_file)
-        id_data_int = int(id_data)
-        
-        if id_nombre_file_int != id_data_int:
-            id_version_score = insert_validation_scoring("validation_scoring", global_session_V2.nombre_dataset_validacion_sc(), global_session.get_version_parametros_id(), modelo_of_sample.nombre)
-            global_session_V3.id_validacion_scoring.set(id_version_score)
-        
-            
         validar_ids = check_if_exist_id_version_id_niveles_scord(global_session.get_id_version(), global_session.get_version_parametros_id())
         if validar_ids:
             return ui.modal_show(create_modal_generic("boton_advertencia_ejecute_of", f"Es obligatorio generar una versión de {global_name_out_of_Sample} y una versión para continuar."))
 
 
-        valid = verificar_estado_modelo_full('Modeling_App.db', "validation_scoring", "id_validacion_sc",  global_session_V3.id_validacion_scoring.get(), "id_nombre_file", global_session_V2.get_id_Data_validacion_sc())
-        print(f"valid que tiene? {valid}")
-        if valid:
-            return  ui.modal_show(create_modal_generic("Close_modal_existe_ya_modelo", f"Ya existe un modelo generado para el Dataset: {global_session_V2.get_nombre_dataset_validacion_sc()}"))
-            
-          
         if modelo_of_sample.pisar_el_modelo_actual.get() or valid is False:
             
             validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
@@ -141,11 +127,10 @@ def server_out_of_sample(input, output, session, name_suffix):
                     return  # Detener ejecución si hay errores
                 
                 origen_modelo_puntoZip = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
-                path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+                #path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}/{global_session_V2.nombre_file_sin_extension_validacion_scoring.get()}'
                 
+                path_datos_entrada = generar_paths_of_sample_y_scoring(global_session, global_session_V2, tipo='entrada')
                 ##PUNTO ZIP QUE QUEDO DEPRECADO YA QUE SIEMPRE SE VA A OBLIGAR AL USER A EJECUTAR IN SAMPLE
-                #origen_modelo_puntoZip = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
-                print(f"origen_modelo_puntoZip: {origen_modelo_puntoZip}")
                 # Mover archivo .zip y verificar si existe
                 zip_existe = mover_file_reportes_puntoZip(origen_modelo_puntoZip, path_datos_entrada)
                 if not zip_existe:
@@ -160,6 +145,8 @@ def server_out_of_sample(input, output, session, name_suffix):
                 
                 # Validar si el JSON existe y detenerse si no existe
                 path_niveles_sc = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
+                help_versios.func_copiar_files(path_niveles_sc, path_datos_entrada, nombre_archivo="Muestra_Desarrollo.txt")
+        
                 json_existe = help_versios.copiar_json_si_existe(path_niveles_sc, path_datos_entrada)
                 if not json_existe:
                     raise ValueError("Hubo un error con los parámetros de ejecución.")
@@ -238,34 +225,31 @@ def server_out_of_sample(input, output, session, name_suffix):
     @reactive.calc
     def leer_archivo():
         """Lee el archivo de progreso y actualiza la UI."""
-        if click.get() < 1:
-            return ""
+        if click.get() >=1:
 
-    
+            path_datos_salida  = get_folder_directory_data_validacion_scoring_SALIDA(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
+            
+            print(path_datos_salida, "path salida")
+            name_file = "progreso.txt"
+
+            # Obtener el último porcentaje del archivo
+            ultimo_porcentaje = monitorizar_archivo(path_datos_salida, nombre_archivo=name_file)
+
+            # Obtener el último porcentaje del archivo
         
-        path_datos_salida  = get_folder_directory_data_validacion_scoring_SALIDA(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
-        
-        print(path_datos_salida, "path salida")
-        name_file = "progreso.txt"
+            if ultimo_porcentaje == "100%":  # Si ya llegó al 100%, detener actualización
+                print("Proceso completado. No se seguirá actualizando.")
+                modelo_of_sample.eliminar_archivo_progreso(path_datos_salida, name_file )
+                return "100%"
 
-        # Obtener el último porcentaje del archivo
-        ultimo_porcentaje = monitorizar_archivo(path_datos_salida, nombre_archivo=name_file)
+            # Actualizar variable reactiva
+            file_lines.set(ultimo_porcentaje)
+            print(f"Último porcentaje capturado: {file_lines.get()}")
 
-        # Obtener el último porcentaje del archivo
-    
-        if ultimo_porcentaje == "100%":  # Si ya llegó al 100%, detener actualización
-            print("Proceso completado. No se seguirá actualizando.")
-            modelo_of_sample.eliminar_archivo_progreso(path_datos_salida, name_file )
-            return "100%"
+            # Reactivar cada 3 segundos si aún no ha llegado al 100%
+            reactive.invalidate_later(3)
 
-        # Actualizar variable reactiva
-        file_lines.set(ultimo_porcentaje)
-        print(f"Último porcentaje capturado: {file_lines.get()}")
-
-        # Reactivar cada 3 segundos si aún no ha llegado al 100%
-        reactive.invalidate_later(3)
-
-        return ultimo_porcentaje
+            return ultimo_porcentaje
    
     # Mostrar el contenido del archivo en la UI
     @render.ui
@@ -283,7 +267,7 @@ def server_out_of_sample(input, output, session, name_suffix):
     @output
     @render.ui
     def tablero_of_sample():
-        modelo_con_exito = verificar_estado_modelo_full('Modeling_App.db', "validation_scoring", "id_validacion_sc",  global_session_V3.id_validacion_scoring.get(), "id_nombre_file", global_session_V2.get_id_Data_validacion_sc())
+        modelo_con_exito = verificar_estado_modelo_edited('Modeling_App.db', "validation_scoring", "id_validacion_sc",  global_session_V3.id_validacion_scoring.get(), "id_nombre_file", global_session_V2.get_id_Data_validacion_sc())
         if modelo_con_exito:
             return ui.input_action_link(f"tablero_{modelo_of_sample.nombre}", "Ver tablero de reportes")
         
@@ -294,7 +278,8 @@ def server_out_of_sample(input, output, session, name_suffix):
         path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
         print(path_datos_entrada)
         path_datos_salida  = get_folder_directory_data_validacion_scoring_SALIDA(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
-        help_versios.copiar_estab_func(path_datos_salida, path_datos_entrada)
+        help_versios.func_copiar_files(path_datos_salida, path_datos_entrada, nombre_archivo="Estab_ivs_mod_OoS.Rdat")
+        
         modelo_of_sample.script_path_tablero = f"./Tablero_IVs.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida}"
         return_code = await modelo_of_sample.run_script_tablero()
 

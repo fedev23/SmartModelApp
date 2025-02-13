@@ -102,7 +102,7 @@ def copiar_json_si_existe(origen: str, destino: str, nombre_archivo: str = "Cont
     
 
 
-def copiar_estab_func(origen: str, destino: str, nombre_archivo: str = "Estab_ivs_mod_OoS.Rdat"):
+def func_copiar_files(origen: str, destino: str, nombre_archivo: str):
     archivo_origen = os.path.join(origen, nombre_archivo)
     
     # Verificar si el archivo existe en el origen

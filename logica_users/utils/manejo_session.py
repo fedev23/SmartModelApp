@@ -103,3 +103,30 @@ def generar_paths_insa(global_session):
     )
 
     return path_datos_entrada, path_datos_salida
+
+
+
+def generar_paths_of_sample_y_scoring(global_session, global_session_V2, tipo='entrada'):
+    """
+    Genera el path para 'datos_entrada' o 'datos_salida' según la sesión actual.
+
+    Args:
+        global_session: Objeto que contiene la información de la sesión.
+        global_session_V2: Objeto que contiene información adicional de la sesión.
+        tipo (str): 'entrada' para datos de entrada, 'salida' para datos de salida.
+
+    Returns:
+        str: El path generado según el tipo solicitado.
+    """
+    tipo_path = 'datos_entrada' if tipo == 'entrada' else 'datos_salida'
+    
+    path = (
+        f"/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/"
+        f"{tipo_path}_{global_session.get_id_user()}/"
+        f"proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/"
+        f"version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/"
+        f"version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}/"
+        f"{global_session_V2.nombre_file_sin_extension_validacion_scoring.get()}"
+    )
+    
+    return path

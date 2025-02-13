@@ -36,7 +36,7 @@ screenResult = ui.page_fluid(
                     value= "in_sample"
                 ),
                 ui.nav_panel(f"{global_name_out_of_Sample}", 
-                        ui.column(4, ui.download_button("descargar_resultados_validacion_out_of_sample", "Descargar Todos los reportes Out-of-Sample")),
+                        ui.column(4, ui.download_button("descargar_resultados_validacion_of_sample", "Descargar Todos los reportes Out-of-Sample")),
                          ui.output_ui("resultado_card_validacion_out_to_sample"),
                          ui.output_ui("dynamic_ui"),
                         ui.output_ui("download_ui"),
