@@ -62,7 +62,7 @@ screenInSample = ui.page_fluid(
                                               ui.column(4, ui.input_text(
                                                   "add_tasa_malos", "", placeholder="Agregue una tasa de malos")),
                                               
-                                            ui.tags.hr(),
+                                            #ui.tags.hr(),
                                             ui.row(
                                                 #ui.column(4, ui.output_ui("return_inser_values"),
                                                 ui.column(4, ui.input_action_link("add_files_niveles_riesgo_2", "Insertar")),
@@ -76,8 +76,8 @@ screenInSample = ui.page_fluid(
                                   ui.output_data_frame("par_rango_niveles"),
                                   #ui.tags.hr(),
                                   #ui.input_action_link("eliminar_fila_niveles_riesgo", "Eliminar fila seleccionada"),
-                                  class_="custom-card",
-                                  style="margin-left: 30px;"
+                                  #class_="custom-card",
+                                  #style="margin-left: 30px;"
                               )
                           )
                           ),

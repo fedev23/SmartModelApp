@@ -264,7 +264,6 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
     @render.ui
     def tablero_in_sample():
         validacion_existe_modelo = verificar_estado_modelo_insa("Modeling_App.db", global_session.get_version_parametros_id(), global_session.get_id_dataSet())
-        print(validacion_existe_modelo, "????")
         if validacion_existe_modelo:
             return ui.input_action_link("tablero_in_sample", "Ver tablero de reportes")
     

@@ -27,6 +27,7 @@ from global_names import global_name_in_Sample
 from funciones.utils_cargar_json import *
 from clases.global_sessionV3 import *
 
+
 ejemplo_niveles_riesgo = pd.DataFrame({})
 
 
@@ -62,7 +63,10 @@ def server_in_sample(input, output, session, name_suffix):
     count = reactive.value(0)
     count_add_files = reactive.Value(0)
     no_error = reactive.Value(True)
+    se_agrego_fila_en_rango_niveles = reactive.Value(False)
+    filas_eliminadas = reactive.Value(False)
     fila_insert = reactive.Value(False)
+    paso_validacion = reactive.Value(False)
     global_names_reactivos.name_validacion_in_sample_set(name_suffix)
     data_set = reactive.Value(pd.DataFrame({"Variables de corte": []}))
     values_tabla_niveles = reactive.Value(pd.DataFrame({"Nombre Nivel": [], "Regla": [], "Tasa de Malos Máxima": []}))
@@ -187,15 +191,15 @@ def server_in_sample(input, output, session, name_suffix):
     @reactive.event(input.add_files_niveles_riesgo_2)
     def agregar_Tasa_malos():
         tasa_malos = input.add_tasa_malos().strip()
-        
-        if not tasa_malos:
-            tasa_malos = ""
-        else:
-            tasa_malos = float(tasa_malos)  # Convertir a float
-            tasa_malos = f"{tasa_malos}%" 
-            #tasa_malos = f"{tasa_malos}%"  # Agregar el símbolo '%' al final
+        #ui.update_text("add_tasa_malos", label="")
+        # Validar que el valor ingresado sea un número
+        try:
+            tasa_malos = float(tasa_malos)  # Intentar convertir a float
+            tasa_malos = f"{tasa_malos}%"  # Agregar el símbolo '%' al final
+        except ValueError:
+            ui.update_text("add_tasa_malos",  placeholder="Debe ser un numero!")
+            return  # No hacer nada si la conversión falla
 
-      
         # Obtener el DataFrame actual de la tabla
         data = values_tabla_niveles.get()
 
@@ -204,37 +208,69 @@ def server_in_sample(input, output, session, name_suffix):
 
         if pd.notna(index_vacio):  # Si hay una fila vacía, llenar
             data.at[index_vacio, "Tasa de Malos Máxima"] = tasa_malos
-        
 
         # Actualizar la tabla reactiva con la nueva tasa incluida
+        se_agrego_fila_en_rango_niveles.set(True)
         values_tabla_niveles.set(data)
-    
+
     @reactive.effect
     @reactive.event(input.eliminar_filas_par_rango_niveles)
     def eliminar_filas():
-        data = values_tabla_niveles.get()  # Obtener el DataFrame actual
-        filas = par_rango_niveles.cell_selection()["rows"]  # Obtener filas seleccionadas
-
-        if filas:
-            data_editado = eliminar_filas_seleccionadas(data, filas)
-            values_tabla_niveles.set(data_editado)  # Actualizar el dataset reactivo con las filas eliminadas
-        else:
-            print("No hay filas seleccionadas para eliminar.")
-            
-    @reactive.effect
-    def actualizar_insertados():
-        if inserto.get():
-            
-            # Actualizar los valores de los inputs usando `session.send_input_message`
-            session.send_input_message("add_value", {"value": ""})
-            session.send_input_message("add_regla", {"value": ""})
-            session.send_input_message("add_tasa_malos", {"value": ""})
-            
-            inserto.set(False)  # Resetear la variable reactiva
+        json_params = global_session_V3.json_params_insa.get()
+        df_niveles = get_parameter_dataframe("par_rango_niveles", json_params)
+        data = values_tabla_niveles.get()
         
-
-       
- 
+        if se_agrego_fila_en_rango_niveles.get()  and filas_eliminadas.get() is False:
+            data = pd.concat([data, df_niveles], ignore_index=True)
+            paso_validacion.set(True)
+            se_agrego_fila_en_rango_niveles.set(False)
+            
+        if df_niveles is not None and not df_niveles.empty and paso_validacion.get() is False:
+            alamacen_data_json.set(df_niveles)
+            data = alamacen_data_json.get()
+        
+        filas = par_rango_niveles.cell_selection()["rows"]  # Obtener filas seleccionadas
+        print(f"filas seleccionadas? {filas}")
+        if filas:
+            print(data, "antes de borrar...")
+            data_editado = eliminar_filas_seleccionadas(data, filas)
+            filas_eliminadas.set(True)
+            values_tabla_niveles.set(data_editado)  # Actualizar el dataset reactivo con las filas eliminadas
+        
+   
+    @reactive.effect
+    def see_filas():
+        filas = par_rango_niveles.cell_selection()["rows"]  # Obtener filas seleccionadas
+        print(f"filas seleccionadas? {filas}")
+    
+    @output
+    @render.data_frame
+    def par_rango_niveles():
+        data = values_tabla_niveles.get()
+        json_params = global_session_V3.json_params_insa.get()
+        df_niveles = get_parameter_dataframe("par_rango_niveles", json_params)
+        
+        if se_agrego_fila_en_rango_niveles.get()  and filas_eliminadas.get() is False:
+            data = pd.concat([data, df_niveles], ignore_index=True)
+            
+            print(f"data nueva? {data}")
+            
+        if df_niveles is not None and not df_niveles.empty and filas_eliminadas.get() is False and se_agrego_fila_en_rango_niveles.get() is False:
+            alamacen_data_json.set(df_niveles)
+            data = alamacen_data_json.get()
+            return render.DataGrid(data, selection_mode="rows",  width="700px")
+        
+            
+        ejemplo_niveles_riesgo_2 = pd.DataFrame({
+        "Nombre Nivel": [],
+        "Regla": [],
+        "Tasa de Malos Máxima": []
+    })
+        if data is not None and not data.empty:
+            return render.DataGrid(data, selection_mode="rows",  width="700px")
+        
+        return render.DataGrid(ejemplo_niveles_riesgo_2, selection_mode="rows",  width="700px")
+    
     
     
     @output
@@ -328,55 +364,7 @@ def server_in_sample(input, output, session, name_suffix):
         else:
             print("No se seleccionaron filas para eliminar.")
     
-        
     
-   
-    
-    @output
-    @render.data_frame
-    def par_rango_niveles():
-        data = values_tabla_niveles.get()
-        json_params = global_session_V3.json_params_insa.get()
-
-        df_niveles = get_parameter_dataframe("par_rango_niveles", json_params)
-        if df_niveles is not None and not df_niveles.empty:
-            alamacen_data_json.set(df_niveles)
-            data = alamacen_data_json.get()
-            return render.DataGrid(data, selection_mode="rows",  width="700px")
-        
-            
-        ejemplo_niveles_riesgo_2 = pd.DataFrame({
-        "Nombre Nivel": [],
-        "Regla": [],
-        "Tasa de Malos Máxima": []
-    })
-        if data is not None and not data.empty:
-            
-         
-            return render.DataGrid(data, selection_mode="rows",  width="700px")
-        
-        return render.DataGrid(ejemplo_niveles_riesgo_2, selection_mode="rows",  width="700px")
-    
-    
-    
-    
-    
-    @output
-    @render.data_frame
-    def par_rango_segmentos():
-        if global_session_V2.get_json_params_desarrollo() is not None:
-            df_dict = update_dataframe_from_json(global_session_V2.get_json_params_desarrollo())
-            
-            if "par_rango_segmentos" in df_dict and isinstance(df_dict["par_rango_segmentos"], pd.DataFrame):
-                df_niveles_segmentos = df_dict["par_rango_segmentos"]
-                print(df_niveles_segmentos)
-                return render.DataGrid(df_niveles_segmentos, editable=True,  width='500px')
-                #print(df_niveles_riesgo, "que tiene este df?")
-            else:
-                print("Error: 'niveles_riesgo' no es un DataFrame válido o está ausente.")
-                #return render.DataGrid(ejemplo_niveles_riesgo, editable=True, width='500px')
-
-
     @output
     @render.data_frame
     def par_rango_reportes():
