@@ -62,3 +62,9 @@ https://shiny.posit.co/py/docs/reactive-patterns.html#:~:text=To%20repeatedly%20
 
 ## poll
 https://shiny.posit.co/py/api/core/reactive.poll.html
+
+
+
+##rutas
+
+https://www.appsilon.com/post/shiny-for-python-routing

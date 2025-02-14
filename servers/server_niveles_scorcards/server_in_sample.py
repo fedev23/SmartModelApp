@@ -65,7 +65,11 @@ def server_in_sample(input, output, session, name_suffix):
     no_error = reactive.Value(True)
     se_agrego_fila_en_rango_niveles = reactive.Value(False)
     filas_eliminadas = reactive.Value(False)
+    filas_elimnadas_segmento = reactive.Value(False)
+    repor_segmentos_data = reactive.Value()
+    agrego_fila_segmento = reactive.value(False)
     fila_insert = reactive.Value(False)
+    value_count = reactive.Value(0)
     paso_validacion = reactive.Value(False)
     global_names_reactivos.name_validacion_in_sample_set(name_suffix)
     data_set = reactive.Value(pd.DataFrame({"Variables de corte": []}))
@@ -230,18 +234,12 @@ def server_in_sample(input, output, session, name_suffix):
             data = alamacen_data_json.get()
         
         filas = par_rango_niveles.cell_selection()["rows"]  # Obtener filas seleccionadas
-        print(f"filas seleccionadas? {filas}")
         if filas:
-            print(data, "antes de borrar...")
             data_editado = eliminar_filas_seleccionadas(data, filas)
             filas_eliminadas.set(True)
             values_tabla_niveles.set(data_editado)  # Actualizar el dataset reactivo con las filas eliminadas
         
    
-    @reactive.effect
-    def see_filas():
-        filas = par_rango_niveles.cell_selection()["rows"]  # Obtener filas seleccionadas
-        print(f"filas seleccionadas? {filas}")
     
     @output
     @render.data_frame
@@ -253,7 +251,7 @@ def server_in_sample(input, output, session, name_suffix):
         if se_agrego_fila_en_rango_niveles.get()  and filas_eliminadas.get() is False:
             data = pd.concat([data, df_niveles], ignore_index=True)
             
-            print(f"data nueva? {data}")
+           
             
         if df_niveles is not None and not df_niveles.empty and filas_eliminadas.get() is False and se_agrego_fila_en_rango_niveles.get() is False:
             alamacen_data_json.set(df_niveles)
@@ -276,31 +274,27 @@ def server_in_sample(input, output, session, name_suffix):
     @output
     @render.ui
     def selector():
-        if count_add_files.get() >= 1:
-            return  ui.input_selectize("agregar_filas","Insertar valores",choices=[],  # Initially empty; will be updated reactively
+            return  ui.input_selectize("agregar_filas","",choices=[],  # Initially empty; will be updated reactively
                                      multiple=True,
                                      options={
-                                    "placeholder": "seleccionar columnas..."}
+                                    "placeholder": "seleccionar columnas"}
                                  )
-        count_add_files.set(0)
         
     
-    @reactive.Effect
-    @reactive.event(input.add_fila)
-    def evento_agregar_nueva_fila():
-        count_add_files.set(count() + 1)
-        column_names = get_categorical_columns_with_unique_values_range(global_session.get_data_set_reactivo(), min_unique=global_session.value_min_for_seg.get(), max_unique=global_session.value_max_for_seg.get())
-        #column_names = df.columns.tolist()
-        ui.update_selectize("agregar_filas", choices=column_names)
     
    
         
     @output
     @render.ui
     def insert():
-      if count_add_files.get() >= 1:
-            return ui.input_action_link("insert_Values", "Insertar")
+        column_names = get_categorical_columns_with_unique_values_range(global_session.get_data_set_reactivo(), min_unique=global_session.value_min_for_seg.get(), max_unique=global_session.value_max_for_seg.get())
+        #column_names = df.columns.tolist()
+        ui.update_selectize("agregar_filas", choices=column_names)
+        if value_count.get() >=1:
+            ui.update_selectize("agregar_filas", choices=column_names)
           
+        return ui.input_action_link("insert_Values", "Insertar")
+        
     @reactive.Effect
     @reactive.event(input.insert_Values)
     def insertar_values():
@@ -326,16 +320,25 @@ def server_in_sample(input, output, session, name_suffix):
             
             # Actualizar el DataFrame reactivo
             data_set.set(data)
-            count_add_files.set(0)
-        else:
-            print("No se seleccionaron valores. Operación abortada.")
+            
+            value_count.set(value_count() + 1)
+            agrego_fila_segmento.set(True)
+          
+    ##REINICIO EL SELECCIONADOR  
+    @reactive.effect
+    def agian_seleccionadro():
+        if value_count.get() >=1:
+            print("pase a limpear?")
+            ui.update_selectize("agregar_filas", choices=[])
+            value_count.set(0)
+      
+        
 
 
 
     @output
     @render.ui
     def delete():
-      if fila_insert.get():
             return ui.input_action_link("delete_values", "Eliminar la  fila seleccionada")
         
     
@@ -345,24 +348,21 @@ def server_in_sample(input, output, session, name_suffix):
     def delete_values(): 
         data = data_set.get()
         rows = par_rango_reportes.cell_selection()["rows"]
+        json_params = global_session_V3.json_params_insa.get()
+        
+        df_rango_repotes = get_parameter_dataframe("par_rango_reportes", json_params)
+        
+        if df_rango_repotes is not None and not df_rango_repotes.empty and agrego_fila_segmento.get() is False:
+            repor_segmentos_data.set(df_rango_repotes)
+            data = repor_segmentos_data.get()
+            agrego_fila_segmento.set(False)
         
         if rows:  # Verifica si hay filas seleccionadas
-            # Asegurarse de que `rows` sea una lista de índices enteros
-            selected_rows = sorted([int(row) for row in rows])
+            data_editado = eliminar_filas_seleccionadas(data, rows)
             
-            print(f"Índices seleccionados para eliminar: {selected_rows}")
-            
-            # Eliminar las filas seleccionadas del DataFrame
-            try:
-                updated_data = data.drop(index=selected_rows).reset_index(drop=True)
-                
-                # Actualizar el dataset reactivo con las filas eliminadas
-                data_set.set(updated_data)
-                print("Filas eliminadas exitosamente.")
-            except KeyError as e:
-                print(f"Error al intentar eliminar filas: {e}")
-        else:
-            print("No se seleccionaron filas para eliminar.")
+            filas_elimnadas_segmento.set(True)
+            data_set.set(data_editado)
+           
     
     
     @output
@@ -371,11 +371,12 @@ def server_in_sample(input, output, session, name_suffix):
         # Obtén los datos del estado reactivo
         data = data_set.get()
         json_params = global_session_V3.json_params_insa.get()
-
         df_rango_repotes = get_parameter_dataframe("par_rango_reportes", json_params)
-        
-        if df_rango_repotes is not None and not df_rango_repotes.empty:
-            data = df_rango_repotes
+
+
+        if df_rango_repotes is not None and not df_rango_repotes.empty and agrego_fila_segmento.get() is False and filas_elimnadas_segmento.get() is False:
+            repor_segmentos_data.set(df_rango_repotes)
+            data = repor_segmentos_data.get()
             return render.DataGrid(data, selection_mode="rows",  width="500px")
         
             
@@ -386,6 +387,7 @@ def server_in_sample(input, output, session, name_suffix):
         # Si el DataFrame está vacío, usa el DataFrame de ejemplo
         if data is not None and not data.empty:
             return render.DataGrid(data, selection_mode="rows",  width="500px")
+        
         
         return render.DataGrid(ejemplos_rangos, selection_mode="rows",  width="500px")
         

@@ -5,6 +5,7 @@ from funciones.help_parametros.valid_columns import replace_spaces_with_undersco
 from api import *
 from clases.global_modelo import modelo_in_sample
 from logica_users.utils.manejo_session import manejo_de_ultimo_seleccionado, generar_paths_insa
+from funciones.utils import mover_file_reportes_puntoZip
 from global_names import global_name_in_Sample
 from clases.global_session import global_session
 from api.db.sqlite_utils import *
@@ -264,7 +265,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
     @render.ui
     def tablero_in_sample():
         validacion_existe_modelo = verificar_estado_modelo_insa("Modeling_App.db", global_session.get_version_parametros_id(), global_session.get_id_dataSet())
-        if validacion_existe_modelo:
+        if validacion_existe_modelo or modelo_in_sample.proceso_ok.get():
             return ui.input_action_link("tablero_in_sample", "Ver tablero de reportes")
     
     
@@ -272,6 +273,8 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
     @reactive.event(input.tablero_in_sample)
     async def rederic_tablero():
         entrada, salida = generar_paths_insa(global_session)
+        movi = mover_file_reportes_puntoZip(salida, entrada)
+                   
         modelo_in_sample.script_path_tablero = f"./Tablero_IVs.sh --input-dir {entrada} --output-dir {salida}"
         return_code = await modelo_in_sample.run_script_tablero()
 

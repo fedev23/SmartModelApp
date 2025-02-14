@@ -268,16 +268,15 @@ def server_out_of_sample(input, output, session, name_suffix):
     @render.ui
     def tablero_of_sample():
         modelo_con_exito = verificar_estado_modelo_edited('Modeling_App.db', "validation_scoring", "id_validacion_sc",  global_session_V3.id_validacion_scoring.get(), "id_nombre_file", global_session_V2.get_id_Data_validacion_sc())
-        if modelo_con_exito:
+        if modelo_con_exito or modelo_of_sample.proceso_ok.get():
             return ui.input_action_link(f"tablero_{modelo_of_sample.nombre}", "Ver tablero de reportes")
         
     
     @reactive.effect
     @reactive.event(input.tablero_of_sample)
     async def action_tablero_reportes():
-        path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
-        print(path_datos_entrada)
-        path_datos_salida  = get_folder_directory_data_validacion_scoring_SALIDA(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_versiones_name(), global_session.get_id_version(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
+        path_datos_entrada = generar_paths_of_sample_y_scoring(global_session, global_session_V2, 'entrada')
+        path_datos_salida = generar_paths_of_sample_y_scoring(global_session, global_session_V2, 'salida')
         help_versios.func_copiar_files(path_datos_salida, path_datos_entrada, nombre_archivo="Estab_ivs_mod_OoS.Rdat")
         
         modelo_of_sample.script_path_tablero = f"./Tablero_IVs.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida}"
