@@ -24,6 +24,7 @@ from auth.utils import help_api
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.help_models import *
 from funciones_modelo.global_estados_model import global_session_modelos
+from funciones.validacionY_Scoring.consultas import comparar_ultimo_file_por_ejecucion
 
 def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_para_button):
     
@@ -36,6 +37,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
     initialized = reactive.Value(False)
     is_initializing = reactive.Value(True)
     mensaje_error_tablero = reactive.Value()
+    data_predeterminado = reactive.Value()
         
     
 
@@ -80,9 +82,9 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
     def seleccionador_versiones_param():
         base_datos = "Modeling_App.db"
         ultimo_id_reactivo.set(obtener_ultimo_id_seleccionado(base_datos, "json_versions", "id_jsons"))
-        print(f"ultimo id {ultimo_id_reactivo.get()}")
         versiones_parametros  = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
         
+        ##obtengo el ultima version seleccionada por el usario.
         manejo_de_ultimo_seleccionado(
             is_initializing=is_initializing,
             input_select_value=input.version_selector(),
@@ -98,7 +100,20 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
             db_column_id="id_jsons",
             db_column_name="nombre_version"
         )
-    
+        
+        nombre_files_validacion_sc = obtener_nombres_files_por_proyecto(global_session.get_id_proyecto())
+        global_session_V2.set_opciones_name_dataset_Validation_sc(obtener_opciones_versiones(nombre_files_validacion_sc, "id_nombre_file", "nombre_file"))
+        ##OBTENGO EL ULTIMO NOMBRE FILES SELECCIONADO EN FULL
+        ultimo_id_file_seleccionado_validacion_full_o_scoring = comparar_ultimo_file_por_ejecucion(global_session.get_version_parametros_id())
+        print(f"viendo ultimo id en in sample versions {ultimo_id_file_seleccionado_validacion_full_o_scoring}")
+        if ultimo_id_file_seleccionado_validacion_full_o_scoring:
+            data_predeterminado.set(ultimo_id_file_seleccionado_validacion_full_o_scoring)
+        else:
+            data_predeterminado.set(obtener_ultimo_id_version(nombre_files_validacion_sc, 'id_nombre_file'))
+       
+       
+        ui.update_select("files_select_validation_scoring",choices=global_session_V2.get_opciones_name_dataset_Validation_sc(), selected=data_predeterminado.get())
+                    
         if not initialized():
             initialized.set(True)
             return 
@@ -162,7 +177,9 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
                 global_session_V3.json_params_insa.set(param_json_in_sample)
                 
             
-              
+    
+    @reactive.effect
+            
         
     @output
     @render.ui

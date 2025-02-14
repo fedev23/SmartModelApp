@@ -18,6 +18,7 @@ from api.db.sqlite_utils import *
 from logica_users.utils.manejo_session import manejo_de_ultimo_seleccionado
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo import help_models 
+from funciones.validacionY_Scoring.consultas import comparar_ultimo_file_por_ejecucion
 
 def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     user_get = reactive.Value(None)
@@ -117,11 +118,11 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         ##Actualizo tambien los dataSet de Validacion y scroing
         
         
-        nombre_files_validacion_sc = obtener_nombres_files_por_proyecto(global_session.get_id_proyecto())
+        #nombre_files_validacion_sc = obtener_nombres_files_por_proyecto(global_session.get_id_proyecto())
     
-        global_session_V2.set_opciones_name_dataset_Validation_sc(obtener_opciones_versiones(nombre_files_validacion_sc, "id_nombre_file", "nombre_file"))
+        #global_session_V2.set_opciones_name_dataset_Validation_sc(obtener_opciones_versiones(nombre_files_validacion_sc, "id_nombre_file", "nombre_file"))
 
-        data_predeterminado.set(obtener_ultimo_id_version(nombre_files_validacion_sc, 'id_nombre_file'))
+        #data_predeterminado.set(obtener_ultimo_id_version(nombre_files_validacion_sc, 'id_nombre_file'))
        
         # Actualiza los selectores en la UI
         nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
@@ -140,7 +141,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         #selected_key = mapear_valor_a_clave(global_session_V2.get_dataSet_seleccionado(), nombre_file.get())
         
         ui.update_select("project_select",choices=proyectos_choise, selected=key_proyecto_mach if key_proyecto_mach else next(iter(ultimo_proyecto_seleccionado.get()), ""))
-        ui.update_select("files_select_validation_scoring",choices=global_session_V2.get_opciones_name_dataset_Validation_sc(), selected=data_predeterminado.get())
+        #ui.update_select("files_select_validation_scoring",choices=global_session_V2.get_opciones_name_dataset_Validation_sc(), selected=data_predeterminado.get())
         #ui.update_select("files_select", choices=nombre_file.get(),  selected=selected_key if selected_key else next(iter(nombre_file.get()), ""))
         ui.update_select("other_select", choices=opciones_de_versiones_por_proyecto.get(), selected=key_versiones_mach if key_versiones_mach else next(iter(opciones_de_versiones_por_proyecto.get()), ""))
         #ui.update_select("version_selector", choices=opciones_param.get(), selected=valor_predeterminado_parms.get())

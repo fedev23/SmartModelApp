@@ -20,6 +20,7 @@ from funciones.funciones_user import button_remove, create_modal_v2
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones.clase_estitca.cargar_files import FilesLoad
 import os
+from funciones.validacionY_Scoring.consultas import comparar_ultimo_file_por_ejecucion
 from funciones.utils_cargar_json import update_selectize_from_columns_and_json
 from clases.global_modelo import modelo_of_sample, modelo_produccion
 
@@ -51,11 +52,12 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
     def seleccionador():
         #PREPARO LA CONSULTA
         data_id = input.files_select_validation_scoring()  # Captura el ID seleccionado
-        print(data_id, "viendo id data")
         global_session_V2.set_id_Data_validacion_sc(data_id)
         base_datos = 'Modeling_App.db'
         nombre_file =  obtener_nombre_file(base_datos, data_id)
 
+        ultimo_id_file_seleccionado_validacion_full_o_scoring = comparar_ultimo_file_por_ejecucion(global_session.get_version_parametros_id())
+        print(f"viendo ultimo id {ultimo_id_file_seleccionado_validacion_full_o_scoring}")
         global_session_V2.set_nombre_dataset_validacion_sc(nombre_file)
         if nombre_file:
             file_name_without_extension = os.path.splitext(nombre_file)[0]
@@ -88,7 +90,6 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
             
         if modelo_existente:
             nombre_modelo_usado = obtener_nombre_dataset(global_session.get_version_parametros_id())
-            print(f"estoy en si modelo _existe {nombre_modelo_usado}")
             modelo_existe.set(True)
             global_session_V2.set_nombre_dataset_validacion_sc(nombre_modelo_usado)
             
