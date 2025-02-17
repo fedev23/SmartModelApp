@@ -178,8 +178,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
                 
             
     
-    @reactive.effect
-            
+    
         
     @output
     @render.ui

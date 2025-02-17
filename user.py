@@ -18,6 +18,7 @@ from api.db.sqlite_utils import *
 from logica_users.utils.manejo_session import manejo_de_ultimo_seleccionado
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo import help_models 
+from api.session_api import consultar_session_api
 from funciones.validacionY_Scoring.consultas import comparar_ultimo_file_por_ejecucion
 
 def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
@@ -38,9 +39,9 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     
     def see_session():
         @reactive.effect
-        def enviar_session():
-            if global_session.proceso.get():
+        async def enviar_session():
                 state = global_session.session_state.get()
+                print(state, "valor state>")
                 if state["is_logged_in"]:
                     user_id = state["id"]
                     global_session.id_user.set(user_id)

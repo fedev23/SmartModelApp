@@ -5,8 +5,10 @@ from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 from shiny import App, reactive
 import os 
+import httpx
+from starlette.requests import Request
 from starlette.responses import FileResponse, JSONResponse
-from app_ui import app_ui
+from app_ui import app_ui, app_login
 from servers.server_validacion_scoring.outofSample import server_out_of_sample
 from modelo import server_modelos
 from servers.server_desarrollo.server_desarollo import server_desarollo
@@ -23,14 +25,18 @@ from servers.server_validacion_scoring.logica_scoring_valid import logica_server
 from servers.parametros.niveles_Scorcards.parametros_ui import server_niveles_Scorcards
 from servers.parametros.parametros_desarrollo.parametros_desarrollo import server_parametros_desarrollo
 from urllib.parse import unquote
+from auth.auth import obtener_token, configuration
+from starlette.endpoints import HTTPEndpoint
+from starlette.responses import JSONResponse, RedirectResponse
+from api.session_api import  SessionAPI
 
 
 # Define the Shiny server function
 def create_server(input, output, session):
     server_parametros_desarrollo(input, output, session, 'desarrollo')
-    server_login(input, output, session),
+    #server_login(input, output, session),
     logica_server_Validacion_scroing(input, output, session, 'Scroring_out_of_sample')
-    user_ui(input, output, session, 'user'),
+    user_ui(input, output, session, 'user')
     versiones_config_server(input, output, session)
     in_sample_verions(input, output, session,"versiones_json")
     extend_user_server(input, output, session, "extend_user_server")
@@ -48,6 +54,14 @@ def create_server(input, output, session):
 # Create the Shiny app
 app_shiny = App(app_ui, create_server)
 
+
+def screen_login(input, output, session):
+    server_login(input, output, session),
+    
+login = App(app_login, screen_login)
+
+ 
+
 def validate_params(required_params, provided_params):
     """Valida que todos los parámetros requeridos estén presentes."""
     missing_params = [param for param in required_params if not provided_params.get(param)]
@@ -61,6 +75,7 @@ def build_base_directory(user_id, id_proyecto, nombre_proyecto):
 
 def build_insample_folder(base_directory, id_version, nombre_version, id_version_insample, nombre_version_insample):
     return f"{base_directory}/version_{id_version}_{nombre_version}/version_parametros_{id_version_insample}_{nombre_version_insample}"
+
 
 
 
@@ -147,12 +162,38 @@ class DynamicStaticFileEndpoint(HTTPEndpoint):
         else:
             print(f"Archivo no encontrado: {user_directory}")
             return JSONResponse({"error": f"File not found: {user_directory}"}, status_code=404)
+        
+    
+class Auth0LoginEndpoint(HTTPEndpoint):
+    async def post(self, request):
+        data = await request.json()
+        username = data.get("username")
+        password = data.get("password")
+        
+        if not username or not password:
+            return JSONResponse({"error": "Faltan credenciales (username o password)"}, status_code=400)
+        
+        # Llamada a la API de Auth0 para obtener el token
+        access_token = obtener_token(username, password, configuration)
+        
+        if access_token:
+            # Si la autenticación es exitosa, puedes realizar acciones adicionales:
+            # - Obtener información del usuario, guardar en la sesión, etc.
+            # Aquí, por simplicidad, redirigimos a la pantalla de dashboard (o a otra ruta deseada)
+            return RedirectResponse(url="/shiny", status_code=302)
+        else:
+            # En caso de error, se informa al usuario
+            return JSONResponse({"error": "Autenticación fallida. Verifica tus credenciales."}, status_code=401)        
+
 
 # Define the routes for Starlette
 routes = [
+    Route('/api/auth/login', Auth0LoginEndpoint, methods=["POST"]),
     Route('/api/user_files', DynamicStaticFileEndpoint, methods=["GET"]),
     Route('/api/process_user_id', ProcessUserIDEndpoint, methods=["POST"]),
+    Route('/api/session', SessionAPI, methods=["POST", "GET"]),
     Mount('/shiny', app=app_shiny),
+    Mount('/login', app=login)
 ]
 #C:\Users\fvillanueva\Desktop\SmartModel_new_version\new_version_new\Automat\datos_salida_auth0_670fc1b2ead82aaae5c1e9ba\proyecto_57_Proyecto_prueba_De_Datos\version_30_Inicial\Reportes
 # Create the main Starlette app with the defined routes

@@ -38,3 +38,12 @@ Shiny.addCustomMessageHandler("render_screen", function(message) {
         screen_elements.style.display = 'block'; // Aseguramos que los componentes se muestren
     }
 });
+
+
+
+
+Shiny.addCustomMessageHandler('navigate_uno', function(url) {
+console.log("Navegando a: " + url);
+window.location.href = url;
+});
+

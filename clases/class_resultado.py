@@ -32,7 +32,6 @@ class ResultadoClassPrueba:
     def obtener_user_id(self):
         @reactive.effect
         def enviar_session():
-            if global_session.proceso.get():
                 state = global_session.session_state.get()
                 if state["is_logged_in"]:
                     user_id = state["id"]

@@ -49,15 +49,13 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
 
     @reactive.Effect
     @reactive.event(input.files_select_validation_scoring)
-    def seleccionador():
+    async def seleccionador():
         #PREPARO LA CONSULTA
         data_id = input.files_select_validation_scoring()  # Captura el ID seleccionado
         global_session_V2.set_id_Data_validacion_sc(data_id)
         base_datos = 'Modeling_App.db'
         nombre_file =  obtener_nombre_file(base_datos, data_id)
 
-        ultimo_id_file_seleccionado_validacion_full_o_scoring = comparar_ultimo_file_por_ejecucion(global_session.get_version_parametros_id())
-        print(f"viendo ultimo id {ultimo_id_file_seleccionado_validacion_full_o_scoring}")
         global_session_V2.set_nombre_dataset_validacion_sc(nombre_file)
         if nombre_file:
             file_name_without_extension = os.path.splitext(nombre_file)[0]
@@ -102,7 +100,7 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
                 global_session.get_id_version() and
                 global_session.get_versiones_name() and 
                 global_session_V2.nombre_file_sin_extension_validacion_scoring.get()): 
-                    help_api.procesar_starlette_api_validacion_scoring(global_session.get_id_user(), global_session.get_name_proyecto(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_versiones_name(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
+                    await help_api.procesar_starlette_api_validacion_scoring(global_session.get_id_user(), global_session.get_name_proyecto(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_versiones_name(), global_session.get_version_parametros_id(), global_session.get_versiones_parametros_nombre(), global_session_V2.nombre_file_sin_extension_validacion_scoring.get())
 
         
         #data = leer_dataset_sc(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session_V2.get_nombre_dataset_validacion_sc())

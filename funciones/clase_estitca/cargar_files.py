@@ -123,7 +123,6 @@ class FilesLoad:
             )
             
             validar_ids = check_if_exist_id_version_id_niveles_scord(global_session.get_id_version(), global_session.get_version_parametros_id())
-            print(validar_ids, "que valor hay acA?")
             if validar_ids:
                 ui.modal_show(create_modal_generic("boton_advertencia_files", f"Es obligatorio generar una versión de {global_name_out_of_Sample} y una versión para continuar."))
                 return 
@@ -162,7 +161,7 @@ class FilesLoad:
                 choices=global_session_V2.get_opciones_name_dataset_Validation_sc(),
                 selected=self.data_predeterminado.get()
             )
-            print("Opciones y selección actualizadas correctamente.")
+
             self.select_overwrite.set(False)
         except Exception as e:
             # Manejar errores y notificar al usuario
