@@ -104,7 +104,7 @@ class ResultadoClassPrueba:
                                 ui.tags.iframe(src=iframe_src, width='350%', height='500px')
                             )
                         else:
-                            print(f"El archivo no existe: {file_path}")
+                            print(f"El archivo no existe desa?: {file_path}")
                             return ui.div()
                             
                     except Exception as e:

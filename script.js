@@ -47,3 +47,26 @@ console.log("Navegando a: " + url);
 window.location.href = url;
 });
 
+
+// Guardar session_id en localStorage después del login
+localStorage.setItem('session_id', 'valor_del_session_id');
+
+// Interceptar todas las solicitudes para agregar el session_id
+fetch = (originalFetch => {
+    return (...args) => {
+        let [resource, options] = args;
+
+        if (!options) {
+            options = { headers: {} };
+        } else if (!options.headers) {
+            options.headers = {};
+        }
+
+        const sessionId = localStorage.getItem('session_id');
+        if (sessionId) {
+            options.headers['Authorization'] = `Bearer ${sessionId}`;
+        }
+
+        return originalFetch(resource, options);
+    };
+})(fetch);
