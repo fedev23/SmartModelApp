@@ -26,8 +26,10 @@ from starlette.middleware import Middleware
 from rederic_ok import server_redireccionamiento
 from starlette.middleware.sessions import SessionMiddleware
 from dotenv import load_dotenv
+from auth.validate import ValidateTokenEndpoint
 from api.api_manager import *
 from  api.middleware import AuthMiddleware
+from api.login import LoginEndpoint, LoginStarletteSessionEndpoint
 
 
 # Define the Shiny server function
@@ -61,10 +63,16 @@ def screen_login(input, output, session):
 login = App(app_login, screen_login)
 
 load_dotenv()
-secret_key = os.getenv("SECRET_KEY") 
 
+secret_key = "jR4Rqx9qc86wY0oCkqJXy5x8Ph6KxmuU"
+print(secret_key, "viendo secret key")
 middleware = [
-    Middleware(SessionMiddleware, secret_key=secret_key),
+    Middleware(CORSMiddleware,
+               allow_origins=["http://localhost:3000"],  # o ["*"] para debug
+               allow_methods=["*"],
+               allow_headers=["*"],
+               allow_credentials=True),
+    Middleware(SessionMiddleware, secret_key=secret_key, max_age=9600, https_only=False),
     Middleware(AuthMiddleware),
 ]
 
@@ -72,10 +80,13 @@ middleware = [
 routes = [
     #Route('/api/auth/login', Auth0LoginEndpoint, methods=["POST"]),
     Route('/api/user_files', DynamicStaticFileEndpoint, methods=["GET"]),
+    Route('/api/login', LoginEndpoint, methods=["POST"]),
+    Route('/api/login_starlette_session', LoginStarletteSessionEndpoint, methods=["POST"]),
     Route('/api/process_user_id', ProcessUserIDEndpoint, methods=["POST"]),
     Route('/api/session', SessionAPI, methods=["POST", "GET"]),
+    Route('/api/validate_token', ValidateTokenEndpoint, methods=["POST"]),
     #Route("/api/check_auth", check_auth, methods=["GET"]),
-    Mount('/shiny', app=app_shiny),
+    Mount('/shiny/', app=app_shiny),
     Mount('/login', app=login)
 ]
 app = Starlette(routes=routes, middleware=middleware)

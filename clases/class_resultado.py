@@ -98,7 +98,7 @@ class ResultadoClassPrueba:
                         
                         # Verificar si el archivo existe en el sistema de archivos
                         file_path = f"/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{self.user.get()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/Reportes/{os.path.basename(resultado_path)}"
-                        
+                        print(f"viendo file path, {file_path}")
                         if os.path.exists(file_path):
                             return ui.div(
                                 ui.tags.iframe(src=iframe_src, width='350%', height='500px')

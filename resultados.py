@@ -26,22 +26,22 @@ def server_resul(input, output, session, name_suffix):
     def get_user_id_from_session():
         @reactive.effect
         def enviar_session():
-            if global_session.proceso.get():
-                state = global_session.session_state.get()
-                if state["is_logged_in"]:
-                    user_id = state["id"].replace('|', '_')
-                    global user_id_global
-                    user_id_global = user_id
-                    print(f"[get_user_id_from_session] user_id_global asignado: {user_id_global}")
-                    return user_id
-                
+            state = global_session.session_state.get()
+            if state["is_logged_in"]:
+                user_id = state["id"].replace('|', '_')
+                global user_id_global
+                user_id_global = user_id
+                print(f"[get_user_id_from_session] user_id_global asignado: {user_id_global}")
+                return user_id
+            
     user_id = get_user_id_from_session()
-    print(user_id, "de la session")
+   
+   
     def crear_resultados_desarrollo():
         resultados_desarrollo = [
             {
                 "resultado_id": "Clean_Transf",
-                "resultado_path": f"Clean_Transf_quick.html",
+                "resultado_path": f"Clean-Transf.html",
                 "salida": "result_Clean_Transf",
                 "salida_unic": "salida_prueba_Clean_Transf",
                 "descarga_unic": "download_btn1_Clean_Transf",
@@ -163,6 +163,7 @@ def server_resul(input, output, session, name_suffix):
             # print("Procesando resultado_id: ", resultado_id)
 
             # Crear el output dinámico
+            print(resultado_id, "id a regitrar?x")
             create_dynamic_output(resultado_id, salida)
 
             create_salida_unic(resultado_id, salida_unic)

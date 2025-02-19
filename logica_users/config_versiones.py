@@ -201,17 +201,18 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
     @reactive.effect
     def update_nav():
         id_actual = input.other_select()
-        if id_actual != "a":
+        if id_actual != "a" and id_actual != "":
             id_actual = int(id_actual)
             
             print(f"id_actual {id_actual}")
             print(f"ultimo_id_version_reactivo.get() {ultimo_id_version_reactivo.get()}")
             if ultimo_id_version_reactivo.get() != id_actual:
-                print("cuando estoy pasando??")
                 ##ACTUALIZO LAS VERSIONES DE NIELES Y SCORCARDS ACA Y EN LA SCREEN CORRESPONDIENTE DE NIVELES Y SC
                 versiones_parametros = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
                 opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version")) 
-                valor_predeterminado_parms.set(obtener_ultimo_id_seleccionado(base_datos, "json_versions", "id_jsons"))
+                valor_predeterminado_parms.set(obtener_ultimo_id_seleccionado_edited(base_datos, "json_versions", "id_jsons", global_session.get_id_version()))
+                print(valor_predeterminado_parms.get(), "valuee??")
+                print(opciones_param.get())
                 ##VIRFICIAR SI ESTO ESTA BIEN, QUE SOLO SE HAGA UN UPDATE EN IN SMAPELVERSIONS.
                 ui.update_select("version_selector",choices=opciones_param.get(), selected=valor_predeterminado_parms.get())
             

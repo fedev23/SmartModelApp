@@ -4,7 +4,7 @@ from shiny import App, Inputs, Outputs, Session, reactive, ui, render, module
 from funciones.help_parametros.valid_columns import replace_spaces_with_underscores
 from api import *
 from clases.global_modelo import modelo_in_sample
-from logica_users.utils.manejo_session import manejo_de_ultimo_seleccionado, generar_paths_insa
+from logica_users.utils.manejo_session import manejo_de_ultimo_seleccionado, generar_paths_insa, manejo_de_ultimo_seleccionado_niveles_ScoreCards
 from funciones.utils import mover_file_reportes_puntoZip
 from global_names import global_name_in_Sample
 from clases.global_session import global_session
@@ -85,12 +85,12 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
         versiones_parametros  = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
         
         ##obtengo el ultima version seleccionada por el usario.
-        manejo_de_ultimo_seleccionado(
+        manejo_de_ultimo_seleccionado_niveles_ScoreCards(
             is_initializing=is_initializing,
             input_select_value=input.version_selector(),
-            ultimo_id_func=lambda: obtener_ultimo_id_seleccionado(base_datos, "json_versions", "id_jsons"),
+            ultimo_id_func=lambda: obtener_ultimo_id_seleccionado_edited(base_datos, "json_versions", "id_jsons", global_session.get_id_version()),
             global_set_func=lambda x: global_session.set_version_parametros_id(x),
-            actualizar_ultimo_func=lambda table, column, value: actualizar_ultimo_seleccionado(base_datos, table, column, value),
+            actualizar_ultimo_func=lambda table, column, value: actualizar_ultimo_seleccionado_new(base_datos, table, column, value, global_session.get_id_version()),
             obtener_ultimo_func=lambda table, column: obtener_ultimo_seleccionado(base_datos, table, column),
             obtener_opciones_func=lambda: obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version"),
             mapear_clave_func=mapear_valor_a_clave, 
@@ -98,14 +98,14 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
             input_select_name="version_selector",
             db_table="json_versions",
             db_column_id="id_jsons",
-            db_column_name="nombre_version"
+            db_column_name="nombre_version",
+            db="Modeling_App.db"
         )
         
         nombre_files_validacion_sc = obtener_nombres_files_por_proyecto(global_session.get_id_proyecto())
         global_session_V2.set_opciones_name_dataset_Validation_sc(obtener_opciones_versiones(nombre_files_validacion_sc, "id_nombre_file", "nombre_file"))
         ##OBTENGO EL ULTIMO NOMBRE FILES SELECCIONADO EN FULL
         ultimo_id_file_seleccionado_validacion_full_o_scoring = comparar_ultimo_file_por_ejecucion(global_session.get_version_parametros_id())
-        print(f"viendo ultimo id en in sample versions {ultimo_id_file_seleccionado_validacion_full_o_scoring}")
         if ultimo_id_file_seleccionado_validacion_full_o_scoring:
             data_predeterminado.set(ultimo_id_file_seleccionado_validacion_full_o_scoring)
         else:

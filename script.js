@@ -41,32 +41,17 @@ Shiny.addCustomMessageHandler("render_screen", function(message) {
 
 
 
-
-Shiny.addCustomMessageHandler('navigate_uno', function(url) {
-console.log("Navegando a: " + url);
-window.location.href = url;
-});
-
-
-// Guardar session_id en localStorage después del login
-localStorage.setItem('session_id', 'valor_del_session_id');
-
-// Interceptar todas las solicitudes para agregar el session_id
-fetch = (originalFetch => {
-    return (...args) => {
-        let [resource, options] = args;
-
-        if (!options) {
-            options = { headers: {} };
-        } else if (!options.headers) {
-            options.headers = {};
-        }
-
-        const sessionId = localStorage.getItem('session_id');
-        if (sessionId) {
-            options.headers['Authorization'] = `Bearer ${sessionId}`;
-        }
-
-        return originalFetch(resource, options);
-    };
-})(fetch);
+Shiny.addCustomMessageHandler('crearCookie', function(data) {
+    fetch("http://localhost:3000/api/login_starlette_session", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: data.user_id })
+    })
+    .then(resp => resp.json())
+    .then(json => {
+      console.log("Cookie set. Now go /shiny/");
+      window.location.href = "http://localhost:3000/shiny/";
+    });
+  });
+  

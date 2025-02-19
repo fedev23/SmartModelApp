@@ -173,6 +173,7 @@ def server_desarollo(input, output, session, name_suffix):
             validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
             
             # Realizar las validaciones
+            print("estoy en el modelo!!")
             validator.validate_column_identifiers()
             validator.validate_iv()
             validator.validate_target_column()
@@ -193,36 +194,36 @@ def server_desarollo(input, output, session, name_suffix):
             inputs_procesados = aplicar_transformaciones(input, transformaciones)
             
             # Guardar los inputs procesados en un archivo JSON
-            if global_session.proceso.get():
-                state = global_session.session_state.get()
-                if state["is_logged_in"]:
-                    user_id = state["id"]
-                    user_id_cleaned = user_id.replace('|', '_')
-                    json_loader = LoadJson(input) 
-                    json_loader.inputs.update(inputs_procesados)
-                    #ACTUALIZO VARIOS INPUTS QUE SON DINAMICOS CON EL FIN DE QUE NO ESTEN NULOS EN LA LLAMADA AL JSON
-                    json_loader.inputs['delimiter_desarollo'] = global_estados.get_delimitador()
-                    json_loader.inputs['proyecto_nombre'] = global_session.get_name_proyecto() 
-                    json_loader.inputs['file_desarollo'] = global_names_reactivos.get_name_file_db()
-                    json_file_path = json_loader.loop_json()
-                    print(f"Inputs guardados en {json_file_path}")
-                    #CREO EL PATH DONDE SE VA A EJECUTAR DESARROLLO DEPENDIENDO DEL PROYECYO Y LA VERSION QUE ESTE EN USO
+            
+            state = global_session.session_state.get()
+            if state["is_logged_in"]:
+                user_id = state["id"]
+                user_id_cleaned = user_id.replace('|', '_')
+                json_loader = LoadJson(input) 
+                json_loader.inputs.update(inputs_procesados)
+                #ACTUALIZO VARIOS INPUTS QUE SON DINAMICOS CON EL FIN DE QUE NO ESTEN NULOS EN LA LLAMADA AL JSON
+                json_loader.inputs['delimiter_desarollo'] = global_estados.get_delimitador()
+                json_loader.inputs['proyecto_nombre'] = global_session.get_name_proyecto() 
+                json_loader.inputs['file_desarollo'] = global_names_reactivos.get_name_file_db()
+                json_file_path = json_loader.loop_json()
+                print(f"Inputs guardados en {json_file_path}")
+                #CREO EL PATH DONDE SE VA A EJECUTAR DESARROLLO DEPENDIENDO DEL PROYECYO Y LA VERSION QUE ESTE EN USO
 
-                    ##NECESITO NOMBRE DEL PROYECTO Y NOMBRE DE LA VERSION NO ORIGINAL, SINO MAS BIEN CON ESPACIOS
-                    
-                    path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
-                    path_datos_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
-                    
-                    global_desarollo.porcentaje_path = path_datos_salida
-                    ##necesito tener el nombre del dataset seleccionado asi le cambio el nombre y lo
-                    data_Set  = get_datasets_directory(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
-        
-                    mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), data_Set, name_suffix, path_datos_entrada)
-                    
-                    global_desarollo.script_path = f'./Modelar.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida}'
-                    ejectutar_desarrollo_asnyc(click_count_value, mensaje_value, proceso)
-                    click.set(click() + 1)
-                    global_desarollo.pisar_el_modelo_actual.set(False)
+                ##NECESITO NOMBRE DEL PROYECTO Y NOMBRE DE LA VERSION NO ORIGINAL, SINO MAS BIEN CON ESPACIOS
+                
+                path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+                path_datos_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+                
+                global_desarollo.porcentaje_path = path_datos_salida
+                ##necesito tener el nombre del dataset seleccionado asi le cambio el nombre y lo
+                data_Set  = get_datasets_directory(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
+    
+                mover_y_renombrar_archivo(global_names_reactivos.get_name_file_db(), data_Set, name_suffix, path_datos_entrada)
+                
+                global_desarollo.script_path = f'./Modelar.sh --input-dir {path_datos_entrada} --output-dir {path_datos_salida}'
+                ejectutar_desarrollo_asnyc(click_count_value, mensaje_value, proceso)
+                click.set(click() + 1)
+                global_desarollo.pisar_el_modelo_actual.set(False)
                     
                     
                 
