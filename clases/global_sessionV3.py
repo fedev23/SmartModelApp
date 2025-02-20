@@ -8,7 +8,7 @@ class GlobalSessionV3:
         self.modelo_existe = reactive.Value(False)
         self.id_validacion_scoring = reactive.Value(None)
         self.id_score = reactive.Value(None)
-        self.json_params_insa = reactive.Value()
+        self.json_params_insa = reactive.Value(None)
         
         
 

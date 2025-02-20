@@ -142,6 +142,7 @@ def server_in_sample(input, output, session, name_suffix):
     @reactive.effect
     @reactive.event(input.add_files_niveles_riesgo_2)
     def agregar_nombre_nivel():
+        print("estoy pasando??")
         nombre_seleccionado = input.add_value().strip()  # Eliminar espacios en blanco
 
         
@@ -165,12 +166,18 @@ def server_in_sample(input, output, session, name_suffix):
 
         # Actualizar la tabla reactiva
         inserto.set(True)
+        se_agrego_fila_en_rango_niveles.set(True)
+        ui.update_text("add_value",label="", value="")
+        ui.update_text("add_regla", label="", value="")
+        ui.update_text("add_tasa_malos", label="", value="")
+        
         values_tabla_niveles.set(data)
 
 
     @reactive.effect
     @reactive.event(input.add_files_niveles_riesgo_2)
     def agregar_regla():
+        print("estoy pasando??")
         regla = input.add_regla().strip()
 
         # Si la regla está vacía, asignar un valor por defecto (en este caso, una cadena vacía)
@@ -188,12 +195,14 @@ def server_in_sample(input, output, session, name_suffix):
         
 
         # Actualizar la tabla reactiva
+        se_agrego_fila_en_rango_niveles.set(True)
         values_tabla_niveles.set(data)
 
 
     @reactive.effect
     @reactive.event(input.add_files_niveles_riesgo_2)
     def agregar_Tasa_malos():
+        print("estoy pasando??")
         tasa_malos = input.add_tasa_malos().strip()
         #ui.update_text("add_tasa_malos", label="")
         # Validar que el valor ingresado sea un número
@@ -206,6 +215,8 @@ def server_in_sample(input, output, session, name_suffix):
 
         # Obtener el DataFrame actual de la tabla
         data = values_tabla_niveles.get()
+        
+        print("viendo data?", data)
 
         # Buscar la primera fila con un "Nombre Nivel" pero sin "Tasa de Malos Máxima"
         index_vacio = data.index[(data["Tasa de Malos Máxima"] == "") & (data["Nombre Nivel"] != "")].min()
@@ -236,6 +247,9 @@ def server_in_sample(input, output, session, name_suffix):
         filas = par_rango_niveles.cell_selection()["rows"]  # Obtener filas seleccionadas
         if filas:
             data_editado = eliminar_filas_seleccionadas(data, filas)
+            ui.update_text("add_value",label="", value="")
+            ui.update_text("add_regla", label="", value="")
+            ui.update_text("add_tasa_malos", label="", value="")
             filas_eliminadas.set(True)
             values_tabla_niveles.set(data_editado)  # Actualizar el dataset reactivo con las filas eliminadas
         
@@ -245,10 +259,13 @@ def server_in_sample(input, output, session, name_suffix):
     @render.data_frame
     def par_rango_niveles():
         data = values_tabla_niveles.get()
+        
         json_params = global_session_V3.json_params_insa.get()
+        
         df_niveles = get_parameter_dataframe("par_rango_niveles", json_params)
         
         if se_agrego_fila_en_rango_niveles.get()  and filas_eliminadas.get() is False:
+            print(f"pase a la validacion {data}")
             data = pd.concat([data, df_niveles], ignore_index=True)
             
            
@@ -427,8 +444,8 @@ def server_in_sample(input, output, session, name_suffix):
             
             validar_ids = check_if_exist_id_version_id_niveles_scord(global_session.get_id_version(), global_session.get_version_parametros_id())
             if validar_ids:
-                ui.modal_show(create_modal_generic("boton_advertencia_ejecute_in", f"Es obligatorio generar una versión de {global_name_in_Sample} y una versión para continuar."))
-                return
+                return ui.modal_show(create_modal_generic("boton_advertencia_ejecute_in", f"Es obligatorio generar una versión de {global_name_in_Sample} y una versión para continuar."))
+                
 
             # Validar si hay versiones
             validacion_existe_modelo = verificar_estado_modelo_insa("Modeling_App.db", global_session.get_version_parametros_id(), global_session.get_id_dataSet())

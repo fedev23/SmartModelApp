@@ -261,6 +261,7 @@ def verificar_estado_modelo_edited(db_path, table_name, id_field, id_value, file
         return None
     
     
+# src/utils.py
 def check_if_exist_id_version_id_niveles_scord(version_id, niveles_sc_id):
     """
     Verifica si alguno de los valores es None o está vacío.
@@ -269,8 +270,14 @@ def check_if_exist_id_version_id_niveles_scord(version_id, niveles_sc_id):
     :param niveles_sc_id: ID de los niveles de scoring.
     :return: True si cualquiera de los valores es None o vacío, False en caso contrario.
     """
-    return not version_id or not niveles_sc_id
-
+    
+    if version_id is None:
+        return True
+    
+    if niveles_sc_id is None or niveles_sc_id == "a":
+        return True
+    
+    return False
 
 
 def check_if_exist_id_version(version_id):

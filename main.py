@@ -23,7 +23,6 @@ from auth.endpoints import Auth0LoginEndpoint
 from starlette.middleware.cors import CORSMiddleware
 from api.utils import *
 from starlette.middleware import Middleware
-from rederic_ok import server_redireccionamiento
 from starlette.middleware.sessions import SessionMiddleware
 from dotenv import load_dotenv
 from auth.validate import ValidateTokenEndpoint

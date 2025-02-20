@@ -101,7 +101,7 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
             ui.input_select(
                 "version_selector",
                 "",
-                {"a": "a"},
+                {"a": "No hay versiones."},
                 width="50%"
             ),
             # Botón de acción y output

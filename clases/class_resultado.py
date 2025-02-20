@@ -24,6 +24,7 @@ class ResultadoClassPrueba:
         self.resultados = resultados
         self.html_content = {r['resultado_id']: reactive.Value("") for r in resultados}
         self.accordion_open = {r['resultado_id']: reactive.Value(False) for r in resultados}
+        self.path_resultados = ""
         self.proceso_ok = reactive.Value(False)
         self.proceso_user = reactive.Value(False)
         self.user = reactive.Value()
@@ -185,16 +186,17 @@ class ResultadoClassPrueba:
 
     def descargar_unico_html(self, resultado_id):
         if resultado_id in self.accordion_open:
-                #print(f"resultado esperado", resultado_id)
-                resultado_path = next((r['resultado_path'] for r in self.resultados if r['resultado_id'] == resultado_id), None)
-                salida =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}/{global_session_V2.nombre_file_sin_extension_validacion_scoring.get()}/Reportes/{os.path.basename(resultado_path)}'
-
-                #print(f"Resultado path: {resultado_path}")
-                if resultado_path and self.accordion_open[resultado_id].get():
-                    temp_zip_path = tempfile.NamedTemporaryFile(delete=False).name + '.zip'
-                    #print(f"Archivo ZIP temporal: {temp_zip_path}")
-                    create_zip_from_file_unico(salida, temp_zip_path)
-                    return temp_zip_path
-                else:
-                    print("<p>Archivo no encontrado</p>")
-                
+            resultado_path = next(
+                (r['resultado_path'] for r in self.resultados if r['resultado_id'] == resultado_id),
+                None
+            )
+            if resultado_path and self.accordion_open[resultado_id].get():
+                temp_zip_path = tempfile.NamedTemporaryFile(delete=False).name + '.zip'
+                # Se construye la ruta completa uniendo self.path_resultados y resultado_id
+                print(self.path_resultados, "viendo path resultados")
+                full_path = os.path.join(self.path_resultados, resultado_path)
+                print(f"viendo full path {full_path}")
+                create_zip_from_file_unico(full_path, temp_zip_path)
+                return temp_zip_path
+            else:
+                print("<p>Archivo no encontrado</p>")            

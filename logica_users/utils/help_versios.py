@@ -17,7 +17,7 @@ def obtener_opciones_versiones(versiones, id, name):
     if versiones:
         return {str(version[id]): version[name] for version in versiones}
     else:
-        return {"": "No hay versiones"}
+        return {"": ""}
 
 def obtener_ultimo_id_version(versiones, id_key):
     """
@@ -66,7 +66,7 @@ def obtener_ultimo_nombre_archivo_validacion_c(versiones):
         # Accede al último diccionario y obtiene el valor de la clave esperada
         return str(versiones[-1].get('nombre_archivo_validation_sc', ''))
     else:
-        return ""    
+        return {"": "No hay archivos."} 
 
 def copiar_json_si_existe(origen: str, destino: str, nombre_archivo: str = "Control de SmartModelStudio.json"):
     """
@@ -137,10 +137,8 @@ def eliminar_carpeta(carpeta_path):
     if os.path.exists(carpeta_path):
         try:
             shutil.rmtree(carpeta_path)  # Elimina la carpeta y su contenido
-            print(f"Carpeta eliminada: {carpeta_path}")
             return True
         except Exception as e:
-            print(f"Error al eliminar la carpeta {carpeta_path}: {e}")
             return False
     else:
         print(f"La carpeta no existe: {carpeta_path}")
@@ -174,13 +172,8 @@ def mapear_valor_a_clave(valor, diccionario):
 
 
 def mapear_valor_a_clave_2(valor, diccionario):
-    print(f"🔎 Buscando '{valor}' en opciones: {diccionario}")
-
     if valor in diccionario.values():
         for key, value in diccionario.items():
             if value == valor:
-                print(f"✅ Mapeo encontrado: {valor} -> {key}")
                 return key
-
-    print(f"⚠️ No se encontró un mapeo para '{valor}', devolviendo None")
     return None

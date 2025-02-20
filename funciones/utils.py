@@ -123,13 +123,17 @@ def validate_par_iv(value):
 
 
 def create_zip_from_file_unico(file_path, zip_file_path):
-    with zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-        # Asegúrate de que el archivo existe
-        if os.path.exists(file_path):
-            # Agrega el archivo al ZIP con su nombre base
-            zipf.write(file_path, os.path.basename(file_path))
-        else:
-            print(f"El archivo no existe: {file_path}")
+    try:
+        with zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            # Asegúrate de que el archivo existe
+            if os.path.exists(file_path):
+                # Agrega el archivo al ZIP usando su nombre base
+                zipf.write(file_path, os.path.basename(file_path))
+            else:
+                print(f"El archivo no existe: {file_path}")
+    except Exception as e:
+        print(f"Error al crear el archivo ZIP: {e}")
+        raise  # Opcional: relanza la excepción si deseas que se propague el error
 
 
 def retornar_card(get_file_name, modelo, fecha, estado, mensaje_error):  # get_fecha

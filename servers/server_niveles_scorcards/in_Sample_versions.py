@@ -102,6 +102,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
             db="Modeling_App.db"
         )
         
+        
         nombre_files_validacion_sc = obtener_nombres_files_por_proyecto(global_session.get_id_proyecto())
         global_session_V2.set_opciones_name_dataset_Validation_sc(obtener_opciones_versiones(nombre_files_validacion_sc, "id_nombre_file", "nombre_file"))
         ##OBTENGO EL ULTIMO NOMBRE FILES SELECCIONADO EN FULL
@@ -110,7 +111,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
             data_predeterminado.set(ultimo_id_file_seleccionado_validacion_full_o_scoring)
         else:
             data_predeterminado.set(obtener_ultimo_id_version(nombre_files_validacion_sc, 'id_nombre_file'))
-       
+
        
         ui.update_select("files_select_validation_scoring",choices=global_session_V2.get_opciones_name_dataset_Validation_sc(), selected=data_predeterminado.get())
                     
@@ -174,6 +175,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
                 
                 
                 param_json_in_sample = leer_control_json_in_sample(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_id_version(), global_session.get_versiones_name(), global_session.get_versiones_parametros_nombre(), global_session.get_version_parametros_id())
+                print(f"llegando hasta aca? {param_json_in_sample}")
                 global_session_V3.json_params_insa.set(param_json_in_sample)
                 
             

@@ -7,6 +7,7 @@ from clases.class_user_proyectName import global_user_proyecto
 from api.db import *
 import os
 from clases.global_sessionV2 import *
+from servers.utils.get_paths import get_output_path
 
 
 def server_resul(input, output, session, name_suffix):
@@ -99,7 +100,7 @@ def server_resul(input, output, session, name_suffix):
             "resultado_id": "Resultados_Oss",
             "resultado_path": "Validation_OoS.html",
             "salida": "output_modelling_out",
-            "descarga_unic": "download_btn1",
+            "descarga_unic": "download_btn1_sample",
             "salida_unic": "salida_prueba_out_to",
         },
     ]
@@ -141,16 +142,7 @@ def server_resul(input, output, session, name_suffix):
             return html_prueba, html_produccion, html_in_sample, html_desarrollo
 
 
-    def descargas_dinamicas(resultado_id, descarga_unic,filename):
-        @output(id=descarga_unic)
-        @render.download(filename=filename)
-        def download_btn1_():
-            salida_desarrollo = resultado_desarrollo.descargar_unico_html(resultado_id)
-            salida_ot_sample = resultado_class_instance.descargar_unico_html(resultado_id)
-            salida_in_sample = resultado_in_sample.descargar_unico_html(resultado_id)
-            salida_produccion = resultado_class_instance_produccion.descargar_unico_html(resultado_id)
-            return salida_in_sample, salida_ot_sample, salida_produccion, salida_desarrollo
-
+   
         #return download_btn1_
 
     def register_outputs(resultados):
@@ -222,48 +214,57 @@ def server_resul(input, output, session, name_suffix):
     @render.download(filename="Clean_Transf.zip")
     def download_btn1_Clean_Transf():
         resultado_id  = "Clean_Transf"
+        resultado_desarrollo.path_resultados = get_output_path(resultado_id, global_session, global_session_V2, modo="desarrollo")
         return resultado_desarrollo.descargar_unico_html(resultado_id)
     
     @output
     @render.download(filename="Detalle_agrupacion.zip")
     def download_btn_Detalle_agrupacion():
         resultado_id  = "Detalle_agrupacion"
+        resultado_desarrollo.path_resultados = get_output_path(resultado_id, global_session, global_session_V2, modo="desarrollo")
         return resultado_desarrollo.descargar_unico_html(resultado_id)
     
     @output
     @render.download(filename="Detalle_agrupacion_continuas.zip")
     def download_btn_Detalle_agrupacion_continuas():
         resultado_id  = "Detalle_agrupacion_continuas"
+        resultado_desarrollo.path_resultados = get_output_path(resultado_id, global_session, global_session_V2, modo="desarrollo")
         return resultado_desarrollo.descargar_unico_html(resultado_id)
     
     @output
     @render.download(filename="detalle_monotonia.zip")
     def download_btn_detalle_monotonia():
         resultado_id  = "detalle_monotonia"
+        resultado_desarrollo.path_resultados = get_output_path(resultado_id, global_session, global_session_V2, modo="desarrollo")
         return resultado_desarrollo.descargar_unico_html(resultado_id)
     
     @output
     @render.download(filename="modelling.zip")
     def download_btn_modelling():
         resultado_id  = "modelling"
+        resultado_desarrollo.path_resultados = get_output_path(resultado_id, global_session, global_session_V2, modo="desarrollo")
         return resultado_desarrollo.descargar_unico_html(resultado_id)
     
     @output
     @render.download(filename="Validation_InS.zip")
     def download_btn1_insample():
         resultado_id  = "Validation_InS"
-        return resultado_in_sample.descargar_unico_html(resultado_id)
+        insample_path = get_output_path(resultado_id, global_session, global_session_V2, modo="in_sample")
+        return resultado_class_instance.descargar_resultados(insample_path)
     
     @output
     @render.download(filename="Resultados_Oss.zip")
-    def download_btn1():
+    def download_btn1_sample(): 
         resultado_id  = "Resultados_Oss"
-        return resultados_out_to_sample.descargar_unico_html(resultado_id)
+        path_of_sample_resultados =  get_output_path(resultado_id, global_session, global_session_V2, modo="full")
+        return resultado_class_instance.descargar_resultados(path_of_sample_resultados)
+    
     
     @output
     @render.download(filename="Scoring.zip")
     def download_produccion_scoring():
         resultado_id  = "Scoring"
+        resultado_class_instance_produccion.path_resultados = get_output_path(resultado_id, global_session, global_session_V2, modo="scoring")
         return resultado_class_instance_produccion.descargar_unico_html(resultado_id)
     
         
