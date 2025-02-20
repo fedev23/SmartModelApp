@@ -9,6 +9,7 @@ screen_config = ui.page_fluid(
         ui.row(
             ui.card(
                 ui.card_header("Panel de Configuración"),
+                ui.input_action_link("go_to_principal", "Volver al menu principal."),
                 ui.tags.details(
                     ui.tags.summary("Configuración de filas"),
                     ui.div(class_="mt-2"),

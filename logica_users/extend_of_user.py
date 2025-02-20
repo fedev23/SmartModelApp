@@ -319,6 +319,10 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
         return global_names_reactivos.get_name_file_db() or 'No hay un DataSet seleccionado'
     
     
+    @reactive.effect
+    @reactive.event(input.go_to_principal)
+    def _():
+        create_navigation_handler("go_to_principal", "Screen_User")
     
      
   

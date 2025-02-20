@@ -192,9 +192,9 @@ class ModeloProceso:
         print(mensaje_error, "mensaje_error, del error ")
         if file_name is not None:
             if not fecha :
-                fecha = "Fecha no disponible."
+                fecha = "No ejecutado."
             if not estado:
-               estado = "Estado no disponible."
+               estado = "No ejecutado."
             #fecha = self.log_fecha_hora()
             return ui.card(
                 ui.card_header(
