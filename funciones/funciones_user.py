@@ -116,7 +116,7 @@ def show_selected_project_card(user_id, project_id):
         # Convertir el project_id a entero
         project_id_int = int(project_id)
     except ValueError:
-        return ui.div("ID de proyecto no válido.")
+        return ui.div("")
 
     # Buscar el proyecto con el ID correspondiente
     project = next(
@@ -211,11 +211,8 @@ def button_remove(versions_list, target_version_id, id, name):
 
 
 def create_modal_eliminar_bd(name_proyecto):
-    m = ui.modal(
-        ui.input_action_button("eliminar_proyecto",
-                               "Eliminar Proyecto", class_="btn btn-danger"),
-        ui.input_action_button("cancelar_eliminar",
-                               "Cancel", class_="custom-cancel-button"),
+    m = ui.modal(ui.input_action_button("eliminar_proyecto","Eliminar Proyecto", class_="btn btn-danger"),
+        ui.input_action_button("cancelar_eliminar", "Cancel", class_="custom-cancel-button"),
         title=f"¿Estás seguro de que quieres eliminar el proyecto '{name_proyecto}'?",
         easy_close=True,
         footer=None,

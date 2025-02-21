@@ -11,12 +11,8 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
         # Obtiene la lista actual de proyectos
         projects = global_session.get_proyectos_usuarios()
 
-        if projects:
-            project_options = {
-                str(project['id']): project['name'] for project in projects
-            }
 
-            return ui.page_fluid(
+        return ui.page_fluid(
 
     # Primera fila
     ui.row(
@@ -28,7 +24,7 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                 ui.input_select(
                     "project_select",
                     "",
-                    project_options,
+                    {"a" : "No hay proyectos."},
                     width="50%"
                 ),
                 ui.div(
@@ -60,7 +56,7 @@ def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
                 ui.input_select(
                     "other_select",
                     "",
-                    {"a": "a"},
+                    {"a": "No hay versiones."},
                     width="50%"
                 ),
                 ui.div(

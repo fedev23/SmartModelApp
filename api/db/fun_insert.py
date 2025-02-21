@@ -465,6 +465,43 @@ def obtener_valor_por_id(base_datos, tabla, columna_objetivo, columna_filtro, va
         conn.close()
         
    
+def obtener_ultimo_nombre_file_por_proyecto(base_datos, tabla, project_id):
+    """
+    Obtiene el nombre del archivo del último registro marcado como seleccionado para un project_id.
+
+    :param base_datos: Ruta a la base de datos SQLite.
+    :param tabla: Nombre de la tabla donde se realizará la consulta (ej. 'name_files').
+    :param project_id: ID del proyecto para filtrar los registros.
+    :return: El nombre del archivo del último seleccionado o None si no se encuentra.
+    """
+    conn = sqlite3.connect(base_datos)
+    
+    try:
+        cursor = conn.cursor()
+        
+        # Consulta para obtener el nombre_archivo del último seleccionado por project_id
+        query = f"""
+        SELECT nombre_archivo 
+        FROM {tabla} 
+        WHERE project_id = ? AND is_last_selected = 1
+        """
+        cursor.execute(query, (project_id,))
+        
+        # Obtener el resultado
+        resultado = cursor.fetchone()
+        
+        # Verificar si se encontró un valor
+        if resultado:
+            return resultado[0]  # Devolver el nombre del archivo
+        else:
+            return None  # Si no se encontró, retornar None
+
+    except sqlite3.Error as e:
+        print(f"Error al obtener el último nombre por proyecto: {e}")
+        return None
+
+    finally:
+        conn.close()
 
 def eliminar_version(nombre_tabla, nombre_columna_id, id_dato):
     # Conexión a la base de datos
@@ -594,34 +631,42 @@ def get_project_versions_param_mejorada(project_id, version_id):
         # Cerrar la conexión
         conn.close()          
                
-def obtener_valor_por_id_versiones(id_files , base_datos='Modeling_App.db'):
+
+
+def obtener_valor_por_id_versiones(base_datos='Modeling_App.db', id_jsons=None, version_id=None):
+    """
+    Obtiene el nombre_version asociado a un id_jsons y un version_id específicos en la tabla json_versions.
+
+    :param base_datos: Ruta a la base de datos SQLite (por defecto 'Modeling_App.db').
+    :param id_jsons: ID del JSON para filtrar los registros.
+    :param version_id: ID de la versión para filtrar los registros.
+    :return: El nombre_version asociado o None si no se encuentra.
+    """
+    conn = sqlite3.connect(base_datos)
     
-        conn = sqlite3.connect(base_datos)
+    try:
+        cursor = conn.cursor()
         
-        try:
-            cursor = conn.cursor()
-            
-            # Consulta para obtener el nombre del archivo por project_id
-            query = """
-            SELECT nombre_version 
-            FROM json_versions 
-            WHERE id_jsons  = ?
-            """
-            cursor.execute(query, (id_files ,))
-            
-            # Obtener el resultado
-            resultado = cursor.fetchone()
-            
-            # Verificar si se encontró un archivo
-            if resultado:
-                return resultado[0]  # Devolver el nombre del archivo
-            else:
-                return None  # Si no se encontró, retornar None
+        # Consulta para obtener el nombre_version por id_jsons y version_id
+        query = """
+        SELECT nombre_version 
+        FROM json_versions 
+        WHERE id_jsons = ? AND version_id = ?
+        """
+        cursor.execute(query, (id_jsons, version_id))
+        
+        # Obtener el resultado
+        resultado = cursor.fetchone()
+        
+        # Verificar si se encontró un valor
+        if resultado:
+            return resultado[0]  # Devolver el nombre_version
+        else:
+            return None  # Si no se encontró, retornar None
 
-        except sqlite3.Error as e:
-            print(f"Error al acceder a la base de datos: {e}, en obtener_valor_por_id_versiones")
-            return None
+    except sqlite3.Error as e:
+        print(f"Error al obtener el nombre_version por id_jsons y version_id: {e}")
+        return None
 
-        finally:
-            # Cerrar la conexión
-            conn.close()
+    finally:
+        conn.close()

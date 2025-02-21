@@ -41,9 +41,9 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         @reactive.effect
         async def enviar_session():
                 state = global_session.session_state.get()
-                print(state, "valor state>")
                 if state["is_logged_in"]:
                     user_id = state["id"]
+                    print(f"viendo user_id {user_id}")
                     global_session.id_user.set(user_id)
                     # -> llamo a el valor reactivo para tener la lista de los proyectos por user, dinamicamente, apretar control t y ver la funcion
                     global_session.set_proyectos_usuarios(get_user_projects(user_id))
@@ -66,10 +66,10 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         manejo_de_ultimo_seleccionado(
             is_initializing=is_initializing,
             input_select_value=input.project_select(),
-            ultimo_id_func=lambda: obtener_ultimo_id_seleccionado(base_datos, "project", "id"),
+            ultimo_id_func=lambda: obtener_ultimo_id_seleccionado_proyect(base_datos, "project", "id", global_session.get_id_user()),
             global_set_func=lambda x: global_session.set_id_proyect(x),
-            actualizar_ultimo_func=lambda table, column, value: actualizar_ultimo_seleccionado(base_datos, table, column, value),
-            obtener_ultimo_func=lambda table, column: obtener_ultimo_seleccionado(base_datos, table, column),
+            actualizar_ultimo_func=lambda table, column, value: actualizar_ultimo_seleccionado_proyecto(base_datos, table, column, value, global_session.get_id_user() ),
+            obtener_ultimo_func=lambda table, column: obtener_ultimo_seleccionado_proyecto(base_datos, table, column, global_session.get_id_user()),
             obtener_opciones_func=lambda: obtener_opciones_versiones(get_user_projects(global_session.get_id_user()), "id", "name"),
             mapear_clave_func=mapear_valor_a_clave,
             ui_update_func=lambda name, choices, selected: ui.update_select(name, choices=choices, selected=selected),
@@ -82,7 +82,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         versiones_parametros  = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
         
         
-        ultimo_id = obtener_ultimo_id_seleccionado(base_datos, "json_versions", "id_jsons")
+        ultimo_id = obtener_ultimo_id_seleccionado_edited(base_datos, "json_versions", "id_jsons", global_session.get_version_parametros_id())
         
         nombre_proyecto = obtener_nombre_proyecto_por_id(global_session.get_id_proyecto())
         global_session_V3.name_proyecto_original.set(nombre_proyecto)
@@ -141,7 +141,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         global_session_V2.set_dataSet_seleccionado(ultimo_archivo)
         #selected_key = mapear_valor_a_clave(global_session_V2.get_dataSet_seleccionado(), nombre_file.get())
         
-        ui.update_select("project_select",choices=proyectos_choise, selected=key_proyecto_mach if key_proyecto_mach else next(iter(ultimo_proyecto_seleccionado.get()), ""))
+        #ui.update_select("project_select",choices=proyectos_choise, selected=key_proyecto_mach if key_proyecto_mach else next(iter(ultimo_proyecto_seleccionado.get()), ""))
         #ui.update_select("files_select_validation_scoring",choices=global_session_V2.get_opciones_name_dataset_Validation_sc(), selected=data_predeterminado.get())
         #ui.update_select("files_select", choices=nombre_file.get(),  selected=selected_key if selected_key else next(iter(nombre_file.get()), ""))
         ui.update_select("other_select", choices=opciones_de_versiones_por_proyecto.get(), selected=key_versiones_mach if key_versiones_mach else next(iter(opciones_de_versiones_por_proyecto.get()), ""))
@@ -172,12 +172,9 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         project_id = global_session.get_id_proyecto()
         eliminar_btn_id_proyecto = f"eliminar_proyect_{project_id}"
         
-        print("eliminar_btn_id:", eliminar_btn_id_proyecto)
-
+       
         # Verificar si ya existe un manejador para este botón
         if eliminar_btn_id_proyecto not in delete_button_effects:
-            print("Creando efecto para:", eliminar_btn_id_proyecto)
-
             @reactive.Effect
             @reactive.event(input[eliminar_btn_id_proyecto])
             def eliminar_proyecto_boton():
@@ -185,9 +182,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
 
             # Registrar el efecto en el diccionario
             delete_button_effects[eliminar_btn_id_proyecto] = eliminar_proyecto_boton
-        else:
-            print("Efecto ya definido para:", eliminar_btn_id_proyecto)    
-   
+        
        
     @reactive.Effect
     @reactive.event(input.eliminar_proyecto)
@@ -340,9 +335,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     def recargar_values_of_config():
         if global_estados.value_boolean_for_values_in_config.get():
             config = obtener_configuracion_por_hash(base_datos, global_session.get_id_user())
-            print(config, "que pasa con config?")
             valor_min_seg, valor_max_seg, num_select_filas, value_dark_or_light = config.values()
-            print(valor_min_seg, "que tiene valor min??")
             ui.update_numeric(
                 "min_value",
                 #label="Ingrese el valor minimo para la configuracion de segmentacion",
@@ -355,3 +348,6 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     @reactive.event(input.close)
     async def _():
         await session.close()
+
+    
+    

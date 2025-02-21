@@ -1,5 +1,6 @@
 from api.db.sqlite_utils import *
 from clases.global_session import *
+from clases.global_sessionV3 import *
 
 def manejo_de_ultimo_seleccionado(
     is_initializing,
@@ -74,6 +75,7 @@ def manejo_de_ultimo_seleccionado_niveles_ScoreCards(
     is_initializing,
     input_select_value,
     ultimo_id_func,
+    global_name_func,
     global_set_func,
     actualizar_ultimo_func,
     obtener_ultimo_func,
@@ -93,13 +95,13 @@ def manejo_de_ultimo_seleccionado_niveles_ScoreCards(
 
         # Obtener el último ID almacenado
         ultimo_id = ultimo_id_func()
-        
+        print(ultimo_id, "ultimo_id??")
         if ultimo_id:
             global_set_func(ultimo_id)
 
             # Obtener el último valor almacenado en la DB
             ultimo_select = obtener_ultimo_func(db_table, db_column_name)
-            
+            print(f"utlimo seleccionado? {ultimo_select}")
             # Obtener opciones disponibles y mapear clave
             opciones = obtener_opciones_func()
             
@@ -108,6 +110,7 @@ def manejo_de_ultimo_seleccionado_niveles_ScoreCards(
             if key_match is None:
                 ultimo_bd = obtener_ultimo_id_json_por_version(db, db_table, db_column_id, global_session.get_id_version()) 
                 nombre_version = obtener_nombre_version_por_id_json(db, db_table, ultimo_bd)
+                #global_name_func(nombre_version)
                 
                 key_match = mapear_clave_func(nombre_version, opciones)
                 
@@ -117,6 +120,7 @@ def manejo_de_ultimo_seleccionado_niveles_ScoreCards(
             ui_update_func(input_select_name, choices=opciones, selected=selected_value)
         
         else:
+            global_name_func(None)
             global_set_func(input_select_value)
             actualizar_ultimo_func(db_table, db_column_id, input_select_value)
 

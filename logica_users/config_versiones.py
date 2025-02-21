@@ -39,17 +39,17 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
     @reactive.event(input.other_select)  # Escuchar cambios en el selector
     def project_card_container():
         id_version  = input.other_select() # Captura el ID seleccionado
-        ultimo_id = obtener_ultimo_id_seleccionado(base_datos, "version", "version_id"),
+        ultimo_id = actualizar_ultimo_seleccionado(base_datos, "version", "version_id", global_session.get_id_proyecto()),
         if isinstance(ultimo_id, tuple):
                 ultimo_id_version_reactivo.set(ultimo_id[0])  #
         
         manejo_de_ultimo_seleccionado(
         is_initializing=init_session,
         input_select_value=input.other_select(),
-        ultimo_id_func=lambda: obtener_ultimo_id_seleccionado(base_datos, "version", "version_id"),
+        ultimo_id_func=lambda: obtener_ultimo_id_seleccionado(base_datos, "version", "version_id", global_session.get_id_proyecto()),
         global_set_func=lambda x: global_session.set_id_version(x),
-        actualizar_ultimo_func=lambda table, column, value: actualizar_ultimo_seleccionado(base_datos, table, column, value),
-        obtener_ultimo_func=lambda table, column: obtener_ultimo_seleccionado(base_datos, table, column),
+        actualizar_ultimo_func=lambda table, column, value: actualizar_ultimo_seleccionado_version(base_datos, table, column, value, global_session.get_id_proyecto()),
+        obtener_ultimo_func=lambda table, column: obtener_ultimo_seleccionado_versiones(base_datos, table, column, global_session.get_id_proyecto()),
         obtener_opciones_func=lambda: obtener_opciones_versiones(get_project_versions(global_session.get_id_proyecto()), "version_id", "nombre_version"),
         mapear_clave_func=mapear_valor_a_clave,
         ui_update_func=lambda name, choices, selected: ui.update_select(name, choices=choices, selected=selected),
@@ -201,7 +201,7 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
     @reactive.effect
     def update_nav():
         id_actual = input.other_select()
-        if id_actual != "a" and id_actual != "":
+        if id_actual != "a" and id_actual != "" and id_actual is not None:
             id_actual = int(id_actual)
             
             print(f"id_actual {id_actual}")

@@ -81,7 +81,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
     @reactive.event(input.version_selector)
     def seleccionador_versiones_param():
         base_datos = "Modeling_App.db"
-        ultimo_id_reactivo.set(obtener_ultimo_id_seleccionado(base_datos, "json_versions", "id_jsons"))
+        ultimo_id_reactivo.set(obtener_ultimo_id_seleccionado_edited(base_datos, "json_versions", "id_jsons", global_session.get_id_version()))
         versiones_parametros  = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
         
         ##obtengo el ultima version seleccionada por el usario.
@@ -90,6 +90,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
             input_select_value=input.version_selector(),
             ultimo_id_func=lambda: obtener_ultimo_id_seleccionado_edited(base_datos, "json_versions", "id_jsons", global_session.get_id_version()),
             global_set_func=lambda x: global_session.set_version_parametros_id(x),
+            global_name_func=lambda x: global_session_V3.name_version_niveles_score_original.set(x),
             actualizar_ultimo_func=lambda table, column, value: actualizar_ultimo_seleccionado_new(base_datos, table, column, value, global_session.get_id_version()),
             obtener_ultimo_func=lambda table, column: obtener_ultimo_seleccionado(base_datos, table, column),
             obtener_opciones_func=lambda: obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version"),
@@ -112,7 +113,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
         else:
             data_predeterminado.set(obtener_ultimo_id_version(nombre_files_validacion_sc, 'id_nombre_file'))
 
-       
+        print("estoy pasando?")
         ui.update_select("files_select_validation_scoring",choices=global_session_V2.get_opciones_name_dataset_Validation_sc(), selected=data_predeterminado.get())
                     
         if not initialized():
@@ -139,7 +140,7 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
             else:
                 global_session_V3.id_score.set(None)
               
-
+              
             if global_session.get_version_parametros_id() != "a":
                 versiones = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
                 if versiones:
@@ -154,18 +155,12 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
 
                         #ult_model = obtener_ultimo_modelo_por_version(base_datos="Modeling_App.db",version_id=None, json_version_id=global_session.get_version_parametros_id())
                         #print(ult_model, "viendo si duelve bien el diccionario") 
-                        if opciones_param.get() is  None:
-                            nombre_version = versiones[0]['nombre_version']
-                            nombre_de_la_version_in_sample.set(nombre_version)
-                            nombre_version_niveles_score = obtener_valor_por_id_versiones(global_session.get_version_parametros_id())
-                            global_session.set_versiones_parametros_nombre(replace_spaces_with_underscores(nombre_version_niveles_score))
-                            global_session_V3.name_version_niveles_score_original.set(nombre_version_niveles_score)
-                            
-                    
-                nombre_version_niveles_Scord = obtener_valor_por_id_versiones(global_session.get_version_parametros_id())
-                
-                global_session_V3.name_version_niveles_score_original.set(nombre_version_niveles_Scord)
-                global_session.set_versiones_parametros_nombre(replace_spaces_with_underscores(nombre_version_niveles_Scord))
+                       
+                     
+                ultimo_bd_json = obtener_ultimo_id_json_por_version("Modeling_App.db", "json_versions", "id_jsons", global_session.get_id_version()) 
+                nombre_version = obtener_nombre_version_por_id_json("Modeling_App.db", "json_versions", ultimo_bd_json)  
+                global_session_V3.name_version_niveles_score_original.set(nombre_version)
+                global_session.set_versiones_parametros_nombre(replace_spaces_with_underscores(nombre_version))
                 estado_in_sample , hora_in_sample, mensaje_error = procesar_etapa_in_sample_2(base_datos="Modeling_App.db", json_version_id=global_session.get_version_parametros_id(), etapa_nombre="in_sample")
         
                 
@@ -175,7 +170,6 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
                 
                 
                 param_json_in_sample = leer_control_json_in_sample(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_id_version(), global_session.get_versiones_name(), global_session.get_versiones_parametros_nombre(), global_session.get_version_parametros_id())
-                print(f"llegando hasta aca? {param_json_in_sample}")
                 global_session_V3.json_params_insa.set(param_json_in_sample)
                 
             

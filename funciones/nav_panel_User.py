@@ -6,7 +6,6 @@ from clases.global_reactives import global_estados
 from clases.global_sessionV3 import *
 
 def create_nav_menu_user(name_suffix):
-
     return ui.page_navbar(
         ui.nav_control(ui.p(
             f"Proyecto: {global_session_V3.name_proyecto_original.get() or 'No hay un proyecto'}", class_="styled-text")),

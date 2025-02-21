@@ -2,8 +2,6 @@
 
 import os
 
-import os
-
 def get_output_path(nombre_file: str, global_session, global_session_V2, modo: str = "full") -> str:
     """
     Construye y retorna la ruta de salida utilizando las variables de sesión global,

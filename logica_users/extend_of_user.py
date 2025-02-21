@@ -16,6 +16,7 @@ from clases.global_reactives import global_estados
 from api.db.sqlite_utils import *
 from global_names import base_datos
 from clases.global_sessionV3 import *
+from api.db.fun_insert import obtener_ultimo_nombre_file_por_proyecto
 from logica_users.utils.manejo_session import manejo_de_ultimo_seleccionado
 
 def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
@@ -117,9 +118,10 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
         tabla = 'name_files'
         columna_objetivo = 'nombre_archivo'
         columna_filtro = 'id_files'
-        nombre_file = obtener_valor_por_id(base_datos, tabla, columna_objetivo, columna_filtro, data_id)
+        nombre_file = obtener_ultimo_nombre_file_por_proyecto(base_datos, tabla, global_session.get_id_proyecto())
 
-        actualizar_ultimo_seleccionado(base_datos, 'name_files', 'id_files', data_id)
+        ##SE LLAMA VERSION LA FUNCION PERO CUMPLE LO MIMSO QUE DEBERIA HACER LA TABLA DE NAMES FILES
+        actualizar_ultimo_seleccionado_version(base_datos, 'name_files', 'id_files',data_id, global_session.get_id_proyecto())
 
         # Configurar el nombre del archivo en reactivos globales
         if nombre_file:

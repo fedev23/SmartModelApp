@@ -9,25 +9,26 @@ def get_categorical_columns_with_unique_values_range(dataset, min_unique=3, max_
     :param max_unique: Máximo número de valores únicos (inclusive).
     :return: Lista de las columnas categóricas que cumplen con el rango de valores únicos.
     """
-    if dataset.empty:
-        print("El dataset está vacío.")
-        return []
+    if dataset is not None:
+        if dataset.empty:
+            print("El dataset está vacío.")
+            return []
 
-    # Filtrar columnas categóricas
-    categorical_columns = dataset.select_dtypes(include=['object', 'category'])
-    print(f"Columnas categóricas detectadas: {categorical_columns.columns.tolist()}")
+        # Filtrar columnas categóricas
+        categorical_columns = dataset.select_dtypes(include=['object', 'category'])
+        print(f"Columnas categóricas detectadas: {categorical_columns.columns.tolist()}")
 
-    if categorical_columns.empty:
-        print("No hay columnas categóricas en el dataset.")
-        return []
+        if categorical_columns.empty:
+            print("No hay columnas categóricas en el dataset.")
+            return []
 
-    # Filtrar columnas categóricas por rango de valores únicos
-    columns_in_range = [
-        col for col in categorical_columns.columns
-        if min_unique <= categorical_columns[col].nunique() <= max_unique
-    ]    
+        # Filtrar columnas categóricas por rango de valores únicos
+        columns_in_range = [
+            col for col in categorical_columns.columns
+            if min_unique <= categorical_columns[col].nunique() <= max_unique
+        ]    
 
-    return columns_in_range
+        return columns_in_range
 
 
 def get_binary_columns(df):
