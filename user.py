@@ -37,13 +37,15 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     data_predeterminado = reactive.Value("")
     base_datos = 'Modeling_App.db'
     
+    
     def see_session():
         @reactive.effect
         async def enviar_session():
                 state = global_session.session_state.get()
+                print(state, "valor state>")
                 if state["is_logged_in"]:
                     user_id = state["id"]
-                    print(f"viendo user_id {user_id}")
+                    print(user_id, "user id")
                     global_session.id_user.set(user_id)
                     # -> llamo a el valor reactivo para tener la lista de los proyectos por user, dinamicamente, apretar control t y ver la funcion
                     global_session.set_proyectos_usuarios(get_user_projects(user_id))
@@ -56,7 +58,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
 
     see_session()
 
-    
+          
 
     @reactive.effect
     @reactive.event(input.project_select)  # Escuchar cambios en el selector
@@ -196,6 +198,8 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             where_clause='user_id = ?',  # Cláusula WHERE
             where_params=(user_get.get(),)
         )
+        
+        
         # Refresca proyectos_usuario con la lista actualizada
         name_proyecto = replace_spaces_with_underscores(global_session.get_name_proyecto())
         path_carpeta_versiones_borrar_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}'

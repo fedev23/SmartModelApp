@@ -147,7 +147,6 @@ def logica_server_Validacion_scroing(input, output, session, name_suffix):
     @reactive.Effect
     @reactive.event(input.confirmar_id_borrar_dataset_validacion_Sc)
     def remove_versiones_de_parametros():
-        print("estoy pasando?")
         eliminar_version("nombre_files", "id_nombre_file", global_session_V2.get_id_Data_validacion_sc())
         directorio = get_datasets_directory(
         global_session.get_id_user(), 

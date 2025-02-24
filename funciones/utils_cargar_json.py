@@ -68,12 +68,12 @@ def leer_control_json_in_sample(user_id, proyecto_id, name_proyect, id_version, 
     # Obtener la ruta de la carpeta de datasets (o de la versión y proyecto)
     version_folder = get_datasets_directory_json(user_id, proyecto_id, name_proyect, id_version, nombre_version)
     version_insa = f"version_parametros_{id_version_insa}_{nombre_version_insa}"
-    full_path = os.path.join(version_folder, version_insa)
     # Verificar que la carpeta de la versión no sea None
     if version_folder is None:
         print(f"No se encontró la carpeta de la versión del proyectooo. {version_folder}")
         return None  # Retornar None si no se encontró la carpeta
     
+    full_path = os.path.join(version_folder, version_insa)
     # Construir la ruta completa del archivo JSON
     control_json_path = os.path.join(full_path, 'Control de SmartModelStudio.json')
     

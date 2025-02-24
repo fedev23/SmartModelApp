@@ -55,3 +55,8 @@ Shiny.addCustomMessageHandler('crearCookie', function(data) {
     });
   });
   
+
+
+  Shiny.addCustomMessageHandler("reset_ui", function(message) {
+    location.reload();
+});

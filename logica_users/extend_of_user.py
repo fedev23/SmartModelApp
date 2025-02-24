@@ -53,18 +53,17 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
         if global_session_V2.count_global.get() > 1:
             
             id_data_desa = obtener_ultimo_id_DataSet_modelo_Desa(db_path=base_datos, version_id=global_session.get_id_version())
-            model_ok = verificar_estado_modelo(base_datos, version_id=global_session.get_id_version(), dataset_id=global_session.get_id_dataSet())
+            model_ok = verificar_estado_modelo(base_datos, version_id=global_session.get_id_version(), dataset_id=id_data_desa)
             
             if model_ok:
                 nombre_dataSet_con_modelo = obtener_nombre_dataset(global_session.get_id_version())
                 global_names_reactivos.set_name_file_db(nombre_dataSet_con_modelo)
-                
-            if model_ok:
+
                 if id_data_desa is not None and id_data_desa != global_session.get_id_dataSet():
                     # Aumentamos el contador para crear un ID único cada vez
-                    reactive.invalidate_later(2)
+                    #reactive.invalidate_later(2)
                     
-                    
+                    print("pase? a modelo")
                     contador_for_files.set(contador_for_files() + 1)
 
                     global_session_V3.modelo_existe.set(True)
@@ -116,15 +115,13 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
         global_session_V3.modelo_existe.set(False)
         # Obtener el nombre del archivo desde la base de datos
         tabla = 'name_files'
-        columna_objetivo = 'nombre_archivo'
-        columna_filtro = 'id_files'
         nombre_file = obtener_ultimo_nombre_file_por_proyecto(base_datos, tabla, global_session.get_id_proyecto())
-
         ##SE LLAMA VERSION LA FUNCION PERO CUMPLE LO MIMSO QUE DEBERIA HACER LA TABLA DE NAMES FILES
         actualizar_ultimo_seleccionado_version(base_datos, 'name_files', 'id_files',data_id, global_session.get_id_proyecto())
 
         # Configurar el nombre del archivo en reactivos globales
         if nombre_file:
+            print(nombre_file, "viendo nombre file! mas abajo x2")
             global_names_reactivos.set_name_file_db(nombre_file)
         else:
             global_session_V2.set_dataSet_seleccionado(obtener_ultimo_nombre_archivo(lista_reactiva.get()))

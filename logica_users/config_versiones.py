@@ -62,7 +62,9 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
         
         model_ok = verificar_estado_modelo(base_datos, version_id=global_session.get_id_version(), dataset_id=global_session.get_id_dataSet())
         if model_ok:
+            print("hay modelo?")
             nombre_dataSet_con_modelo = obtener_nombre_dataset(global_session.get_id_version())
+            print(nombre_dataSet_con_modelo, "viendo nombre file!")
             global_names_reactivos.set_name_file_db(nombre_dataSet_con_modelo)
         
         
