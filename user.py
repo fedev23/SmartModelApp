@@ -341,14 +341,16 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     def recargar_values_of_config():
         if global_estados.value_boolean_for_values_in_config.get():
             config = obtener_configuracion_por_hash(base_datos, global_session.get_id_user())
-            valor_min_seg, valor_max_seg, num_select_filas, value_dark_or_light = config.values()
-            ui.update_numeric(
-                "min_value",
-                #label="Ingrese el valor minimo para la configuracion de segmentacion",
-                value=valor_min_seg,
-                #min=3,
-                #max=10,
-            ) 
+            if config:
+                
+                valor_min_seg, valor_max_seg, num_select_filas, value_dark_or_light = config.values()
+                ui.update_numeric(
+                    "min_value",
+                    #label="Ingrese el valor minimo para la configuracion de segmentacion",
+                    value=valor_min_seg,
+                    #min=3,
+                    #max=10,
+                ) 
 
     @reactive.effect
     @reactive.event(input.close)

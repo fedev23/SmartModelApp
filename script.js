@@ -56,7 +56,16 @@ Shiny.addCustomMessageHandler('crearCookie', function(data) {
   });
   
 
-
-  Shiny.addCustomMessageHandler("reset_ui", function(message) {
-    location.reload();
+  
+  Shiny.addCustomMessageHandler("logout", function(message) {
+    fetch("http://localhost:3000/api/logout_starlette_session", {
+        method: "POST",
+        credentials: "include"
+    })
+    .then(resp => resp.json())
+    .then(json => {
+        console.log("Cookie eliminada y sesión cerrada.");
+        // Redirige a la página de login
+        window.location.href = message.redirect_url;
+    });
 });

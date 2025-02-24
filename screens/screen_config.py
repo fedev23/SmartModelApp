@@ -33,8 +33,15 @@ screen_config = ui.page_fluid(
                         value=8
                     )
                 ),
+                ui.row(
+        ui.column(
+            6,
+            ui.input_action_link("cerrar_session", "Cerrar sesion.")
+        )
+    ),
             )
         ),
+    
     ),
     ui.row(
         ui.column(

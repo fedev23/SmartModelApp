@@ -19,6 +19,7 @@ from servers.parametros.niveles_Scorcards.parametros_ui import server_niveles_Sc
 from servers.parametros.parametros_desarrollo.parametros_desarrollo import server_parametros_desarrollo
 from api.session_api import  SessionAPI
 from api.endpoints_user import *
+from auth.log_out import server_log_out, logout_starlette_session
 from auth.endpoints import Auth0LoginEndpoint
 from starlette.middleware.cors import CORSMiddleware
 from api.utils import *
@@ -34,6 +35,7 @@ from api.login import LoginEndpoint, LoginStarletteSessionEndpoint
 # Define the Shiny server function
 def create_server(input, output, session):
     server_parametros_desarrollo(input, output, session, 'desarrollo')
+    server_log_out(input, output, session)
     #server_login(input, output, session),
     logica_server_Validacion_scroing(input, output, session, 'Scroring_out_of_sample')
     user_ui(input, output, session, 'user')
@@ -80,6 +82,7 @@ routes = [
     #Route('/api/auth/login', Auth0LoginEndpoint, methods=["POST"]),
     Route('/api/user_files', DynamicStaticFileEndpoint, methods=["GET"]),
     Route('/api/login', LoginEndpoint, methods=["POST"]),
+    Route("/api/logout_starlette_session", logout_starlette_session, methods=["POST"]),
     Route('/api/login_starlette_session', LoginStarletteSessionEndpoint, methods=["POST"]),
     Route('/api/process_user_id', ProcessUserIDEndpoint, methods=["POST"]),
     Route('/api/session', SessionAPI, methods=["POST", "GET"]),
