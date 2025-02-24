@@ -118,6 +118,7 @@ def versiones_config_server(input: Inputs, output: Outputs, session: Session,):
         global_session.set_versiones_name(replace_spaces_with_underscores(nombre_version))
         
         param_json = leer_control_json(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto(), global_session.get_id_version(), global_session.get_versiones_name())
+        print(param_json, "viendo param jsons!")
         global_session_V2.set_json_params_desarrollo(param_json)
         
         

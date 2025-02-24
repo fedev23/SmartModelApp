@@ -157,8 +157,8 @@ def server_desarollo(input, output, session, name_suffix):
         porcentaje = global_desarollo.porcentaje.get()
         base_datos = 'Modeling_App.db'
         
+        global_session.get_id_version()
         validar_si_existe_version = check_if_exist_id_version(global_session.get_id_version())
-        print(validar_si_existe_version, "vale version?")
         if validar_si_existe_version:
             ui.modal_show(create_modal_generic("boton_advertencia_ejecute_desa", f"Es obligatorio generar una versión para continuar en {global_name_desarrollo}."))
             return

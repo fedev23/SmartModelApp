@@ -6,33 +6,35 @@ from clases.global_sessionV2 import  *
 import pandas as pd
 
 
-def get_datasets_directory_json(user_id, proyecto_id, name_proyect, id_version, nombre_version):
+def get_datasets_directory_json(user_id_cleaned, proyecto_id, name_proyect, id_version, nombre_version):
     # Limpiar el user_id reemplazando cualquier '|' por '_'
-    user_id_cleaned = user_id.replace('|', '_')
     
     # Ruta base
     base_directory = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat'
     
-    # Construir la ruta de la carpeta de entrada del usuario
-    entrada_folder = os.path.join(base_directory, f'datos_entrada_{user_id_cleaned}')
-    
-    # Construir la ruta de la carpeta del proyecto dentro de la carpeta de entrada
-    proyecto_folder = os.path.join(entrada_folder, f"proyecto_{proyecto_id}_{name_proyect}")
-    
-    # Corregir el error de os.path.joi -> os.path.join
-    version_folder = os.path.join(proyecto_folder, f'version_{id_version}_{nombre_version}')
-    
-    # Construir la ruta de la carpeta 'datasets' dentro del proyecto
-    datasets_folder = os.path.join(version_folder)
-    
-    print(datasets_folder , "viendo datos en ger_directory")
-    # Verificar si la carpeta 'datasets' existe antes de devolverla
-    if os.path.exists(datasets_folder):
-        return datasets_folder
-    else:
-        print(f"La carpeta {datasets_folder} no existe.")
+    try:
+        # Construir la ruta de la carpeta de entrada del usuario
+        entrada_folder = os.path.join(base_directory, f'datos_entrada_{user_id_cleaned}')
+        
+        # Construir la ruta de la carpeta del proyecto dentro de la carpeta de entrada
+        proyecto_folder = os.path.join(entrada_folder, f"proyecto_{proyecto_id}_{name_proyect}")
+        
+        # Corregir el error de os.path.joi -> os.path.join
+        version_folder = os.path.join(proyecto_folder, f'version_{id_version}_{nombre_version}')
+        
+        # Construir la ruta de la carpeta 'datasets' dentro del proyecto
+        datasets_folder = os.path.join(version_folder)
+        
+        print(datasets_folder , "viendo datos en ger_directory")
+        # Verificar si la carpeta 'datasets' existe antes de devolverla
+        if os.path.exists(datasets_folder):
+            return datasets_folder
+        else:
+            print(f"La carpeta {datasets_folder} no existe.")
+            return None
+    except Exception as e:
+        print(f"Error al generar la ruta: {e}")
         return None
-
 
 
 def leer_control_json(user_id, proyecto_id, name_proyect, id_version, nombre_version):

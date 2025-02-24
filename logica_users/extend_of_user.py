@@ -116,12 +116,12 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
         # Obtener el nombre del archivo desde la base de datos
         tabla = 'name_files'
         nombre_file = obtener_ultimo_nombre_file_por_proyecto(base_datos, tabla, global_session.get_id_proyecto())
+        print(nombre_file, "viendo name file!")
         ##SE LLAMA VERSION LA FUNCION PERO CUMPLE LO MIMSO QUE DEBERIA HACER LA TABLA DE NAMES FILES
         actualizar_ultimo_seleccionado_version(base_datos, 'name_files', 'id_files',data_id, global_session.get_id_proyecto())
 
         # Configurar el nombre del archivo en reactivos globales
         if nombre_file:
-            print(nombre_file, "viendo nombre file! mas abajo x2")
             global_names_reactivos.set_name_file_db(nombre_file)
         else:
             global_session_V2.set_dataSet_seleccionado(obtener_ultimo_nombre_archivo(lista_reactiva.get()))
@@ -315,7 +315,13 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     
     @render.text
     def show_data_Set_in_card_user():
-        return global_names_reactivos.get_name_file_db() or 'No hay un DataSet seleccionado'
+        if global_names_reactivos.get_name_file_db():
+            print(f"pase a fil db????????????? {global_names_reactivos.get_name_file_db()}")
+            return global_names_reactivos.get_name_file_db()
+        else:
+            return 'No hay un DataSet seleccionado'
+            
+       
     
     
     @reactive.effect

@@ -46,6 +46,8 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                 if state["is_logged_in"]:
                     user_id = state["id"]
                     print(user_id, "user id")
+                    global_names_reactivos.set_name_file_db("")
+                    
                     global_session.id_user.set(user_id)
                     # -> llamo a el valor reactivo para tener la lista de los proyectos por user, dinamicamente, apretar control t y ver la funcion
                     global_session.set_proyectos_usuarios(get_user_projects(user_id))
@@ -328,7 +330,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                 data_Set = get_datasets_directory(user_get.get(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
                 #global_session.set_path_guardar_dataSet_en_proyectos(data_Set)
                 global_names_reactivos.set_name_file_db("")
-
+                #global_names_reactivos.get_name_file_db()
                 # Reinicia el estado de click en continuar
                 global_user_proyecto.click_en_continuar.set(False)
 

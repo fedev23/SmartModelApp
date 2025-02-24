@@ -283,7 +283,6 @@ def check_if_exist_id_version_id_niveles_scord(version_id, niveles_sc_id):
 def check_if_exist_id_version(version_id):
     if version_id == "a":
         version_id = None
-        
     return not version_id
 
 

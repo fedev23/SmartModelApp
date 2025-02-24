@@ -58,7 +58,7 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
             
             json_params = global_session_V2.get_json_params_desarrollo()
 
-    
+            print(json_params, "jsons")            
             update_selectize_from_columns_and_json(column_names, selectize_params, json_params)
             update_selectize_from_columns_and_json(column_target, selectize_params_only_target, json_params)
            

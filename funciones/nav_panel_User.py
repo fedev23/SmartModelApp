@@ -12,7 +12,7 @@ def create_nav_menu_user(name_suffix):
         ui.nav_control(ui.p(
             f"Versión: {global_session_V3.name_version_original.get() or 'Versión por defecto'}", class_="styled-text")),
         ui.nav_control(ui.p(
-            f"Archivo: {global_names_reactivos.get_name_file_db() or 'No hay un DataSet seleccionado'}", class_="styled-text")),
+            f"Archivo: {global_names_reactivos.name_file_db.get() or 'No hay un DataSet seleccionado'}", class_="styled-text")),
         ui.nav_control(ui.p(
             f"Version Niveles & Scorcards: {global_session_V3.name_version_niveles_score_original.get() or 'Versión por defecto'}", class_="styled-text")),
         ui.nav_spacer(),
