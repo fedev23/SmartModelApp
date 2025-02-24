@@ -58,7 +58,6 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
             
             json_params = global_session_V2.get_json_params_desarrollo()
 
-            print(json_params, "jsons")            
             update_selectize_from_columns_and_json(column_names, selectize_params, json_params)
             update_selectize_from_columns_and_json(column_target, selectize_params_only_target, json_params)
            
@@ -98,20 +97,17 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
             ui.update_select("cols_nulos_adic", choices=dynamic_choices, selected=selected_value.get())
             step3.set(True)
             
-        
-        
-        
-      
             
     processed_ids = set()
-
+    
+    
     def create_modals(id_buttons_desa):
         for id_button in id_buttons_desa:
             if id_button in processed_ids:
                 continue  # Saltar IDs ya procesados
 
             processed_ids.add(id_button)  # Registrar como procesado
-
+            #print(f"Procesando botón: {id_button}")
             @reactive.Effect
             @reactive.event(input[id_button])
             def monitor_clicks(id_button=id_button):
@@ -221,6 +217,7 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
                 ),
                 
                 ui.output_text_verbatim(f"param_validation_3_{name_suffix}"),
+                #create_modals(id_buttons_insa),
                 create_modals(id_buttons_desa),
                 global_session_V2.set_retornado(True),
                 
@@ -262,6 +259,5 @@ def server_parametros_desarrollo(input, output, session, name_suffix):
         update_numeric_from_parameters(numeric_params, json_params, default_values)
   
 
-            
             
    

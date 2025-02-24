@@ -202,7 +202,6 @@ def server_in_sample(input, output, session, name_suffix):
     @reactive.effect
     @reactive.event(input.add_files_niveles_riesgo_2)
     def agregar_Tasa_malos():
-        print("estoy pasando??")
         tasa_malos = input.add_tasa_malos().strip()
         #ui.update_text("add_tasa_malos", label="")
         # Validar que el valor ingresado sea un número
@@ -216,8 +215,7 @@ def server_in_sample(input, output, session, name_suffix):
         # Obtener el DataFrame actual de la tabla
         data = values_tabla_niveles.get()
         
-        print("viendo data?", data)
-
+        
         # Buscar la primera fila con un "Nombre Nivel" pero sin "Tasa de Malos Máxima"
         index_vacio = data.index[(data["Tasa de Malos Máxima"] == "") & (data["Nombre Nivel"] != "")].min()
 

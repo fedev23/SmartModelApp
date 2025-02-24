@@ -18,6 +18,7 @@ from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.help_models import *
 from api.db.up_date import obtener_ultimo_id_file_scoring
+from global_names import global_name_out_of_Sample, global_name_in_Sample
 from global_names import global_name_out_of_Sample
 
 
@@ -114,8 +115,8 @@ def server_produccion(input, output, session, name_suffix):
         
                 zip_existe = mover_file_reportes_puntoZip(origen_modelo_puntoZip,path_datos_entrada)
                 if not zip_existe:
-                    raise ValueError(f"Es de carácter obligatorio que se ejecute posteriormente la muestra de Desarrollo, para continuar en {global_name_produccion}")
-                
+                     return ui.modal_show(create_modal_generic("boton_advertencia_ejecute_of_inss", f"Es obligatorio generar un modelo de {global_name_in_Sample} para continuar."))
+
                 print("llegue??")
                 json_yes = copiar_json_si_existe(path_in_sample, path_datos_entrada)
                 if not json_yes:
@@ -214,3 +215,7 @@ def server_produccion(input, output, session, name_suffix):
         if click.get() >= 1:
             return f"Porcentaje: {leer_archivo()}"
     
+    @reactive.effect
+    @reactive.event(input.boton_advertencia_ejecute_of_inss)
+    def name():
+      return ui.modal_remove()

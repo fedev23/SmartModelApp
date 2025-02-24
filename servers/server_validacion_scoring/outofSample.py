@@ -23,6 +23,7 @@ from logica_users.utils  import help_versios
 from funciones.cargar_archivosNEW import mover_y_renombrar_archivo
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.help_models import *
+from global_names import *
 from logica_users.utils.manejo_session import generar_paths_of_sample_y_scoring
 
 
@@ -106,6 +107,12 @@ def server_out_of_sample(input, output, session, name_suffix):
         if validar_ids:
             return ui.modal_show(create_modal_generic("boton_advertencia_ejecute_of", f"Es obligatorio generar una versión de {global_name_out_of_Sample} y una versión para continuar."))
 
+        validacion_existe_modelo_insa = verificar_estado_modelo_insa("Modeling_App.db", global_session.get_version_parametros_id(), global_session.get_id_dataSet())
+        
+        if validacion_existe_modelo_insa is False:
+            return ui.modal_show(create_modal_generic("boton_advertencia_ejecute_of_insa", f"Es obligatorio generar un modelo de {global_name_in_Sample} para continuar."))
+
+          
 
         if modelo_of_sample.pisar_el_modelo_actual.get() or valid is False:
             
@@ -286,5 +293,11 @@ def server_out_of_sample(input, output, session, name_suffix):
         if return_code == 0:
             session.send_custom_message("redirect", "http://localhost:3838")
         else:
-            mensaje_error_tablero.set("Hubo un problema con la redirigimiento")
-            
+            mensaje_error_tablero.set("Hubo un problema con el redirigimiento")
+    
+    
+    @reactive.effect
+    @reactive.event(input.boton_advertencia_ejecute_of_insa)
+    def remove_modal():
+        return ui.modal_remove()
+     

@@ -113,7 +113,6 @@ def in_sample_verions(input: Inputs, output: Outputs, session: Session, name_par
         else:
             data_predeterminado.set(obtener_ultimo_id_version(nombre_files_validacion_sc, 'id_nombre_file'))
 
-        print("estoy pasando?")
         ui.update_select("files_select_validation_scoring",choices=global_session_V2.get_opciones_name_dataset_Validation_sc(), selected=data_predeterminado.get())
                     
         if not initialized():

@@ -21,7 +21,7 @@ def create_modal_warning_exist_model(name, nombre_version):
                         # Texto con diseño más profesional
                         ui.tags.p(
                             f"El modelo en la etapa '{name}' ya existe en la versión '{nombre_version}'. "
-                            "Si desea continuar, se recomienda generar una nueva versión para evitar conflictos.",
+                            "Si desea continuar, se recomienda generar una nueva versión.",
                             style="color: #333; font-size: 16px; text-align: center; margin-bottom: 20px; font-weight: normal;"
                         ),
                         # Contenedor con bordes suaves y fondo neutro

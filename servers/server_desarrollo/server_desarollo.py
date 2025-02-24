@@ -174,7 +174,6 @@ def server_desarollo(input, output, session, name_suffix):
             validator = Validator(input, global_session.get_data_set_reactivo(), name_suffix)
             
             # Realizar las validaciones
-            print("estoy en el modelo!!")
             validator.validate_column_identifiers()
             validator.validate_iv()
             validator.validate_target_column()
@@ -207,7 +206,6 @@ def server_desarollo(input, output, session, name_suffix):
                 json_loader.inputs['proyecto_nombre'] = global_session.get_name_proyecto() 
                 json_loader.inputs['file_desarollo'] = global_names_reactivos.get_name_file_db()
                 json_file_path = json_loader.loop_json()
-                print(f"Inputs guardados en {json_file_path}")
                 #CREO EL PATH DONDE SE VA A EJECUTAR DESARROLLO DEPENDIENDO DEL PROYECYO Y LA VERSION QUE ESTE EN USO
 
                 ##NECESITO NOMBRE DEL PROYECTO Y NOMBRE DE LA VERSION NO ORIGINAL, SINO MAS BIEN CON ESPACIOS
