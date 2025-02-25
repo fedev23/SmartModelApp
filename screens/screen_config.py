@@ -9,7 +9,8 @@ screen_config = ui.page_fluid(
         ui.row(
             ui.card(
                 ui.card_header("Panel de Configuración"),
-                ui.input_action_link("go_to_principal", "Volver al menu principal."),
+                ui.input_dark_mode(id="dark_mode_switch",mode="light",class_="dark-mode-toggle"),
+                ui.input_action_link("go_to_principal", "Menu principal"),
                 ui.tags.details(
                     ui.tags.summary("Configuración de filas"),
                     ui.div(class_="mt-2"),
@@ -36,7 +37,7 @@ screen_config = ui.page_fluid(
                 ui.row(
         ui.column(
             6,
-            ui.input_action_link("cerrar_session", "Cerrar sesion.")
+            ui.input_action_link("cerrar_session", "Cerrar sesion")
         )
     ),
             )

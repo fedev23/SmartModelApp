@@ -123,11 +123,11 @@ def server_in_sample(input, output, session, name_suffix):
         
         insertar_configuracion_usuario_con_replace(
             db_path="Modeling_App.db",
-            hash_user_id= global_session.get_id_user(),
+            user_id= global_session.has_id_user.get(),
             valor_min_seg=global_session.value_min_for_seg.get(),
             valor_max_seg=global_session.value_max_for_seg.get(),
             num_select_filas= global_estados.get_numero_dataset(),
-            #value_dark_or_light=dark_or_light
+            value_dark_or_light=dark_or_light
         )
         
         count_add_files.set(0)

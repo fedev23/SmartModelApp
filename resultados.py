@@ -126,8 +126,7 @@ def server_resul(input, output, session, name_suffix):
         @output(id=salida_unic)
         @render.ui
         def dynamic_salida_unic():
-            salida_in_sample_unic = resultado_in_sample.boton_para_descagar_unico(
-                resultado_id)
+            salida_in_sample_unic = resultado_in_sample.boton_para_descagar_unico(resultado_id)
             #return salida_in_sample_unic
 
     def create_dynamic_output(resultado_id, salida):
@@ -152,10 +151,7 @@ def server_resul(input, output, session, name_suffix):
             descarga_unic = r['descarga_unic']
             salida_unic = r['salida_unic']
             filename = f"{resultado_id}.zip"
-            # print("Procesando resultado_id: ", resultado_id)
-
-            # Crear el output dinámico
-            print(resultado_id, "id a regitrar?x")
+            
             create_dynamic_output(resultado_id, salida)
 
             create_salida_unic(resultado_id, salida_unic)

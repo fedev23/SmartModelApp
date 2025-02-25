@@ -12,6 +12,8 @@ from logica_users.utils.help_versios import obtener_opciones_versiones, obtener_
 from api.db.help_config_db import *
 from api.db.up_date import *
 from api.db.sqlite_utils import *
+from api.db.fun_insert import obtener_ultimo_nombre_file_por_proyecto
+from logica_users.help_user_insert.table_user import obtener_o_insertar_usuario
 from clases.global_sessionV3 import *
 from auth.utils import help_api 
 from api.db.sqlite_utils import *
@@ -47,8 +49,12 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                     user_id = state["id"]
                     print(user_id, "user id")
                     global_names_reactivos.set_name_file_db("")
-                    
+                    user_id_hash = user_id.replace("auth0_", "")
+                    user_id_hash = obtener_o_insertar_usuario(base_datos, user_id_hash)
+                    global_session.has_id_user.set(user_id_hash)
                     global_session.id_user.set(user_id)
+                    print("antes de issert!")
+                    insertar_usuario_si_no_existe(base_datos, global_session.has_id_user.get())
                     # -> llamo a el valor reactivo para tener la lista de los proyectos por user, dinamicamente, apretar control t y ver la funcion
                     global_session.set_proyectos_usuarios(get_user_projects(user_id))
                     user_get.set(user_id.replace('|', '_'))
@@ -83,10 +89,6 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             db_column_name="name"   
         )
         
-        versiones_parametros  = get_project_versions_param_mejorada(global_session.get_id_proyecto(), global_session.get_id_version())
-        
-        
-        ultimo_id = obtener_ultimo_id_seleccionado_edited(base_datos, "json_versions", "id_jsons", global_session.get_version_parametros_id())
         
         nombre_proyecto = obtener_nombre_proyecto_por_id(global_session.get_id_proyecto())
         global_session_V3.name_proyecto_original.set(nombre_proyecto)
@@ -97,10 +99,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         
         proyectos_usuario.set(get_user_projects(global_session.get_id_user()))
         
-        proyectos_choise = obtener_opciones_versiones(proyectos_usuario.get(), "id", "name")
-        ultimo_proyecto_seleccionado.set(obtener_ultimo_seleccionado(base_datos, 'project', 'name'))
-        key_proyecto_mach = mapear_valor_a_clave(ultimo_proyecto_seleccionado.get(), proyectos_choise)
-
+        
         #EMPIEZA VERSIONES
         versiones_de_proyecto = get_project_versions(global_session.get_id_proyecto())
         opciones_de_versiones_por_proyecto.set(obtener_opciones_versiones(versiones_de_proyecto, "version_id", "nombre_version"))
@@ -114,21 +113,6 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             global_session_V3.name_version_original.set(nombre_version)
             global_session.set_versiones_name(replace_spaces_with_underscores(nombre_version))
             
-        # Obtiene y configura las versiones de parámetros
-        
-        
-            # 
-        opciones_param.set(obtener_opciones_versiones(versiones_parametros, "id_jsons", "nombre_version"))
-        valor_predeterminado_parms.set(obtener_ultimo_id_version(versiones_parametros, "id_jsons"))
-        ##Actualizo tambien los dataSet de Validacion y scroing
-        
-        
-        #nombre_files_validacion_sc = obtener_nombres_files_por_proyecto(global_session.get_id_proyecto())
-    
-        #global_session_V2.set_opciones_name_dataset_Validation_sc(obtener_opciones_versiones(nombre_files_validacion_sc, "id_nombre_file", "nombre_file"))
-
-        #data_predeterminado.set(obtener_ultimo_id_version(nombre_files_validacion_sc, 'id_nombre_file'))
-       
         # Actualiza los selectores en la UI
         nombre_version = obtener_nombre_version_por_id(global_session.get_id_version())
         global_session_V3.name_version_original.set(nombre_version)
@@ -141,7 +125,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             global_session.get_versiones_name()):   
             api_code = help_api.procesar_starlette_api(global_session.get_id_user(), global_session.get_name_proyecto(), global_session.get_id_proyecto(), global_session.get_id_version(), global_session.get_versiones_name())
         
-        ultimo_archivo = obtener_ultimo_seleccionado(base_datos, 'name_files', 'nombre_archivo')
+        ultimo_archivo = obtener_ultimo_nombre_file_por_proyecto(base_datos, 'name_files', global_session.get_id_proyecto())
         global_session_V2.set_dataSet_seleccionado(ultimo_archivo)
         #selected_key = mapear_valor_a_clave(global_session_V2.get_dataSet_seleccionado(), nombre_file.get())
         
@@ -160,15 +144,6 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
             return show_selected_project_card(user_get.get(),  global_session.get_id_proyecto())
 
     
-    @reactive.Effect
-    @reactive.event(input["cancelar"])
-    def cancelar_eliminacion_version():
-        return ui.modal_remove()
-    
-    @reactive.Effect
-    @reactive.event(input["cancelar_version"])
-    def cancelar_eliminacion_version():
-        return ui.modal_remove()
     
     delete_button_effects = {}  # Diccionario para rastrear los efectos ya definidos
     @reactive.Effect
@@ -226,11 +201,7 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
 
         # return show_selected_project_card(user_get.get(),  global_session.get_id_proyecto())
 
-    @reactive.Effect
-    @reactive.event(input["cancelar_eliminar"])
-    def canacelar_eliminacion():
-       return ui.modal_remove()
-
+   
 
     @output
     @render.ui
@@ -244,13 +215,6 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         nombre_proyecto = obtener_nombre_proyecto_por_id(
             global_session.get_id_proyecto())
         create_modal_versiones(nombre_proyecto)
-
-    @reactive.effect
-    @reactive.event(input.cancelar_eliminar)
-    def cancel_version():
-        return ui.modal_remove()
-        # agregar_version
-
 
     ##BOTON PARA CREAR VERSION ESA ESTA ESTABLECIDO ACA PR UNA COMODIDAD Y CLARIDAD DE VALORES REACTIVOS, LA DEMAS LOICA SE PUEDE ENCONTRAR EN
     #CONFIG SERVER= CONFIGRACION DE VERSIONES
@@ -337,25 +301,26 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     
     
     
-    @reactive.effect
-    def recargar_values_of_config():
-        if global_estados.value_boolean_for_values_in_config.get():
-            config = obtener_configuracion_por_hash(base_datos, global_session.get_id_user())
-            if config:
-                
-                valor_min_seg, valor_max_seg, num_select_filas, value_dark_or_light = config.values()
-                ui.update_numeric(
-                    "min_value",
-                    #label="Ingrese el valor minimo para la configuracion de segmentacion",
-                    value=valor_min_seg,
-                    #min=3,
-                    #max=10,
-                ) 
-
-    @reactive.effect
-    @reactive.event(input.close)
-    async def _():
-        await session.close()
-
     
+
+
+    def setup_modal_cancels(cancel_inputs):
+        cancels = {}
+        for input_name, input_trigger in cancel_inputs.items():
+            @reactive.effect
+            @reactive.event(input_trigger)
+            def cancel_handler():
+                return ui.modal_remove()
+            cancels[input_name] = cancel_handler
+        return cancels
+
+# Aquí defines qué inputs quieres asociar a qué nombres
+    cancel_handlers = setup_modal_cancels({
+        'version': input.cancelar_eliminar,  
+        'cancel_user': input.cancelar,
+        'cancelar_version': input.cancelar_version,
+        'cancel_overwrite_Desarrollo': input.cancel_overwrite_Desarrollo
+    })
+    
+
     

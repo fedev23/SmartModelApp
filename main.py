@@ -64,9 +64,7 @@ def screen_login(input, output, session):
 login = App(app_login, screen_login)
 
 load_dotenv()
-
-secret_key = "jR4Rqx9qc86wY0oCkqJXy5x8Ph6KxmuU"
-print(secret_key, "viendo secret key")
+secret_key = os.getenv("SECRET_KEY")
 middleware = [
     Middleware(CORSMiddleware,
                allow_origins=["http://localhost:3000"],  # o ["*"] para debug

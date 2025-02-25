@@ -21,7 +21,7 @@ from logica_users.utils.manejo_session import manejo_de_ultimo_seleccionado
 
 def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     
-   
+    name = "Desarrollo"
     lista_reactiva = reactive.Value(None)
     config_state = reactive.Value({})
     click = reactive.Value(0)
@@ -30,6 +30,7 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     modelo_existe_reactivo = reactive.Value(False)
     hay_modelo = reactive.Value(False)
     contador_for_files = reactive.Value(0)
+    value_Dark = reactive.Value()
     
     
     
@@ -63,7 +64,7 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
                     # Aumentamos el contador para crear un ID único cada vez
                     #reactive.invalidate_later(2)
                     
-                    print("pase? a modelo")
+                
                     contador_for_files.set(contador_for_files() + 1)
 
                     global_session_V3.modelo_existe.set(True)
@@ -72,7 +73,7 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
                     # Mostramos el modal
                     ui.modal_show(
                         create_modal_warning_exist_model(
-                            name=global_desarollo.nombre,
+                            name=name,
                             nombre_version=global_session_V3.name_version_original.get(),  # ID único
                         )
                     )
@@ -269,13 +270,12 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     def load_config():
         @reactive.Effect
         def cargar_configuracion_inicial():
-                config = obtener_configuracion_por_hash(base_datos, global_session.get_id_user())
+                config = obtener_configuracion_por_hash(base_datos, global_session.has_id_user.get())
                 if config:
                     valor_min_seg, valor_max_seg, num_select_filas, value_dark_or_light = config.values()
                     ui.update_numeric("number_choice",value=num_select_filas)
                     ui.update_numeric("min_value",value=valor_min_seg)
                     ui.update_numeric("max_value",value=valor_max_seg)
-                    print(value_dark_or_light, "value dark?")
                     ui.update_dark_mode(value_dark_or_light)
                     
     load_config()
@@ -303,20 +303,13 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
       create_navigation_handler("close_modal","Screen_User")
         
   
-    @reactive.effect
-    def up_load_input_dark():
-        dark_or_light = input.dark_mode_switch()
-        if dark_or_light:
-            print("entrando a dark or light")
-            insertar_configuracion_usuario_con_replace(base_datos, global_session.get_id_user(), value_dark_or_light=dark_or_light)
-        
+       
         
     
     
     @render.text
     def show_data_Set_in_card_user():
         if global_names_reactivos.get_name_file_db():
-            print(f"pase a fil db????????????? {global_names_reactivos.get_name_file_db()}")
             return global_names_reactivos.get_name_file_db()
         else:
             return 'No hay un DataSet seleccionado'
