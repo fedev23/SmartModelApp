@@ -2,7 +2,6 @@ from shiny import reactive, render, ui
 from api.db import *
 from clases.global_sessionV2 import global_session_V2
 from clases.global_modelo import modelo_produccion
-from clases.class_screens import ScreenClass
 from funciones_modelo.warning_model import *
 from funciones.utils_2 import errores, get_folder_directory_data_validacion_scoring_SALIDA, crear_carpeta_validacion_scoring
 from clases.global_session import global_session
@@ -23,8 +22,6 @@ from global_names import global_name_out_of_Sample
 
 
 def server_produccion(input, output, session, name_suffix):
-    directorio = reactive.Value("")
-    screen_instance = reactive.Value("")
     global_names_reactivos.name_produccion_set(name_suffix)
     mensaje = reactive.Value("")
     directorio = reactive.Value("")
@@ -33,34 +30,12 @@ def server_produccion(input, output, session, name_suffix):
     ultimo_porcentaje = reactive.Value(0)
    
     
-    def see_session():
-        @reactive.effect
-        def enviar_session():
-            if global_session.proceso.get():
-                state = global_session.session_state.get()
-                if state["is_logged_in"]:
-                    user_id = state["id"]
-                    user = get_user_directory(user_id)
-                    print(user)
-                    user_id_cleaned = user_id.replace('|', '_')
-                    directorio.set(user)
-                    ##voy a usar la clase como efecto reactivo, ya que si queda encapsulada dentro de la funcion no la podria usar
-                    screen_instance.set(ScreenClass(directorio.get(), name_suffix))
-                    
-    see_session()
-
-   
+    
     @output
     @render.text
     def error_in_produccion():
         return errores(mensaje)
 
-    @output
-    @render.data_frame
-    def summary_data_produccion():
-        return screen_instance.get().render_data_summary()
-
-    
     # estoy usando la clase para la creacion de modelos aca, lueog veo si adapto todas o las dejo en modelo
     
         

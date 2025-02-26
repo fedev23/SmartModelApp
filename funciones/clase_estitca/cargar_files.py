@@ -54,7 +54,6 @@ class FilesLoad:
 
             existe = verificar_archivo_sc(data_Set, input_name)
             if existe and self.select_overwrite.get() is False:
-                print("pase el if?")
                 ui.modal_show(create_modal_warning_exist_file(input_name, self.name_suffix, global_session.get_name_proyecto()))
                 self.set_existe_file(True)
                 return
@@ -63,7 +62,6 @@ class FilesLoad:
             fecha_de_carga = datetime.now().strftime("%Y-%m-%d %H:%M")
             ##GUARDO LEL DATO CARGADO EN LA TABLA
             #insert_into_table("name_files", ['nombre_archivo', 'fecha_de_carga', 'project_id', 'version_id'], [input_name, fecha_de_carga, global_session.get_id_proyecto(), global_session.get_id_version()])
-            print("pase antes de insertar??")
             insertar_nombre_file_desa_insa(
                 db_path="Modeling_App.db",
                 columns=['nombre_archivo', 'fecha_de_carga', 'project_id'],
@@ -72,7 +70,6 @@ class FilesLoad:
             
             global_names_reactivos.set_proceso_leer_dataset(True)
             
-            print(f"id proyecto: {global_session.get_id_proyecto()}")
             
             files_name = get_records(
             table='name_files',
@@ -81,7 +78,6 @@ class FilesLoad:
             where_params=(global_session.get_id_proyecto(),)
         )
             
-            print(f"nombre files query: {files_name}")
             
             self.opciones_data.set(obtener_opciones_versiones(files_name, "id_files", "nombre_archivo"))
             

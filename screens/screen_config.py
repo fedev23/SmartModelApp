@@ -54,6 +54,10 @@ screen_config = ui.page_fluid(
         ),
     ),
     # Pie de página con botones de ayuda y soporte
+    
+    ui.tags.hr(),
+    
+    
     ui.div(
         ui.row(
             ui.column(
@@ -65,6 +69,6 @@ screen_config = ui.page_fluid(
                 ui.input_action_link("support_button", "Soporte", class_="btn-warning", style="float: right;"),
             ),
         ),
-        style="padding: 10px; margin-top: 20px; background-color: #f8f8f8; border-top: 1px solid #ddd;"
+        #style="padding: 10px; margin-top: 20px; background-color: #e0e0e0; border-top: 1px solid #ddd;"
     )
 )

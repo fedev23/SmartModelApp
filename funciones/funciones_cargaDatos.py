@@ -4,7 +4,6 @@ from funciones.utils_2 import get_datasets_directory
 import os
 from clases.class_cargar_datos import CargarDatos
 from clases.data_loader import DataLoader
-from clases.class_screens import ScreenClass
 
 async def guardar_archivo(file_func, name):
     # Obtén el directorio en el que se debe guardar el archivo
@@ -19,7 +18,7 @@ async def guardar_archivo(file_func, name):
     
     # Instancia el DataLoader con el nombre del archivo
     path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
-    screen = ScreenClass(path_datos_entrada, name)
+    #screen = ScreenClass(path_datos_entrada, name)
     data_loader = DataLoader(name)
     #screen.cambiar_name(nuevo_nombre_archivo, file_info)
     
@@ -28,17 +27,12 @@ async def guardar_archivo(file_func, name):
         cargado = await data_loader.cargar_archivos(file_info, directorio)
         
         # Intentamos cargar el nombre del archivo con el método de ScreenClass
-        nombre_archivo = await screen.load_data(file_func, name)
+        #nombre_archivo = await screen.load_data(file_func, name)
         
-        if not nombre_archivo:
-            raise ValueError("El nombre del archivo cargado es inválido o está vacío.")
+
         
         if cargado:
-            # Aquí ya tenemos los datos cargados, y ahora los guardamos
-            print(f"Archivo '{nombre_archivo}' cargado y procesado correctamente")
-            
-            # Retorna el path donde se guardó el archivo
-            return directorio, nombre_archivo
+            return directorio
         else:
             print("No se pudo cargar el archivo correctamente.")
             raise ValueError("Error al cargar los datos.")
@@ -68,7 +62,7 @@ async def guardar_archivo_sc(file_func, name):
     
     # Instancia el DataLoader con el nombre del archivo
     path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
-    screen = ScreenClass(path_datos_entrada, name)
+    #screen = ScreenClass(path_datos_entrada, name)
     data_loader = DataLoader(name)
     #screen.cambiar_name(nuevo_nombre_archivo, file_info)
     
@@ -77,17 +71,12 @@ async def guardar_archivo_sc(file_func, name):
         cargado = await data_loader.cargar_archivos(file_info, directorio)
         
         # Intentamos cargar el nombre del archivo con el método de ScreenClass
-        nombre_archivo = await screen.load_data(file_func, name)
+        #nombre_archivo = await screen.load_data(file_func, name)
         
-        if not nombre_archivo:
-            raise ValueError("El nombre del archivo cargado es inválido o está vacío.")
+        
         
         if cargado:
-            # Aquí ya tenemos los datos cargados, y ahora los guardamos
-            print(f"Archivo '{nombre_archivo}' cargado y procesado correctamente")
-            
-            # Retorna el path donde se guardó el archivo
-            return directorio, nombre_archivo
+            return directorio
         else:
             print("No se pudo cargar el archivo correctamente.")
             raise ValueError("Error al cargar los datos.")

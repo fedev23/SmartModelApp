@@ -30,8 +30,6 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     modelo_existe_reactivo = reactive.Value(False)
     hay_modelo = reactive.Value(False)
     contador_for_files = reactive.Value(0)
-    value_Dark = reactive.Value()
-    
     
     
    
@@ -39,7 +37,7 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
     #TAMBIEN SE CREA EL MODAL DE CONFIGURACION
     
     ##HACER LO DEL DICCIONARIO
-#delete_button_effects = {}  # 🔹 (Podría eliminarse si no se usa en otro lado)
+    #delete_button_effects = {}  # 🔹 (Podría eliminarse si no se usa en otro lado)
     contador_for_files = reactive.Value(0)  # Contador único para identificar los modales
 
     @reactive.Effect
@@ -104,7 +102,6 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
                     pase_para_cambiar_file.set(True)
                     global_session_V2.count_global.set(1)
 
-                    print(f'🔄 Reset global count: {global_session_V2.count_global.get()}')
                     modelo_existe_reactivo.set(False)
                     initialized.set(False)
                     return 
@@ -116,11 +113,11 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
         global_session_V3.modelo_existe.set(False)
         # Obtener el nombre del archivo desde la base de datos
         tabla = 'name_files'
-        nombre_file = obtener_ultimo_nombre_file_por_proyecto(base_datos, tabla, global_session.get_id_proyecto())
-        print(nombre_file, "viendo name file!")
-        ##SE LLAMA VERSION LA FUNCION PERO CUMPLE LO MIMSO QUE DEBERIA HACER LA TABLA DE NAMES FILES
         actualizar_ultimo_seleccionado_version(base_datos, 'name_files', 'id_files',data_id, global_session.get_id_proyecto())
 
+        nombre_file = obtener_ultimo_nombre_file_por_proyecto(base_datos, tabla, global_session.get_id_proyecto())
+        ##SE LLAMA VERSION LA FUNCION PERO CUMPLE LO MIMSO QUE DEBERIA HACER LA TABLA DE NAMES FILES
+        
         # Configurar el nombre del archivo en reactivos globales
         if nombre_file:
             global_names_reactivos.set_name_file_db(nombre_file)
@@ -129,7 +126,6 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
 
         # Leer el dataset
        
-        
         
         data = leer_dataset(
             global_session.get_id_user(),
@@ -142,8 +138,8 @@ def extend_user_server(input: Inputs, output: Outputs, session: Session, name):
         click.set(click() + 1)
         global_session.set_data_set_reactivo(data)
         global_session_V2.count_global.set(1)
-        # Validar si el archivo puede cambiar
-
+        
+        
 
     
     @output

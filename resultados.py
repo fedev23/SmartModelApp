@@ -1,5 +1,4 @@
 from shiny import reactive, render, ui
-from clases.class_result import ResultadoClass
 from clases.class_resultado import ResultadoClassPrueba
 from clases.global_session import global_session
 from funciones.create_menu_resul_model import create_nav_menu_result_model
@@ -22,20 +21,6 @@ def server_resul(input, output, session, name_suffix):
     def menu_resultados():
         return create_nav_menu_result_model(name_suffix)
 
-   
-
-    def get_user_id_from_session():
-        @reactive.effect
-        def enviar_session():
-            state = global_session.session_state.get()
-            if state["is_logged_in"]:
-                user_id = state["id"].replace('|', '_')
-                global user_id_global
-                user_id_global = user_id
-                print(f"[get_user_id_from_session] user_id_global asignado: {user_id_global}")
-                return user_id
-            
-    user_id = get_user_id_from_session()
    
    
     def crear_resultados_desarrollo():

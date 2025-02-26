@@ -3,7 +3,6 @@ from starlette.routing import Mount, Route
 from shiny import App, reactive
 from app_ui import app_ui, app_login
 from servers.server_validacion_scoring.outofSample import server_out_of_sample
-from modelo import server_modelos
 from servers.server_desarrollo.server_desarollo import server_desarollo
 from servers.server_validacion_scoring.server_produccion import server_produccion
 from resultados import server_resul
@@ -29,7 +28,7 @@ from dotenv import load_dotenv
 from auth.validate import ValidateTokenEndpoint
 from api.api_manager import *
 from  api.middleware import AuthMiddleware
-from api.login import LoginEndpoint, LoginStarletteSessionEndpoint
+from api.login import LoginEndpoint, LoginStarletteSessionEndpoint, LoginPageEndpoint
 
 
 # Define the Shiny server function
@@ -47,7 +46,6 @@ def create_server(input, output, session):
     server_produccion(input, output, session, 'produccion')
     server_niveles_Scorcards(input, output, session, 'in_sample')
     server_in_sample(input, output, session, 'in_sample')
-    server_modelos(input, output, session, 'modelo')
     server_resul(input, output, session, 'resultados')
     user_server(input, output, session, 'user')
 
@@ -71,14 +69,16 @@ middleware = [
                allow_methods=["*"],
                allow_headers=["*"],
                allow_credentials=True),
-    Middleware(SessionMiddleware, secret_key=secret_key, max_age=9600, https_only=False),
+    Middleware(SessionMiddleware, secret_key=secret_key, max_age=1200, https_only=False),
     Middleware(AuthMiddleware),
 ]
+
 
 # Define the routes for Starlette
 routes = [
     #Route('/api/auth/login', Auth0LoginEndpoint, methods=["POST"]),
     Route('/api/user_files', DynamicStaticFileEndpoint, methods=["GET"]),
+    Route('/login_clean', LoginPageEndpoint, methods=["GET"]),
     Route('/api/login', LoginEndpoint, methods=["POST"]),
     Route("/api/logout_starlette_session", logout_starlette_session, methods=["POST"]),
     Route('/api/login_starlette_session', LoginStarletteSessionEndpoint, methods=["POST"]),

@@ -1,5 +1,4 @@
 from shiny import reactive, render, ui
-from clases.class_screens import ScreenClass
 from clases.loadJson import LoadJson
 from funciones.param_in_sample import param_in_sample
 from funciones.utils import transform_data, transformar_reportes, create_modal_parametros, id_buttons
@@ -56,7 +55,6 @@ ejemplos_rangos = pd.DataFrame({
 
 
 def server_in_sample(input, output, session, name_suffix):
-    screen_instance = ScreenClass("", name_suffix)
     mensaje_de_error = reactive.Value("")
     inserto = reactive.Value(False)
     mensaje = reactive.Value("")
@@ -90,11 +88,6 @@ def server_in_sample(input, output, session, name_suffix):
             await session.send_custom_message('navigate', screen_name)
 
     # HAGO EL INPUT FILE DE FILE_DESAROLLO FUNCIONE ACA TAMBIEN, ASI ENVIA EL MISMO ARCHIO A VALIDACION IN SAMPLE
-
-    @output(id=f"summary_data_{name_suffix}")
-    @render.data_frame
-    def summary_data_desarollo():
-        return screen_instance.render_data_summary()
 
     @output
     @render.ui

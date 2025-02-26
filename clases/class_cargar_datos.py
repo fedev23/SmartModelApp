@@ -28,7 +28,6 @@ class CargarDatos:
         
         file_path = self.file_info[0]["datapath"]
         file_name = self.file_info[0]["name"]
-        print(file_name, "estoy en el name del file")
         delimitador_detectado = self.detectar_delimitador(file_path)
         global_estados.set_delimitador(delimitador_detectado)
         #load_handler = LoadJson(input)

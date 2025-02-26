@@ -1,6 +1,5 @@
 from shiny import reactive, render, ui
 from funciones.create_param import create_screen
-from clases.class_screens import ScreenClass
 from api.db.up_date import *
 from funciones.utils_2 import *
 from clases.global_modelo import modelo_of_sample
@@ -31,33 +30,14 @@ from logica_users.utils.manejo_session import generar_paths_of_sample_y_scoring
 
 def server_out_of_sample(input, output, session, name_suffix):
     # Obtener el loader de datos desde el manage
-    directorio = reactive.Value("")
-    screen_instance = reactive.Value(None)
     mensaje = reactive.Value("")
-    name = "Out-Of-Sample"
     mensaje_error_tablero = reactive.Value()
     click =  reactive.Value(0)
     global_names_reactivos.name_validacion_of_to_sample_set(name_suffix)
     file_lines = reactive.Value("")
 
-    # Instanciamos la clase ScreenClass
-    #screen_instance = ScreenClass(directorio_validacion, name_suffix)
-    def see_session():
-        @reactive.effect
-        def enviar_session():
-            if global_session.proceso.get():
-                state = global_session.session_state.get()
-                if state["is_logged_in"]:
-                    user_id = state["id"]
-                    user = get_user_directory(user_id)
-                    print(user)
-                    user_id_cleaned = user_id.replace('|', '_')
-                    directorio.set(user)
-                    modelo_of_sample.script_path = f"./Validar_Nueva.sh datos_entrada_{user_id_cleaned} datos_salida_{user_id_cleaned}"
-                    ##voy a usar la clase como efecto reactivo, ya que si queda encapsulada dentro de la funcion no la podria usar
-                    screen_instance.set(ScreenClass(directorio.get(), name_suffix))
     
-    see_session()
+    
     
     @output
     @render.ui
@@ -265,12 +245,6 @@ def server_out_of_sample(input, output, session, name_suffix):
             return f" Porcentaje {leer_archivo()}"
     
     
-    @reactive.effect
-    @reactive.event(input.modal_existe_of)
-    def close_modal():
-        return ui.modal_remove()
-    
-    
     @output
     @render.ui
     def tablero_of_sample():
@@ -296,8 +270,4 @@ def server_out_of_sample(input, output, session, name_suffix):
             mensaje_error_tablero.set("Hubo un problema con el redirigimiento")
     
     
-    @reactive.effect
-    @reactive.event(input.boton_advertencia_ejecute_of_insa)
-    def remove_modal():
-        return ui.modal_remove()
      

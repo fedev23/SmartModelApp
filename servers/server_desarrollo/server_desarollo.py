@@ -1,7 +1,6 @@
 from shiny import reactive, render, ui
 from funciones.create_param import create_screen
 from clases.global_modelo import global_desarollo
-from clases.class_screens import ScreenClass
 from funciones.utils import retornar_card
 from funciones_modelo.warning_model import *
 from funciones.utils_2 import *
@@ -25,15 +24,15 @@ from funciones_modelo.help_models import *
 import asyncio, time
 
 
+
+
 def server_desarollo(input, output, session, name_suffix):
     clase_cargar_files = FilesLoad(name_suffix)
     click = reactive.value(0)
     directorio_desarollo = reactive.value("")
-    screen_instance = reactive.value(None)  # Mantener screen_instance como valor reactivo
     user_id_send = reactive.Value("")
     global_names_reactivos.name_desarrollo_set(name_suffix)
     mensaje = reactive.Value("")
-    file_lines = reactive.value()
     primer_file  = reactive.Value(True)
     segundo_file = reactive.Value(False)
     progress1    = reactive.Value("0%")
@@ -72,8 +71,7 @@ def server_desarollo(input, output, session, name_suffix):
                     user_id_send.set(user_id_cleaned)
                     directorio_desarollo.set(user)
                     ##voy a usar la clase como efecto reactivo, ya que si queda encapsulada dentro de la funcion no la podria usar
-                    screen_instance.set(ScreenClass(directorio_desarollo.get(), name_suffix))
-
+                    
    ##llamo funcion
     see_session()
 
@@ -96,11 +94,7 @@ def server_desarollo(input, output, session, name_suffix):
         global_session_V2.count_global.set(1) 
         return  ui.modal_remove()    
     
-    @output
-    @render.ui
-    def error_in_desarollo():
-        return screen_instance.get().mensaje_Error.get()
-
+    
     @output
     @render.data_frame
     def summary_data_validacion_in_sample():
@@ -109,7 +103,8 @@ def server_desarollo(input, output, session, name_suffix):
     @output(id=f"summary_data_{name_suffix}")
     @render.data_frame
     def summary_data_desarollo():
-        return render_data_summary(global_session.get_data_set_reactivo())
+        return render.DataGrid(render_data_summary(global_session.get_data_set_reactivo()))
+        #return render_data_summary(global_session.get_data_set_reactivo())
         #return screen_instance.get().render_data_summary()
 
     @output
@@ -154,15 +149,13 @@ def server_desarollo(input, output, session, name_suffix):
         click_count_value = global_desarollo.click_counter.get()  # Obtener contador
         mensaje_value = global_desarollo.mensaje.get()  # Obtener mensaje actual
         proceso = global_desarollo.get_proceso()
-        porcentaje = global_desarollo.porcentaje.get()
         base_datos = 'Modeling_App.db'
         
         global_session.get_id_version()
         validar_si_existe_version = check_if_exist_id_version(global_session.get_id_version())
         if validar_si_existe_version:
-            ui.modal_show(create_modal_generic("boton_advertencia_ejecute_desa", f"Es obligatorio generar una versión para continuar en {global_name_desarrollo}."))
-            return
-        
+            return ui.modal_show(create_modal_generic("boton_advertencia_ejecute_desa", f"Es obligatorio generar una versión para continuar en {global_name_desarrollo}."))
+            
         validacion_existencia_modelo =  verificar_estado_modelo(base_datos, version_id=global_session.get_id_version(), dataset_id=global_session.get_id_dataSet())
         
         if validacion_existencia_modelo:

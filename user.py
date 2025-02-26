@@ -21,6 +21,8 @@ from logica_users.utils.manejo_session import manejo_de_ultimo_seleccionado
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo import help_models 
 from api.session_api import consultar_session_api
+import redis
+
 from funciones.validacionY_Scoring.consultas import comparar_ultimo_file_por_ejecucion
 
 def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
@@ -40,6 +42,10 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
     base_datos = 'Modeling_App.db'
     
     
+
+    # Conectar a Redis
+    redis_client = redis.Redis(host='localhost', port=6379, db=0)
+
     def see_session():
         @reactive.effect
         async def enviar_session():
@@ -53,16 +59,14 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                     user_id_hash = obtener_o_insertar_usuario(base_datos, user_id_hash)
                     global_session.has_id_user.set(user_id_hash)
                     global_session.id_user.set(user_id)
-                    print("antes de issert!")
                     insertar_usuario_si_no_existe(base_datos, global_session.has_id_user.get())
-                    # -> llamo a el valor reactivo para tener la lista de los proyectos por user, dinamicamente, apretar control t y ver la funcion
                     global_session.set_proyectos_usuarios(get_user_projects(user_id))
                     user_get.set(user_id.replace('|', '_'))
                     proyectos_usuario.set(get_user_projects(global_session.get_id_user()))
-        
-                    #ui.update_select("project_select",choices=proyectos_choise, selected=key_proyecto_mach if key_proyecto_mach else next(iter(proyectos_choise), ""))
-        
+                    #redis_client.setex(f"user:{user_id}", 3600, user_id)
+
                     
+                                
 
     see_session()
 
@@ -319,7 +323,9 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         'version': input.cancelar_eliminar,  
         'cancel_user': input.cancelar,
         'cancelar_version': input.cancelar_version,
-        'cancel_overwrite_Desarrollo': input.cancel_overwrite_Desarrollo
+        'cancel_overwrite_Desarrollo': input.cancel_overwrite_Desarrollo,
+        'boton_advertencia_ejecute_of_insa': input.boton_advertencia_ejecute_of_insa,
+        'modal_existe_of': input.modal_existe_of
     })
     
 
