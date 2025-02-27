@@ -1,13 +1,2 @@
-# Ignorar el archivo .env
-env
-
-# Ignorar la carpeta auth
-auth/
-
 __pycache__/
-
-__pycache__/
-
-main.py
-
-api/
+*.pyc
