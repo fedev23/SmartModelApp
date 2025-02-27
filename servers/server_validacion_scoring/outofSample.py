@@ -46,9 +46,6 @@ def server_out_of_sample(input, output, session, name_suffix):
             return crate_file_input_y_seleccionador()
    
     
-   
-
-
     @output
     @render.text
     def error_in_validacion():
@@ -103,8 +100,6 @@ def server_out_of_sample(input, output, session, name_suffix):
                 global_session_V3.id_validacion_scoring.set(id_version_score)
         
                 input_target_of_sample = input['selectize_columnas_target']()
-                print(input_target_of_sample)
-                #input_target_of_sample = cambiarAstring(input_target_of_sample)
                 validator.validate_target_column_of_sample(input_target_of_sample)
                 
                 error_messages = validator.get_errors()
@@ -191,21 +186,6 @@ def server_out_of_sample(input, output, session, name_suffix):
     def mensaje_of_sample():
         return modelo_of_sample.mostrar_mensaje()
     
-    
-    
-    @reactive.Effect
-    @reactive.event(input.cancel_overwrite_of_sample)
-    def validacion_out_to_Sample_model_run():
-         return  ui.modal_remove()
-        
-    
-
-    
-    @reactive.Effect
-    @reactive.event(input["continuar_no_overwrite_of_sample"])
-    def valid_model_of_sample():
-        modelo_of_sample.pisar_el_modelo_actual.set(True)
-        return  ui.modal_remove()
     
     
     

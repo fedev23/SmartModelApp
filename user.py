@@ -63,11 +63,14 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
                     global_session.set_proyectos_usuarios(get_user_projects(user_id))
                     user_get.set(user_id.replace('|', '_'))
                     proyectos_usuario.set(get_user_projects(global_session.get_id_user()))
+                else:
+                    await session.send_custom_message("logout", {"redirect_url": "http://localhost:3000/login"})
+                    await session.close()
+        
                     #redis_client.setex(f"user:{user_id}", 3600, user_id)
 
                     
-                                
-
+                    
     see_session()
 
           
@@ -325,7 +328,12 @@ def user_server(input: Inputs, output: Outputs, session: Session, name_suffix):
         'cancelar_version': input.cancelar_version,
         'cancel_overwrite_Desarrollo': input.cancel_overwrite_Desarrollo,
         'boton_advertencia_ejecute_of_insa': input.boton_advertencia_ejecute_of_insa,
-        'modal_existe_of': input.modal_existe_of
+        'modal_existe_of': input.modal_existe_of,
+        'boton_advertencia_ejecute_desa': input.boton_advertencia_ejecute_desa,
+        'cancel_overwrite_desarrollo': input.cancel_overwrite_desarrollo,
+        'continuar_no_overwrite_desarollo': input.continuar_no_overwrite_desarollo,
+        'cancel_overwrite_of_sample': input.cancel_overwrite_of_sample,
+        'continuar_no_overwrite_of_sample': input.continuar_no_overwrite_of_sample
     })
     
 

@@ -69,9 +69,9 @@ middleware = [
                allow_methods=["*"],
                allow_headers=["*"],
                allow_credentials=True),
-    Middleware(SessionMiddleware, secret_key=secret_key, max_age=1200, https_only=False),
+    Middleware(SessionMiddleware, secret_key=secret_key, max_age=7200, https_only=False),
     Middleware(AuthMiddleware),
-]
+]   
 
 
 # Define the routes for Starlette

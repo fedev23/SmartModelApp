@@ -177,6 +177,36 @@ def generar_paths_insa(global_session):
     return path_datos_entrada, path_datos_salida
 
 
+def generar_paths_desa(global_session):
+    """
+    Genera los paths de entrada y salida basados en los valores de `global_session` para el módulo Automat.
+
+    :param global_session: Objeto con métodos `get_id_user()`, `get_id_proyecto()`, `get_name_proyecto()`,
+                         `get_id_version()`, y `get_versiones_name()`.
+    :return: Tupla con (path_datos_entrada, path_datos_salida)
+    """
+    base_path = "/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat"
+
+    user_id = global_session.get_id_user()
+    proyecto_id = global_session.get_id_proyecto()
+    proyecto_nombre = global_session.get_name_proyecto()
+    version_id = global_session.get_id_version()
+    version_nombre = global_session.get_versiones_name()
+
+    # Construcción de paths
+    path_datos_entrada = (
+        f"{base_path}/datos_entrada_{user_id}/"
+        f"proyecto_{proyecto_id}_{proyecto_nombre}/"
+        f"version_{version_id}_{version_nombre}"
+    )
+
+    path_datos_salida = (
+        f"{base_path}/datos_salida_{user_id}/"
+        f"proyecto_{proyecto_id}_{proyecto_nombre}/"
+        f"version_{version_id}_{version_nombre}"
+    )
+
+    return path_datos_entrada, path_datos_salida
 
 def generar_paths_of_sample_y_scoring(global_session, global_session_V2, tipo='entrada'):
     """

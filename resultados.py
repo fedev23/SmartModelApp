@@ -6,6 +6,7 @@ from clases.class_user_proyectName import global_user_proyecto
 from api.db import *
 import os
 from clases.global_sessionV2 import *
+from logica_users.utils.manejo_session import *
 from servers.utils.get_paths import get_output_path
 
 
@@ -252,20 +253,24 @@ def server_resul(input, output, session, name_suffix):
     
     @render.download(filename="Resultados completos de desarrollo.zip")
     def descargar_resultados_desarollo():
-        file_path = f"/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/Reportes"              
+        path_entrad, path_salida = generar_paths_desa(global_session)
+        file_path = f"{path_salida}/Reportes"
         return resultado_desarrollo.descargar_resultados(file_path)
     
     @render.download(filename="Resultados completos de Niveles & scorecards.zip")
     def descargar_resultados_validacion():
-        path_in_sample_resultados =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}/Reportes'         
+        path_salida, path_salida = generar_paths_insa(global_session)      
+        path_in_sample_resultados = f"{path_salida}/Reportes"
         return resultado_in_sample.descargar_resultados(path_in_sample_resultados)
     
     @render.download(filename="Resultados completos de Out-of-Sample.zip")
     def descargar_resultados_validacion_out_to_sample():
-        path_of_sample_resultados =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}/{global_session_V2.nombre_file_sin_extension_validacion_scoring.get()}/Reportes'
+        path = generar_paths_of_sample_y_scoring(global_session, global_session_V2, 'salida')
+        path_of_sample_resultados = f"{path}/Reportes"
         return resultado_class_instance.descargar_resultados(path_of_sample_resultados)
     
     @render.download(filename="Resultados completos de Producción.zip")
     def descargar_resultados_produccion():
-        salida =  f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}/{global_session_V2.nombre_file_sin_extension_validacion_scoring.get()}/Reportes'
+        path = generar_paths_of_sample_y_scoring(global_session, global_session_V2, 'salida')
+        salida = f"{path}/Reportes"
         return resultado_class_instance_produccion.descargar_resultados(salida)

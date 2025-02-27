@@ -21,7 +21,7 @@ from api.db.sqlite_utils import *
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.global_estados_model import global_session_modelos
 from funciones_modelo.help_models import *
-import asyncio, time
+from logica_users.utils.manejo_session import generar_paths_desa
 
 
 
@@ -203,9 +203,7 @@ def server_desarollo(input, output, session, name_suffix):
 
                 ##NECESITO NOMBRE DEL PROYECTO Y NOMBRE DE LA VERSION NO ORIGINAL, SINO MAS BIEN CON ESPACIOS
                 
-                path_datos_entrada = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
-                path_datos_salida  = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_salida_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
-                
+                path_datos_entrada, path_datos_salida = generar_paths_desa(global_session) 
                 global_desarollo.porcentaje_path = path_datos_salida
                 ##necesito tener el nombre del dataset seleccionado asi le cambio el nombre y lo
                 data_Set  = get_datasets_directory(global_session.get_id_user(), global_session.get_id_proyecto(), global_session.get_name_proyecto())
@@ -247,28 +245,6 @@ def server_desarollo(input, output, session, name_suffix):
     def error():
       return mostrar_error(mensaje.get())
   
-  
-  
-    @reactive.Effect
-    @reactive.event(input["continuar_no_overwrite_desarollo"])
-    def valid_model_of_sample():
-        global_desarollo.pisar_el_modelo_actual.set(True)
-        return  ui.modal_remove()
-               
-        
-    
-    @reactive.Effect
-    @reactive.event(input["cancel_overwrite_desarrollo"])
-    def cancelar():
-        return ui.modal_remove()
-  
-    
-    @reactive.effect
-    @reactive.event(input.boton_advertencia_ejecute_desa)
-    def ok_no():
-        return ui.modal_remove()
-    
-    
             
         
     # Asegúrate de definir estas variables en un ámbito global (o en un objeto persistente)
