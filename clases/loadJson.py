@@ -7,19 +7,20 @@ from funciones.utils_2 import get_user_directory
 from clases.global_session import *
 
 class LoadJson:
-    def __init__(self, user_id ,input=None):
+    def __init__(self ,input=None):
         self.input = input
         self.inputs = {}
         self.json = {}
-        self.user_id = user_id
+        self.in_sample = reactive.value(False)
+        #self.user_id = user_id
 
     def loop_json(self):
         try:
             self.inputs = {
-                "nombre_archivo": self.input["file_desarollo"](),
+                "nombre_archivo": self.inputs.get("file_desarollo"),
                 "par_split": self.input["par_split"](),
                 "par_ids": self.inputs.get("par_ids"),
-                "par_target": self.inputs.get("par_target"),
+                "par_target": self.input["par_target"](),
                 "cols_forzadas_a_predictoras": self.inputs.get("cols_forzadas_a_predictoras"),
                 "par_var_grupo": self.inputs.get("par_var_grupo"),
                 "cols_forzadas_a_cat": self.inputs.get("cols_forzadas_a_cat"),
@@ -33,8 +34,8 @@ class LoadJson:
                 "par_nbins1": self.input["par_nbins1"](),
                 "par_nbins2": self.input["par_nbins2"](),
                 "par_maxlevels": self.input["par_maxlevels"](),
-                "par_limit_by_minbinq": self.input["par_limit_by_minbinq"](),
-                "par_limit_by_minbinw": self.input["par_limit_by_minbinw"](),
+                "par_minpts_nulos": self.input["par_minpts_nulos"](),
+                "par_conf_level": self.input["par_conf_level"](),
                 "par_iv_cuantiles_gb_min": self.input["par_iv_cuantiles_gb_min"](),
                 "par_iv_tot_min": self.input["par_iv_tot_min"](),
                 "par_iv_tot_gb_min": self.input["par_iv_tot_gb_min"](),
@@ -42,16 +43,15 @@ class LoadJson:
                 "par_rango_niveles": self.inputs.get("par_rango_niveles", {}),
                 "par_rango_segmentos": self.inputs.get("par_rango_segmentos", {}),
                 "par_rango_reportes": self.inputs.get("par_rango_reportes", {}),
-                "par_times": self.input["par_times"](),
                 "par_cant_reportes": self.input["par_cant_reportes"](),
+                "par_times": self.input["par_times"](),
                 "delimiter_desarollo": self.inputs.get("delimiter_desarollo"),
                 "proyecto_nombre": self.inputs.get("proyecto_nombre"),
                 "file_validation": self.input["file_validation"](),
-                "file_produccion": self.input["file_produccion"](),
                 "par_minpts_cat": self.input["par_minpts_cat"](),
                 "par_minpts2": self.input["par_minpts2"](),
                 "par_perf_bins": self.input["par_perf_bins"](),
-                "par_weight": self.input["par_weight"]()
+                "par_weight": self.inputs.get("par_weight"),
 
             }
 
@@ -67,6 +67,12 @@ class LoadJson:
                     "value": self.inputs["par_split"],
                     "Descripción": "",
                     "type": "numeric",
+                },
+                {
+                    "parameter": "par_quick",
+                    "value": "1",
+                    "Descripción": "Cuadernos rápidos?",
+                    "type": "numeric"
                 },
                 {
                     "parameter": "par_ids",
@@ -173,9 +179,9 @@ class LoadJson:
                     "type": "numeric",
                 },
                 {
-                    "parameter": "par_limit_by_minbinq",
-                    "value": self.inputs["par_limit_by_minbinq"],
-                    "Descripción": "Medir el tamaño de los bines según su cantidad de casos",
+                    "parameter": "par_minpts_nulos",
+                    "value": self.inputs["par_minpts_nulos"],
+                    "Descripción": "Nro. de casos mínimos para asignar WoE a nulos",
                     "type": "numeric",
                 },
                 {
@@ -184,9 +190,9 @@ class LoadJson:
                     "type": "string"
                 },
                 {
-                    "parameter": "par_limit_by_minbinw",
-                    "value": self.inputs["par_limit_by_minbinw"],
-                    "Descripción": "Medir el tamaño de los bines según su peso dado par_weight",
+                    "parameter": "par_conf_level",
+                    "value": self.inputs["par_conf_level"],
+                    "Descripción": "Límite para descartar variables por test de Chi-Sq en Forward",
                     "type": "numeric",
                 },
                 {
@@ -295,13 +301,13 @@ class LoadJson:
                 },
                 {
                     "parameter": "data_source_val_delim_path",
-                    "value": self.inputs["file_validation"],
+                    "value": "./Datos/Muestra_Validación.txt",
                     "Descripción": "Ubicación del archivo de datos de validación en formato plano",
                     "type": "string"
                 },
                 {
                     "parameter": "data_source_scoring_delim_path",
-                    "value": self.inputs["file_validation"],
+                    "value":"./Datos/Muestra_Scoring.txt",
                     "Descripción": "Ubicación del archivo de datos para scoring en formato plano",
                     "type": "string"
                 }
@@ -314,10 +320,11 @@ class LoadJson:
         except Exception as e:
             print(f"Ocurrió un error inesperado: {str(e)}")
             traceback.print_exc()
-
         # Crear la lista de diccionarios en el formato deseado
         #get_user_directory(self.user_id)
-        directorio_guardado = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{self.user_id}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+        directorio_guardado = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
+        #ruta_json = os.path.join(directorio_guardado, 'Control_de_SmartModelStudio.json')
+
         #C:\Users\fvillanueva\Desktop\SmartModel_new_version\new_version_new\Automat\datos_entrada_auth0_670fc1b2ead82aaae5c1e9ba\proyecto_62_test now\version__Version ver
         ruta_json = os.path.join(
             directorio_guardado, 'Control de SmartModelStudio.json')
@@ -327,19 +334,51 @@ class LoadJson:
         return ruta_json
 
     def load_json(self):
-        directorio_guardado = r'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada'
+        directorio_guardado = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}'
         ruta_json = os.path.join(directorio_guardado, 'Control de SmartModelStudio.json')
         if os.path.exists(ruta_json):
             with open(ruta_json, 'r', encoding='utf-8') as file:
                 self.inputs = json.load(file)
                 # print("Valores cargados:", self.inputs)
                 return self.inputs
+            
 
-    def get_json_value(self, parameter, default_value=None):
-        for item in self.inputs:  # Assuming self.inputs is the loaded JSON data
-            if isinstance(item, dict) and item.get('parameter') == parameter:
-                return item.get('value', default_value)
-        return default_value
+    def update_values(self, updates):
+        """
+        Actualiza el JSON cargado con los valores proporcionados en un diccionario.
+        :param updates: Diccionario donde las claves son los nombres de los parámetros ('parameter')
+                        y los valores son los nuevos valores ('value').
+        :return: Lista de diccionarios actualizada.
+        """
+        # Cargar los valores actuales del JSON
+        valores = self.load_json()
+        if not valores:
+            print("No se encontraron valores para actualizar. JSON vacío o no cargado.")
+            return []
+
+        # Recorrer las actualizaciones y aplicar los cambios
+        for update_key, update_value in updates.items():
+            actualizado = False
+            for item in valores:
+                # Si el parámetro existe, actualizamos su valor
+                if item.get('parameter') == update_key:
+                    print(f"Actualizando {update_key}: {item['value']} -> {update_value}")
+                    item['value'] = update_value
+                    break
+
+        # Guardar los cambios en self.inputs y devolver los valores actualizados
+        self.inputs = valores
+        return valores
+                
+
+    def save_json(self):
+        directorio_guardado = f'/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat/datos_entrada_{global_session.get_id_user()}/proyecto_{global_session.get_id_proyecto()}_{global_session.get_name_proyecto()}/version_{global_session.get_id_version()}_{global_session.get_versiones_name()}/version_parametros_{global_session.get_version_parametros_id()}_{global_session.get_versiones_parametros_nombre()}'
+        ruta_json = os.path.join(directorio_guardado, 'Control de SmartModelStudio.json')
+
+        os.makedirs(directorio_guardado, exist_ok=True)  # Asegurarse de que exista el directorio
+        with open(ruta_json, 'w', encoding='utf-8') as file:
+            json.dump(self.inputs, file, ensure_ascii=False, indent=4)
+
 
 
 #global_json = LoadJson()

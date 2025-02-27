@@ -692,3 +692,20 @@ background: #0a0a0a;
 .file-alignment select {
     height: 2.5rem; /* Asegura que ambos tengan la misma altura */
 }
+
+
+
+
+.custom-card-desa {
+    min-height: 150px; /* Define la altura mínima */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Asegura que los elementos dentro de la tarjeta estén distribuidos */
+}
+
+
+.equal-width-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+}

@@ -2,10 +2,6 @@ from shiny import App, ui, reactive
 from clases.loadJson import LoadJson
 from clases.global_session import global_session
 
-user_id = global_session.obtener_id()
-json_loader = LoadJson(user_id=user_id)
-previous_values = json_loader.load_json()
-
 data = [
     {"Nombre Nivel": "BajoBajo", "Regla": "score > 955", "Tasa de malos máxima": "3.0%"},
     {"Nombre Nivel": "BajoMedio", "Regla": "score > 930", "Tasa de malos máxima": "6.0%"},

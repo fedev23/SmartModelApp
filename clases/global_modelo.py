@@ -7,7 +7,11 @@ global_desarollo = ModeloProceso(
     name_file = "", 
     mensaje_id = "mensaje_desarrollo",
     script_name="",
-    script_path=""
+    script_path="",
+    estado= "",
+    hora = "",
+    porcentaje_path= "",
+    script_path_tablero = ""
 )
 
 modelo_in_sample = ModeloProceso(
@@ -16,7 +20,11 @@ modelo_in_sample = ModeloProceso(
         name_file = "", 
         directorio=r"/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat",
         script_name="",
-        script_path="" 
+        script_path="" ,
+        estado= "",
+        hora = "",
+        porcentaje_path= "",
+        script_path_tablero = ""
     )
 
 
@@ -26,7 +34,13 @@ modelo_of_sample = ModeloProceso(
         mensaje_id= "mensaje_of_sample",
         directorio=r"/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat",
         script_name="",
-        script_path=""
+        script_path="",
+        estado= "",
+        hora = "",
+        porcentaje_path= "",
+        script_path_tablero = ""
+        
+        
     )
 
 
@@ -37,7 +51,11 @@ modelo_produccion = ModeloProceso(
         mensaje_id= "mensaje_produccion", 
         directorio=r"/mnt/c/Users/fvillanueva/Desktop/SmartModel_new_version/new_version_new/Automat",
         script_name="Levantar_Contenedor.sh",
-        script_path=""
+        script_path="",
+        estado= "",
+        hora = "",
+        porcentaje_path= "",
+        script_path_tablero = ""
     )
 
 

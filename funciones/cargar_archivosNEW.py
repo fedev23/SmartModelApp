@@ -1,5 +1,6 @@
 from clases.class_cargar_datos import CargarDatos
 import os
+from shiny import ui
 from clases.global_session import *
 from clases.global_name import global_name_manager
 from api.db import *
@@ -64,7 +65,7 @@ def mover_y_renombrar_archivo(nombre_archivo, directorio_base, name_suffix, dest
         elif name_suffix == 'desarrollo':
             nuevo_nombre = "Muestra_Desarrollo.txt"
         elif name_suffix == 'in_sample':
-            nuevo_nombre = "Muestra_InSample.txt"
+            nuevo_nombre = "Muestra_Desarrollo.txt"
         else:
             raise ValueError(f"Sufijo desconocido: {name_suffix}")
 
@@ -84,5 +85,51 @@ def mover_y_renombrar_archivo(nombre_archivo, directorio_base, name_suffix, dest
         print(f"Error de valor: {e}")
         raise
     except Exception as e:
-        print(f"Error inesperado: {e}")
+        print(f"Error inesperado en mover files: {e}")
         raise
+    
+    
+
+def create_modal_warning_exist_file(file_name, name, nombre_proyecto):
+        return ui.modal(
+            ui.tags.div(
+            ui.row(
+                ui.column(
+                    12,
+                    ui.tags.p(
+                        f"El archivo '{file_name}' ya existe en el proyecto: {nombre_proyecto}.",
+                        style="color: #d9534f; font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 20px;"
+                    ),
+                     style="padding: 10px; border: 1px solid #d9534f; border-radius: 5px; background-color: #f2dede;"
+                    
+                ),
+            )
+        ),
+            title=ui.tags.div(
+            "⚠️ Advertencia",
+            style="color: #f0ad4e; font-size: 20px; font-weight: bold; text-align: center;"
+        ),
+            easy_close=True,
+            size='xs',
+            footer=ui.input_action_button(f"cancel_overwrite_{name}", "Cancelar", style="margin-left: 10px;")
+        )
+        
+
+
+def create_modal_warning_exist_file_for_full_or_sc(file_name, name):
+        return ui.modal(
+            ui.tags.div(
+            ui.row(
+                ui.column(
+                    12,
+                    ui.tags.p(
+                        f"El archivo '{file_name}' ya existe en la version en el sistema de archivos."
+                    )
+                ),
+            )
+        ),
+            title="Advertencia",
+            easy_close=True,
+            size='xs',
+            footer=ui.input_action_button(f"cancel_overwrite_{name}", "Cancelar", style="margin-left: 10px;")
+        )

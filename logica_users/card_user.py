@@ -1,98 +1,140 @@
 from shiny import App, Inputs, Outputs, Session, reactive, ui, render, module
-from funciones.nav_panel_User import create_nav_menu_user
-from clases.class_user_proyectName import global_user_proyecto
+
 from api import *
 from clases.global_session import global_session
-from clases.global_reactives import global_estados
-
 
 def user_ui(input: Inputs, output: Outputs, session: Session, name_suffix):
 
     @output
     @render.ui
     def devolver_acordeon():
-        projects = global_session.get_proyectos_usuarios()  # Obtiene la lista actual de proyectos
-        
-        if projects:
-            project_options = {
-                str(project['id']): project['name'] for project in projects
-            }
+        # Obtiene la lista actual de proyectos
+        projects = global_session.get_proyectos_usuarios()
 
-            return ui.div(
-                # Fila principal con seleccionadores y botones alineados
-                ui.row(
-                    # Seleccionador 1 y botón Crear Proyecto
-                    ui.column(
-                        12,
-                        ui.div(
-                            ui.input_select(
-                                "project_select",
-                                "",
-                                project_options,
-                                width="50%"
-                            ),
-                            ui.input_action_button(
-                                f"start_{name_suffix}",
-                                "+ Crear Proyecto",
-                                class_="btn btn-dark ml-3"
-                            ),
-                            ui.output_ui("project_card_container"),
-                            class_="d-flex align-items-center gap-3 mb-3",
-                            style="margin-top: -5px;"   
-                        )
-                    ),
-                    # Seleccionador 2 y botón Crear Versión
-                    ui.column(
-                        12,
-                        #ui.row(
-                        ui.div(
-                            ui.input_select(
-                                "other_select",
-                                "",
-                                {"a": "a"},
-                                width="50%"
-                            ),
-                            ui.input_action_button(
-                                f"version_{name_suffix}",
-                                "+ Crear Versión",
-                                class_="btn btn-dark ml-3"
-                            ),
-                            ui.output_ui("button_remove_versions"), 
-                            class_="d-flex align-items-center gap-3 mb-3",
-                            style="margin-top: -5px;"   
-                        )
-                       
-                    ),
-                    # Seleccionador de Archivos y InputFile alineados correctamente
-                    ui.column(
-                        12,
-                        ui.div(
-                            ui.input_select(
-                                "files_select",
-                                "",
-                                {'a': "Archivo A", 'b': "Archivo B"},
-                                width="50%",
-                                #style="margin-top: -2px;"
-                            ),  ui.HTML("<div style='width: 15px;'></div>"),
-                            
-                            ui.div(
-                                ui.input_file(
-                                    "file_desarollo",
-                                    "",
-                                    placeholder="Seleccione un archivo",
-                                    button_label="+",
-                                    accept=[".csv", ".txt"],
-                                    width="100%"
-                                ),
 
-                            ),
-                            ui.HTML("<div style='width: 10px;'></div>"),
-                            ui.output_ui("remove_dataset"),  
-                            class_= "d-flex justify-content-end:" , 
-                            style="margin-top: -5px;"          
-                            #class_="file-input-container d-flex align-items-center gap-3 mb-3"
-                        ),
-                        
-                    )
+        return ui.page_fluid(
+
+    # Primera fila
+    ui.row(
+        # Primera columna
+        ui.column(
+            5,
+            ui.div(
+                ui.tags.span("Proyecto:", style="margin-right: 10px; font-weight: bold; width: 150px; display: inline-block;"),
+                ui.input_select(
+                    "project_select",
+                    "",
+                    {"a" : "No hay proyectos."},
+                    width="50%"
                 ),
-            )
+                ui.div(
+                    ui.input_action_link(
+                        f"start_{name_suffix}",
+                        ui.tags.i(
+                        class_="fa fa-plus-circle fa-2x",
+                        style="""
+                            color: #0056A3;  /* Azul corporativo medio */
+                            transition: color 0.2s ease-in-out, transform 0.1s ease-in-out;
+                            cursor: pointer;
+                        """,
+                        onmouseover="this.style.color='#003E7E'; this.style.transform='scale(1.05)';",
+                        onmouseout="this.style.color='#0056A3'; this.style.transform='scale(1)';"
+                    )
+                    ),
+                    ui.output_ui("project_card_container"),
+                    class_="d-flex align-items-stretch gap-3 mb-3"
+                ),
+                class_="d-flex align-items-stretch gap-3 mb-3"
+            ),
+        ),
+
+        # Segunda columna
+        ui.column(
+            5,
+            ui.div(
+                ui.tags.span("Versión:", style="margin-right: 10px; font-weight: bold; width: 150px; display: inline-block;"),
+                ui.input_select(
+                    "other_select",
+                    "",
+                    {"a": "No hay versiones."},
+                    width="50%"
+                ),
+                ui.div(
+              ui.input_action_link(
+    f"version_{name_suffix}",
+        ui.tags.i(
+            class_="fa fa-plus-circle fa-2x",
+            style="""
+                color: #0056A3;  /* Azul corporativo medio */
+                transition: color 0.2s ease-in-out, transform 0.1s ease-in-out;
+                cursor: pointer;
+            """,
+            onmouseover="this.style.color='#003E7E'; this.style.transform='scale(1.05)';",
+            onmouseout="this.style.color='#0056A3'; this.style.transform='scale(1)';"
+        )
+        ),
+
+                    ui.output_ui("button_remove_versions"),
+                    class_="d-flex align-items-stretch gap-3 mb-3"
+                ),
+                class_="d-flex align-items-stretch gap-3 mb-3"
+            ),
+        ),
+    ),
+
+    # Segunda fila
+    ui.row(
+    # Tercera columna
+    ui.column(
+        5,
+        ui.div(
+            # Etiqueta "Niveles & ScoreCards"
+            ui.tags.span(
+                "Niveles & ScoreCards:",
+                style="margin-right: 10px; font-weight: bold; width: 150px; display: inline-block;"
+            ),
+            # Selector de versión
+            ui.input_select(
+                "version_selector",
+                "",
+                {"a": "No hay versiones."},
+                width="50%"
+            ),
+            # Botón de acción y output
+            ui.div(
+                ui.input_action_link(
+                    "create_parameters",
+                    ui.tags.i(
+            class_="fa fa-plus-circle fa-2x",
+            style="""
+                color: #0056A3;  /* Azul corporativo medio */
+                transition: color 0.2s ease-in-out, transform 0.1s ease-in-out;
+                cursor: pointer;
+            """,
+            onmouseover="this.style.color='#003E7E'; this.style.transform='scale(1.05)';",
+            onmouseout="this.style.color='#0056A3'; this.style.transform='scale(1)';"
+        )
+                ),
+                ui.output_ui("button_remove_versions_params"),
+                class_="d-flex align-items-center gap-3 mb-3"
+            ),
+            class_="d-flex align-items-center gap-3 mb-3"
+        ),
+        
+    ),
+    ui.column(
+            5,
+            ui.div(
+            ui.tags.span(
+                "Archivo de desarrollo:",
+                style="margin-right: 10px; font-weight: bold; width: 150px; display: inline-block;"
+            ),
+            ui.output_text_verbatim("show_data_Set_in_card_user", placeholder=False),
+            #ui.output_ui("show_data_Set_in_card_user"),
+            class_="d-flex align-items-center gap-3 mb-3"
+        ),
+        class_="d-flex align-items-center gap-3 mb-3"
+        )
+)
+
+)

@@ -6,6 +6,7 @@ import csv
 from api.db import *
 from datetime import datetime
 from clases.global_session import *
+from clases.loadJson import LoadJson
 
 class CargarDatos:
     def __init__(self, file_info, directorio_guardado):
@@ -27,9 +28,11 @@ class CargarDatos:
         
         file_path = self.file_info[0]["datapath"]
         file_name = self.file_info[0]["name"]
-        print(file_name, "estoy en el name del file")
         delimitador_detectado = self.detectar_delimitador(file_path)
         global_estados.set_delimitador(delimitador_detectado)
+        #load_handler = LoadJson(input)
+        #load_handler.inputs['delimiter_desarollo'] =  global_estados.get_delimitador()
+        
         
         
         if file_name.endswith(".csv"):

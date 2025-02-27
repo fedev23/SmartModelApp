@@ -21,6 +21,10 @@ class GlobalSession:
         self.path_niveles_scorcads_salida =  reactive.Value(None)
         self.path_datos_entrada = reactive.Value(None)
         self.path_datos_salida = reactive.Value(None)
+        self.id_version_v2 = reactive.Value(None)
+        self.value_min_for_seg = reactive.Value(3)
+        self.value_max_for_seg = reactive.Value(8)
+        self.has_id_user = reactive.Value(None)
         
         
     def actualizar_directorio(self, nuevo_directorio):
@@ -43,7 +47,9 @@ class GlobalSession:
         self.id_version.set(id)
     
     def get_id_version(self):
-        return self.id_version.get()  
+        return self.id_version.get() 
+    
+     
     
     def set_id_user(self, id):
         self.id_user.set(id)

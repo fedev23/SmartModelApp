@@ -11,11 +11,9 @@ class GlobalName:
          
         
     def set_name_file(self, file_name):
-        """Establece el nombre del archivo en la variable reactiva."""
         self.name_file.set(file_name)
     
     def get_name_file(self):
-        """Obtiene el nombre del archivo de la variable reactiva."""
         return self.name_file.get()
         
     def set_name_in_sample(self, file_name):
