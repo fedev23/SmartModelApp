@@ -6,4 +6,6 @@ main.py
 
 api/
 
+.env/
+
 .env
